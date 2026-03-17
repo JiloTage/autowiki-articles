@@ -1,0 +1,12 @@
+{
+  "last_phase": null,
+  "expansion_frontier": [],
+  "settings": {
+    "max_agents": 3,
+    "max_depth": 2,
+    "max_total_articles": 50,
+    "language": "ja"
+  },
+  "created_at": null,
+  "updated_at": null
+}

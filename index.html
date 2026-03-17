@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-Wiki</title>
+  <link rel="stylesheet" href="assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="#graph">サイトグラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Auto-Wiki</h1>
+    <p>自己増殖する知識ベース — 記事は自動的に拡張され、相互にリンクされます</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">0</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">0</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="記事を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p>Auto-Wiki — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="assets/js/graph.js"></script>
+<script src="assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph');
+    AutoWikiSearch.init('search-input', 'search-results');
+  });
+</script>
+</body>
+</html>
