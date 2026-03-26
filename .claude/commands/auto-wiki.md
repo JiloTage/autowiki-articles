@@ -18,12 +18,13 @@ description: "Self-expanding wiki - orchestrator that coordinates article creati
 ## Usage
 
 ```
-/auto-wiki [topic] --wiki [wiki-id]          # 新規wiki作成 → Phase 1 → Phase 2
-/auto-wiki --wiki [wiki-id] --resume         # 前回セッションから続行 → Phase 2
-/auto-wiki --wiki [wiki-id] --feedback "slug" # 記事へのフィードバック → Phase 3
-/auto-wiki --wiki [wiki-id] --request "topic" # 新規記事リクエスト → Phase 4
-/auto-wiki --wiki [wiki-id] --expand         # 手動で拡張サイクル実行 → Phase 2
-/auto-wiki --max-agents N                    # サブエージェント数上限（デフォルト: 3）
+/auto-wiki 人工知能                         # wikiを自動作成（IDはトピックから生成）
+/auto-wiki 人工知能 --wiki custom-id        # wiki IDを明示指定
+/auto-wiki --resume                         # wikiが1つなら自動選択
+/auto-wiki --feedback "slug"                # wikiが1つなら自動選択
+/auto-wiki --request "新トピック"            # wikiが1つなら自動選択
+/auto-wiki --expand                         # wikiが1つなら自動選択
+/auto-wiki --max-agents N                   # サブエージェント数上限（デフォルト: 3）
 ```
 
 ## 実行手順
@@ -34,7 +35,15 @@ description: "Self-expanding wiki - orchestrator that coordinates article creati
 
 `$ARGUMENTS` を解析し、以下を判定:
 
-1. `--wiki` フラグからwiki-idを取得（必須）
+1. `--wiki` の解決（以下の優先順位）:
+   - `--wiki ID` が明示指定されていればそのまま使用
+   - 新規作成時（トピック指定あり）: トピックからIDを自動生成
+     - 日本語: ローマ字変換 → kebab-case（例: "人工知能" → "jinkou-chinou"）
+     - 英語: kebab-case（例: "Quantum Physics" → "quantum-physics"）
+   - 既存操作時（--resume, --expand, --feedback, --request）:
+     - wikiが1つだけ存在 → 自動選択
+     - wikiが複数存在 → 一覧を表示してユーザーに選択を促す
+     - wikiが0個 → エラー
 2. wikiが未作成の場合は `uv run awiki wiki create` で作成
 
 | 条件 | Phase | ディスパッチ先 |

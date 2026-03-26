@@ -57,11 +57,23 @@ def _parse_list(s: str) -> list[str]:
     return [x.strip() for x in s.split(",") if x.strip()]
 
 
-def _require_wiki(args) -> str:
-    if not args.wiki:
-        print(json.dumps({"error": "--wiki is required"}), file=sys.stderr)
-        sys.exit(1)
-    return args.wiki
+def _resolve_wiki(args) -> str:
+    """Resolve wiki ID: use --wiki if given, auto-select if only one exists, error otherwise."""
+    if args.wiki:
+        return args.wiki
+    # Auto-select if exactly one active wiki exists
+    reg = db.wiki_list()
+    active = [w for w in reg.get("wikis", {}).values() if w.get("status") == "active"]
+    if len(active) == 1:
+        wiki_id = active[0]["id"]
+        print(json.dumps({"auto_selected_wiki": wiki_id}), file=sys.stderr)
+        return wiki_id
+    if len(active) == 0:
+        print(json.dumps({"error": "No wikis exist. Create one first: awiki wiki create --id ID --title T --root-topic TOPIC"}), file=sys.stderr)
+    else:
+        ids = [w["id"] for w in active]
+        print(json.dumps({"error": f"Multiple wikis exist. Specify --wiki: {', '.join(ids)}"}), file=sys.stderr)
+    sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -100,7 +112,7 @@ def cmd_wiki_delete(args):
 # ---------------------------------------------------------------------------
 
 def cmd_article_add(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.article_add(
         wiki_id=wiki,
         slug=args.slug,
@@ -115,7 +127,7 @@ def cmd_article_add(args):
 
 
 def cmd_article_get(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.article_get(wiki, args.slug)
     if result is None:
         print(f"Article '{args.slug}' not found in wiki '{wiki}'", file=sys.stderr)
@@ -124,19 +136,19 @@ def cmd_article_get(args):
 
 
 def cmd_article_list(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     _print_json(db.article_list(wiki))
 
 
 def cmd_article_exists(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     exists = db.article_exists(wiki, args.slug)
     print(json.dumps({"exists": exists}))
     sys.exit(0 if exists else 1)
 
 
 def cmd_article_update(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     fields = {}
     if args.title:
         fields["title"] = args.title
@@ -151,13 +163,13 @@ def cmd_article_update(args):
 
 
 def cmd_article_set_links(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.article_set_links(wiki, args.slug, _parse_list(args.links))
     _print_json(result)
 
 
 def cmd_article_rebuild_linked_from(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     count = db.articles_rebuild_linked_from(wiki)
     print(json.dumps({"updated_articles": count}))
 
@@ -167,7 +179,7 @@ def cmd_article_rebuild_linked_from(args):
 # ---------------------------------------------------------------------------
 
 def cmd_graph_rebuild(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.graph_rebuild(wiki)
     _print_json(result)
 
@@ -177,7 +189,7 @@ def cmd_graph_rebuild(args):
 # ---------------------------------------------------------------------------
 
 def cmd_brainstorm_add(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.brainstorm_add(
         wiki_id=wiki,
         proposed_slug=args.slug,
@@ -193,26 +205,26 @@ def cmd_brainstorm_add(args):
 
 
 def cmd_brainstorm_add_batch(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     candidates = json.loads(args.json)
     result = db.brainstorm_add_batch(wiki, candidates)
     _print_json(result)
 
 
 def cmd_brainstorm_pop(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.brainstorm_pop(wiki, n=args.n, min_score=args.min_score)
     _print_json(result)
 
 
 def cmd_brainstorm_cleanup(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     removed = db.brainstorm_cleanup(wiki, max_history=args.max_history)
     print(json.dumps({"removed": removed}))
 
 
 def cmd_brainstorm_list(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     _print_json(db.brainstorm_list(wiki))
 
 
@@ -221,12 +233,12 @@ def cmd_brainstorm_list(args):
 # ---------------------------------------------------------------------------
 
 def cmd_session_get(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     _print_json(db.session_get(wiki))
 
 
 def cmd_session_update(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     settings = {}
     if args.setting:
         for s in args.setting:
@@ -245,13 +257,13 @@ def cmd_session_update(args):
 
 
 def cmd_session_frontier_add(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.session_frontier_add(wiki, args.slug)
     _print_json(result)
 
 
 def cmd_session_frontier_remove(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.session_frontier_remove(wiki, args.slug)
     _print_json(result)
 
@@ -261,7 +273,7 @@ def cmd_session_frontier_remove(args):
 # ---------------------------------------------------------------------------
 
 def cmd_sync(args):
-    wiki = _require_wiki(args)
+    wiki = _resolve_wiki(args)
     result = db.sync_all(wiki)
     _print_json(result)
 

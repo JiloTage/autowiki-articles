@@ -102,8 +102,19 @@ uv run awiki portal rebuild
 6. wiki間の化学反応は `/auto-wiki-react` で明示的に実行する
 7. 反応記事はどちらかのwikiに帰属させる（独立した反応記事ディレクトリは無い）
 
+## Wiki ID自動解決
+
+CLIの `--wiki` は省略可能:
+- **wikiが1つだけ**: 自動選択（stderrに `auto_selected_wiki` を出力）
+- **wikiが0個**: エラー（作成を促す）
+- **wikiが複数**: エラー（ID一覧を表示）
+
+オーケストレータ（`/auto-wiki`）では:
+- **新規作成時**: トピックからIDを自動生成（`--wiki` 省略可）
+- **既存操作時**: wikiが1つなら自動選択、複数なら選択を促す
+
 ## 現在の状態
 
 - マルチwiki対応済み（wiki未作成）
-- `/auto-wiki [トピック] --wiki [wiki-id]` でwikiを作成してください
+- `/auto-wiki [トピック]` でwikiを作成してください（IDは自動生成）
 - 複数wiki作成後、`/auto-wiki-react` でwiki間の化学反応を起こせます
