@@ -1,12 +1,14 @@
-// Auto-Wiki - D3.js Force-directed Graph Visualization
+// Auto-Wiki - D3.js Force-directed Graph Visualization (multi-wiki)
 (function() {
   'use strict';
 
-  const GRAPH_DATA_URL = 'db/graph.json';
-
-  function initGraph(containerId) {
+  function initGraph(containerId, dataUrl, options) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    dataUrl = dataUrl || 'db/graph.json';
+    options = options || {};
+    const isPortal = options.portal || false;
 
     const width = container.clientWidth;
     const height = container.clientHeight || 500;
@@ -33,11 +35,11 @@
 
     // Load data: prefer inline data (for file:// protocol), fallback to fetch
     if (window.__GRAPH_DATA__) {
-      renderGraph(window.__GRAPH_DATA__, g, width, height, tooltip);
+      renderGraph(window.__GRAPH_DATA__, g, width, height, tooltip, isPortal);
     } else {
-      fetch(GRAPH_DATA_URL)
+      fetch(dataUrl)
         .then(r => r.json())
-        .then(data => renderGraph(data, g, width, height, tooltip))
+        .then(data => renderGraph(data, g, width, height, tooltip, isPortal))
         .catch(err => {
           container.innerHTML = '<p style="text-align:center;color:#72777d;padding:40px;">グラフデータを読み込めません</p>';
           console.error('Graph load error:', err);
@@ -45,13 +47,14 @@
     }
   }
 
-  function renderGraph(data, g, width, height, tooltip) {
+  function renderGraph(data, g, width, height, tooltip, isPortal) {
     if (!data.nodes || data.nodes.length === 0) {
       return;
     }
 
     // Arrow marker
-    g.append('defs').append('marker')
+    const defs = g.append('defs');
+    defs.append('marker')
       .attr('id', 'arrowhead')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 20)
@@ -62,6 +65,21 @@
       .append('path')
       .attr('d', 'M0,-5L10,0L0,5')
       .attr('fill', '#a2a9b1');
+
+    // Reaction arrow marker (portal only)
+    if (isPortal) {
+      defs.append('marker')
+        .attr('id', 'arrowhead-reaction')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 20)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#d33');
+    }
 
     // Force simulation
     const simulation = d3.forceSimulation(data.nodes)
@@ -77,9 +95,24 @@
       .selectAll('line')
       .data(data.links)
       .join('line')
-      .attr('stroke', '#c8ccd1')
-      .attr('stroke-width', 1.5)
-      .attr('marker-end', 'url(#arrowhead)');
+      .attr('stroke', d => {
+        if (isPortal && d.type === 'reaction') return '#d33';
+        if (isPortal && d.type === 'cross') return '#f0a020';
+        return '#c8ccd1';
+      })
+      .attr('stroke-width', d => {
+        if (isPortal && d.type === 'reaction') return 3;
+        if (isPortal && d.type === 'cross') return 2;
+        return 1.5;
+      })
+      .attr('stroke-dasharray', d => {
+        if (isPortal && d.type === 'cross') return '6,3';
+        return null;
+      })
+      .attr('marker-end', d => {
+        if (isPortal && d.type === 'reaction') return 'url(#arrowhead-reaction)';
+        return 'url(#arrowhead)';
+      });
 
     // Nodes
     const node = g.append('g')
@@ -105,7 +138,11 @@
     // Node circles
     node.append('circle')
       .attr('r', d => d.is_root ? 12 : 8)
-      .attr('fill', d => d.is_root ? '#0645ad' : '#36c')
+      .attr('fill', d => {
+        // Portal mode: use wiki color
+        if (isPortal && d.color) return d.color;
+        return d.is_root ? '#0645ad' : '#36c';
+      })
       .attr('stroke', '#fff')
       .attr('stroke-width', 2)
       .style('cursor', 'pointer');
@@ -120,7 +157,6 @@
       .attr('font-family', 'var(--font-sans)')
       .attr('fill', '#202122')
       .each(function(d) {
-        // Truncate long titles
         const maxLen = 20;
         if (d.title.length > maxLen) {
           d3.select(this).text(d.title.substring(0, maxLen) + '...');
@@ -130,10 +166,11 @@
     // Hover events
     node
       .on('mouseover', (event, d) => {
+        const wikiLabel = isPortal && d.wiki ? `<em style="color:${d.color||'#666'}">[${d.wiki}]</em> ` : '';
         tooltip
           .style('display', 'block')
           .style('opacity', 1)
-          .html(`<strong>${d.title}</strong>${d.summary ? '<br>' + d.summary : ''}`)
+          .html(`${wikiLabel}<strong>${d.title}</strong>${d.summary ? '<br>' + d.summary : ''}`)
           .style('left', (event.offsetX + 10) + 'px')
           .style('top', (event.offsetY - 10) + 'px');
       })
