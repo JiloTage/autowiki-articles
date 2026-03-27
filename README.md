@@ -139,16 +139,28 @@ uv run awiki portal rebuild
 
 Actions タブから手動でAuto-Wikiスキルを実行できます。
 
-### APIキーの取得と登録
+### OAuthトークンの取得と登録
 
-Claude Max（または Pro）サブスクリプションにはAPIアクセスが含まれており、追加のトークン課金なしでGitHub Actionsから利用できます。
+Claude Max / Pro サブスクリプションに含まれるClaude CodeのOAuth認証を使います。追加のAPI課金は発生しません。
 
-1. [claude.ai](https://claude.ai) にログイン（Max / Pro プラン）
-2. Settings > API Keys を開く
-3. 「Create API Key」でキーを生成
-4. GitHub リポジトリの Settings > Secrets and variables > Actions を開く
-5. 「New repository secret」をクリック
-6. Name: `ANTHROPIC_API_KEY`、Value: 取得したキーを入力して保存
+#### 1. OAuthトークンを生成
+
+ローカルでClaude Codeを起動し、以下を実行:
+
+```bash
+claude setup-token
+```
+
+`sk-ant-oat01-...` 形式のトークンが出力されます。
+
+#### 2. GitHubリポジトリに登録
+
+1. リポジトリの Settings > Secrets and variables > Actions を開く
+2. 「New repository secret」をクリック
+3. Name: `CLAUDE_CODE_OAUTH_TOKEN`
+4. Value: 上記で取得したトークンを入力して保存
+
+> **注意**: `ANTHROPIC_API_KEY`（従量課金のAPIキー）とは別物です。環境に `ANTHROPIC_API_KEY` が設定されているとそちらが優先され、サブスク外の課金が発生します。
 
 ### 実行方法
 
