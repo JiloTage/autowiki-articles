@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auto-Wiki</title>
-  <link rel="stylesheet" href="assets/css/wiki.css">
+  <title>{{WIKI_TITLE}} - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 <div class="wiki-wrapper">
   <header class="wiki-header">
-    <a href="index.html" class="site-title">Auto-Wiki</a>
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
     <nav>
-      <a href="#graph">サイトグラフ</a>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
       <a href="#article-list">記事一覧</a>
     </nav>
   </header>
 
   <div class="index-header">
-    <h1>Auto-Wiki</h1>
-    <p>自己増殖する知識ベース — 記事は自動的に拡張され、相互にリンクされます</p>
+    <h1>{{WIKI_TITLE}}</h1>
+    <p>{{WIKI_DESCRIPTION}}</p>
   </div>
 
   <div class="stats-bar">
@@ -28,7 +29,7 @@
   </div>
 
   <div class="search-container">
-    <input type="text" id="search-input" class="search-input" placeholder="記事を検索...">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
   </div>
   <div class="search-results" id="search-results"></div>
 
@@ -52,16 +53,16 @@
   </div>
 
   <footer class="wiki-footer">
-    <p>Auto-Wiki — Claude Code Skill による自動生成wiki</p>
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
   </footer>
 </div>
 
-<script src="assets/js/graph.js"></script>
-<script src="assets/js/search.js"></script>
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    AutoWikiGraph.init('graph');
-    AutoWikiSearch.init('search-input', 'search-results');
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
   });
 </script>
 </body>

@@ -11,19 +11,20 @@ allowed-tools:
 description: "Self-expanding wiki - orchestrator that coordinates article creation, expansion, feedback, and synchronization"
 ---
 
-# Auto-Wiki Orchestrator
+# Auto-Wiki Orchestrator (Multi-Wiki)
 
-自己増殖するwikiのメインオーケストレータ。引数を解析し、適切なサブskillにディスパッチする。
+自己増殖するマルチwikiのメインオーケストレータ。引数を解析し、適切なサブskillにディスパッチする。
 
 ## Usage
 
 ```
-/auto-wiki [topic]                  # 新規wiki作成 → Phase 1 → Phase 2
-/auto-wiki --resume                 # 前回セッションから続行 → Phase 2
-/auto-wiki --feedback "記事slug"    # 記事へのフィードバック → Phase 3
-/auto-wiki --request "新トピック"   # 新規記事リクエスト → Phase 4
-/auto-wiki --expand                 # 手動で拡張サイクル実行 → Phase 2
-/auto-wiki --max-agents N           # サブエージェント数上限（デフォルト: 3）
+/auto-wiki 人工知能                         # wikiを自動作成（IDはトピックから生成）
+/auto-wiki 人工知能 --wiki custom-id        # wiki IDを明示指定
+/auto-wiki --resume                         # wikiが1つなら自動選択
+/auto-wiki --feedback "slug"                # wikiが1つなら自動選択
+/auto-wiki --request "新トピック"            # wikiが1つなら自動選択
+/auto-wiki --expand                         # wikiが1つなら自動選択
+/auto-wiki --max-agents N                   # サブエージェント数上限（デフォルト: 3）
 ```
 
 ## 実行手順
@@ -32,7 +33,18 @@ description: "Self-expanding wiki - orchestrator that coordinates article creati
 
 ### Step 1: 引数解析
 
-`$ARGUMENTS` を解析し、以下のいずれかを判定する:
+`$ARGUMENTS` を解析し、以下を判定:
+
+1. `--wiki` の解決（以下の優先順位）:
+   - `--wiki ID` が明示指定されていればそのまま使用
+   - 新規作成時（トピック指定あり）: トピックからIDを自動生成
+     - 日本語: ローマ字変換 → kebab-case（例: "人工知能" → "jinkou-chinou"）
+     - 英語: kebab-case（例: "Quantum Physics" → "quantum-physics"）
+   - 既存操作時（--resume, --expand, --feedback, --request）:
+     - wikiが1つだけ存在 → 自動選択
+     - wikiが複数存在 → 一覧を表示してユーザーに選択を促す
+     - wikiが0個 → エラー
+2. wikiが未作成の場合は `uv run awiki wiki create` で作成
 
 | 条件 | Phase | ディスパッチ先 |
 |------|-------|---------------|
@@ -44,49 +56,51 @@ description: "Self-expanding wiki - orchestrator that coordinates article creati
 
 ### Step 2: 状態確認
 
-1. `uv run awiki session get` で現在の状態を把握
-2. `uv run awiki article list` で既存記事数を確認
-3. `--max-agents N` が指定されていれば抽出（デフォルト: 3）
+1. `uv run awiki wiki get {wiki-id}` でwiki情報を取得（存在しなければ作成）
+2. `uv run awiki session get --wiki {wiki-id}` で現在の状態を把握
+3. `uv run awiki article list --wiki {wiki-id}` で既存記事数を確認
+4. `--max-agents N` が指定されていれば抽出（デフォルト: 3）
 
 ### Step 3: Phase別ディスパッチ
 
+全サブskillに `--wiki {wiki-id}` を渡す。
+
 #### Phase 1→2: 新規wiki作成
 
-1. `/auto-wiki-create` を `Skill` で呼び出す:
-   - 引数: トピック文字列
-   - `origin: "root"` を指定
-2. 作成完了後、`/auto-wiki-sync` を `Skill` で呼び出してDB同期
-3. Phase 1完了を報告し、Phase 2へ進むか確認
-4. 続行する場合、`/auto-wiki-expand` を `Skill` で呼び出す
+1. wikiが未登録なら作成:
+   ```bash
+   uv run awiki wiki create --id {wiki-id} --title "{タイトル}" --root-topic "{トピック}" --color "{色}"
+   ```
+2. `/auto-wiki-create` を `Skill` で呼び出す:
+   - 引数: `{トピック} --wiki {wiki-id} --origin root`
+3. 作成完了後、`/auto-wiki-sync` を `Skill` で呼び出してDB同期:
+   - 引数: `--wiki {wiki-id}`
+4. Phase 1完了を報告し、Phase 2へ進むか確認
+5. 続行する場合、`/auto-wiki-expand` を `Skill` で呼び出す
 
 #### Phase 2: 拡張サイクル
 
 1. `/auto-wiki-expand` を `Skill` で呼び出す:
-   - 引数: `--max-agents N`
-2. expand skillが内部でサブエージェント起動・結果収集を行う
-3. 完了後、`/auto-wiki-sync` を `Skill` で呼び出してDB同期
+   - 引数: `--wiki {wiki-id} --max-agents N`
+2. 完了後、`/auto-wiki-sync` を `Skill` で呼び出して同期
 
 #### Phase 3: フィードバック
 
 1. `/auto-wiki-feedback` を `Skill` で呼び出す:
-   - 引数: 記事slug + フィードバック内容
-2. 完了後、`/auto-wiki-sync` を `Skill` で呼び出してDB同期
+   - 引数: `--wiki {wiki-id} "記事slug" フィードバック内容`
+2. 完了後、`/auto-wiki-sync` を `Skill` で呼び出して同期
 
 #### Phase 4: 新規記事リクエスト
 
 1. `/auto-wiki-request` を `Skill` で呼び出す:
-   - 引数: 新トピック
-2. 完了後、`/auto-wiki-sync` を `Skill` で呼び出してDB同期
+   - 引数: `--wiki {wiki-id} "新トピック"`
+2. 完了後、`/auto-wiki-sync` を `Skill` で呼び出して同期
 
 #### Phase 5→2: セッション再開
 
-1. `uv run awiki session get` でセッション状態を取得
-2. `uv run awiki article list` と `uv run awiki brainstorm list` で現在のデータを取得
-3. 現在の状態をサマリー表示:
-   - 総記事数
-   - 拡張待ちの記事一覧（`expansion_status: "pending"`）
-   - キューに残っている候補数とトップ5
-   - 最後に実行したフェーズ
+1. `uv run awiki session get --wiki {wiki-id}` でセッション状態を取得
+2. `uv run awiki article list --wiki {wiki-id}` と `uv run awiki brainstorm list --wiki {wiki-id}` で現在のデータを取得
+3. 現在の状態をサマリー表示
 4. `/auto-wiki-expand` を `Skill` で呼び出す
 
 ### Step 4: セッション状態更新
@@ -94,7 +108,7 @@ description: "Self-expanding wiki - orchestrator that coordinates article creati
 各Phase完了後:
 1. セッション状態を更新:
    ```bash
-   uv run awiki session update --phase phase_N
+   uv run awiki session update --wiki {wiki-id} --phase phase_N
    ```
 2. 結果サマリーを表示
 

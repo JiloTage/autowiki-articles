@@ -1,20 +1,55 @@
-// Auto-Wiki - Client-side Search
+// Auto-Wiki - Client-side Search (multi-wiki)
 (function() {
   'use strict';
 
-  const DB_URL = 'db/articles.json';
   let articlesData = null;
 
-  function init(inputId, resultsId) {
+  function init(inputId, resultsId, dbUrl, options) {
     const input = document.getElementById(inputId);
     const results = document.getElementById(resultsId);
     if (!input || !results) return;
 
-    // Load article data
-    fetch(DB_URL)
-      .then(r => r.json())
-      .then(data => { articlesData = data; })
-      .catch(err => console.error('Search data load error:', err));
+    options = options || {};
+    const isPortal = options.portal || false;
+
+    if (isPortal) {
+      // Portal mode: load all wikis' articles from registry
+      fetch('db/registry.json')
+        .then(r => r.json())
+        .then(reg => {
+          const wikiIds = Object.keys(reg.wikis || {}).filter(id => reg.wikis[id].status === 'active');
+          return Promise.all(wikiIds.map(id =>
+            fetch(`wikis/${id}/db/articles.json`)
+              .then(r => r.json())
+              .then(data => ({ wikiId: id, wikiInfo: reg.wikis[id], data }))
+              .catch(() => null)
+          ));
+        })
+        .then(results => {
+          articlesData = { articles: {}, portal: true, wikiMap: {} };
+          for (const r of results) {
+            if (!r) continue;
+            for (const [slug, art] of Object.entries(r.data.articles || {})) {
+              const key = `${r.wikiId}:${slug}`;
+              articlesData.articles[key] = {
+                ...art,
+                _wiki: r.wikiId,
+                _wikiTitle: r.wikiInfo.title,
+                _color: r.wikiInfo.color,
+                filename: `wikis/${r.wikiId}/articles/${slug}.html`,
+              };
+            }
+          }
+        })
+        .catch(err => console.error('Portal search data load error:', err));
+    } else {
+      // Single-wiki mode
+      dbUrl = dbUrl || 'db/articles.json';
+      fetch(dbUrl)
+        .then(r => r.json())
+        .then(data => { articlesData = data; })
+        .catch(err => console.error('Search data load error:', err));
+    }
 
     // Search on input
     input.addEventListener('input', debounce(function() {
@@ -23,11 +58,11 @@
         results.innerHTML = '';
         return;
       }
-      performSearch(query, results);
+      performSearch(query, results, isPortal);
     }, 200));
   }
 
-  function performSearch(query, container) {
+  function performSearch(query, container, isPortal) {
     if (!articlesData || !articlesData.articles) {
       container.innerHTML = '<p>データを読み込み中...</p>';
       return;
@@ -54,12 +89,17 @@
       return;
     }
 
-    container.innerHTML = scored.map(({ article }) => `
-      <div class="result-item">
-        <a href="${article.filename}" class="result-title">${escapeHtml(article.title)}</a>
-        <div class="result-summary">${escapeHtml(article.summary || '')}</div>
-      </div>
-    `).join('');
+    container.innerHTML = scored.map(({ article }) => {
+      const wikiTag = isPortal && article._wikiTitle
+        ? `<span class="result-wiki" style="color:${article._color||'#666'}">[${escapeHtml(article._wikiTitle)}]</span> `
+        : '';
+      return `
+        <div class="result-item">
+          <a href="${article.filename}" class="result-title">${wikiTag}${escapeHtml(article.title)}</a>
+          <div class="result-summary">${escapeHtml(article.summary || '')}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   function escapeHtml(str) {

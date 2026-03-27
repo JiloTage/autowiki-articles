@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{LANG}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,9 +24,9 @@
   </div>
 
   <div class="stats-bar">
-    <span>Wiki数: <span class="stat-value">0</span></span>
-    <span>総記事数: <span class="stat-value">0</span></span>
-    <span>反応数: <span class="stat-value">0</span></span>
+    <span>Wiki数: <span class="stat-value">{{WIKI_COUNT}}</span></span>
+    <span>総記事数: <span class="stat-value">{{TOTAL_ARTICLES}}</span></span>
+    <span>反応数: <span class="stat-value">{{REACTION_COUNT}}</span></span>
   </div>
 
   <div class="search-container">
@@ -37,7 +37,7 @@
   <div id="wikis" class="wiki-cards">
     <h2>Wiki一覧</h2>
     <div class="cards-grid">
-      <p>まだwikiがありません。<code>/auto-wiki [トピック]</code> で最初のwikiを作成しましょう。</p>
+      {{WIKI_CARDS}}
     </div>
   </div>
 
@@ -45,7 +45,7 @@
 
   <div id="reactions" class="reaction-log">
     <h2>化学反応ログ</h2>
-    <p>まだ化学反応は発生していません。/auto-wiki-react で反応を起こしましょう。</p>
+    {{REACTION_LOG}}
   </div>
 
   <footer class="wiki-footer">
