@@ -22,7 +22,7 @@
 - `tools/` - Python CLIツール（uv管理）
   - `tools/db.py` - JSON DB操作ライブラリ
   - `tools/cli.py` - CLIエントリポイント（`awiki` コマンド）
-- `portal.html` - 生成済みポータル
+- `portal.html` - 全wiki統合ポータル（`/auto-wiki-sync` で毎回再生成）
 - `docs/multi-wiki-design.md` - 設計ドキュメント
 - `.claude/commands/` - Skillコマンド
   - `auto-wiki.md` - オーケストレータ（メインエントリポイント）
