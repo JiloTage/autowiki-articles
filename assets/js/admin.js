@@ -115,7 +115,7 @@ const AutoWikiAdmin = (() => {
     return resp.json();
   }
 
-  async function triggerWorkflow(skill, args, maxTurns) {
+  async function triggerWorkflow(skill, args, maxTurns, model) {
     await ghFetch(`/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
       method: 'POST',
       body: JSON.stringify({
@@ -123,6 +123,7 @@ const AutoWikiAdmin = (() => {
         inputs: {
           skill: skill,
           args: args || '',
+          model: model || 'claude-opus-4-6',
           max_turns: String(maxTurns || 50),
         },
       }),
@@ -197,6 +198,10 @@ const AutoWikiAdmin = (() => {
         <div class="admin-skill-form">
           ${s.argsPlaceholder ? `<input type="text" class="admin-input admin-skill-args" placeholder="${s.argsPlaceholder}" data-skill="${s.id}" />` : ''}
           <div class="admin-skill-actions">
+            <select class="admin-select admin-model-select" data-skill="${s.id}">
+              <option value="claude-opus-4-6">Opus</option>
+              <option value="claude-sonnet-4-6">Sonnet</option>
+            </select>
             <button class="admin-btn admin-btn-primary admin-run-btn" data-skill="${s.id}" data-skill-cmd="${s.skill}">
               実行
             </button>
@@ -370,16 +375,20 @@ const AutoWikiAdmin = (() => {
       return;
     }
 
+    const modelSelect = container.querySelector(`.admin-model-select[data-skill="${skillId}"]`);
+    const model = modelSelect ? modelSelect.value : 'claude-opus-4-6';
+
     // Confirm
     const label = skillDef.label;
     const argDisplay = args ? ` (${args})` : '';
-    if (!confirm(`「${label}${argDisplay}」を実行しますか？`)) return;
+    const modelDisplay = model.includes('opus') ? 'Opus' : 'Sonnet';
+    if (!confirm(`「${label}${argDisplay}」を ${modelDisplay} で実行しますか？`)) return;
 
     btn.disabled = true;
     btn.textContent = '送信中...';
 
     try {
-      await triggerWorkflow(skillCmd, args, 50);
+      await triggerWorkflow(skillCmd, args, 50, model);
 
       btn.textContent = '発火済';
       btn.classList.add('admin-btn-success');

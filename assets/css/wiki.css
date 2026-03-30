@@ -851,6 +851,23 @@ a.redlink {
 .admin-skill-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 6px;
+  align-items: center;
+}
+
+.admin-select {
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  cursor: pointer;
+}
+
+.admin-select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* Run status */

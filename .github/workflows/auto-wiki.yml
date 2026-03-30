@@ -20,6 +20,14 @@ on:
         required: false
         type: string
         default: ""
+      model:
+        description: "Claude model"
+        required: false
+        type: choice
+        options:
+          - "claude-opus-4-6"
+          - "claude-sonnet-4-6"
+        default: "claude-opus-4-6"
       max_turns:
         description: "Max turns"
         required: false
@@ -48,6 +56,7 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
+          model: ${{ inputs.model }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
