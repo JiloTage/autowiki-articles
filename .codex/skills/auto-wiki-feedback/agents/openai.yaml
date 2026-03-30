@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auto-Wiki Feedback"
+  short_description: "Apply feedback to an article in a specific wiki"
+  default_prompt: "Use $auto-wiki-feedback to revise a wiki article while preserving link integrity."

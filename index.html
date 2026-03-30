@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-Wiki ポータル</title>
+  <link rel="stylesheet" href="assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="#wikis">Wiki一覧</a>
+      <a href="#graph">統合グラフ</a>
+      <a href="#reactions">反応ログ</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Auto-Wiki ポータル</h1>
+    <p>全wikiの統合ポータル</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>Wiki数: <span class="stat-value">0</span></span>
+    <span>総記事数: <span class="stat-value">0</span></span>
+    <span>反応数: <span class="stat-value">0</span></span>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-container"></div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="全wikiを横断検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="wikis" class="wiki-cards">
+    <h2>Wiki一覧</h2>
+    <div class="cards-grid">
+      <p>まだwikiがありません。<code>/auto-wiki [トピック]</code> で最初のwikiを作成しましょう。</p>
+    </div>
+  </div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div id="reactions" class="reaction-log">
+    <h2>化学反応ログ</h2>
+    <p>まだ化学反応は発生していません。/auto-wiki-react で反応を起こしましょう。</p>
+  </div>
+
+  <footer class="wiki-footer">
+    <p>Auto-Wiki — Claude Code Skill による自動生成マルチwiki</p>
+  </footer>
+</div>
+
+<script src="assets/js/graph.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/admin.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/cross-graph.json', { portal: true });
+    AutoWikiSearch.init('search-input', 'search-results', null, { portal: true });
+    AutoWikiAdmin.init('admin-container');
+  });
+</script>
+</body>
+</html>
