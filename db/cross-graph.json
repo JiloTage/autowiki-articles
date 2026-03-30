@@ -71,6 +71,60 @@
       "color": "#4a6fa5",
       "is_root": false,
       "summary": "レイキャビクはアイスランドの首都であり、874年のヴァイキングによる入植以来、北欧神話の主要文書であるエッダ・サガの成立地として知られる。世界最古の議会アルシング（930年）の開催地シングヴェトリルを近郊に擁し、北欧神話の伝承と保存において世界で最も重要な都市のひとつである。"
+    },
+    {
+      "id": "claude-code-skills-sharing:skills-sharing-overview",
+      "wiki": "claude-code-skills-sharing",
+      "title": "Claude Code Skills共有方法 概要",
+      "url": "wikis/claude-code-skills-sharing/articles/skills-sharing-overview.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。"
+    },
+    {
+      "id": "claude-code-skills-sharing:npm-github-packages",
+      "wiki": "claude-code-skills-sharing",
+      "title": "npm / GitHub Packagesによるプライベートスキル配布",
+      "url": "wikis/claude-code-skills-sharing/articles/npm-github-packages.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。"
+    },
+    {
+      "id": "claude-code-skills-sharing:git-submodule-approach",
+      "wiki": "claude-code-skills-sharing",
+      "title": "Gitサブモジュールを使ったスキル共有アプローチ",
+      "url": "wikis/claude-code-skills-sharing/articles/git-submodule-approach.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。"
+    },
+    {
+      "id": "claude-code-skills-sharing:monorepo-skills",
+      "wiki": "claude-code-skills-sharing",
+      "title": "モノレポ構成でのClaude Code Skills管理",
+      "url": "wikis/claude-code-skills-sharing/articles/monorepo-skills.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "すべてのプロジェクトを単一リポジトリで管理するモノレポ構成において、Claude Code Skillsを一元管理する方法。高い可視性と即時反映が可能。"
+    },
+    {
+      "id": "claude-code-skills-sharing:central-repo-approach",
+      "wiki": "claude-code-skills-sharing",
+      "title": "セントラルリポジトリからのスキル配布",
+      "url": "wikis/claude-code-skills-sharing/articles/central-repo-approach.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。"
+    },
+    {
+      "id": "claude-code-skills-sharing:setup-automation",
+      "wiki": "claude-code-skills-sharing",
+      "title": "スキル配布のセットアップ自動化スクリプト",
+      "url": "wikis/claude-code-skills-sharing/articles/setup-automation.html",
+      "color": "#2e7d32",
+      "is_root": false,
+      "summary": "Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法に依らず適用できる。"
     }
   ],
   "links": [
@@ -282,6 +336,136 @@
     {
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
       "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-sharing-overview",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-sharing-overview",
+      "target": "claude-code-skills-sharing:git-submodule-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-sharing-overview",
+      "target": "claude-code-skills-sharing:monorepo-skills",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-sharing-overview",
+      "target": "claude-code-skills-sharing:central-repo-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-sharing-overview",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "claude-code-skills-sharing:skills-sharing-overview",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "claude-code-skills-sharing:git-submodule-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "claude-code-skills-sharing:central-repo-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:git-submodule-approach",
+      "target": "claude-code-skills-sharing:skills-sharing-overview",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:git-submodule-approach",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:git-submodule-approach",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:git-submodule-approach",
+      "target": "claude-code-skills-sharing:central-repo-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:monorepo-skills",
+      "target": "claude-code-skills-sharing:skills-sharing-overview",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:monorepo-skills",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:monorepo-skills",
+      "target": "claude-code-skills-sharing:git-submodule-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:monorepo-skills",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "claude-code-skills-sharing:skills-sharing-overview",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "claude-code-skills-sharing:git-submodule-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:setup-automation",
+      "target": "claude-code-skills-sharing:skills-sharing-overview",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:setup-automation",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:setup-automation",
+      "target": "claude-code-skills-sharing:git-submodule-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:setup-automation",
+      "target": "claude-code-skills-sharing:central-repo-approach",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:setup-automation",
+      "target": "claude-code-skills-sharing:monorepo-skills",
       "type": "internal"
     }
   ]

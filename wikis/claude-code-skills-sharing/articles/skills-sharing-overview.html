@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Skills共有方法 概要 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Claude Code Skills共有方法 概要
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Code Skills共有方法 概要</h1>
+      <div class="article-meta">最終更新: 2026-03-30</div>
+      <div class="article-summary">Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。</div>
+
+      <h2 id="what-are-skills">Claude Code Skillsとは</h2>
+      <p><b>Claude Code Skills</b>（スキルズ）とは、Claude Codeで利用可能なカスタムコマンドの拡張機能であり、`.claude/commands/` ディレクトリ内にMarkdownファイルとして定義される。各Skillは自然言語指示と許可ツールリストから構成され、`/skill-name` という形式でユーザーが呼び出すことができる。</p>
+      <p>Skillsは個人のローカル設定（`~/.claude/commands/`）またはプロジェクト固有設定（`.claude/commands/`）として配置できる。社内での共有を実現するには、このディレクトリ構造を組織的に管理・配布するメカニズムが必要となる。</p>
+
+      <h2 id="sharing-approaches">共有方法の全体像</h2>
+      <p>Claude Code Skillsを社内に共有するための主要なアプローチは大きく4つに分類される。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+          <!-- 背景 -->
+          <rect width="700" height="380" fill="#f8f9fa" rx="8"/>
+          <!-- タイトル -->
+          <text x="350" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#202122">Skills共有方法の分類</text>
+
+          <!-- アプローチ1: npm/GitHub Packages -->
+          <rect x="30" y="55" width="155" height="90" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="108" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">npm / GitHub</text>
+          <text x="108" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">Packages</text>
+          <text x="108" y="116" text-anchor="middle" font-size="11" fill="#2e7d32">バージョン管理</text>
+          <text x="108" y="133" text-anchor="middle" font-size="11" fill="#2e7d32">依存解決</text>
+
+          <!-- アプローチ2: Gitサブモジュール -->
+          <rect x="200" y="55" width="155" height="90" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+          <text x="278" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">Git</text>
+          <text x="278" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">サブモジュール</text>
+          <text x="278" y="116" text-anchor="middle" font-size="11" fill="#1565c0">シンプルな構成</text>
+          <text x="278" y="133" text-anchor="middle" font-size="11" fill="#1565c0">Git標準機能</text>
+
+          <!-- アプローチ3: モノレポ -->
+          <rect x="370" y="55" width="155" height="90" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+          <text x="448" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#bf360c">モノレポ</text>
+          <text x="448" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#bf360c">構成</text>
+          <text x="448" y="116" text-anchor="middle" font-size="11" fill="#e65100">一元管理</text>
+          <text x="448" y="133" text-anchor="middle" font-size="11" fill="#e65100">高い可視性</text>
+
+          <!-- アプローチ4: セントラルリポジトリ -->
+          <rect x="540" y="55" width="130" height="90" rx="6" fill="#fce4ec" stroke="#880e4f" stroke-width="2"/>
+          <text x="605" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#880e4f">セントラル</text>
+          <text x="605" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#880e4f">リポジトリ</text>
+          <text x="605" y="116" text-anchor="middle" font-size="11" fill="#880e4f">シンプル</text>
+          <text x="605" y="133" text-anchor="middle" font-size="11" fill="#880e4f">クローン配布</text>
+
+          <!-- 矢印 -->
+          <line x1="350" y1="160" x2="350" y2="185" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- 比較軸 -->
+          <rect x="30" y="195" width="640" height="160" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="40" y="215" font-size="13" font-weight="bold" fill="#202122">比較軸</text>
+
+          <!-- ヘッダー行 -->
+          <line x1="30" y1="225" x2="670" y2="225" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="115" y="242" text-anchor="middle" font-size="11" font-weight="bold" fill="#36c">npm/GitHub Pkg</text>
+          <text x="270" y="242" text-anchor="middle" font-size="11" font-weight="bold" fill="#1565c0">Gitサブモジュール</text>
+          <text x="430" y="242" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">モノレポ</text>
+          <text x="580" y="242" text-anchor="middle" font-size="11" font-weight="bold" fill="#880e4f">セントラルRepo</text>
+
+          <!-- 行: セットアップ -->
+          <line x1="30" y1="252" x2="670" y2="252" stroke="#f0f0f0" stroke-width="1"/>
+          <text x="60" y="268" font-size="11" fill="#202122">セットアップ</text>
+          <text x="115" y="268" text-anchor="middle" font-size="11" fill="#555">中</text>
+          <text x="270" y="268" text-anchor="middle" font-size="11" fill="#555">低</text>
+          <text x="430" y="268" text-anchor="middle" font-size="11" fill="#555">高</text>
+          <text x="580" y="268" text-anchor="middle" font-size="11" fill="#555">低</text>
+
+          <!-- 行: バージョン管理 -->
+          <line x1="30" y1="278" x2="670" y2="278" stroke="#f0f0f0" stroke-width="1"/>
+          <text x="60" y="294" font-size="11" fill="#202122">バージョン管理</text>
+          <text x="115" y="294" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+          <text x="270" y="294" text-anchor="middle" font-size="11" fill="#1565c0">○</text>
+          <text x="430" y="294" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+          <text x="580" y="294" text-anchor="middle" font-size="11" fill="#e65100">△</text>
+
+          <!-- 行: プライベート対応 -->
+          <line x1="30" y1="304" x2="670" y2="304" stroke="#f0f0f0" stroke-width="1"/>
+          <text x="60" y="320" font-size="11" fill="#202122">プライベート対応</text>
+          <text x="115" y="320" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+          <text x="270" y="320" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+          <text x="430" y="320" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+          <text x="580" y="320" text-anchor="middle" font-size="11" fill="#2e7d32">◎</text>
+
+          <!-- 行: 運用コスト -->
+          <line x1="30" y1="330" x2="670" y2="330" stroke="#f0f0f0" stroke-width="1"/>
+          <text x="60" y="348" font-size="11" fill="#202122">運用コスト</text>
+          <text x="115" y="348" text-anchor="middle" font-size="11" fill="#e65100">高</text>
+          <text x="270" y="348" text-anchor="middle" font-size="11" fill="#2e7d32">低</text>
+          <text x="430" y="348" text-anchor="middle" font-size="11" fill="#e65100">高</text>
+          <text x="580" y="348" text-anchor="middle" font-size="11" fill="#1565c0">中</text>
+
+          <!-- 凡例 -->
+          <text x="40" y="370" font-size="10" fill="#777">◎ 優秀　○ 良好　△ 要工夫</text>
+
+          <!-- 矢印定義 -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Claude Code Skills共有方法の主要アプローチ比較</div>
+      </div>
+
+      <h2 id="npm-github-packages">npm / GitHub Packagesによる配布</h2>
+      <p>GitHubのプライベートリポジトリでnpmパッケージとしてSkillsを公開し、各プロジェクトで `npm install` することで取得する方法。<a href="npm-github-packages.html">npm / GitHub Packages詳細</a>で詳しく解説する。</p>
+
+      <h3 id="npm-structure">パッケージ構造の例</h3>
+      <p>Skillsをnpmパッケージとして配布する場合、以下のような構造が典型的となる：</p>
+      <pre><code>@myorg/claude-skills/
+├── package.json
+├── commands/
+│   ├── deploy.md
+│   ├── review-pr.md
+│   └── generate-tests.md
+└── install.js   # .claude/commands/へのシンボリックリンク作成スクリプト</code></pre>
+
+      <h3 id="npm-pros-cons">メリット・デメリット</h3>
+      <p>npmによる配布の最大のメリットは、セマンティックバージョニングによる明示的なバージョン管理と、`package.json` による依存関係の記録である。一方、npmレジストリのセットアップ（`.npmrc`設定やGitHub Packages認証）が必要なため、初期コストは高い。</p>
+
+      <h2 id="git-submodule">Gitサブモジュールによる共有</h2>
+      <p>Skillsを専用リポジトリに置き、各プロジェクトにGitサブモジュールとして組み込む方法。<a href="git-submodule-approach.html">Gitサブモジュールアプローチ詳細</a>で詳しく解説する。</p>
+
+      <pre><code># 共有Skillsリポジトリをサブモジュールとして追加
+git submodule add git@github.com:myorg/claude-skills.git .claude/shared-commands
+
+# プロジェクト側で .claude/commands/ にシンボリックリンクを作成
+ln -s ../shared-commands/commands/deploy.md .claude/commands/deploy.md</code></pre>
+
+      <p>Gitの標準機能だけで実現できるため、追加ツールが不要という利点がある。ただし、サブモジュールの更新が手動操作を要する点に注意が必要だ。</p>
+
+      <h2 id="monorepo">モノレポ構成による一元管理</h2>
+      <p>社内のすべてのプロジェクトを単一リポジトリで管理するモノレポ構成では、Skillsも同リポジトリ内に配置できる。<a href="monorepo-skills.html">モノレポでのSkills管理</a>を参照。</p>
+
+      <h2 id="central-repo">セントラルリポジトリからのクローン・コピー</h2>
+      <p>最もシンプルなアプローチは、Skillsを集約したリポジトリを作成し、各開発者がクローンして手動でコピー・シンボリックリンクを張る方法。<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>で詳細を説明する。</p>
+
+      <h2 id="automation">配布自動化とセットアップスクリプト</h2>
+      <p>どの配布方法においても、開発者のオンボーディングを効率化するセットアップスクリプトが重要となる。<a href="setup-automation.html">セットアップ自動化スクリプト</a>では、シェルスクリプトやMakefileを使った自動化パターンを解説する。</p>
+
+      <h2 id="recommendation">推奨アプローチの選び方</h2>
+      <p>組織の規模やGit運用の成熟度によって最適なアプローチは異なる。小規模チームやGit初心者が多い場合は<strong>セントラルリポジトリ + シェルスクリプト</strong>が最速で導入できる。中規模以上のチームでバージョン管理を重視するなら<strong>Gitサブモジュール</strong>が安定した選択肢だ。すでにnpmエコシステムを活用しているチームには<strong>GitHub Packages</strong>が自然に統合できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#what-are-skills">Claude Code Skillsとは</a></li>
+          <li><a href="#sharing-approaches">共有方法の全体像</a></li>
+          <li><a href="#npm-github-packages">npm / GitHub Packages</a></li>
+          <li class="toc-h3"><a href="#npm-structure">パッケージ構造の例</a></li>
+          <li class="toc-h3"><a href="#npm-pros-cons">メリット・デメリット</a></li>
+          <li><a href="#git-submodule">Gitサブモジュール</a></li>
+          <li><a href="#monorepo">モノレポ構成</a></li>
+          <li><a href="#central-repo">セントラルリポジトリ</a></li>
+          <li><a href="#automation">配布自動化</a></li>
+          <li><a href="#recommendation">推奨アプローチの選び方</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="npm-github-packages.html">npm / GitHub Packages詳細</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="npm-github-packages.html">npm / GitHub Packages詳細</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

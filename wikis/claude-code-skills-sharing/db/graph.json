@@ -1,0 +1,152 @@
+{
+  "nodes": [
+    {
+      "id": "skills-sharing-overview",
+      "title": "Claude Code Skills共有方法 概要",
+      "url": "articles/skills-sharing-overview.html",
+      "summary": "Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。",
+      "is_root": false
+    },
+    {
+      "id": "npm-github-packages",
+      "title": "npm / GitHub Packagesによるプライベートスキル配布",
+      "url": "articles/npm-github-packages.html",
+      "summary": "GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。",
+      "is_root": false
+    },
+    {
+      "id": "git-submodule-approach",
+      "title": "Gitサブモジュールを使ったスキル共有アプローチ",
+      "url": "articles/git-submodule-approach.html",
+      "summary": "Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。",
+      "is_root": false
+    },
+    {
+      "id": "monorepo-skills",
+      "title": "モノレポ構成でのClaude Code Skills管理",
+      "url": "articles/monorepo-skills.html",
+      "summary": "すべてのプロジェクトを単一リポジトリで管理するモノレポ構成において、Claude Code Skillsを一元管理する方法。高い可視性と即時反映が可能。",
+      "is_root": false
+    },
+    {
+      "id": "central-repo-approach",
+      "title": "セントラルリポジトリからのスキル配布",
+      "url": "articles/central-repo-approach.html",
+      "summary": "最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。",
+      "is_root": false
+    },
+    {
+      "id": "setup-automation",
+      "title": "スキル配布のセットアップ自動化スクリプト",
+      "url": "articles/setup-automation.html",
+      "summary": "Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法に依らず適用できる。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "skills-sharing-overview",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "setup-automation"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "setup-automation"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "setup-automation"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "setup-automation"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "setup-automation"
+    },
+    {
+      "source": "setup-automation",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "setup-automation",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "setup-automation",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "setup-automation",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "setup-automation",
+      "target": "monorepo-skills"
+    }
+  ]
+}

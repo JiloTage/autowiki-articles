@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>セントラルリポジトリからのスキル配布 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    セントラルリポジトリからのスキル配布
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">セントラルリポジトリからのスキル配布</h1>
+      <div class="article-meta">最終更新: 2026-03-30</div>
+      <div class="article-summary">最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>セントラルリポジトリアプローチ</b>は、Claude Code Skillsを一か所に集めたプライベートGitHubリポジトリを「Single Source of Truth」として運用し、各開発者がそこからクローンして利用する最もシンプルな方法だ。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で示した4つのアプローチの中で最も導入が速い。</p>
+
+      <h2 id="when-to-use">このアプローチが適している状況</h2>
+      <ul>
+        <li>チーム規模が小さい（5〜15名程度）</li>
+        <li>Git以外の追加ツールを導入したくない</li>
+        <li>バージョン管理の厳密さよりも導入速度を優先</li>
+        <li>Claude Code導入の初期フェーズ（後から他アプローチに移行可能）</li>
+      </ul>
+
+      <h2 id="setup">セットアップ手順</h2>
+
+      <h3 id="create-repo">Skills専用リポジトリの作成</h3>
+      <p>GitHubでプライベートリポジトリ（例: `myorg/claude-skills`）を作成し、以下の構造でSkillsを配置する：</p>
+      <pre><code>claude-skills/
+├── README.md          # 使い方ガイド
+├── CHANGELOG.md       # 変更履歴
+├── commands/
+│   ├── deploy.md
+│   ├── review-pr.md
+│   ├── generate-tests.md
+│   └── run-migrations.md
+└── install.sh         # ワンコマンドインストールスクリプト</code></pre>
+
+      <h3 id="install-script">インストールスクリプト（install.sh）</h3>
+      <pre><code>#!/bin/bash
+# Claude Code Skills インストールスクリプト
+set -euo pipefail
+
+SKILLS_REPO="git@github.com:myorg/claude-skills.git"
+SKILLS_DIR="$HOME/.claude-skills"
+COMMANDS_DIR="$HOME/.claude/commands"
+
+# Skills リポジトリをクローン（または更新）
+if [ -d "$SKILLS_DIR" ]; then
+  echo "Updating claude-skills..."
+  git -C "$SKILLS_DIR" pull --ff-only
+else
+  echo "Cloning claude-skills..."
+  git clone "$SKILLS_REPO" "$SKILLS_DIR"
+fi
+
+# グローバルコマンドディレクトリを作成
+mkdir -p "$COMMANDS_DIR"
+
+# 各Skillファイルをシンボリックリンク
+for skill in "$SKILLS_DIR/commands/"*.md; do
+  skill_name=$(basename "$skill")
+  link="$COMMANDS_DIR/$skill_name"
+  if [ -L "$link" ]; then
+    rm "$link"  # 既存リンクを更新
+  fi
+  ln -s "$skill" "$link"
+  echo "  Linked: $skill_name"
+done
+
+echo "Done! Skills available in Claude Code."</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 250" width="560" height="250">
+          <rect width="560" height="250" fill="#f8f9fa" rx="8"/>
+          <text x="280" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">セントラルリポジトリからの配布フロー</text>
+
+          <!-- Central Repo -->
+          <rect x="30" y="55" width="160" height="80" rx="6" fill="#fce4ec" stroke="#880e4f" stroke-width="2"/>
+          <text x="110" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#880e4f">myorg/claude-skills</text>
+          <text x="110" y="95" text-anchor="middle" font-size="10" fill="#880e4f">commands/deploy.md</text>
+          <text x="110" y="111" text-anchor="middle" font-size="10" fill="#880e4f">commands/review-pr.md</text>
+          <text x="110" y="127" text-anchor="middle" font-size="10" fill="#880e4f">install.sh</text>
+
+          <!-- 矢印 -->
+          <line x1="190" y1="95" x2="230" y2="95" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow4)"/>
+          <text x="210" y="85" text-anchor="middle" font-size="9" fill="#777">git clone</text>
+
+          <!-- Developer A -->
+          <rect x="230" y="45" width="140" height="60" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="300" y="67" text-anchor="middle" font-size="11" fill="#1b5e20">開発者A</text>
+          <text x="300" y="82" text-anchor="middle" font-size="9" fill="#2e7d32">~/.claude/commands/</text>
+          <text x="300" y="97" text-anchor="middle" font-size="9" fill="#2e7d32">（グローバル配置）</text>
+
+          <!-- Developer B -->
+          <rect x="230" y="120" width="140" height="60" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="300" y="142" text-anchor="middle" font-size="11" fill="#1b5e20">開発者B</text>
+          <text x="300" y="157" text-anchor="middle" font-size="9" fill="#2e7d32">~/.claude/commands/</text>
+          <text x="300" y="172" text-anchor="middle" font-size="9" fill="#2e7d32">（グローバル配置）</text>
+
+          <!-- 矢印: Repo -> DevB -->
+          <line x1="190" y1="115" x2="230" y2="145" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow4)"/>
+
+          <!-- Claude Code A -->
+          <rect x="395" y="45" width="130" height="60" rx="5" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="460" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Claude Code</text>
+          <text x="460" y="82" text-anchor="middle" font-size="9" fill="#e65100">A の環境</text>
+          <text x="460" y="97" text-anchor="middle" font-size="9" fill="#e65100">/deploy, /review-pr...</text>
+
+          <!-- Claude Code B -->
+          <rect x="395" y="120" width="130" height="60" rx="5" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="460" y="142" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Claude Code</text>
+          <text x="460" y="157" text-anchor="middle" font-size="9" fill="#e65100">B の環境</text>
+          <text x="460" y="172" text-anchor="middle" font-size="9" fill="#e65100">/deploy, /review-pr...</text>
+
+          <!-- 矢印: DevA -> Claude Code A -->
+          <line x1="370" y1="75" x2="395" y2="75" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow4)"/>
+          <!-- 矢印: DevB -> Claude Code B -->
+          <line x1="370" y1="150" x2="395" y2="150" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow4)"/>
+
+          <!-- 更新フロー -->
+          <rect x="30" y="200" width="500" height="38" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="280" y="216" text-anchor="middle" font-size="11" fill="#555">Skills更新時: 各開発者が</text>
+          <text x="280" y="230" text-anchor="middle" font-size="10" fill="#555">bash install.sh を再実行 または git -C ~/.claude-skills pull</text>
+
+          <defs>
+            <marker id="arrow4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: セントラルリポジトリからのSkills配布フロー</div>
+      </div>
+
+      <h2 id="global-vs-project">グローバル配置 vs プロジェクト配置</h2>
+
+      <h3 id="global-placement">グローバル配置（推奨）</h3>
+      <p>`~/.claude/commands/` に配置することで、すべてのプロジェクトでSkillsが利用可能になる。組織全員が使う汎用Skillsはこの方法が適している：</p>
+      <pre><code>install.sh でのリンク先: ~/.claude/commands/</code></pre>
+
+      <h3 id="project-placement">プロジェクト配置</h3>
+      <p>特定プロジェクトのみに適用したいSkillsは、プロジェクトルートの `.claude/commands/` に配置する：</p>
+      <pre><code>install.sh でのリンク先: ./PROJECT_ROOT/.claude/commands/</code></pre>
+
+      <h2 id="update-notification">更新通知の仕組み</h2>
+      <p>Skillsが更新されたとき、開発者に通知する仕組みが重要だ。以下のアプローチが考えられる：</p>
+      <ul>
+        <li><strong>Slackチャンネル通知</strong>: GitHub ActionsでリポジトリにPushされたときにSlack通知</li>
+        <li><strong>CHANGELOG.md</strong>: 変更内容を記録し、PRのdescriptionで案内</li>
+        <li><strong>自動更新スクリプト</strong>: cron job（月次など）でシステム的に更新</li>
+      </ul>
+
+      <h2 id="pros-cons">メリット・デメリット</h2>
+      <p>このアプローチの最大の強みは<strong>導入の速さ</strong>だ。リポジトリを作成してinstall.shを書けば、その日のうちに全チームに展開できる。バージョン固定が弱い（常にlatest）点はデメリットだが、小規模チームではむしろ常に最新Skillsを使えるメリットになる。チームが成長したら<a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>や<a href="npm-github-packages.html">npm / GitHub Packages</a>に移行することを検討する。<a href="setup-automation.html">セットアップ自動化スクリプト</a>と組み合わせることで、開発者のオンボーディングコストを最小化できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#when-to-use">このアプローチが適している状況</a></li>
+          <li><a href="#setup">セットアップ手順</a></li>
+          <li class="toc-h3"><a href="#create-repo">Skills専用リポジトリの作成</a></li>
+          <li class="toc-h3"><a href="#install-script">インストールスクリプト</a></li>
+          <li><a href="#global-vs-project">グローバル配置 vs プロジェクト配置</a></li>
+          <li><a href="#update-notification">更新通知の仕組み</a></li>
+          <li><a href="#pros-cons">メリット・デメリット</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

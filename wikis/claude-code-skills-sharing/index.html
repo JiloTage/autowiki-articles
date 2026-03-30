@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Skills共有ガイド - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Claude Code Skills共有ガイド</h1>
+    <p>Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">6</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">26</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/skills-sharing-overview.html">Claude Code Skills共有方法 概要</a></td>
+          <td>Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。</td>
+          <td>2026-03-30</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td><a href="articles/npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></td>
+          <td>GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。</td>
+          <td>2026-03-30</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/git-submodule-approach.html">Gitサブモジュールを使ったスキル共有アプローチ</a></td>
+          <td>Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。</td>
+          <td>2026-03-30</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/monorepo-skills.html">モノレポ構成でのClaude Code Skills管理</a></td>
+          <td>すべてのプロジェクトを単一リポジトリで管理するモノレポ構成において、Claude Code Skillsを一元管理する方法。高い可視性と即時反映が可能。</td>
+          <td>2026-03-30</td>
+          <td>6</td>
+        </tr>
+        <tr>
+          <td><a href="articles/central-repo-approach.html">セントラルリポジトリからのスキル配布</a></td>
+          <td>最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。</td>
+          <td>2026-03-30</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td><a href="articles/setup-automation.html">スキル配布のセットアップ自動化スクリプト</a></td>
+          <td>Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法に依らず適用できる。</td>
+          <td>2026-03-30</td>
+          <td>10</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

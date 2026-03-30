@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gitサブモジュールを使ったスキル共有アプローチ - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Gitサブモジュールを使ったスキル共有アプローチ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Gitサブモジュールを使ったスキル共有アプローチ</h1>
+      <div class="article-meta">最終更新: 2026-03-30</div>
+      <div class="article-summary">Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Gitサブモジュールアプローチ</b>は、Skills専用のプライベートリポジトリを作成し、各プロジェクトにGitサブモジュールとして組み込む方法だ。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で紹介した4つのアプローチの中で、セットアップの簡便さとバージョン管理能力のバランスが最も優れている。</p>
+
+      <h2 id="submodule-basics">Gitサブモジュールの基本</h2>
+      <p>Gitサブモジュールは、一つのGitリポジトリを別のGitリポジトリのサブディレクトリとして埋め込む機能だ。親リポジトリはサブモジュールのコミットハッシュを記録するため、特定バージョンへの固定が可能となる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280">
+          <rect width="600" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="300" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Gitサブモジュールによるスキル共有構造</text>
+
+          <!-- Skills Repo -->
+          <rect x="30" y="55" width="160" height="80" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+          <text x="110" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">claude-skills (共有Repo)</text>
+          <text x="110" y="96" text-anchor="middle" font-size="10" fill="#1565c0">commands/deploy.md</text>
+          <text x="110" y="112" text-anchor="middle" font-size="10" fill="#1565c0">commands/review-pr.md</text>
+          <text x="110" y="128" text-anchor="middle" font-size="10" fill="#1565c0">...</text>
+
+          <!-- 矢印 -->
+          <line x1="190" y1="95" x2="250" y2="95" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow3)"/>
+          <text x="220" y="86" text-anchor="middle" font-size="9" fill="#777">submodule add</text>
+
+          <!-- Project Repo -->
+          <rect x="250" y="45" width="310" height="200" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="405" y="65" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プロジェクトリポジトリ</text>
+
+          <!-- .claude/shared-commands -->
+          <rect x="265" y="75" width="280" height="70" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="405" y="95" text-anchor="middle" font-size="11" fill="#1b5e20">.claude/shared-commands/ (サブモジュール)</text>
+          <text x="405" y="112" text-anchor="middle" font-size="10" fill="#2e7d32">commands/deploy.md (参照)</text>
+          <text x="405" y="129" text-anchor="middle" font-size="10" fill="#2e7d32">commands/review-pr.md (参照)</text>
+
+          <!-- .claude/commands -->
+          <rect x="265" y="155" width="280" height="70" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+          <text x="405" y="175" text-anchor="middle" font-size="11" fill="#bf360c">.claude/commands/ (シンボリックリンク)</text>
+          <text x="405" y="193" text-anchor="middle" font-size="10" fill="#e65100">deploy.md → ../shared-commands/commands/deploy.md</text>
+          <text x="405" y="210" text-anchor="middle" font-size="10" fill="#e65100">review-pr.md → ...</text>
+
+          <!-- 矢印: shared-commands -> commands -->
+          <line x1="405" y1="145" x2="405" y2="155" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow3)"/>
+          <text x="430" y="151" font-size="9" fill="#777">symlink</text>
+
+          <!-- Claude Code -->
+          <rect x="30" y="195" width="160" height="45" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="110" y="215" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Claude Code</text>
+          <text x="110" y="232" text-anchor="middle" font-size="9" fill="#e65100">.claude/commands/ を読み込み</text>
+
+          <!-- 矢印 -->
+          <line x1="250" y1="190" x2="190" y2="218" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow3)"/>
+
+          <defs>
+            <marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Gitサブモジュールによるスキル共有の構造図</div>
+      </div>
+
+      <h2 id="setup">セットアップ手順</h2>
+
+      <h3 id="create-skills-repo">Skills専用リポジトリの作成</h3>
+      <p>まず、GitHubにプライベートリポジトリ（例: `myorg/claude-skills`）を作成し、以下の構造でSkillsを配置する：</p>
+      <pre><code>claude-skills/
+├── README.md
+└── commands/
+    ├── deploy.md
+    ├── review-pr.md
+    └── generate-tests.md</code></pre>
+
+      <h3 id="add-submodule">プロジェクトへのサブモジュール追加</h3>
+      <pre><code># プロジェクトのルートで実行
+git submodule add git@github.com:myorg/claude-skills.git .claude/shared-commands
+
+# .gitmodules ファイルが自動生成される
+git commit -m "Add claude-skills submodule"</code></pre>
+
+      <h3 id="create-symlinks">シンボリックリンクの作成</h3>
+      <pre><code>mkdir -p .claude/commands
+
+# 各Skillファイルをリンク
+for skill in .claude/shared-commands/commands/*.md; do
+  skill_name=$(basename "$skill")
+  ln -sf "../shared-commands/commands/$skill_name" ".claude/commands/$skill_name"
+done
+
+git add .claude/commands/
+git commit -m "Link shared skills to .claude/commands/"</code></pre>
+
+      <h2 id="update-workflow">更新ワークフロー</h2>
+
+      <h3 id="update-skills">Skillsを最新版に更新</h3>
+      <pre><code># サブモジュールを最新にする
+git submodule update --remote .claude/shared-commands
+git add .claude/shared-commands
+git commit -m "Update claude-skills submodule to latest"</code></pre>
+
+      <h3 id="pin-version">特定バージョンへのピン留め</h3>
+      <pre><code># 特定タグ/コミットに固定
+cd .claude/shared-commands
+git checkout v1.2.0  # または特定のコミットハッシュ
+cd ../..
+git add .claude/shared-commands
+git commit -m "Pin claude-skills to v1.2.0"</code></pre>
+
+      <h2 id="clone-setup">新規メンバーのクローン手順</h2>
+      <pre><code># サブモジュールを含めてクローン
+git clone --recurse-submodules git@github.com:myorg/myproject.git
+
+# 既存クローンにサブモジュールを初期化
+git submodule update --init --recursive</code></pre>
+
+      <h2 id="pros-cons">メリット・デメリット</h2>
+      <p>Gitサブモジュールの最大のメリットはNode.jsやnpmが不要であり、Git標準機能だけで実現できる点だ。プロジェクトのリポジトリにどのバージョンのSkillsが組み込まれているかがGit履歴で追跡できる。一方で、`git clone` 時に `--recurse-submodules` フラグを忘れると初期化されないため、<a href="setup-automation.html">セットアップ自動化スクリプト</a>でこの手順を自動化することが重要だ。また、サブモジュールの更新は自動では行われず、明示的な `git submodule update --remote` が必要となる。</p>
+
+      <h2 id="gitmodules-config">高度な設定：.gitmodulesのカスタマイズ</h2>
+      <pre><code>[submodule ".claude/shared-commands"]
+    path = .claude/shared-commands
+    url = git@github.com:myorg/claude-skills.git
+    branch = main  # 追跡するブランチを指定</code></pre>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#submodule-basics">Gitサブモジュールの基本</a></li>
+          <li><a href="#setup">セットアップ手順</a></li>
+          <li class="toc-h3"><a href="#create-skills-repo">Skills専用リポジトリの作成</a></li>
+          <li class="toc-h3"><a href="#add-submodule">サブモジュール追加</a></li>
+          <li class="toc-h3"><a href="#create-symlinks">シンボリックリンクの作成</a></li>
+          <li><a href="#update-workflow">更新ワークフロー</a></li>
+          <li><a href="#clone-setup">新規メンバーのクローン手順</a></li>
+          <li><a href="#pros-cons">メリット・デメリット</a></li>
+          <li><a href="#gitmodules-config">高度な設定</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
