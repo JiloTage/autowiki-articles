@@ -42,6 +42,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import subprocess
 import sys
 
 from tools import db
@@ -343,6 +345,40 @@ def cmd_reaction_get(args):
 
 
 # ---------------------------------------------------------------------------
+# config subcommands
+# ---------------------------------------------------------------------------
+
+def _detect_github_from_remote() -> tuple[str, str] | None:
+    """Parse owner/repo from git remote origin URL."""
+    try:
+        url = subprocess.check_output(
+            ["git", "remote", "get-url", "origin"],
+            text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+    # HTTPS: https://github.com/OWNER/REPO.git
+    m = re.search(r"github\.com[/:]([^/]+)/([^/.]+?)(?:\.git)?$", url)
+    if m:
+        return m.group(1), m.group(2)
+    return None
+
+
+def cmd_config_github(args):
+    owner = args.owner
+    repo = args.repo
+    if not owner or not repo:
+        detected = _detect_github_from_remote()
+        if detected:
+            owner, repo = detected
+        else:
+            print(json.dumps({"error": "Could not detect from git remote. Specify --owner and --repo."}), file=sys.stderr)
+            sys.exit(1)
+    result = db.config_set_github(owner, repo)
+    _print_json(result)
+
+
+# ---------------------------------------------------------------------------
 # portal
 # ---------------------------------------------------------------------------
 
@@ -542,6 +578,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = rx_sub.add_parser("get", help="Get a reaction by ID")
     p.add_argument("reaction_id")
     p.set_defaults(func=cmd_reaction_get)
+
+    # --- config ---
+    cfg = sub.add_parser("config", help="Project configuration")
+    cfg_sub = cfg.add_subparsers(dest="action", required=True)
+
+    p = cfg_sub.add_parser("github", help="Set GitHub owner/repo (auto-detects from git remote)")
+    p.add_argument("--owner", default=None, help="GitHub owner/org name")
+    p.add_argument("--repo", default=None, help="GitHub repository name")
+    p.set_defaults(func=cmd_config_github)
 
     # --- portal ---
     p = sub.add_parser("portal", help="Portal operations")

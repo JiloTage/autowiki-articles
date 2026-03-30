@@ -53,7 +53,7 @@ def _save(wiki_id: str, name: str, data: dict) -> None:
 # registry.json — Global wiki registry
 # ===================================================================
 
-_REGISTRY_INIT = {"wikis": {}}
+_REGISTRY_INIT = {"github": {"owner": None, "repo": None}, "wikis": {}}
 
 _WIKI_DB_INIT = {
     "articles.json": {"articles": {}, "root_id": None, "total_count": 0},
@@ -136,6 +136,27 @@ def _update_registry_count(wiki_id: str, count: int) -> None:
     if wiki_id in reg["wikis"]:
         reg["wikis"][wiki_id]["article_count"] = count
         _save_global("registry.json", reg)
+
+
+# ===================================================================
+# config — GitHub repo settings in registry
+# ===================================================================
+
+def config_set_github(owner: str, repo: str) -> dict:
+    """Set GitHub owner/repo in registry."""
+    reg = _ensure_registry()
+    if "github" not in reg:
+        reg["github"] = {}
+    reg["github"]["owner"] = owner
+    reg["github"]["repo"] = repo
+    _save_global("registry.json", reg)
+    return reg["github"]
+
+
+def config_get_github() -> dict:
+    """Get GitHub owner/repo from registry."""
+    reg = _ensure_registry()
+    return reg.get("github", {"owner": None, "repo": None})
 
 
 # ===================================================================

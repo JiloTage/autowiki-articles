@@ -21,18 +21,23 @@
 
 ### 手順
 
-1. リポジトリをクローン:
+1. テンプレートからリポジトリを作成してクローン:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/autowiki.git
-   cd autowiki
+   git clone https://github.com/YOUR_USERNAME/your-wiki-repo.git
+   cd your-wiki-repo
    ```
 
-2. Claude Code を起動:
+2. GitHub リポジトリ情報を設定（git remoteから自動検出）:
+   ```bash
+   uv run awiki config github
+   ```
+
+3. Claude Code を起動:
    ```bash
    claude
    ```
 
-3. wikiを作成:
+4. wikiを作成:
    ```
    /auto-wiki 人工知能 --wiki ai
    ```
@@ -118,6 +123,9 @@ autowiki/
 ## CLI (`awiki`)
 
 ```bash
+# 初期設定（git remoteから自動検出）
+uv run awiki config github
+
 # Wiki管理
 uv run awiki wiki create --id ai --title "人工知能" --root-topic "AI" --color "#0645ad"
 uv run awiki wiki list

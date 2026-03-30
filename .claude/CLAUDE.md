@@ -9,7 +9,7 @@
   - `db/` - wiki固有JSONデータベース（articles.json, brainstorm.json, graph.json, session.json）
   - `index.html` - wiki個別トップページ
 - `db/` - グローバルデータベース
-  - `registry.json` - wiki一覧
+  - `registry.json` - wiki一覧 + GitHub設定（owner/repo）
   - `reactions.json` - wiki間反応レジストリ
   - `cross-graph.json` - 全wiki統合グラフ
 - `assets/css/wiki.css` - Wikipedia風テーマ（共有）
@@ -85,6 +85,9 @@ uv run awiki reaction get {id}
 
 # ポータル
 uv run awiki portal rebuild
+
+# プロジェクト設定
+uv run awiki config github [--owner O --repo R]  # git remoteから自動検出
 ```
 
 全コマンドはJSON形式で結果を出力する。
