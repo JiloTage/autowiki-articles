@@ -24,13 +24,10 @@
   </div>
 
   <div class="stats-bar">
-    <span>Wiki数: <span class="stat-value">0</span></span>
-    <span>総記事数: <span class="stat-value">0</span></span>
+    <span>Wiki数: <span class="stat-value">1</span></span>
+    <span>総記事数: <span class="stat-value">8</span></span>
     <span>反応数: <span class="stat-value">0</span></span>
   </div>
-
-  <!-- Admin Panel -->
-  <div id="admin-container"></div>
 
   <div class="search-container">
     <input type="text" id="search-input" class="search-input" placeholder="全wikiを横断検索...">
@@ -40,7 +37,14 @@
   <div id="wikis" class="wiki-cards">
     <h2>Wiki一覧</h2>
     <div class="cards-grid">
-      <p>まだwikiがありません。<code>/auto-wiki [トピック]</code> で最初のwikiを作成しましょう。</p>
+      <div class="wiki-card" style="border-left: 4px solid #4a6fa5">
+        <h3><a href="wikis/hokuo-shinwa-yukari-machi/index.html">北欧神話にゆかりのある街</a></h3>
+        <p class="wiki-topic">北欧神話にゆかりのある街</p>
+        <div class="wiki-stats">
+          <span>記事数: 8</span>
+          <span>ステータス: active</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -58,12 +62,10 @@
 
 <script src="assets/js/graph.js"></script>
 <script src="assets/js/search.js"></script>
-<script src="assets/js/admin.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     AutoWikiGraph.init('graph', 'db/cross-graph.json', { portal: true });
     AutoWikiSearch.init('search-input', 'search-results', null, { portal: true });
-    AutoWikiAdmin.init('admin-container');
   });
 </script>
 </body>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>北欧神話にゆかりのある街 - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>北欧神話にゆかりのある街</h1>
+    <p>スカンジナビアを中心に、ヴァイキング時代の宗教・文化・伝説と深く結びついた実在の都市・集落を紹介する自己増殖wiki。ウプサラ、トロンヘイム、ロスキレ、ヨーク、レイキャビクなど北欧神話ゆかりの街を網羅する。</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">8</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">42</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/hokuo-shinwa-no-machi.html">北欧神話にゆかりのある街</a></td>
+          <td>北欧神話にゆかりのある街とは、スカンジナビアを中心に、ヴァイキング時代の宗教・文化・伝説と深く結びついた実在の都市・集落、および神話的世界観の中に語られる都市を指す。</td>
+          <td>2026-03-30</td>
+          <td>7</td>
+        </tr>
+        <tr>
+          <td><a href="articles/uppsala.html">ウプサラ</a></td>
+          <td>ウプサラはスウェーデン中部に位置する歴史都市で、北欧最大の異教徒聖地であった「ガムラ・ウプサラ」を擁し、北欧神話・ヴァイキング時代の宗教文化における最重要拠点の一つである。</td>
+          <td>2026-03-30</td>
+          <td>7</td>
+        </tr>
+        <tr>
+          <td><a href="articles/gamla-uppsala.html">ガムラ・ウプサラ（古いウプサラ）</a></td>
+          <td>ガムラ・ウプサラは、スウェーデン・ウプサラ市北部に位置する古代の聖地・王権の中心地。ヴァイキング時代の三大神殿（オーディン・トール・フレイ）、9年ごとの人身御供儀式、6〜7世紀の王墓群について詳述する。</td>
+          <td>2026-03-30</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/trondheim.html">トロンヘイム（ニーダロス）</a></td>
+          <td>トロンヘイム（古名：ニーダロス）はノルウェー中西部に位置する歴史的都市。ヴァイキング時代にはノルウェー王国の政治・宗教の中心地として栄え、聖オーラフによるキリスト教化の拠点となった。</td>
+          <td>2026-03-30</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/roskilde.html">ロスキレ</a></td>
+          <td>ロスキレはデンマーク・ジェラン島に位置する古都。10〜11世紀のデンマーク王国の首都として栄え、ヴァイキング船博物館とユネスコ世界遺産のロスキレ大聖堂を擁する北欧神話・ヴァイキング文化の一大拠点である。</td>
+          <td>2026-03-30</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/york-jorvík.html">ヨーク（ヨールヴィーク）</a></td>
+          <td>ヨーク（古ノルド語：ヨールヴィーク）はイングランド北部に位置する歴史都市で、866年のデーン人による征服から954年まで続いたヴァイキング王国「ヨールヴィーク王国」の首都として栄えた。</td>
+          <td>2026-03-30</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/reykjavik.html">レイキャビク</a></td>
+          <td>レイキャビクはアイスランドの首都であり、874年のヴァイキングによる入植以来、北欧神話の主要文書であるエッダ・サガの成立地として知られる。世界最古の議会アルシング（930年）の開催地シングヴェトリルを近郊に擁する。</td>
+          <td>2026-03-30</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/oslo.html">オスロ</a></td>
+          <td>オスロはノルウェーの首都かつ最大都市。ヴァイキング船博物館・ヴィーゲラン公園・カウパング交易地との歴史的つながりなど、北欧神話とヴァイキング文化の遺産を今日に伝える重要な都市である。</td>
+          <td>2026-03-30</td>
+          <td>5</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{
+  "queue": [
+    {
+      "proposed_slug": "lejre",
+      "proposed_title": "レイレ",
+      "source_id": "roskilde",
+      "rationale": "ロスキレ近郊に位置するデンマーク伝説の王都「ヒアロット」の所在地。スキョルドゥング朝・ベーオウルフ叙事詩にも登場",
+      "interestingness_score": 0.92,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "thingvellir",
+      "proposed_title": "シングヴェトリル",
+      "source_id": "reykjavik",
+      "rationale": "世界最古の議会アルシング（930年）の開催地。プレート境界という地質的特異性と北欧神話・法制史が交差する場所",
+      "interestingness_score": 0.92,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "nidaros-cathedral",
+      "proposed_title": "ニーダロス大聖堂",
+      "source_id": "trondheim",
+      "rationale": "スカンジナビア最大のゴシック聖堂で聖オーラフの墓所・ノルウェー戴冠式の場。ヴァイキングから中世キリスト教への移行を体現",
+      "interestingness_score": 0.91,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "snorri-sturluson",
+      "proposed_title": "スノッリ・ストゥルルソン",
+      "source_id": "reykjavik",
+      "rationale": "散文エッダの著者であり北欧神話の最重要記録者。政治家・詩人・歴史家として13世紀アイスランドに生き神話体系化に決定的役割",
+      "interestingness_score": 0.9,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "frey-worship",
+      "proposed_title": "フレイ神崇拝とウプサラ王朝",
+      "source_id": "uppsala",
+      "rationale": "ウプサラはフレイ神の主要崇拝地であり、スウェーデン王家（ユングリング王朝）との神話的・歴史的関係が深い",
+      "interestingness_score": 0.88,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "haraldr-blatand",
+      "proposed_title": "ハーラル青歯王",
+      "source_id": "roskilde",
+      "rationale": "ロスキレを首都として整備しデンマークのキリスト教化を推進したヴァイキング時代の重要な王。Bluetoothの名前の由来",
+      "interestingness_score": 0.87,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "ragnarok",
+      "proposed_title": "ラグナロク：神話の終末論とアイスランドの火山観",
+      "source_id": "reykjavik",
+      "rationale": "北欧神話の終末「ラグナロク」はアイスランドの火山・地震・間欠泉という自然環境と深く結びついている",
+      "interestingness_score": 0.87,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "daen-roo",
+      "proposed_title": "デーンロウ（ヴァイキング支配領域）",
+      "source_id": "york-jorvík",
+      "rationale": "ヨールヴィーク王国が属したイングランド北東部のデーン人支配領域。ヴァイキングとアングロ・サクソンの文化的境界線",
+      "interestingness_score": 0.87,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "blot-sacrifice",
+      "proposed_title": "ブロット――北欧の生贄儀礼",
+      "source_id": "gamla-uppsala",
+      "rationale": "ウプサラ神殿における9年ごとの大規模ブロット（生贄儀礼）はアダム・フォン・ブレーメンの記録で有名な北欧最大の祭祀",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "oseberg-burial",
+      "proposed_title": "オーセベリ船葬祭と北欧の葬送文化",
+      "source_id": "oslo",
+      "rationale": "オスロのヴァイキング船博物館所蔵のオーセベリ船の葬祭文化。女性王族・女祭司の埋葬、船葬の神話的意味を詳述",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "ragnar-lodbrok",
+      "proposed_title": "ラグナル・ロズブロークと大異教徒軍",
+      "source_id": "york-jorvík",
+      "rationale": "ヨールヴィーク征服の直接の契機となった大異教徒軍の背景人物。サガと実在の間に立つ伝説的ヴァイキング王",
+      "interestingness_score": 0.83,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "adam-von-bremen",
+      "proposed_title": "アダム・フォン・ブレーメンと北欧の記録",
+      "source_id": "gamla-uppsala",
+      "rationale": "11世紀のドイツ人聖職者アダム・フォン・ブレーメンは北欧異教祭祀の最重要一次史料を残した",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "asatro-revival",
+      "proposed_title": "アサトゥル――北欧異教の現代復興",
+      "source_id": "uppsala",
+      "rationale": "ウプサラは現代の北欧異教復興運動（アサトゥル）の巡礼地。アイスランド・ノルウェーで公式宗教認定された異教復興の現代的意義",
+      "interestingness_score": 0.8,
+      "status": "queued"
+    }
+  ],
+  "history": [
+    {
+      "proposed_slug": "uppsala",
+      "proposed_title": "ウプサラ",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "北欧最大の異教徒神殿があった都市で、オーディン・トール・フレイへの生贄儀式の中心地として記録に残る北欧神話ゆかりの最重要都市",
+      "interestingness_score": 0.97,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "gamla-uppsala",
+      "proposed_title": "ガムラ・ウプサラ（古いウプサラ）",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "5〜6世紀の王墓群と異教徒神殿跡が残る考古学的聖地で、スウェーデン最大のヴァイキング祭祀センター",
+      "interestingness_score": 0.95,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "trondheim",
+      "proposed_title": "トロンヘイム（ニーダロス）",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "ヴァイキング時代のノルウェー王国首都で、ニーダロス大聖堂が象徴するヴァイキングからキリスト教への移行を体現する都市",
+      "interestingness_score": 0.93,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "york-jorvík",
+      "proposed_title": "ヨーク（ヨールヴィーク）",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "866〜954年にヴァイキングが支配したヨールヴィーク王国の首都で、英国最大のヴァイキング文化遺産を持つ都市",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "roskilde",
+      "proposed_title": "ロスキレ",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "ヴァイキング船が5隻発掘されたデンマークの古都で、10〜11世紀のデンマーク王国首都",
+      "interestingness_score": 0.91,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "reykjavik",
+      "proposed_title": "レイキャビク",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "874年に建設されたアイスランドの首都で、エッダ・サガが書かれた北欧神話の記録地であり最古の議会アルシングの開催地",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "oslo",
+      "proposed_title": "オスロ",
+      "source_id": "hokuo-shinwa-no-machi",
+      "rationale": "ヴァイキング船博物館が世界最多のヴァイキング船を収蔵するノルウェーの首都",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    }
+  ]
+}
