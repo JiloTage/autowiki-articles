@@ -3,15 +3,23 @@
  * GitHub Actions workflow_dispatch経由でスキルを実行し、ステータスを監視する
  */
 const AutoWikiAdmin = (() => {
+<<<<<<< HEAD
+=======
+  const OWNER = 'JiloTage';
+  const REPO = 'autowiki';
+>>>>>>> 51a181b (Initial commit)
   const WORKFLOW_FILE = 'auto-wiki.yml';
   const STORAGE_KEY = 'autowiki_gh_token';
   const POLL_INTERVAL = 8000; // 8秒
   const MAX_POLLS = 150; // 最大20分
 
+<<<<<<< HEAD
   // Auto-detected from GitHub Pages URL or db/registry.json
   let OWNER = null;
   let REPO = null;
 
+=======
+>>>>>>> 51a181b (Initial commit)
   const SKILLS = [
     {
       id: 'auto-wiki',
@@ -89,6 +97,7 @@ const AutoWikiAdmin = (() => {
 
   let pollingTimers = {};
 
+<<<<<<< HEAD
   // --- GitHub Repo Detection ---
   function detectGitHubRepoFromURL() {
     // GitHub Pages: {owner}.github.io/{repo}/
@@ -102,12 +111,15 @@ const AutoWikiAdmin = (() => {
     return null;
   }
 
+=======
+>>>>>>> 51a181b (Initial commit)
   // --- Wiki Registry ---
   async function loadWikiList() {
     try {
       const resp = await fetch('db/registry.json');
       if (!resp.ok) return;
       const data = await resp.json();
+<<<<<<< HEAD
 
       // Read GitHub config from registry
       if (data.github && data.github.owner && data.github.repo) {
@@ -115,6 +127,8 @@ const AutoWikiAdmin = (() => {
         REPO = data.github.repo;
       }
 
+=======
+>>>>>>> 51a181b (Initial commit)
       const wikis = data.wikis || {};
       wikiList = Object.entries(wikis).map(([id, info]) => ({
         id,
@@ -124,6 +138,7 @@ const AutoWikiAdmin = (() => {
     } catch {
       wikiList = [];
     }
+<<<<<<< HEAD
 
     // URL detection as fallback (or override if registry has no github config)
     if (!OWNER || !REPO) {
@@ -133,6 +148,8 @@ const AutoWikiAdmin = (() => {
         REPO = detected.repo;
       }
     }
+=======
+>>>>>>> 51a181b (Initial commit)
   }
 
   function buildWikiSelectHTML(skillId, mode) {
@@ -225,7 +242,10 @@ const AutoWikiAdmin = (() => {
   function buildPanelHTML() {
     const token = getToken();
     const isConfigured = !!token;
+<<<<<<< HEAD
     const repoDetected = !!(OWNER && REPO);
+=======
+>>>>>>> 51a181b (Initial commit)
 
     return `
       <div class="admin-panel" id="admin-panel">
@@ -235,12 +255,15 @@ const AutoWikiAdmin = (() => {
           <span class="admin-toggle-arrow" id="admin-arrow">\u25BC</span>
         </div>
         <div class="admin-body" id="admin-body">
+<<<<<<< HEAD
           ${!repoDetected ? `
           <div class="admin-section admin-locked">
             GitHub リポジトリ情報が未設定です。以下のコマンドを実行してください:<br>
             <code>uv run awiki config github</code>
           </div>
           ` : `
+=======
+>>>>>>> 51a181b (Initial commit)
           <!-- Token設定 -->
           <div class="admin-section admin-token-section">
             <div class="admin-token-row">
@@ -256,12 +279,18 @@ const AutoWikiAdmin = (() => {
             <div class="admin-token-hint">
               scope: <code>repo</code>, <code>workflow</code> が必要 ·
               <a href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=autowiki-admin" target="_blank" rel="noopener">トークン作成</a>
+<<<<<<< HEAD
               · repo: <code>${OWNER}/${REPO}</code>
+=======
+>>>>>>> 51a181b (Initial commit)
             </div>
           </div>
 
           ${isConfigured ? buildSkillsHTML() + buildStatusHTML() : '<div class="admin-section admin-locked">トークンを設定するとスキルを実行できます</div>'}
+<<<<<<< HEAD
           `}
+=======
+>>>>>>> 51a181b (Initial commit)
         </div>
       </div>
     `;
