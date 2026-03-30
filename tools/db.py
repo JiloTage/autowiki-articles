@@ -53,11 +53,7 @@ def _save(wiki_id: str, name: str, data: dict) -> None:
 # registry.json — Global wiki registry
 # ===================================================================
 
-<<<<<<< HEAD
 _REGISTRY_INIT = {"github": {"owner": None, "repo": None}, "wikis": {}}
-=======
-_REGISTRY_INIT = {"wikis": {}}
->>>>>>> 51a181b (Initial commit)
 
 _WIKI_DB_INIT = {
     "articles.json": {"articles": {}, "root_id": None, "total_count": 0},
@@ -143,7 +139,6 @@ def _update_registry_count(wiki_id: str, count: int) -> None:
 
 
 # ===================================================================
-<<<<<<< HEAD
 # config — GitHub repo settings in registry
 # ===================================================================
 
@@ -165,8 +160,6 @@ def config_get_github() -> dict:
 
 
 # ===================================================================
-=======
->>>>>>> 51a181b (Initial commit)
 # articles.json — per-wiki
 # ===================================================================
 

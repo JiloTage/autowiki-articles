@@ -42,11 +42,8 @@ from __future__ import annotations
 
 import argparse
 import json
-<<<<<<< HEAD
 import re
 import subprocess
-=======
->>>>>>> 51a181b (Initial commit)
 import sys
 
 from tools import db
@@ -348,7 +345,6 @@ def cmd_reaction_get(args):
 
 
 # ---------------------------------------------------------------------------
-<<<<<<< HEAD
 # config subcommands
 # ---------------------------------------------------------------------------
 
@@ -383,8 +379,6 @@ def cmd_config_github(args):
 
 
 # ---------------------------------------------------------------------------
-=======
->>>>>>> 51a181b (Initial commit)
 # portal
 # ---------------------------------------------------------------------------
 
@@ -585,7 +579,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("reaction_id")
     p.set_defaults(func=cmd_reaction_get)
 
-<<<<<<< HEAD
     # --- config ---
     cfg = sub.add_parser("config", help="Project configuration")
     cfg_sub = cfg.add_subparsers(dest="action", required=True)
@@ -594,9 +587,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--owner", default=None, help="GitHub owner/org name")
     p.add_argument("--repo", default=None, help="GitHub repository name")
     p.set_defaults(func=cmd_config_github)
-
-=======
->>>>>>> 51a181b (Initial commit)
     # --- portal ---
     p = sub.add_parser("portal", help="Portal operations")
     p_sub = p.add_subparsers(dest="action", required=True)

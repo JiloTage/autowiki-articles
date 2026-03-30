@@ -21,7 +21,6 @@
 
 ### 手順
 
-<<<<<<< HEAD
 1. テンプレートからリポジトリを作成してクローン:
    ```bash
    git clone https://github.com/YOUR_USERNAME/your-wiki-repo.git
@@ -34,24 +33,11 @@
    ```
 
 3. Claude Code を起動:
-=======
-1. リポジトリをクローン:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/autowiki.git
-   cd autowiki
-   ```
-
-2. Claude Code を起動:
->>>>>>> 51a181b (Initial commit)
    ```bash
    claude
    ```
 
-<<<<<<< HEAD
 4. wikiを作成:
-=======
-3. wikiを作成:
->>>>>>> 51a181b (Initial commit)
    ```
    /auto-wiki 人工知能 --wiki ai
    ```
@@ -137,12 +123,9 @@ autowiki/
 ## CLI (`awiki`)
 
 ```bash
-<<<<<<< HEAD
 # 初期設定（git remoteから自動検出）
 uv run awiki config github
 
-=======
->>>>>>> 51a181b (Initial commit)
 # Wiki管理
 uv run awiki wiki create --id ai --title "人工知能" --root-topic "AI" --color "#0645ad"
 uv run awiki wiki list
@@ -222,7 +205,6 @@ permissions:
 | `/auto-wiki-feedback` | 記事フィードバック | `--wiki ai "article-slug" 修正内容` |
 | `/auto-wiki-request` | 新規記事リクエスト | `--wiki ai "新トピック"` |
 
-<<<<<<< HEAD
 ## テンプレートの更新を取り込む
 
 テンプレートリポジトリの更新を反映するには:
@@ -237,9 +219,6 @@ git merge upstream/main --allow-unrelated-histories
 ```
 
 `.gitattributes` により、ユーザーデータ（`db/`、`wikis/`、`index.html`）はマージ時に上書きされません。
-
-=======
->>>>>>> 51a181b (Initial commit)
 ## GitHub Pages でデプロイ
 
 1. GitHubにリポジトリを作成してpush
