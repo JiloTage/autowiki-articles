@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エラーリカバリー機構 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    エラーリカバリー機構
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">エラーリカバリー機構</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の<b>エラーリカバリー機構</b>は、クエリループ（src/query.ts）のフェーズ4として実装されており、プロンプト長超過・最大出力トークン数到達・ネットワーク障害・ツール実行失敗・パーミッション拒否など多様な障害モードに対する体系的な回復戦略を提供する。各エラータイプごとに専用のリカバリーパスが定義されており、可能な限りユーザーセッションを中断せずに処理を継続できる設計になっている。</div>
+
+      <h2 id="overview">エラーリカバリーの全体像</h2>
+      <p><b>エラーリカバリー機構</b>は <a href="query-loop.html">クエリループ</a> のフェーズ4に位置し、モデル呼び出し後に発生する回復可能なエラーを分類・処理する責務を持つ。エラーは大別すると「コンテキスト制限エラー」「API/ネットワークエラー」「ツール実行エラー」「操作エラー」の4カテゴリに分類される。</p>
+
+      <p>以下のダイアグラムはエラーリカバリーフロー全体を示す。</p>
+
+      <svg width="680" height="420" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:1.5em auto;border:1px solid #a2a9b1;border-radius:4px;background:#f8f9fa;">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#36c"/>
+          </marker>
+        </defs>
+        <!-- Title -->
+        <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">エラーリカバリーフロー</text>
+
+        <!-- モデル呼び出し -->
+        <rect x="260" y="45" width="160" height="36" rx="6" fill="#36c" stroke="#36c"/>
+        <text x="340" y="68" text-anchor="middle" font-size="12" fill="#fff">モデル呼び出し</text>
+
+        <!-- エラー発生 -->
+        <rect x="260" y="115" width="160" height="36" rx="6" fill="#f8f9fa" stroke="#a2a9b1"/>
+        <text x="340" y="138" text-anchor="middle" font-size="12" fill="#202122">エラー発生</text>
+        <line x1="340" y1="81" x2="340" y2="115" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- 分岐ラベル -->
+        <text x="340" y="182" text-anchor="middle" font-size="11" fill="#555">エラータイプ判定</text>
+        <line x1="340" y1="151" x2="340" y2="168" stroke="#36c" stroke-width="1.5"/>
+
+        <!-- 4本の分岐線 -->
+        <line x1="100" y1="168" x2="580" y2="168" stroke="#36c" stroke-width="1.5"/>
+        <line x1="100" y1="168" x2="100" y2="200" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="260" y1="168" x2="260" y2="200" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="420" y1="168" x2="420" y2="200" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="580" y1="168" x2="580" y2="200" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- ボックス1: コンテキスト制限 -->
+        <rect x="30" y="200" width="140" height="52" rx="6" fill="#f8f9fa" stroke="#a2a9b1"/>
+        <text x="100" y="220" text-anchor="middle" font-size="11" fill="#202122">コンテキスト制限</text>
+        <text x="100" y="236" text-anchor="middle" font-size="10" fill="#555">prompt_too_long</text>
+        <text x="100" y="249" text-anchor="middle" font-size="10" fill="#555">max_output_tokens</text>
+
+        <!-- ボックス2: APIエラー -->
+        <rect x="190" y="200" width="140" height="52" rx="6" fill="#f8f9fa" stroke="#a2a9b1"/>
+        <text x="260" y="220" text-anchor="middle" font-size="11" fill="#202122">API/ネットワーク</text>
+        <text x="260" y="236" text-anchor="middle" font-size="10" fill="#555">rate_limit / 5xx</text>
+        <text x="260" y="249" text-anchor="middle" font-size="10" fill="#555">タイムアウト</text>
+
+        <!-- ボックス3: ツールエラー -->
+        <rect x="350" y="200" width="140" height="52" rx="6" fill="#f8f9fa" stroke="#a2a9b1"/>
+        <text x="420" y="220" text-anchor="middle" font-size="11" fill="#202122">ツール実行エラー</text>
+        <text x="420" y="236" text-anchor="middle" font-size="10" fill="#555">実行失敗</text>
+        <text x="420" y="249" text-anchor="middle" font-size="10" fill="#555">パーミッション拒否</text>
+
+        <!-- ボックス4: abort -->
+        <rect x="510" y="200" width="140" height="52" rx="6" fill="#f8f9fa" stroke="#a2a9b1"/>
+        <text x="580" y="220" text-anchor="middle" font-size="11" fill="#202122">abort/キャンセル</text>
+        <text x="580" y="236" text-anchor="middle" font-size="10" fill="#555">ユーザー割り込み</text>
+        <text x="580" y="249" text-anchor="middle" font-size="10" fill="#555">タイムアウト</text>
+
+        <!-- 矢印: コンテキスト制限 → 回復処理 -->
+        <line x1="100" y1="252" x2="100" y2="318" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="30" y="318" width="140" height="40" rx="6" fill="#e8f0fe" stroke="#36c"/>
+        <text x="100" y="334" text-anchor="middle" font-size="10" fill="#202122">コンテキスト圧縮</text>
+        <text x="100" y="350" text-anchor="middle" font-size="10" fill="#202122">/ トークンエスカレーション</text>
+
+        <!-- 矢印: APIエラー → 回復処理 -->
+        <line x1="260" y1="252" x2="260" y2="318" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="190" y="318" width="140" height="40" rx="6" fill="#e8f0fe" stroke="#36c"/>
+        <text x="260" y="334" text-anchor="middle" font-size="10" fill="#202122">指数バックオフ</text>
+        <text x="260" y="350" text-anchor="middle" font-size="10" fill="#202122">withRetry.ts</text>
+
+        <!-- 矢印: ツールエラー → 回復処理 -->
+        <line x1="420" y1="252" x2="420" y2="318" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="350" y="318" width="140" height="40" rx="6" fill="#e8f0fe" stroke="#36c"/>
+        <text x="420" y="334" text-anchor="middle" font-size="10" fill="#202122">エラーをLLMへ返却</text>
+        <text x="420" y="350" text-anchor="middle" font-size="10" fill="#202122">/ 承認プロンプト</text>
+
+        <!-- 矢印: abort → 回復処理 -->
+        <line x1="580" y1="252" x2="580" y2="318" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="510" y="318" width="140" height="40" rx="6" fill="#fde8e8" stroke="#c00"/>
+        <text x="580" y="334" text-anchor="middle" font-size="10" fill="#202122">クリーンアップ</text>
+        <text x="580" y="350" text-anchor="middle" font-size="10" fill="#202122">セッション終了</text>
+
+        <!-- 底部: ループ再試行 -->
+        <line x1="100" y1="358" x2="100" y2="388" stroke="#36c" stroke-width="1.5"/>
+        <line x1="260" y1="358" x2="260" y2="388" stroke="#36c" stroke-width="1.5"/>
+        <line x1="420" y1="358" x2="420" y2="388" stroke="#36c" stroke-width="1.5"/>
+        <line x1="100" y1="388" x2="420" y2="388" stroke="#36c" stroke-width="1.5"/>
+        <line x1="260" y1="388" x2="260" y2="400" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="260" y="415" text-anchor="middle" font-size="11" fill="#36c">クエリループ再試行</text>
+      </svg>
+
+      <h2 id="prompt-too-long">プロンプト長超過のリカバリー</h2>
+      <p>API が <code>prompt_too_long</code> エラーを返した場合、<a href="query-loop.html">クエリループ</a> はただちに <a href="context-compaction.html">コンテキスト圧縮</a> パイプラインを起動する。このエラーはコンテキストウィンドウの上限を超えたことを示しており、メッセージ履歴を削減しなければ同一リクエストを再送しても同じ結果になる。</p>
+
+      <p>リカバリーは次の3段階で行われる。</p>
+      <ol>
+        <li><strong>コンパクションドレイン</strong>: 既にキューに入っているコンパクション操作を先に完了させる。これにより重複圧縮を防ぐ。</li>
+        <li><strong>リアクティブ圧縮</strong>: エラーをトリガーとして即時にコンパクションを実行する。古いメッセージの snip・microcompact・collapse を適用してトークン数を削減する。</li>
+        <li><strong>ループ再試行</strong>: 圧縮後のコンテキストで同一のモデル呼び出しを再実行する。圧縮後もまだ長すぎる場合はさらなる圧縮を試みる。</li>
+      </ol>
+
+      <p>autocompact が有効な場合、コンテキストが一定閾値（通常95%）を超えた時点で予防的にコンパクションが起動されるため、reactive な圧縮が必要になる頻度は低減される。</p>
+
+      <h2 id="max-output-tokens">最大出力トークン数到達時の継続処理</h2>
+      <p><code>max_tokens</code> ストップシーケンスでレスポンスが打ち切られた場合、クエリループはトークンエスカレーション戦略を適用する。これはモデルの出力が完結していないにもかかわらず、トークン制限に達したことを意味する。</p>
+
+      <p>具体的な処理は以下の通りである。</p>
+      <ul>
+        <li><strong>継続リクエスト</strong>: 現在の未完了レスポンスをアシスタントメッセージとしてコンテキストに追加し、「続きを生成してください」という暗黙の継続クエリを送る。</li>
+        <li><strong>モデルエスカレーション</strong>: フォールバックモデルが設定されている場合、より大きなコンテキストウィンドウや出力制限を持つモデルへ切り替えることがある。</li>
+        <li><strong>ストリーミング結合</strong>: 継続レスポンスは元のレスポンスとシームレスに結合されて UI に表示される。</li>
+      </ul>
+
+      <h2 id="api-retry">ネットワークエラー・APIエラーのリトライ戦略</h2>
+      <p>ネットワーク障害や一時的な API エラーは <code>src/services/api/withRetry.ts</code>（28.2 KB）が処理する。このモジュールはクエリループから独立しており、API 呼び出し層でラップされている。</p>
+
+      <p>リトライ戦略の主要パラメータを以下に示す。</p>
+      <ul>
+        <li><strong>対象エラー</strong>: HTTP 429（レート制限）・5xx系エラー・ネットワークタイムアウト・接続リセット</li>
+        <li><strong>非対象エラー</strong>: 4xx系クライアントエラー（認証失敗・パラメータエラーなど）はリトライせずに即時伝播</li>
+        <li><strong>バックオフ戦略</strong>: 指数バックオフ（Exponential Backoff）＋ジッター。初回リトライまでの待機時間は短く、リトライ回数が増えるにつれて指数的に延長される。</li>
+        <li><strong>最大リトライ回数</strong>: 設定可能。デフォルトでは数回のリトライ後にエラーをクエリループへ伝播する。</li>
+        <li><strong>フォールバックモデル</strong>: 主要モデルへのリクエストが繰り返し失敗する場合、フォールバックモデルへ自動切り替えすることでサービス継続性を維持する。</li>
+      </ul>
+
+      <h2 id="tool-errors">ツール実行エラーの処理</h2>
+      <p><a href="tool-system.html">ツールシステム</a> でエラーが発生した場合、クエリループはそれをセッション終了要因とは扱わない。代わりにエラー情報を <code>tool_result</code> メッセージとして LLM に返し、次のターンで LLM 自身がリカバリーを判断できるようにする。</p>
+
+      <p>ツールエラー処理の詳細フロー。</p>
+      <ol>
+        <li>ツール実行時に例外が発生すると、エラーメッセージとスタックトレース（デバッグモード時）が収集される。</li>
+        <li>エラーは <code>{"type": "tool_result", "is_error": true, "content": "...エラー詳細..."}</code> 形式でコンテキストに追加される。</li>
+        <li>LLM は次のターンでこのエラーを認識し、代替アプローチの試行・ユーザーへの説明・処理の中断などを自律的に判断する。</li>
+        <li>並行ツール実行（<code>isConcurrencySafe()</code> が true のツール群）では、一部のツールが失敗しても他のツールの実行は継続される。</li>
+      </ol>
+
+      <h2 id="permission-denial">パーミッション拒否時の処理フロー</h2>
+      <p><a href="query-engine.html">QueryEngine</a> はパーミッション拒否をトラッキングする専用の状態を持つ。ツールがユーザーによって拒否された場合、その情報はセッション全体で保持され、同一ツールへの再試行を抑制する。</p>
+
+      <p>パーミッション拒否のハンドリング。</p>
+      <ul>
+        <li><strong>インタラクティブ承認</strong>: デフォルトではツール実行前にユーザーへ承認を求める。ユーザーが拒否した場合、拒否済みリストに追加される。</li>
+        <li><strong>拒否済みツールの扱い</strong>: 拒否済みとしてマークされたツールは、同一セッション内での再呼び出し時に即座に <code>is_error: true</code> の tool_result を返す（再度プロンプトを表示しない）。</li>
+        <li><strong>LLM へのフィードバック</strong>: 拒否情報は tool_result を通じて LLM に伝わり、LLM は代替手段を検討するか、作業の断念をユーザーに説明する。</li>
+        <li><strong>スコープ分離</strong>: サブエージェント（AgentTool）は独自のパーミッションスコープを持ち、親エージェントの拒否リストを継承しない設計になっている。</li>
+      </ul>
+
+      <h2 id="abort-cancel">abort/キャンセル処理</h2>
+      <p>ユーザーが Ctrl+C などでセッションを中断した場合、またはプログラム的に abort シグナルが発火した場合、クエリループは安全なクリーンアップを実施してから終了する。</p>
+
+      <p><code>using</code> ステートメント（Symbol.asyncDispose）を活用したリソース管理により、ジェネレータのどの終了パスでも確実にクリーンアップが実行される。具体的には以下が保証される。</p>
+      <ul>
+        <li><strong>進行中のツール実行の中断</strong>: abort シグナルは実行中のツールに伝播され、可能な場合はツール実行がキャンセルされる。</li>
+        <li><strong>ストリーミングの停止</strong>: API ストリームが即座にクローズされ、部分的なレスポンスはバッファから破棄される。</li>
+        <li><strong>セッション状態の保存</strong>: abort 前の会話履歴は <a href="session-memory.html">セッションメモリ</a> に保存され、次回の再開時に利用できる。</li>
+        <li><strong>非同期リソースの解放</strong>: ファイルハンドル・ネットワーク接続などのリソースが確実に解放される。</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">エラーリカバリーの全体像</a></li>
+          <li><a href="#prompt-too-long">プロンプト長超過のリカバリー</a></li>
+          <li><a href="#max-output-tokens">最大出力トークン数到達時の継続処理</a></li>
+          <li><a href="#api-retry">ネットワーク・APIエラーのリトライ</a></li>
+          <li><a href="#tool-errors">ツール実行エラーの処理</a></li>
+          <li><a href="#permission-denial">パーミッション拒否時の処理フロー</a></li>
+          <li><a href="#abort-cancel">abort/キャンセル処理</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="query-loop.html">クエリループ</a></li>
+          <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+          <li><a href="session-memory.html">セッションメモリ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

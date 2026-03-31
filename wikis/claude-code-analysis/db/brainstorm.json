@@ -1,4 +1,69 @@
 {
   "queue": [],
-  "history": []
+  "history": [
+    {
+      "proposed_slug": "permission-system",
+      "proposed_title": "パーミッションシステム",
+      "source_id": "agent-architecture",
+      "rationale": "エージェントアーキテクチャ記事でパーミッションスコーピングが言及されているが詳細解説が必要",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "bash-tool-security",
+      "proposed_title": "BashTool セキュリティ設計",
+      "source_id": "tool-system",
+      "rationale": "bashSecurity.tsなどのセキュリティ設計を独立記事として詳細解説",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "system-prompt-design",
+      "proposed_title": "システムプロンプト設計",
+      "source_id": "prompt-engineering",
+      "rationale": "各ツールのprompt.tsの構造やAI行動制御の仕組みを詳しく解説",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "error-recovery-mechanisms",
+      "proposed_title": "エラーリカバリー機構",
+      "source_id": "query-loop",
+      "rationale": "クエリループのリカバリーメカニズムの詳細解説",
+      "interestingness_score": 0.83,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "agent-lifecycle",
+      "proposed_title": "エージェントライフサイクル",
+      "source_id": "agent-architecture",
+      "rationale": "runAgent.tsの6フェーズの詳細解説",
+      "interestingness_score": 0.82,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "task-decomposition",
+      "proposed_title": "タスク分解戦略",
+      "source_id": "coordinator-mode",
+      "rationale": "コーディネータによるタスク分解の実践的内容",
+      "interestingness_score": 0.81,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "mcp-oauth-flow",
+      "proposed_title": "MCP OAuth 認証フロー",
+      "source_id": "mcp-integration",
+      "rationale": "auth.tsのOAuth 2.0実装の詳細解説",
+      "interestingness_score": 0.8,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "file-edit-tool",
+      "proposed_title": "FileEditTool の設計",
+      "source_id": "tool-system",
+      "rationale": "FileEditToolの独自設計原則を深掘り",
+      "interestingness_score": 0.78,
+      "status": "processing"
+    }
+  ]
 }

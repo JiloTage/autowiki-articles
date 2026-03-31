@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BashTool セキュリティ設計 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    BashTool セキュリティ設計
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">BashTool セキュリティ設計</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の <b>BashTool セキュリティ設計</b>は、シェルコマンドを AI が安全に実行するための多層防御アーキテクチャである。bashSecurity.ts・pathValidation.ts・sedValidation.ts の3つの専用バリデーションモジュールが協調し、危険なコマンド・パス操作・ファイル破壊を防ぐ。サンドボックスモード・タイムアウト制御・専用ツールへの誘導設計が組み合わさり、AI によるシェル実行リスクを最小化している。</div>
+
+      <h2 id="file-structure">ファイル構成</h2>
+      <p><b>BashTool セキュリティ設計</b>は <code>src/tools/BashTool/</code> ディレクトリ内の複数ファイルで実装されている。各ファイルは単一責任の原則に従い、セキュリティの異なる側面を担当する。</p>
+      <table>
+        <thead>
+          <tr><th>ファイル</th><th>役割</th><th>概要</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>BashTool.ts</code></td><td>コア実装</td><td>シェルコマンド実行・タイムアウト制御・サンドボックスモード管理</td></tr>
+          <tr><td><code>bashSecurity.ts</code></td><td>コマンドセキュリティ検証</td><td>危険なコマンドパターンの検出・ブロック・警告生成</td></tr>
+          <tr><td><code>pathValidation.ts</code></td><td>パスバリデーション</td><td>パストラバーサル・危険なディレクトリへのアクセス防止</td></tr>
+          <tr><td><code>sedValidation.ts</code></td><td>sed コマンド検証</td><td>sed による意図しないファイル破壊パターンの検出</td></tr>
+          <tr><td><code>prompt.ts</code></td><td>AI 向け指示</td><td>専用ツールへの誘導・使用禁止コマンドの明示</td></tr>
+          <tr><td><code>UI.tsx</code></td><td>ターミナル UI</td><td>実行コマンド・出力のレンダリング</td></tr>
+        </tbody>
+      </table>
+
+      <p>この分離設計により、セキュリティロジックが独立してテスト・メンテナンス可能な構造になっている。<a href="tool-system.html">ツールシステム</a>全体でも、ツールディレクトリ内のファイル分離は共通パターンである。</p>
+
+      <!-- Security Layer Diagram -->
+      <svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block;margin:24px auto;background:#f8f9fa;border:1px solid #a2a9b1;border-radius:4px;">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+          </marker>
+        </defs>
+        <!-- Title -->
+        <text x="360" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">BashTool セキュリティレイヤー</text>
+
+        <!-- Layer 1: Input -->
+        <rect x="280" y="48" width="160" height="40" rx="4" fill="#eaf3fb" stroke="#36c" stroke-width="1.5"/>
+        <text x="360" y="73" text-anchor="middle" font-size="13" fill="#202122">AI コマンド入力</text>
+
+        <!-- Arrow down -->
+        <line x1="360" y1="88" x2="360" y2="108" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Layer 2: bashSecurity.ts -->
+        <rect x="200" y="108" width="320" height="44" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="360" y="127" text-anchor="middle" font-size="12" font-weight="bold" fill="#36c">bashSecurity.ts</text>
+        <text x="360" y="144" text-anchor="middle" font-size="11" fill="#555">コマンドセキュリティ検証（危険パターン検出・ブロック）</text>
+
+        <!-- Arrow down -->
+        <line x1="360" y1="152" x2="360" y2="172" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Layer 3: pathValidation + sedValidation (side by side) -->
+        <rect x="100" y="172" width="240" height="44" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="220" y="191" text-anchor="middle" font-size="12" font-weight="bold" fill="#36c">pathValidation.ts</text>
+        <text x="220" y="208" text-anchor="middle" font-size="11" fill="#555">パストラバーサル・危険ディレクトリ防止</text>
+
+        <rect x="380" y="172" width="240" height="44" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="500" y="191" text-anchor="middle" font-size="12" font-weight="bold" fill="#36c">sedValidation.ts</text>
+        <text x="500" y="208" text-anchor="middle" font-size="11" fill="#555">sed 破壊パターン検出・警告</text>
+
+        <!-- Arrows from layer2 to layer3 -->
+        <line x1="310" y1="152" x2="220" y2="172" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="410" y1="152" x2="500" y2="172" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Arrows down to Layer 4 -->
+        <line x1="220" y1="216" x2="300" y2="244" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="500" y1="216" x2="420" y2="244" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Layer 4: BashTool.ts -->
+        <rect x="200" y="244" width="320" height="44" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="360" y="263" text-anchor="middle" font-size="12" font-weight="bold" fill="#36c">BashTool.ts</text>
+        <text x="360" y="280" text-anchor="middle" font-size="11" fill="#555">サンドボックス・タイムアウト制御・コマンド実行</text>
+
+        <!-- Arrow down -->
+        <line x1="360" y1="288" x2="360" y2="308" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Layer 5: Shell -->
+        <rect x="280" y="308" width="160" height="24" rx="4" fill="#e8f5e9" stroke="#36c" stroke-width="1.5"/>
+        <text x="360" y="325" text-anchor="middle" font-size="12" fill="#202122">シェル実行（制御済み）</text>
+      </svg>
+
+      <h2 id="bash-security">コマンドセキュリティ検証（bashSecurity.ts）</h2>
+      <p><code>bashSecurity.ts</code> は BashTool のコマンドセキュリティ検証の中核を担う。AI が生成したコマンド文字列を実行前に解析し、危険なパターンを検出する。</p>
+
+      <h3>検証の仕組み</h3>
+      <p>コマンドは実行前に静的解析にかけられる。パイプ・リダイレクト・コマンド置換などのシェル構文を考慮した上で、以下のカテゴリのパターンを検出する。</p>
+      <ul>
+        <li><strong>破壊的ファイル操作</strong> — <code>rm -rf /</code>・<code>rm -rf ~</code> などのルートや重要ディレクトリの削除</li>
+        <li><strong>権限昇格</strong> — <code>sudo</code> を用いた予期しない権限変更</li>
+        <li><strong>ネットワーク外部通信</strong> — 機密情報の外部送信を示すパターン</li>
+        <li><strong>プロセス管理の悪用</strong> — フォーク爆弾や無制限なバックグラウンドプロセス生成</li>
+        <li><strong>環境変数の悪用</strong> — 重要な環境変数の意図しない上書き</li>
+      </ul>
+      <p>検出されたパターンは即座にブロックされるか、ユーザーへの警告とともに確認を求める。検証は <a href="prompt-engineering.html">プロンプト設計</a>と連携し、AI が危険なコマンドを生成しないよう事前に誘導する。</p>
+
+      <h2 id="path-validation">パスバリデーション（pathValidation.ts）</h2>
+      <p><code>pathValidation.ts</code> は危険なパス操作を防止する専用モジュールである。BashTool だけでなく、FileEditTool や FileWriteTool からも利用される共有バリデーションレイヤーを形成する。</p>
+
+      <h3>主要な検証項目</h3>
+      <table>
+        <thead>
+          <tr><th>脅威</th><th>対策</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>パストラバーサル</td><td><code>../</code> を含む相対パスの正規化・検証</td></tr>
+          <tr><td>システムディレクトリアクセス</td><td><code>/etc</code>・<code>/sys</code>・<code>/proc</code> などの書き込み禁止</td></tr>
+          <tr><td>ホームディレクトリ保護</td><td><code>~/.ssh</code>・<code>~/.config</code> などの機密ディレクトリへの制限</td></tr>
+          <tr><td>シンボリックリンク悪用</td><td>シンボリックリンクの解決後パスを検証し、保護対象への迂回を防止</td></tr>
+          <tr><td>絶対パスの検証</td><td>許可されたワーキングディレクトリ外のアクセス制限</td></tr>
+        </tbody>
+      </table>
+
+      <p>パスバリデーションは<a href="agent-architecture.html">エージェントアーキテクチャ</a>のパーミッションスコーピングと連携する。サブエージェントが親エージェントのスコープ外のファイルにアクセスすることを防ぐ役割も担う。</p>
+
+      <h2 id="sed-validation">sed コマンド検証（sedValidation.ts）</h2>
+      <p><code>sedValidation.ts</code> は <code>sed</code> コマンドの安全でない使用パターンを専門的に検証するモジュールである。<code>sed</code> はテキスト処理に強力なツールだが、誤った使用でファイルを意図せず破壊するリスクを持つ。</p>
+
+      <h3>検出する危険パターン</h3>
+      <ul>
+        <li><strong>インプレース編集リスク</strong> — <code>sed -i</code> によるバックアップなしのファイル直接編集</li>
+        <li><strong>過度に広いマッチ</strong> — 全行を対象とする正規表現パターンによる意図しない一括置換</li>
+        <li><strong>デリミタの混乱</strong> — パス文字列を含む置換でデリミタが重複するパターン</li>
+        <li><strong>空置換</strong> — コンテンツを削除してしまう可能性のある空文字列への置換</li>
+      </ul>
+      <p>BashTool の <a href="prompt-engineering.html">プロンプト設計</a>では、<code>sed</code> の代わりに FileEditTool の使用を優先するよう AI を誘導している。sedValidation.ts はその誘導をバイパスして <code>sed</code> が使用された場合の最後の防衛線として機能する。</p>
+
+      <h2 id="tool-guidance">専用ツールへの誘導設計</h2>
+      <p>BashTool の設計上の重要な特徴として、汎用コマンドの使用を抑制し、より安全な専用ツールへ AI を誘導する仕組みがある。この誘導はプロンプトレベルとランタイムレベルの二段階で実装されている。</p>
+
+      <!-- Tool Guidance Diagram -->
+      <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:24px auto;background:#f8f9fa;border:1px solid #a2a9b1;border-radius:4px;">
+        <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">汎用コマンド → 専用ツール誘導マップ</text>
+
+        <!-- Left: Suppressed commands -->
+        <rect x="30" y="44" width="260" height="200" rx="4" fill="#fff3e0" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="160" y="66" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">BashTool で抑制されるコマンド</text>
+        <text x="160" y="88" text-anchor="middle" font-size="12" fill="#202122">find</text>
+        <text x="160" y="108" text-anchor="middle" font-size="12" fill="#202122">grep / rg</text>
+        <text x="160" y="128" text-anchor="middle" font-size="12" fill="#202122">cat / head / tail</text>
+        <text x="160" y="148" text-anchor="middle" font-size="12" fill="#202122">sed / awk</text>
+        <text x="160" y="168" text-anchor="middle" font-size="12" fill="#202122">echo / printf（ファイル書込）</text>
+        <text x="160" y="188" text-anchor="middle" font-size="12" fill="#202122">ls （ファイル探索）</text>
+        <text x="160" y="208" text-anchor="middle" font-size="12" fill="#202122">diff</text>
+        <text x="160" y="228" text-anchor="middle" font-size="12" fill="#202122">wc / sort / uniq</text>
+
+        <!-- Arrows -->
+        <line x1="290" y1="88" x2="390" y2="88" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="108" x2="390" y2="108" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="128" x2="390" y2="128" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="148" x2="390" y2="148" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="168" x2="390" y2="168" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="188" x2="390" y2="188" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="208" x2="390" y2="208" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="290" y1="228" x2="390" y2="228" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Right: Recommended tools -->
+        <rect x="390" y="44" width="260" height="200" rx="4" fill="#e8f5e9" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="520" y="66" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">推奨される専用ツール</text>
+        <text x="520" y="88" text-anchor="middle" font-size="12" fill="#202122">GlobTool</text>
+        <text x="520" y="108" text-anchor="middle" font-size="12" fill="#202122">GrepTool</text>
+        <text x="520" y="128" text-anchor="middle" font-size="12" fill="#202122">FileReadTool</text>
+        <text x="520" y="148" text-anchor="middle" font-size="12" fill="#202122">FileEditTool</text>
+        <text x="520" y="168" text-anchor="middle" font-size="12" fill="#202122">FileWriteTool</text>
+        <text x="520" y="188" text-anchor="middle" font-size="12" fill="#202122">GlobTool</text>
+        <text x="520" y="208" text-anchor="middle" font-size="12" fill="#202122">FileReadTool（比較）</text>
+        <text x="520" y="228" text-anchor="middle" font-size="12" fill="#202122">FileReadTool（統計）</text>
+      </svg>
+
+      <p>この誘導設計には以下の利点がある。</p>
+      <ul>
+        <li><strong>安全性</strong> — 専用ツールは入力バリデーション・出力サニタイズが組み込まれている</li>
+        <li><strong>可視性</strong> — 専用ツール呼び出しは UI に明確に表示され、ユーザーが監視しやすい</li>
+        <li><strong>パーミッション統合</strong> — 専用ツールは <code>checkPermissions()</code> でアクセス制御が一元管理される</li>
+        <li><strong>読み取り専用フラグ</strong> — <code>isReadOnly()</code> が <code>true</code> のツールは破壊的操作をしないことが保証される</li>
+      </ul>
+
+      <h2 id="sandbox-mode">サンドボックスモードでの $TMPDIR 強制</h2>
+      <p>サンドボックスモードが有効な場合、BashTool はファイル書き込みを <code>$TMPDIR</code> 配下に強制する。これは自動化・CI 環境や untrusted コードを実行する場面での安全性を確保するための機能である。</p>
+
+      <h3>$TMPDIR 強制の仕組み</h3>
+      <p>サンドボックスモード下では以下の制約が適用される。</p>
+      <ul>
+        <li>ファイル書き込み操作は <code>$TMPDIR</code>（通常 <code>/tmp</code>）配下のみ許可</li>
+        <li>プロジェクトディレクトリ外へのファイル作成を <code>pathValidation.ts</code> と連携してブロック</li>
+        <li>環境変数 <code>$TMPDIR</code> が未設定の場合はシステムデフォルトの一時ディレクトリを使用</li>
+        <li>セッション終了後に一時ファイルのクリーンアップを実施</li>
+      </ul>
+      <p>サンドボックスモードの設定は <a href="agent-architecture.html">エージェントアーキテクチャ</a>のパーミッションシステムと連動し、<code>checkPermissions()</code> メソッドを通じて適用される。</p>
+
+      <h2 id="timeout-control">タイムアウト制御</h2>
+      <p>BashTool はコマンド実行のタイムアウトを制御する仕組みを持つ。長時間実行されるコマンドや無限ループへの対策として設計されている。</p>
+
+      <h3>タイムアウト設計</h3>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>デフォルトタイムアウト</td><td>コマンドごとに設定された上限時間（秒単位）</td></tr>
+          <tr><td>ユーザー指定タイムアウト</td><td>実行時オプションでタイムアウト値のカスタマイズが可能</td></tr>
+          <tr><td>タイムアウト時の処理</td><td>プロセスツリー全体の安全な終了（SIGTERM → SIGKILL）</td></tr>
+          <tr><td>進捗コールバック</td><td>長時間実行中は定期的に進捗を <code>call()</code> のコールバックで通知</td></tr>
+          <tr><td>出力バッファ制限</td><td>大量の出力を生成するコマンドに対するバッファサイズ制限</td></tr>
+        </tbody>
+      </table>
+
+      <p>タイムアウト制御は <a href="query-loop.html">クエリループ</a>のツール実行フェーズと連携し、タイムアウトが発生した場合は適切なエラーメッセージをクエリループに返却する。これにより AI は状況を把握し、代替手段を試みることができる。</p>
+
+      <h2 id="security-summary">セキュリティ設計の総括</h2>
+      <p>BashTool のセキュリティ設計は、単一の防衛線ではなく多層防御（Defense in Depth）アプローチを採用している。プロンプトレベルの誘導・静的コマンド検証・パスバリデーション・サンドボックス・タイムアウトの各層が独立して機能しつつ、相互に補完し合う設計となっている。</p>
+      <ul>
+        <li><strong>プロンプト層</strong>（<code>prompt.ts</code>） — AI が危険なコマンドを生成しないよう事前誘導</li>
+        <li><strong>検証層</strong>（<code>bashSecurity.ts</code>・<code>pathValidation.ts</code>・<code>sedValidation.ts</code>） — 生成されたコマンドの実行前検証</li>
+        <li><strong>実行制御層</strong>（<code>BashTool.ts</code>） — サンドボックス・タイムアウトによる実行時制御</li>
+        <li><strong>パーミッション層</strong>（<code>checkPermissions()</code>） — ユーザー設定に基づくアクセス制御</li>
+      </ul>
+      <p>この設計は <a href="tool-system.html">ツールシステム</a>全体の安全な AI 操作という設計哲学の具体的実装であり、BashTool が最もリスクの高いツールであるがゆえに特に厚いセキュリティ層が設けられている。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#file-structure">ファイル構成</a></li>
+          <li><a href="#bash-security">コマンドセキュリティ検証</a></li>
+          <li><a href="#path-validation">パスバリデーション</a></li>
+          <li><a href="#sed-validation">sed コマンド検証</a></li>
+          <li><a href="#tool-guidance">専用ツールへの誘導設計</a></li>
+          <li><a href="#sandbox-mode">サンドボックスモード</a></li>
+          <li><a href="#timeout-control">タイムアウト制御</a></li>
+          <li><a href="#security-summary">セキュリティ設計の総括</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

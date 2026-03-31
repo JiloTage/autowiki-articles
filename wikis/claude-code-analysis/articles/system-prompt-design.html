@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>システムプロンプト設計 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    システムプロンプト設計
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">システムプロンプト設計</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の<b>システムプロンプト設計</b>は、各ツールの <code>prompt.ts</code> ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略にわたる包括的な設計パターンを持つ。</div>
+
+      <h2 id="overview">システムプロンプトの構造と役割</h2>
+      <p>Claude Code の<b>システムプロンプト設計</b>は、単一のプロンプトではなく複数の層から構成される階層的な指示体系である。最上位にはグローバルなシステムプロンプト（<code>src/constants/prompts.ts</code> 等）が存在し、その下に各ツール固有の <code>prompt.ts</code> ファイルが位置する。ツール説明文はツールが LLM のコンテキストに組み込まれる際に動的にアセンブルされ、全体として一貫したAI行動制御を実現する。</p>
+
+      <p>システムプロンプトの主な役割は以下の通りである。</p>
+      <ul>
+        <li><strong>行動規範の確立</strong>: AIが何をすべきか、すべきでないかを明確に定義する</li>
+        <li><strong>ツール使用の誘導</strong>: 各ツールの適切な使用タイミングと方法を指示する</li>
+        <li><strong>セキュリティ境界の設定</strong>: 破壊的操作や不適切な動作を防止する</li>
+        <li><strong>品質基準の維持</strong>: 出力フォーマットや一貫性を担保する</li>
+      </ul>
+
+      <!-- SVGダイアグラム: プロンプト階層図 -->
+      <figure style="margin: 24px 0; text-align: center;">
+        <svg width="600" height="360" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" style="max-width:100%; height:auto;">
+          <rect width="600" height="360" fill="#f8f9fa" rx="6" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="300" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Claude Code プロンプト階層</text>
+
+          <!-- Level 1: Global System Prompt -->
+          <rect x="170" y="48" width="260" height="44" rx="4" fill="#3366cc" stroke="#1a4490" stroke-width="1"/>
+          <text x="300" y="66" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">グローバルシステムプロンプト</text>
+          <text x="300" y="83" text-anchor="middle" font-size="10" fill="#d0d8f0">src/constants/prompts.ts</text>
+
+          <!-- Arrow down -->
+          <line x1="300" y1="92" x2="300" y2="116" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Level 2: Tool Descriptions Assembly -->
+          <rect x="130" y="116" width="340" height="44" rx="4" fill="#36c" stroke="#1a4490" stroke-width="1" fill-opacity="0.85"/>
+          <text x="300" y="134" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">ツール説明アセンブリ</text>
+          <text x="300" y="151" text-anchor="middle" font-size="10" fill="#d0d8f0">名前での重複排除・順序安定性の維持</text>
+
+          <!-- Arrow down -->
+          <line x1="300" y1="160" x2="300" y2="184" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Level 3: Individual Tool Prompts (4 boxes) -->
+          <rect x="20" y="184" width="120" height="60" rx="4" fill="#ffffff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="80" y="202" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">BashTool</text>
+          <text x="80" y="218" text-anchor="middle" font-size="9" fill="#555">prompt.ts</text>
+          <text x="80" y="233" text-anchor="middle" font-size="9" fill="#555">セキュリティ制約</text>
+
+          <rect x="155" y="184" width="120" height="60" rx="4" fill="#ffffff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="215" y="202" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">FileEditTool</text>
+          <text x="215" y="218" text-anchor="middle" font-size="9" fill="#555">prompt.ts</text>
+          <text x="215" y="233" text-anchor="middle" font-size="9" fill="#555">編集前読み取り必須</text>
+
+          <rect x="290" y="184" width="120" height="60" rx="4" fill="#ffffff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="350" y="202" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">AgentTool</text>
+          <text x="350" y="218" text-anchor="middle" font-size="9" fill="#555">prompt.ts (16.7KB)</text>
+          <text x="350" y="233" text-anchor="middle" font-size="9" fill="#555">並行実行・フォーク</text>
+
+          <rect x="425" y="184" width="155" height="60" rx="4" fill="#ffffff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="502" y="202" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">コーディネータ</text>
+          <text x="502" y="218" text-anchor="middle" font-size="9" fill="#555">coordinatorMode.ts</text>
+          <text x="502" y="233" text-anchor="middle" font-size="9" fill="#555">並列ワーカー管理</text>
+
+          <!-- Connecting lines to level 3 -->
+          <line x1="300" y1="184" x2="80" y2="184" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="300" y1="184" x2="215" y2="184" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="300" y1="184" x2="350" y2="184" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="300" y1="184" x2="502" y2="184" stroke="#a2a9b1" stroke-width="1"/>
+
+          <!-- Arrow down -->
+          <line x1="300" y1="244" x2="300" y2="268" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Level 4: Context-dependent generation -->
+          <rect x="100" y="268" width="400" height="44" rx="4" fill="#eaf3fb" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="300" y="287" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">コンテキスト依存プロンプト生成</text>
+          <text x="300" y="303" text-anchor="middle" font-size="10" fill="#555">description() メソッド / 動的組み立て / キャッシュ最適化</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+
+          <text x="300" y="345" text-anchor="middle" font-size="9" fill="#72777d">各層のプロンプトが統合されてLLMに渡される</text>
+        </svg>
+        <figcaption style="font-size:12px; color:#555; margin-top:6px;">図1: Claude Code のシステムプロンプト階層構造</figcaption>
+      </figure>
+
+      <h2 id="prompt-ts-design">prompt.ts ファイルの目的と設計パターン</h2>
+      <p>Claude Code では各ツールが独立した <code>prompt.ts</code> ファイルを持つ。このファイルはツールの <code>description()</code> メソッドが返す文字列を定義するものであり、LLM がそのツールをどのように扱うべきかを指示する。<a href="tool-system.html">ツールシステム</a>の設計原則に従い、各ツールディレクトリは実装・UI・プロンプト・セキュリティ検証を明確に分離している。</p>
+
+      <p>代表的な設計パターンを以下に示す。</p>
+      <ul>
+        <li><strong>禁止事項の明示</strong>: 「bash の <code>grep</code>/<code>rg</code> の代わりに必ず Grep ツールを使用する」のように、代替手段を明示しつつ禁止事項を列挙する</li>
+        <li><strong>条件分岐の記述</strong>: 「A の場合は X を、B の場合は Y を使用する」という形式で状況別の指示を提供する</li>
+        <li><strong>優先順位の付与</strong>: 複数の選択肢がある場合に推奨順序を示す</li>
+        <li><strong>例示による補強</strong>: 抽象的な指示に具体例を添えて理解を助ける</li>
+      </ul>
+
+      <h2 id="behavior-control">AI行動制御のメカニズム</h2>
+      <p>Claude Code のシステムプロンプトは「何をすべきか（DO）」と「何をすべきでないか（DON'T）」の両面から AI の行動を制御する。この二元的な制御は特にセキュリティとユーザー体験に関わる領域で顕著である。</p>
+
+      <h3 id="do-rules">すべきこと（DO）の指示</h3>
+      <ul>
+        <li>独立したコマンドは単一メッセージ内で複数ツール呼び出しとして並行実行する</li>
+        <li>順次実行が必要な依存コマンドは <code>&amp;&amp;</code> でチェーンして単一 Bash 呼び出しにまとめる</li>
+        <li>ファイル編集前に必ず <code>FileReadTool</code> で内容を読み取る</li>
+        <li><code>old_string</code> の一意性を確保するため、2〜4行の隣接するコンテキストを含める</li>
+        <li>エージェント起動時には常に3〜5語の説明を含める</li>
+      </ul>
+
+      <h3 id="dont-rules">すべきでないこと（DON'T）の指示</h3>
+      <ul>
+        <li>明示的に要求されない限り、破壊的 git コマンド（<code>reset --hard</code>、<code>checkout .</code> 等）を実行しない</li>
+        <li>明示的に要求されない限り、コミットを作成しない</li>
+        <li><code>main</code>/<code>master</code> への force-push は絶対に行わない</li>
+        <li><code>bash</code> コマンドで <code>grep</code>/<code>rg</code>/<code>find</code>/<code>cat</code> 等を実行しない（専用ツールを使用する）</li>
+        <li>フォーク結果を捏造・予測しない（"Never fabricate or predict fork results"）</li>
+        <li>著作権コンテンツを逐語的に複製しない</li>
+      </ul>
+
+      <h2 id="context-dependent">コンテキスト依存のプロンプト生成（description()メソッド）</h2>
+      <p>各ツールの <code>description()</code> メソッドは静的な文字列を返すだけでなく、実行時のコンテキスト情報を受け取って動的にプロンプト文字列を生成できる設計になっている。これにより、ツールの説明がその時点のシステム状態やセッション設定を反映した内容になる。</p>
+
+      <p>コンテキスト依存生成の主な用途を示す。</p>
+      <ul>
+        <li><strong>サンドボックスモード</strong>: サンドボックスが有効な場合、BashTool の説明に「一時ファイルには <code>$TMPDIR</code> を使用する」という制約が追加される</li>
+        <li><strong>パーミッション設定</strong>: 許可されている操作の範囲に応じてツール説明が変化する</li>
+        <li><strong>MCP サーバー情報</strong>: 接続中の MCP サーバーに応じてツールセットが動的に変化する（<a href="mcp-integration.html">MCP インテグレーション</a>参照）</li>
+        <li><strong>wiki ID 自動解決</strong>: ワーカーエージェントへのブリーフィング内容がコンテキストに応じて変化する</li>
+      </ul>
+
+      <h2 id="agent-tool-prompt">AgentTool のプロンプト設計（16.7KB）</h2>
+      <p>AgentTool の <code>prompt.ts</code> は全ツール中最大の16.7KBを誇り、<a href="agent-architecture.html">エージェントアーキテクチャ</a>の複雑さを反映した詳細な指示体系を持つ。その設計には並行実行・フォーク機能・エージェントブリーフィングの3つの主要テーマがある。</p>
+
+      <h3 id="parallel-execution">並行実行の強調</h3>
+      <p>AgentTool のプロンプトは並行実行を最優先の原則として位置づける。「単一メッセージ内で複数のツール使用コンテントブロックを送信する」という指示は、逐次処理よりも並行処理を優先することを明確にしている。これにより、独立したサブタスクは同時に実行され、全体の処理時間が短縮される。</p>
+
+      <h3 id="fork-feature">フォーク機能の制御</h3>
+      <p>AgentTool のフォーク機能には特有の制約が設けられている。</p>
+      <ul>
+        <li><strong>"Don't peek"</strong>: フォーク出力を覗き見しない。フォーク結果を待たずに次の処理を進める</li>
+        <li><strong>"Never fabricate or predict fork results"</strong>: フォーク結果を捏造・予測しない。実際の結果のみを使用する</li>
+        <li>エージェント結果をユーザーに表示する前に要約する</li>
+      </ul>
+
+      <h3 id="agent-briefing">エージェントブリーフィング</h3>
+      <p>AgentTool のプロンプトは「スマートな同僚が部屋に入ってきたようにエージェントにブリーフィングする」という比喩を用いて、エージェントへの指示の書き方を示す。すべてのプロンプトはワーカーが必要とするすべてを含む自己完結型でなければならない。</p>
+
+      <h2 id="coordinator-prompt">コーディネータモードのプロンプト設計</h2>
+      <p><a href="coordinator-mode.html">コーディネータモード</a>のプロンプトは並行化を設計哲学の中心に置く。「並列性はあなたのスーパーパワー。ワーカーは非同期。可能な限り独立したワーカーを並行起動する」というメッセージは、コーディネータに期待される行動様式を端的に表している。</p>
+
+      <p>コーディネータプロンプトの主要な指示を以下に示す。</p>
+      <ul>
+        <li><strong>自己完結型プロンプト</strong>: 「すべてのプロンプトはワーカーが必要とするすべてを含む自己完結型でなければならない」</li>
+        <li><strong>ワーカー再利用戦略</strong>: コンテキスト重複が高い場合はワーカーを再利用する；コンテキストが分岐した場合は新規ワーカーを生成する</li>
+        <li><strong>タスク結果フォーマット</strong>: <code>&lt;task_id&gt;</code>・<code>&lt;status&gt;</code>・<code>&lt;summary&gt;</code>・<code>&lt;result&gt;</code> を含む XML ラップメッセージで結果を受け取る</li>
+        <li><strong>独立性の確保</strong>: ワーカー間の依存関係を最小化し、最大限の並行化を実現する</li>
+      </ul>
+
+      <h2 id="prompt-cache-stability">プロンプトキャッシュ安定性の維持</h2>
+      <p>Claude Code は Anthropic の API プロンプトキャッシュを積極的に活用してコストを削減している。プロンプトキャッシュが有効に機能するためには、同一の入力に対して同一のプロンプト文字列が生成される必要がある。このため、システムプロンプト設計にはキャッシュ安定性を維持するための工夫が組み込まれている。</p>
+
+      <p>キャッシュ安定性を支える設計上の決定を以下に示す。</p>
+      <ul>
+        <li><strong>ツール説明の不変性</strong>: ツールの説明文は実行ごとに変化しないように設計されており、API のプロンプトキャッシュヒット率を最大化する</li>
+        <li><strong>名前での重複排除</strong>: ツールセットのアセンブリ時に名前での重複排除を行い、同一ツールが複数回出現することを防ぐ</li>
+        <li><strong>順序の安定性</strong>: ツール一覧の順序を安定させることでキャッシュヒット率を高める</li>
+        <li><strong>動的コンテンツの分離</strong>: セッション固有の情報はシステムプロンプトの末尾や別のブロックに配置し、キャッシュ可能な静的部分を最大化する</li>
+      </ul>
+
+      <p>この設計により、同一の設定を持つ複数のセッションが共通のシステムプロンプト部分を再利用でき、API コストの大幅な削減が実現される。プロンプトキャッシュ安定性は<a href="prompt-engineering.html">プロンプト設計</a>の最重要考慮事項の一つである。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">システムプロンプトの構造と役割</a></li>
+          <li><a href="#prompt-ts-design">prompt.ts ファイルの目的と設計パターン</a></li>
+          <li><a href="#behavior-control">AI行動制御のメカニズム</a></li>
+          <li><a href="#context-dependent">コンテキスト依存のプロンプト生成</a></li>
+          <li><a href="#agent-tool-prompt">AgentTool のプロンプト設計（16.7KB）</a></li>
+          <li><a href="#coordinator-prompt">コーディネータモードのプロンプト設計</a></li>
+          <li><a href="#prompt-cache-stability">プロンプトキャッシュ安定性の維持</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

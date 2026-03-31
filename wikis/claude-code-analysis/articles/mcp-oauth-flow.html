@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP OAuth 認証フロー - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    MCP OAuth 認証フロー
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">MCP OAuth 認証フロー</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の <b>MCP OAuth 認証フロー</b>は <code>src/services/mcp/auth.ts</code>（88 KB）に実装されており、OAuth 2.0 認可コードフローによる MCP サーバーへの安全なアクセスを提供する。トークンの取得・更新・失効処理に加え、チャネル許可リストとパーミッション管理を組み合わせた多層セキュリティモデルを採用している。</div>
+
+      <h2 id="auth-overview">auth.ts の全体構成と役割</h2>
+      <p><code>auth.ts</code>（88 KB）は <a href="mcp-integration.html">MCP インテグレーション</a> における認証レイヤーの中核である。このファイルは OAuth 2.0 フローの完全な実装を提供し、認可コードの取得からアクセストークンの管理まで一貫して処理する。</p>
+      <p>主要な責務は以下の通りである：</p>
+      <ul>
+        <li><strong>認可エンドポイントへのリダイレクト管理</strong>：ブラウザを介した認可コードフローの起動</li>
+        <li><strong>トークン交換</strong>：認可コードをアクセストークン・リフレッシュトークンと交換</li>
+        <li><strong>トークンライフサイクル管理</strong>：有効期限チェック・自動リフレッシュ・失効処理</li>
+        <li><strong>セキュアなトークン保存</strong>：OS キーチェーンまたは暗号化ローカルストレージへの永続化</li>
+        <li><strong>チャネルセキュリティとの統合</strong>：チャネル許可リストおよびパーミッションとの連携</li>
+      </ul>
+
+      <h2 id="oauth-flow-diagram">OAuth 2.0 認証フロー図</h2>
+      <p>以下の図は Claude Code が MCP サーバーに対して行う OAuth 2.0 認可コードフローの全体像を示す。</p>
+
+      <figure style="margin: 1.5em 0;">
+        <svg viewBox="0 0 780 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:780px;background:#f8f9fa;border:1px solid #a2a9b1;border-radius:4px;display:block;">
+          <!-- Title -->
+          <text x="390" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">OAuth 2.0 認可コードフロー（MCP サーバー認証）</text>
+
+          <!-- Actors -->
+          <!-- Claude Code (Client) -->
+          <rect x="40" y="50" width="130" height="36" rx="4" fill="#36c" stroke="#36c"/>
+          <text x="105" y="73" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">Claude Code</text>
+          <line x1="105" y1="86" x2="105" y2="490" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- Auth Server -->
+          <rect x="310" y="50" width="160" height="36" rx="4" fill="#1a7f37" stroke="#1a7f37"/>
+          <text x="390" y="73" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">OAuth 認可サーバー</text>
+          <line x1="390" y1="86" x2="390" y2="490" stroke="#1a7f37" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- MCP Server -->
+          <rect x="600" y="50" width="140" height="36" rx="4" fill="#8250df" stroke="#8250df"/>
+          <text x="670" y="73" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">MCP サーバー</text>
+          <line x1="670" y1="86" x2="670" y2="490" stroke="#8250df" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- Step 1: Authorization Request -->
+          <line x1="105" y1="118" x2="385" y2="118" stroke="#202122" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="245" y="112" text-anchor="middle" font-size="11" fill="#202122">① 認可リクエスト</text>
+          <text x="245" y="131" text-anchor="middle" font-size="10" fill="#555">(client_id, scope, redirect_uri)</text>
+
+          <!-- Step 2: User Authentication -->
+          <rect x="305" y="148" width="170" height="28" rx="3" fill="#fff" stroke="#a2a9b1"/>
+          <text x="390" y="167" text-anchor="middle" font-size="11" fill="#202122">ユーザー認証・同意</text>
+
+          <!-- Step 3: Authorization Code -->
+          <line x1="385" y1="192" x2="110" y2="192" stroke="#202122" stroke-width="1.5" marker-end="url(#arrowLeft)"/>
+          <text x="245" y="186" text-anchor="middle" font-size="11" fill="#202122">② 認可コード返却</text>
+          <text x="245" y="204" text-anchor="middle" font-size="10" fill="#555">(code, state)</text>
+
+          <!-- Step 4: Token Request -->
+          <line x1="105" y1="228" x2="385" y2="228" stroke="#202122" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="245" y="222" text-anchor="middle" font-size="11" fill="#202122">③ トークンリクエスト</text>
+          <text x="245" y="240" text-anchor="middle" font-size="10" fill="#555">(code, client_secret)</text>
+
+          <!-- Step 5: Token Response -->
+          <line x1="385" y1="262" x2="110" y2="262" stroke="#202122" stroke-width="1.5" marker-end="url(#arrowLeft)"/>
+          <text x="245" y="256" text-anchor="middle" font-size="11" fill="#202122">④ アクセストークン発行</text>
+          <text x="245" y="274" text-anchor="middle" font-size="10" fill="#555">(access_token, refresh_token)</text>
+
+          <!-- Token Storage box -->
+          <rect x="30" y="285" width="150" height="32" rx="3" fill="#fff3cd" stroke="#ffc107"/>
+          <text x="105" y="305" text-anchor="middle" font-size="11" fill="#202122">トークンをセキュア保存</text>
+
+          <!-- Step 6: API Call with Token -->
+          <line x1="105" y1="334" x2="660" y2="334" stroke="#202122" stroke-width="1.5" marker-end="url(#arrowMCP)"/>
+          <text x="383" y="328" text-anchor="middle" font-size="11" fill="#202122">⑤ API リクエスト（Bearer トークン付き）</text>
+
+          <!-- Step 7: API Response -->
+          <line x1="660" y1="358" x2="110" y2="358" stroke="#202122" stroke-width="1.5" marker-end="url(#arrowLeft)"/>
+          <text x="383" y="352" text-anchor="middle" font-size="11" fill="#202122">⑥ レスポンス</text>
+
+          <!-- Token Refresh path -->
+          <line x1="105" y1="395" x2="385" y2="395" stroke="#e36209" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRefresh)"/>
+          <text x="245" y="388" text-anchor="middle" font-size="11" fill="#e36209">⑦ トークンリフレッシュ（期限切れ時）</text>
+          <text x="245" y="407" text-anchor="middle" font-size="10" fill="#e36209">(refresh_token)</text>
+
+          <line x1="385" y1="430" x2="110" y2="430" stroke="#e36209" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowLeftRefresh)"/>
+          <text x="245" y="424" text-anchor="middle" font-size="11" fill="#e36209">⑧ 新アクセストークン発行</text>
+          <text x="245" y="442" text-anchor="middle" font-size="10" fill="#e36209">(new access_token)</text>
+
+          <!-- Legend -->
+          <line x1="460" y1="388" x2="500" y2="388" stroke="#202122" stroke-width="1.5"/>
+          <text x="505" y="392" font-size="10" fill="#202122">通常フロー</text>
+          <line x1="460" y1="408" x2="500" y2="408" stroke="#e36209" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="505" y="412" font-size="10" fill="#e36209">リフレッシュフロー</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#202122"/>
+            </marker>
+            <marker id="arrowLeft" markerWidth="8" markerHeight="8" refX="1" refY="3" orient="auto">
+              <path d="M8,0 L8,6 L0,3 z" fill="#202122"/>
+            </marker>
+            <marker id="arrowMCP" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#202122"/>
+            </marker>
+            <marker id="arrowRefresh" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#e36209"/>
+            </marker>
+            <marker id="arrowLeftRefresh" markerWidth="8" markerHeight="8" refX="1" refY="3" orient="auto">
+              <path d="M8,0 L8,6 L0,3 z" fill="#e36209"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="text-align:center;font-size:12px;color:#555;margin-top:6px;">図1: MCP サーバーに対する OAuth 2.0 認可コードフロー全体像</figcaption>
+      </figure>
+
+      <h2 id="oauth-implementation">OAuth 2.0 フローの実装詳細</h2>
+      <p><code>auth.ts</code> における OAuth 2.0 実装は認可コードフロー（Authorization Code Flow）を採用しており、以下の3ステップで構成される。</p>
+
+      <h3>認可コード取得</h3>
+      <p>フローの開始時、Claude Code はローカルポートでコールバックリスナーを起動し、認可エンドポイントへのリダイレクト URL を生成する。URL には <code>client_id</code>・<code>scope</code>・<code>redirect_uri</code>・<code>state</code>（CSRF 対策用ランダム文字列）・<code>code_challenge</code>（PKCE 対応）が含まれる。ユーザーのデフォルトブラウザを開いて認可画面を表示し、認証・同意後にコールバック URL へリダイレクトされた認可コードを受け取る。</p>
+
+      <h3>アクセストークン取得</h3>
+      <p>認可コードを受け取った後、<code>auth.ts</code> はトークンエンドポイントに POST リクエストを送信する。リクエストボディには <code>grant_type=authorization_code</code>・受け取った <code>code</code>・<code>redirect_uri</code>・<code>client_secret</code>（または PKCE の <code>code_verifier</code>）が含まれる。レスポンスとして <code>access_token</code>・<code>token_type</code>・<code>expires_in</code>・<code>refresh_token</code>・<code>scope</code> が返却される。</p>
+
+      <h3>トークンリフレッシュ</h3>
+      <p>アクセストークンの有効期限が近づいた場合、または API 呼び出し時に 401 エラーが返却された場合、<code>auth.ts</code> は自動的にリフレッシュフローを実行する。<code>grant_type=refresh_token</code> と <code>refresh_token</code> を送信して新しいアクセストークンを取得し、トークンストアを更新する。リフレッシュトークン自体も期限切れの場合は再認証フローへ誘導する。</p>
+
+      <h2 id="token-management">トークン管理</h2>
+      <p>取得したトークンの保存・更新・失効処理は <code>auth.ts</code> が一元管理する。</p>
+
+      <h3>トークン保存</h3>
+      <p>トークンはサーバーの識別子（ホスト名 + パスのハッシュ）をキーとしてセキュアストレージに保存される。macOS では Keychain、Linux では libsecret（Secret Service）、Windows では Credential Manager を優先的に使用する。セキュアストレージが利用できない環境ではファイルシステムへの暗号化保存にフォールバックする。保存されるデータには <code>access_token</code>・<code>refresh_token</code>・<code>expires_at</code>（Unix タイムスタンプ）・<code>scope</code> が含まれる。</p>
+
+      <h3>トークン更新</h3>
+      <p>各 API 呼び出し前に <code>auth.ts</code> は保存済みトークンの有効期限を確認する。<code>expires_at - current_time &lt; buffer_seconds</code>（通常 60〜300 秒のバッファ）の場合は事前にリフレッシュを実行する。この先読みリフレッシュにより、実際の API 呼び出し中にトークンが期限切れになるリスクを低減する。</p>
+
+      <h3>トークン失効処理</h3>
+      <p>MCP サーバーの削除時・ユーザーの明示的なログアウト時・認証エラーが継続する場合に、<code>auth.ts</code> はトークンを失効させる。失効時は認可サーバーの revocation エンドポイント（RFC 7009）に revoke リクエストを送信してサーバー側でも無効化し、ローカルストレージからも削除する。</p>
+
+      <h2 id="channel-security">チャネルセキュリティ</h2>
+      <p>認証レイヤーはトークン管理だけでなく、チャネルレベルのアクセス制御とも連携している。</p>
+
+      <h3>channelAllowlist.ts の役割</h3>
+      <p><code>channelAllowlist.ts</code> は MCP サーバーが接続を許可するチャネルの許可リストを管理する。チャネルとは Claude Code 内部のメッセージルーティング単位であり、特定のエージェントコンテキストや UI コンポーネントに対応する。許可リストは MCP サーバーごとに設定され、設定ファイルまたは動的なユーザー承認によって更新される。OAuth 認証済みのサーバーであっても、チャネルが許可リストに含まれていなければ通信は拒否される。</p>
+
+      <h3>channelPermissions.ts によるパーミッション管理</h3>
+      <p><code>channelPermissions.ts</code> は細粒度のチャネルパーミッションを実装する。各 MCP サーバーに対して許可されるアクション（ツール実行・リソース読み取り・サンプリング要求など）をビットマスクまたは列挙型で管理する。パーミッションは OAuth スコープと対応しており、トークン取得時に要求したスコープ内でのみ操作が許可される。<a href="tool-system.html">ツールシステム</a>のアセンブリ時にチャネルパーミッションが評価され、許可されていないツールはプールに追加されない。</p>
+
+      <h2 id="access-control">認証済み MCP サーバーへの安全なアクセス制御</h2>
+      <p>OAuth 認証・チャネル許可リスト・チャネルパーミッションの3層が組み合わさることで、MCP サーバーへの多層防御が実現される。</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>レイヤー</th>
+            <th>実装ファイル</th>
+            <th>チェック内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OAuth 認証</td>
+            <td>auth.ts</td>
+            <td>有効なアクセストークンの存在</td>
+          </tr>
+          <tr>
+            <td>チャネル許可リスト</td>
+            <td>channelAllowlist.ts</td>
+            <td>接続元チャネルが許可リストに含まれるか</td>
+          </tr>
+          <tr>
+            <td>チャネルパーミッション</td>
+            <td>channelPermissions.ts</td>
+            <td>要求操作がスコープ内のパーミッションを持つか</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>各 API 呼び出しはこの3層を順番に通過する。いずれかのレイヤーで拒否された場合は適切なエラーコードが返却され、<a href="agent-architecture.html">エージェントアーキテクチャ</a>のエラーハンドリング機構によって上位レイヤーへ伝播される。</p>
+
+      <h2 id="connection-lifecycle-integration">接続ライフサイクルとの統合</h2>
+      <p>OAuth 認証フローは <code>useManageMCPConnections.ts</code> が管理する接続ライフサイクルと密接に統合されている。接続確立時に <code>auth.ts</code> の認証状態が確認され、未認証の場合は自動的に OAuth フローが起動される。</p>
+      <p>接続の状態遷移は以下の通りである：</p>
+      <ol>
+        <li><strong>DISCONNECTED</strong>：サーバー未接続の初期状態</li>
+        <li><strong>AUTHENTICATING</strong>：OAuth フロー進行中（ブラウザ認可待ち）</li>
+        <li><strong>TOKEN_ACQUIRED</strong>：トークン取得完了・接続試行中</li>
+        <li><strong>CONNECTED</strong>：認証済み・API 呼び出し可能</li>
+        <li><strong>TOKEN_EXPIRED</strong>：トークン期限切れ・リフレッシュ試行中</li>
+        <li><strong>ERROR</strong>：認証失敗・再試行またはユーザー介入が必要</li>
+      </ol>
+      <p><a href="agent-architecture.html">エージェント</a>の終了時には <code>runAgent.ts</code> のクリーンアップフェーズでトークンのリフレッシュスケジューラが停止し、接続が適切に解放される。セッション間でのトークン持続は設定により制御可能であり、ユーザーが毎回の認証を省略できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#auth-overview">auth.ts の全体構成と役割</a></li>
+          <li><a href="#oauth-flow-diagram">OAuth 2.0 認証フロー図</a></li>
+          <li><a href="#oauth-implementation">OAuth 2.0 フローの実装詳細</a></li>
+          <li><a href="#token-management">トークン管理</a></li>
+          <li><a href="#channel-security">チャネルセキュリティ</a></li>
+          <li><a href="#access-control">安全なアクセス制御</a></li>
+          <li><a href="#connection-lifecycle-integration">接続ライフサイクルとの統合</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="bridge-system.html">ブリッジシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="bridge-system.html">ブリッジシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

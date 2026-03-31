@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileEditTool の設計 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    FileEditTool の設計
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">FileEditTool の設計</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">FileEditTool は Claude Code におけるファイル精密編集の中核ツールであり、old_string/new_string 方式による差分編集と事前読み取り強制によって安全かつ正確なファイル変更を実現する。FileReadTool との連携フロー・一意性検証・replace_all オプションなど、設計上の重要な原則を詳しく解説する。</div>
+
+      <h2 id="overview">FileEditTool の概要</h2>
+      <p><b>FileEditTool</b> は Claude Code のファイル操作ツール群の中でも最も頻繁に使用される編集専用ツールである。<a href="tool-system.html">ツールシステム</a>の一部として、ファイル全体を上書きする FileWriteTool とは異なり、既存ファイルの特定の文字列を検索・置換する差分編集アプローチを採用している。これにより、大きなファイルの一部だけを変更する際に不要なデータの再送信を避けつつ、精密なコントロールを実現する。</p>
+      <p>FileEditTool の実装は <code>src/tools/FileEditTool/</code> ディレクトリ以下に配置されており、<code>FileEditTool.ts</code>（コア実装）・<code>prompt.ts</code>（ツール説明・指示）・<code>UI.tsx</code>（ターミナルUI）・<code>utils.ts</code>（ヘルパー関数）の標準ディレクトリ構成を持つ。</p>
+
+      <h2 id="pre-read-requirement">事前読み取り要求の設計原則</h2>
+      <p>FileEditTool には、編集を実行する前に対象ファイルを必ず <a href="tool-system.html">FileReadTool</a> で読み取ることを強制するという重要な設計原則がある。この仕組みはプロンプトレベルの指示として実装されており、AI が FileReadTool を使わずに FileEditTool を呼び出した場合はエラーが返される。</p>
+      <p>この制約には以下の設計上の意図がある。</p>
+      <ul>
+        <li><strong>正確性の保証</strong>: ファイルの最新内容を把握した上で <code>old_string</code> を指定することで、意図しない箇所への変更を防ぐ</li>
+        <li><strong>競合の検出</strong>: 外部プロセスによってファイルが変更されている場合、読み取り時点と編集時点の内容の乖離を検出できる</li>
+        <li><strong>コンテキストの維持</strong>: <a href="prompt-engineering.html">プロンプト設計</a>の観点から、AI がファイル全体のコンテキストを把握した上で編集箇所を決定できる</li>
+      </ul>
+      <p>この「先読み強制」パターンは、FileEditTool の <code>prompt.ts</code> に以下のような指示として明示されている: <em>「You MUST have read the file before editing it. If you haven't read the file yet, use the Read tool first.」</em></p>
+
+      <h2 id="old-new-string">old_string / new_string 方式による精密編集</h2>
+      <p>FileEditTool の入力スキーマは3つのパラメータで構成される。</p>
+      <ul>
+        <li><code>file_path</code>: 編集対象ファイルの絶対パス</li>
+        <li><code>old_string</code>: ファイル内で検索する文字列（空文字列の場合は新規ファイル作成）</li>
+        <li><code>new_string</code>: <code>old_string</code> を置換する新しい文字列</li>
+      </ul>
+      <p>このアプローチは「行番号ベース編集」と比較して以下の利点を持つ。</p>
+      <ul>
+        <li>行番号はファイルの変更によってずれるが、文字列は変更内容そのものを表現する</li>
+        <li>意図した変更箇所を自然言語に近い形で表現でき、誤操作のリスクが低い</li>
+        <li>小さな差分のみを送信するため、トークン効率が高い</li>
+      </ul>
+      <p><code>old_string</code> に空文字列を渡した場合、FileEditTool は新規ファイル作成モードで動作し、<code>new_string</code> の内容でファイルを新規作成する。これにより FileWriteTool の機能を代替できる場面もあるが、通常の新規ファイル作成には FileWriteTool を使うことが推奨される。</p>
+
+      <h2 id="uniqueness-validation">一意性検証</h2>
+      <p>FileEditTool の最重要な安全機構の一つが<strong>一意性検証</strong>である。<code>old_string</code> がファイル内に複数存在する場合、FileEditTool はエラーを返して編集を中止する。</p>
+
+      <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;display:block;margin:1.5rem auto;border:1px solid #a2a9b1;border-radius:4px;background:#f8f9fa;">
+        <rect x="0" y="0" width="600" height="220" fill="#f8f9fa"/>
+        <text x="300" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">FileEditTool 一意性検証フロー</text>
+        <!-- Step boxes -->
+        <rect x="30" y="50" width="130" height="40" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="95" y="74" text-anchor="middle" font-size="12" fill="#202122">old_string 受信</text>
+        <rect x="230" y="50" width="140" height="40" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="300" y="68" text-anchor="middle" font-size="12" fill="#202122">ファイル内の</text>
+        <text x="300" y="83" text-anchor="middle" font-size="12" fill="#202122">出現回数をカウント</text>
+        <!-- Decision diamond -->
+        <polygon points="430,50 520,70 430,90 340,70" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="430" y="74" text-anchor="middle" font-size="11" fill="#202122">回数 = 1?</text>
+        <!-- Arrows -->
+        <line x1="160" y1="70" x2="230" y2="70" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+        <line x1="370" y1="70" x2="340" y2="70" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+        <!-- Yes path -->
+        <line x1="430" y1="90" x2="430" y2="130" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <text x="440" y="115" font-size="11" fill="#36c">Yes</text>
+        <rect x="355" y="130" width="150" height="40" rx="6" fill="#ddeeff" stroke="#36c" stroke-width="1.5"/>
+        <text x="430" y="148" text-anchor="middle" font-size="12" fill="#202122">new_string で</text>
+        <text x="430" y="163" text-anchor="middle" font-size="12" fill="#202122">置換を実行</text>
+        <!-- No path (0 occurrences) -->
+        <line x1="340" y1="70" x2="240" y2="140" stroke="#c33" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+        <text x="270" y="115" font-size="11" fill="#c33">0回</text>
+        <rect x="100" y="140" width="140" height="40" rx="6" fill="#ffeedd" stroke="#c33" stroke-width="1.5"/>
+        <text x="170" y="158" text-anchor="middle" font-size="12" fill="#c33">エラー: 文字列が</text>
+        <text x="170" y="173" text-anchor="middle" font-size="12" fill="#c33">見つからない</text>
+        <!-- No path (2+ occurrences) -->
+        <line x1="520" y1="70" x2="540" y2="70" stroke="#c33" stroke-width="1.5"/>
+        <line x1="540" y1="70" x2="540" y2="155" stroke="#c33" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+        <text x="526" y="115" font-size="11" fill="#c33">2回以上</text>
+        <rect x="460" y="155" width="120" height="40" rx="6" fill="#ffeedd" stroke="#c33" stroke-width="1.5"/>
+        <text x="520" y="173" text-anchor="middle" font-size="12" fill="#c33">エラー: 一意でない</text>
+        <text x="520" y="188" text-anchor="middle" font-size="12" fill="#c33">文字列</text>
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+          </marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+          </marker>
+          <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#c33"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <p>一意性検証によって生じるエラーへの対処法としては、以下が推奨される。</p>
+      <ul>
+        <li><code>old_string</code> に前後の文脈行を追加して一意な文字列を構成する</li>
+        <li>意図的にすべての出現箇所を置換したい場合は <code>replace_all</code> オプション（後述）を使用する</li>
+      </ul>
+
+      <h2 id="replace-all">replace_all オプションの動作</h2>
+      <p>FileEditTool には <code>replace_all</code> というオプションパラメータが存在し、<code>true</code> に設定すると一意性検証をスキップしてファイル内のすべての <code>old_string</code> 出現箇所を <code>new_string</code> で置換する。</p>
+      <p>このオプションの主なユースケースは以下の通りである。</p>
+      <ul>
+        <li><strong>変数・関数のリネーム</strong>: コードベース内の特定のシンボル名をファイル全体で統一的に変更する</li>
+        <li><strong>一括テキスト置換</strong>: 設定ファイルや文書ファイル内の特定フレーズを全箇所で更新する</li>
+        <li><strong>コードスタイルの統一</strong>: 特定のパターンをすべて新しいパターンで置き換える</li>
+      </ul>
+      <p><code>replace_all</code> は強力な操作であるため、意図せぬ箇所への変更を避けるために <code>old_string</code> は十分に具体的な文字列を指定することが重要である。</p>
+
+      <h2 id="post-write-verification">ファイル書き込み後の検証</h2>
+      <p>FileEditTool は編集を実行した後、書き込み結果の検証を行う。検証プロセスには以下が含まれる。</p>
+      <ul>
+        <li><strong>差分の表示</strong>: UI.tsx によって編集前後の差分がターミナルに表示され、ユーザーが変更内容を視覚的に確認できる</li>
+        <li><strong>ファイル読み取り推奨</strong>: 編集後に再度 FileReadTool でファイルを読み取ることが推奨され、意図した変更が正しく反映されているかを確認する</li>
+        <li><strong>エラーハンドリング</strong>: ファイルシステムへの書き込み失敗（権限エラー・ディスクフルなど）が発生した場合、詳細なエラーメッセージが返される</li>
+      </ul>
+      <p><a href="prompt-engineering.html">プロンプト設計</a>の観点から、FileEditTool の <code>prompt.ts</code> は「編集後は必ずファイルを読み返して変更内容を確認せよ」という指示を含んでいる。これは特にインデントや改行など、視覚的に把握しにくい変更が意図通りかを確認するために重要である。</p>
+
+      <h2 id="filetool-comparison">FileWriteTool との使い分け</h2>
+      <p>Claude Code のファイル書き込みツールは FileEditTool と FileWriteTool の2種類があり、それぞれ異なる用途に最適化されている。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>観点</th>
+            <th>FileEditTool</th>
+            <th>FileWriteTool</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>操作の種類</td>
+            <td>差分編集（部分置換）</td>
+            <td>全体上書き</td>
+          </tr>
+          <tr>
+            <td>事前読み取り</td>
+            <td>必須（強制）</td>
+            <td>推奨（強制ではない）</td>
+          </tr>
+          <tr>
+            <td>トークン効率</td>
+            <td>高（差分のみ送信）</td>
+            <td>低（全内容を送信）</td>
+          </tr>
+          <tr>
+            <td>適用場面</td>
+            <td>既存ファイルの一部変更</td>
+            <td>新規ファイル作成・完全な書き直し</td>
+          </tr>
+          <tr>
+            <td>誤操作リスク</td>
+            <td>低（一意性検証あり）</td>
+            <td>高（既存内容を完全に上書き）</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>一般的なルールとして、既存ファイルの変更には FileEditTool を、新規ファイルの作成には FileWriteTool を使用することが推奨される。ただし、ファイルの大部分を書き直す場合は FileWriteTool の方が効率的な場合もある。</p>
+
+      <h2 id="filereadtool-workflow">FileReadTool との連携フロー</h2>
+      <p>FileEditTool の典型的な使用フローは FileReadTool との連携で構成される。以下のダイアグラムはそのフローを示す。</p>
+
+      <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:1.5rem auto;border:1px solid #a2a9b1;border-radius:4px;background:#f8f9fa;">
+        <rect x="0" y="0" width="560" height="320" fill="#f8f9fa"/>
+        <text x="280" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">FileReadTool → FileEditTool 連携フロー</text>
+        <!-- Swimlane headers -->
+        <rect x="10" y="40" width="160" height="270" rx="4" fill="#eef2f7" stroke="#a2a9b1" stroke-width="1"/>
+        <rect x="200" y="40" width="160" height="270" rx="4" fill="#eef7ee" stroke="#a2a9b1" stroke-width="1"/>
+        <rect x="390" y="40" width="160" height="270" rx="4" fill="#fff7ee" stroke="#a2a9b1" stroke-width="1"/>
+        <text x="90" y="58" text-anchor="middle" font-size="11" font-weight="bold" fill="#36c">AI (Claude)</text>
+        <text x="280" y="58" text-anchor="middle" font-size="11" font-weight="bold" fill="#393">FileReadTool</text>
+        <text x="470" y="58" text-anchor="middle" font-size="11" font-weight="bold" fill="#c63">FileEditTool</text>
+        <!-- Step 1: AI decides to edit -->
+        <rect x="20" y="70" width="140" height="36" rx="5" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+        <text x="90" y="87" text-anchor="middle" font-size="11" fill="#202122">編集タスクを</text>
+        <text x="90" y="101" text-anchor="middle" font-size="11" fill="#202122">受け取る</text>
+        <!-- Arrow to FileRead -->
+        <line x1="160" y1="88" x2="200" y2="88" stroke="#36c" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <!-- Step 2: FileReadTool reads -->
+        <rect x="210" y="70" width="140" height="36" rx="5" fill="#fff" stroke="#393" stroke-width="1.5"/>
+        <text x="280" y="87" text-anchor="middle" font-size="11" fill="#202122">ファイルを読み取り</text>
+        <text x="280" y="101" text-anchor="middle" font-size="11" fill="#202122">内容を返す</text>
+        <!-- Step 3: AI analyzes -->
+        <line x1="280" y1="106" x2="280" y2="130" stroke="#393" stroke-width="1.5"/>
+        <line x1="280" y1="130" x2="90" y2="130" stroke="#393" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <text x="185" y="145" text-anchor="middle" font-size="10" fill="#393">ファイル内容を受け取る</text>
+        <rect x="20" y="150" width="140" height="36" rx="5" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+        <text x="90" y="167" text-anchor="middle" font-size="11" fill="#202122">old_string /</text>
+        <text x="90" y="181" text-anchor="middle" font-size="11" fill="#202122">new_string を決定</text>
+        <!-- Arrow to FileEdit -->
+        <line x1="160" y1="168" x2="390" y2="168" stroke="#36c" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <!-- Step 4: FileEditTool validates and edits -->
+        <rect x="400" y="150" width="140" height="36" rx="5" fill="#fff" stroke="#c63" stroke-width="1.5"/>
+        <text x="470" y="167" text-anchor="middle" font-size="11" fill="#202122">一意性検証・</text>
+        <text x="470" y="181" text-anchor="middle" font-size="11" fill="#202122">置換・書き込み</text>
+        <!-- Step 5: Result -->
+        <line x1="470" y1="186" x2="470" y2="230" stroke="#c63" stroke-width="1.5"/>
+        <line x1="470" y1="230" x2="90" y2="230" stroke="#c63" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="280" y="248" text-anchor="middle" font-size="10" fill="#c63">編集結果（差分）を返す</text>
+        <rect x="20" y="255" width="140" height="36" rx="5" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+        <text x="90" y="272" text-anchor="middle" font-size="11" fill="#202122">変更内容を確認、</text>
+        <text x="90" y="286" text-anchor="middle" font-size="11" fill="#202122">次のステップへ</text>
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+          </marker>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#393"/>
+          </marker>
+          <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+          </marker>
+          <marker id="arr4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#c63"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <p>このフローは <a href="agent-architecture.html">エージェントアーキテクチャ</a>における「観察・判断・行動」サイクルの実例であり、AI が状態を観察（FileReadTool）してから行動（FileEditTool）するというリアクティブな設計に沿っている。</p>
+      <p>実際の使用では、複数のファイルを順次編集するタスクにおいて、FileReadTool と FileEditTool のペアが繰り返し呼び出されるパターンが多い。<a href="query-loop.html">クエリループ</a>はこれらのツール呼び出しを適切にシーケンシャルまたは並行で管理する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">FileEditTool の概要</a></li>
+          <li><a href="#pre-read-requirement">事前読み取り要求の設計原則</a></li>
+          <li><a href="#old-new-string">old_string / new_string 方式</a></li>
+          <li><a href="#uniqueness-validation">一意性検証</a></li>
+          <li><a href="#replace-all">replace_all オプション</a></li>
+          <li><a href="#post-write-verification">ファイル書き込み後の検証</a></li>
+          <li><a href="#filetool-comparison">FileWriteTool との使い分け</a></li>
+          <li><a href="#filereadtool-workflow">FileReadTool との連携フロー</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

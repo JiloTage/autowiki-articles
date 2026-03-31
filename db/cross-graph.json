@@ -431,6 +431,78 @@
       "color": "#1565c0",
       "is_root": false,
       "summary": "JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードアーカイブである。npm 配布パッケージの .map ファイルから抽出された約1,900の TypeScript ファイル・51万2千行超のコードで構成される。"
+    },
+    {
+      "id": "claude-code-analysis:error-recovery-mechanisms",
+      "wiki": "claude-code-analysis",
+      "title": "エラーリカバリー機構",
+      "url": "wikis/claude-code-analysis/articles/error-recovery-mechanisms.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code のエラーリカバリー機構は、クエリループ（src/query.ts）のフェーズ4として実装されており、プロンプト長超過・最大出力トークン数到達・ネットワーク障害・ツール実行失敗・パーミッション拒否など多様な障害モードに対する体系的な回復戦略を提供する。各エラータイプごとに専用のリカバリーパスが定義されており、可能な限りユーザーセッションを中断せずに処理を継続できる設計になっている。"
+    },
+    {
+      "id": "claude-code-analysis:task-decomposition",
+      "wiki": "claude-code-analysis",
+      "title": "タスク分解戦略",
+      "url": "wikis/claude-code-analysis/articles/task-decomposition.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "コーディネータモードにおけるタスク分解戦略は、複雑な作業を独立した並行実行可能な単位に分割するための体系的手法である。自己完結型プロンプトの設計・タスク依存グラフの構築・発見フェーズの運用・結果統合の方法論を包括し、マルチエージェント処理の効率を最大化する。"
+    },
+    {
+      "id": "claude-code-analysis:file-edit-tool",
+      "wiki": "claude-code-analysis",
+      "title": "FileEditTool の設計",
+      "url": "wikis/claude-code-analysis/articles/file-edit-tool.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "FileEditTool は Claude Code におけるファイル精密編集の中核ツールであり、old_string/new_string 方式による差分編集と事前読み取り強制によって安全かつ正確なファイル変更を実現する。"
+    },
+    {
+      "id": "claude-code-analysis:permission-system",
+      "wiki": "claude-code-analysis",
+      "title": "パーミッションシステム",
+      "url": "wikis/claude-code-analysis/articles/permission-system.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code のパーミッションシステムは、ツール実行の可否をリアルタイムに判定する多層構造のアクセス制御機構である。パーミッションモードの選択、ツールごとの checkPermissions() 呼び出し、エージェントスコープごとのツールセット制限、MCP チャネルのパーミッション管理などを通じて、安全で細粒度のアクセス制御を実現する。"
+    },
+    {
+      "id": "claude-code-analysis:bash-tool-security",
+      "wiki": "claude-code-analysis",
+      "title": "BashTool セキュリティ設計",
+      "url": "wikis/claude-code-analysis/articles/bash-tool-security.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "BashTool security design implements a multi-layered defense architecture."
+    },
+    {
+      "id": "claude-code-analysis:agent-lifecycle",
+      "wiki": "claude-code-analysis",
+      "title": "エージェントライフサイクル",
+      "url": "wikis/claude-code-analysis/articles/agent-lifecycle.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code のエージェントライフサイクルは runAgent.ts が定義する6フェーズで構成される。エージェントの再開・サブエージェントのフォーク・メモリスナップショット管理など複雑な実行モデルを解説する。"
+    },
+    {
+      "id": "claude-code-analysis:mcp-oauth-flow",
+      "wiki": "claude-code-analysis",
+      "title": "MCP OAuth 認証フロー",
+      "url": "wikis/claude-code-analysis/articles/mcp-oauth-flow.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code の MCP OAuth 認証フローは src/services/mcp/auth.ts（88 KB）に実装されており、OAuth 2.0 認可コードフローによる MCP サーバーへの安全なアクセスを提供する。トークンの取得・更新・失効処理に加え、チャネル許可リストとパーミッション管理を組み合わせた多層セキュリティモデルを採用している。"
+    },
+    {
+      "id": "claude-code-analysis:system-prompt-design",
+      "wiki": "claude-code-analysis",
+      "title": "システムプロンプト設計",
+      "url": "wikis/claude-code-analysis/articles/system-prompt-design.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code のシステムプロンプト設計は、各ツールの prompt.ts ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略を包括的に解説する。"
     }
   ],
   "links": [
@@ -1485,6 +1557,16 @@
       "type": "internal"
     },
     {
+      "source": "claude-code-analysis:agent-architecture",
+      "target": "claude-code-analysis:permission-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-architecture",
+      "target": "claude-code-analysis:agent-lifecycle",
+      "type": "internal"
+    },
+    {
       "source": "claude-code-analysis:tool-system",
       "target": "claude-code-analysis:claude-code-overview",
       "type": "internal"
@@ -1502,6 +1584,16 @@
     {
       "source": "claude-code-analysis:tool-system",
       "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:tool-system",
+      "target": "claude-code-analysis:bash-tool-security",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:tool-system",
+      "target": "claude-code-analysis:file-edit-tool",
       "type": "internal"
     },
     {
@@ -1542,6 +1634,11 @@
     {
       "source": "claude-code-analysis:query-loop",
       "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:query-loop",
+      "target": "claude-code-analysis:error-recovery-mechanisms",
       "type": "internal"
     },
     {
@@ -1565,6 +1662,11 @@
       "type": "internal"
     },
     {
+      "source": "claude-code-analysis:prompt-engineering",
+      "target": "claude-code-analysis:system-prompt-design",
+      "type": "internal"
+    },
+    {
       "source": "claude-code-analysis:mcp-integration",
       "target": "claude-code-analysis:claude-code-overview",
       "type": "internal"
@@ -1582,6 +1684,11 @@
     {
       "source": "claude-code-analysis:mcp-integration",
       "target": "claude-code-analysis:bridge-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:mcp-integration",
+      "target": "claude-code-analysis:mcp-oauth-flow",
       "type": "internal"
     },
     {
@@ -1627,6 +1734,11 @@
     {
       "source": "claude-code-analysis:coordinator-mode",
       "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:coordinator-mode",
+      "target": "claude-code-analysis:task-decomposition",
       "type": "internal"
     },
     {
@@ -1686,6 +1798,196 @@
     },
     {
       "source": "claude-code-analysis:claude-code-architecture",
+      "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:error-recovery-mechanisms",
+      "target": "claude-code-analysis:query-loop",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:error-recovery-mechanisms",
+      "target": "claude-code-analysis:context-compaction",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:error-recovery-mechanisms",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:error-recovery-mechanisms",
+      "target": "claude-code-analysis:query-engine",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:error-recovery-mechanisms",
+      "target": "claude-code-analysis:session-memory",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:task-decomposition",
+      "target": "claude-code-analysis:coordinator-mode",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:task-decomposition",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:task-decomposition",
+      "target": "claude-code-analysis:prompt-engineering",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:task-decomposition",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:file-edit-tool",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:file-edit-tool",
+      "target": "claude-code-analysis:prompt-engineering",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:file-edit-tool",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:file-edit-tool",
+      "target": "claude-code-analysis:query-loop",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "claude-code-analysis:query-engine",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "claude-code-analysis:query-loop",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:bash-tool-security",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:bash-tool-security",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:bash-tool-security",
+      "target": "claude-code-analysis:prompt-engineering",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:bash-tool-security",
+      "target": "claude-code-analysis:query-loop",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:coordinator-mode",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:query-loop",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:session-memory",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:agent-lifecycle",
+      "target": "claude-code-analysis:prompt-engineering",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:mcp-oauth-flow",
+      "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:mcp-oauth-flow",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:mcp-oauth-flow",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:mcp-oauth-flow",
+      "target": "claude-code-analysis:bridge-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:system-prompt-design",
+      "target": "claude-code-analysis:prompt-engineering",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:system-prompt-design",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:system-prompt-design",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:system-prompt-design",
+      "target": "claude-code-analysis:coordinator-mode",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:system-prompt-design",
       "target": "claude-code-analysis:mcp-integration",
       "type": "internal"
     },

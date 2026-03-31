@@ -40,13 +40,15 @@
       "title": "エージェントアーキテクチャ",
       "filename": "agent-architecture.html",
       "created_at": "2026-03-31T12:16:41.294745+00:00",
-      "updated_at": "2026-03-31T12:16:41.294745+00:00",
+      "updated_at": "2026-03-31T12:37:47.844360+00:00",
       "links_to": [
         "claude-code-overview",
         "coordinator-mode",
         "tool-system",
         "prompt-engineering",
-        "mcp-integration"
+        "mcp-integration",
+        "permission-system",
+        "agent-lifecycle"
       ],
       "linked_from": [
         "claude-code-overview",
@@ -54,10 +56,17 @@
         "prompt-engineering",
         "mcp-integration",
         "coordinator-mode",
-        "claude-code-architecture"
+        "claude-code-architecture",
+        "task-decomposition",
+        "file-edit-tool",
+        "permission-system",
+        "bash-tool-security",
+        "agent-lifecycle",
+        "mcp-oauth-flow",
+        "system-prompt-design"
       ],
       "summary": "Claude Code のエージェントシステムは AgentTool を中心に構成されており、サブエージェントの生成・実行・管理を行う。ビルトイン・カスタム・プラグインの3カテゴリのエージェントをサポートし、MCP サーバー依存フィルタリング・パーミッションスコーピング・コンテキスト分離などの高度な機能を持つ。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -66,12 +75,14 @@
       "title": "ツールシステム",
       "filename": "tool-system.html",
       "created_at": "2026-03-31T12:16:41.352082+00:00",
-      "updated_at": "2026-03-31T12:16:41.352082+00:00",
+      "updated_at": "2026-03-31T12:37:48.464107+00:00",
       "links_to": [
         "claude-code-overview",
         "agent-architecture",
         "prompt-engineering",
-        "mcp-integration"
+        "mcp-integration",
+        "bash-tool-security",
+        "file-edit-tool"
       ],
       "linked_from": [
         "claude-code-overview",
@@ -80,10 +91,18 @@
         "prompt-engineering",
         "mcp-integration",
         "coordinator-mode",
-        "claude-code-architecture"
+        "claude-code-architecture",
+        "error-recovery-mechanisms",
+        "task-decomposition",
+        "file-edit-tool",
+        "permission-system",
+        "bash-tool-security",
+        "agent-lifecycle",
+        "mcp-oauth-flow",
+        "system-prompt-design"
       ],
       "summary": "Claude Code のツールシステムは Tool インターフェースを基盤とし、29の常時利用可能なコアツールと条件付きツールで構成される。各ツールは独立したディレクトリ構造を持ち、実装・UI・プロンプト・セキュリティ検証が分離されている。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -104,7 +123,9 @@
         "query-loop",
         "session-memory",
         "bridge-system",
-        "context-compaction"
+        "context-compaction",
+        "error-recovery-mechanisms",
+        "permission-system"
       ],
       "summary": "QueryEngine（src/QueryEngine.ts、46.6 KB）は Claude Code の会話ライフサイクルを管理するコアコンポーネントである。可変メッセージ状態の維持・パーミッション拒否のトラッキング・API 使用量の管理・セッションのトランスクリプトストレージへの永続化を担当する。",
       "expansion_status": "pending",
@@ -116,21 +137,27 @@
       "title": "クエリループ",
       "filename": "query-loop.html",
       "created_at": "2026-03-31T12:16:57.565760+00:00",
-      "updated_at": "2026-03-31T12:16:57.565760+00:00",
+      "updated_at": "2026-03-31T12:38:00.064917+00:00",
       "links_to": [
         "claude-code-overview",
         "query-engine",
         "context-compaction",
-        "tool-system"
+        "tool-system",
+        "error-recovery-mechanisms"
       ],
       "linked_from": [
         "claude-code-overview",
         "query-engine",
         "session-memory",
-        "context-compaction"
+        "context-compaction",
+        "error-recovery-mechanisms",
+        "file-edit-tool",
+        "permission-system",
+        "bash-tool-security",
+        "agent-lifecycle"
       ],
       "summary": "クエリループ（src/query.ts、68.7 KB）はマルチターンの LLM 処理を実装する非同期ジェネレータである。セットアップ・コンテキスト準備・モデル呼び出し・エラーリカバリー・ツール実行・継続の6フェーズで構成され、プロンプトが長すぎる場合や最大出力トークン数に達した場合のリカバリーメカニズムを備える。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -139,22 +166,28 @@
       "title": "プロンプト設計",
       "filename": "prompt-engineering.html",
       "created_at": "2026-03-31T12:16:57.622579+00:00",
-      "updated_at": "2026-03-31T12:16:57.622579+00:00",
+      "updated_at": "2026-03-31T12:37:49.099477+00:00",
       "links_to": [
         "tool-system",
         "agent-architecture",
         "coordinator-mode",
-        "session-memory"
+        "session-memory",
+        "system-prompt-design"
       ],
       "linked_from": [
         "claude-code-overview",
         "agent-architecture",
         "tool-system",
         "session-memory",
-        "coordinator-mode"
+        "coordinator-mode",
+        "task-decomposition",
+        "file-edit-tool",
+        "bash-tool-security",
+        "agent-lifecycle",
+        "system-prompt-design"
       ],
       "summary": "Claude Code の各ツールは prompt.ts ファイルに詳細な使用指示を格納しており、AI の行動を精密に制御する。BashTool・FileEditTool・GrepTool・AgentTool・コーディネータモードなど各コンポーネントに固有のプロンプト設計パターンがある。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -163,22 +196,27 @@
       "title": "MCP インテグレーション",
       "filename": "mcp-integration.html",
       "created_at": "2026-03-31T12:16:57.681166+00:00",
-      "updated_at": "2026-03-31T12:16:57.681166+00:00",
+      "updated_at": "2026-03-31T12:38:00.182949+00:00",
       "links_to": [
         "claude-code-overview",
         "tool-system",
         "agent-architecture",
-        "bridge-system"
+        "bridge-system",
+        "mcp-oauth-flow"
       ],
       "linked_from": [
         "claude-code-overview",
         "agent-architecture",
         "tool-system",
         "bridge-system",
-        "claude-code-architecture"
+        "claude-code-architecture",
+        "permission-system",
+        "agent-lifecycle",
+        "mcp-oauth-flow",
+        "system-prompt-design"
       ],
       "summary": "Claude Code は Model Context Protocol（MCP）を完全実装しており、src/services/mcp/ ディレクトリ配下に22ファイルで構成される。MCP クライアント（119 KB）・設定管理（51 KB）・OAuth 認証（88 KB）・接続管理・チャネルセキュリティ・公式レジストリ・VS Code SDK 統合が含まれる。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -199,7 +237,9 @@
         "claude-code-overview",
         "query-engine",
         "prompt-engineering",
-        "context-compaction"
+        "context-compaction",
+        "error-recovery-mechanisms",
+        "agent-lifecycle"
       ],
       "summary": "Claude Code のセッションメモリシステム（src/services/SessionMemory/）は10セクション構造のテンプレートを用いた永続的メモリ管理を提供する。セクションごとに約2000トークンの制限があり、並行 Edit ツール呼び出しで更新される。",
       "expansion_status": "pending",
@@ -211,20 +251,24 @@
       "title": "コーディネータモード",
       "filename": "coordinator-mode.html",
       "created_at": "2026-03-31T12:17:15.632436+00:00",
-      "updated_at": "2026-03-31T12:17:15.632436+00:00",
+      "updated_at": "2026-03-31T12:38:00.124645+00:00",
       "links_to": [
         "claude-code-overview",
         "agent-architecture",
         "prompt-engineering",
-        "tool-system"
+        "tool-system",
+        "task-decomposition"
       ],
       "linked_from": [
         "claude-code-overview",
         "agent-architecture",
-        "prompt-engineering"
+        "prompt-engineering",
+        "task-decomposition",
+        "agent-lifecycle",
+        "system-prompt-design"
       ],
       "summary": "コーディネータモード（src/coordinator/coordinatorMode.ts）はマルチエージェント並列処理を管理する Claude Code の高度な機能である。「並列性はスーパーパワー」という設計哲学のもと、独立したワーカーエージェントを並行起動して複雑なタスクを分散処理する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expansion",
       "source_id": "claude-code-overview"
     },
@@ -242,7 +286,8 @@
       "linked_from": [
         "claude-code-overview",
         "mcp-integration",
-        "claude-code-architecture"
+        "claude-code-architecture",
+        "mcp-oauth-flow"
       ],
       "summary": "ブリッジシステム（src/bridge/、33ファイル）は Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間の双方向通信を実現する。JWT 認証によるメッセージセキュリティ・セッションライフサイクル管理・デバイス信頼管理などを実装する。",
       "expansion_status": "pending",
@@ -265,7 +310,8 @@
         "claude-code-overview",
         "query-engine",
         "query-loop",
-        "session-memory"
+        "session-memory",
+        "error-recovery-mechanisms"
       ],
       "summary": "Claude Code のコンテキスト圧縮システム（src/services/compact/、11ファイル）はトークン制限への対応機構である。コアコンパクション（60 KB）・自動コンパクション・マイクロコンパクション・セッションメモリ対応コンパクション・圧縮プロンプトの5コンポーネントで構成される。",
       "expansion_status": "pending",
@@ -292,8 +338,172 @@
       "expansion_status": "pending",
       "origin": "expansion",
       "source_id": "claude-code-overview"
+    },
+    "error-recovery-mechanisms": {
+      "id": "error-recovery-mechanisms",
+      "title": "エラーリカバリー機構",
+      "filename": "error-recovery-mechanisms.html",
+      "created_at": "2026-03-31T12:35:12.009504+00:00",
+      "updated_at": "2026-03-31T12:35:12.009504+00:00",
+      "links_to": [
+        "query-loop",
+        "context-compaction",
+        "tool-system",
+        "query-engine",
+        "session-memory"
+      ],
+      "linked_from": [
+        "query-loop"
+      ],
+      "summary": "Claude Code のエラーリカバリー機構は、クエリループ（src/query.ts）のフェーズ4として実装されており、プロンプト長超過・最大出力トークン数到達・ネットワーク障害・ツール実行失敗・パーミッション拒否など多様な障害モードに対する体系的な回復戦略を提供する。各エラータイプごとに専用のリカバリーパスが定義されており、可能な限りユーザーセッションを中断せずに処理を継続できる設計になっている。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "query-loop"
+    },
+    "task-decomposition": {
+      "id": "task-decomposition",
+      "title": "タスク分解戦略",
+      "filename": "task-decomposition.html",
+      "created_at": "2026-03-31T12:36:35.932353+00:00",
+      "updated_at": "2026-03-31T12:36:35.932353+00:00",
+      "links_to": [
+        "coordinator-mode",
+        "agent-architecture",
+        "prompt-engineering",
+        "tool-system"
+      ],
+      "linked_from": [
+        "coordinator-mode"
+      ],
+      "summary": "コーディネータモードにおけるタスク分解戦略は、複雑な作業を独立した並行実行可能な単位に分割するための体系的手法である。自己完結型プロンプトの設計・タスク依存グラフの構築・発見フェーズの運用・結果統合の方法論を包括し、マルチエージェント処理の効率を最大化する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "coordinator-mode"
+    },
+    "file-edit-tool": {
+      "id": "file-edit-tool",
+      "title": "FileEditTool の設計",
+      "filename": "file-edit-tool.html",
+      "created_at": "2026-03-31T12:36:40.278035+00:00",
+      "updated_at": "2026-03-31T12:36:40.278035+00:00",
+      "links_to": [
+        "tool-system",
+        "prompt-engineering",
+        "agent-architecture",
+        "query-loop"
+      ],
+      "linked_from": [
+        "tool-system"
+      ],
+      "summary": "FileEditTool は Claude Code におけるファイル精密編集の中核ツールであり、old_string/new_string 方式による差分編集と事前読み取り強制によって安全かつ正確なファイル変更を実現する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "tool-system"
+    },
+    "permission-system": {
+      "id": "permission-system",
+      "title": "パーミッションシステム",
+      "filename": "permission-system.html",
+      "created_at": "2026-03-31T12:36:41.320478+00:00",
+      "updated_at": "2026-03-31T12:36:58.068047+00:00",
+      "links_to": [
+        "agent-architecture",
+        "tool-system",
+        "query-engine",
+        "mcp-integration",
+        "query-loop"
+      ],
+      "linked_from": [
+        "agent-architecture"
+      ],
+      "summary": "Claude Code のパーミッションシステムは、ツール実行の可否をリアルタイムに判定する多層構造のアクセス制御機構である。パーミッションモードの選択、ツールごとの checkPermissions() 呼び出し、エージェントスコープごとのツールセット制限、MCP チャネルのパーミッション管理などを通じて、安全で細粒度のアクセス制御を実現する。",
+      "expansion_status": "done",
+      "origin": "root"
+    },
+    "bash-tool-security": {
+      "id": "bash-tool-security",
+      "title": "BashTool セキュリティ設計",
+      "filename": "bash-tool-security.html",
+      "created_at": "2026-03-31T12:36:43.798754+00:00",
+      "updated_at": "2026-03-31T12:36:49.070099+00:00",
+      "links_to": [
+        "tool-system",
+        "agent-architecture",
+        "prompt-engineering",
+        "query-loop"
+      ],
+      "linked_from": [
+        "tool-system"
+      ],
+      "summary": "BashTool security design implements a multi-layered defense architecture.",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "tool-system"
+    },
+    "agent-lifecycle": {
+      "id": "agent-lifecycle",
+      "title": "エージェントライフサイクル",
+      "filename": "agent-lifecycle.html",
+      "created_at": "2026-03-31T12:36:44.408684+00:00",
+      "updated_at": "2026-03-31T12:37:00.048910+00:00",
+      "links_to": [
+        "agent-architecture",
+        "coordinator-mode",
+        "query-loop",
+        "mcp-integration",
+        "session-memory",
+        "tool-system",
+        "prompt-engineering"
+      ],
+      "linked_from": [
+        "agent-architecture"
+      ],
+      "summary": "Claude Code のエージェントライフサイクルは runAgent.ts が定義する6フェーズで構成される。エージェントの再開・サブエージェントのフォーク・メモリスナップショット管理など複雑な実行モデルを解説する。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "mcp-oauth-flow": {
+      "id": "mcp-oauth-flow",
+      "title": "MCP OAuth 認証フロー",
+      "filename": "mcp-oauth-flow.html",
+      "created_at": "2026-03-31T12:36:47.994239+00:00",
+      "updated_at": "2026-03-31T12:36:47.994239+00:00",
+      "links_to": [
+        "mcp-integration",
+        "tool-system",
+        "agent-architecture",
+        "bridge-system"
+      ],
+      "linked_from": [
+        "mcp-integration"
+      ],
+      "summary": "Claude Code の MCP OAuth 認証フローは src/services/mcp/auth.ts（88 KB）に実装されており、OAuth 2.0 認可コードフローによる MCP サーバーへの安全なアクセスを提供する。トークンの取得・更新・失効処理に加え、チャネル許可リストとパーミッション管理を組み合わせた多層セキュリティモデルを採用している。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "mcp-integration"
+    },
+    "system-prompt-design": {
+      "id": "system-prompt-design",
+      "title": "システムプロンプト設計",
+      "filename": "system-prompt-design.html",
+      "created_at": "2026-03-31T12:37:04.499240+00:00",
+      "updated_at": "2026-03-31T12:37:04.499240+00:00",
+      "links_to": [
+        "prompt-engineering",
+        "tool-system",
+        "agent-architecture",
+        "coordinator-mode",
+        "mcp-integration"
+      ],
+      "linked_from": [
+        "prompt-engineering"
+      ],
+      "summary": "Claude Code のシステムプロンプト設計は、各ツールの prompt.ts ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略を包括的に解説する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "prompt-engineering"
     }
   },
   "root_id": null,
-  "total_count": 12
+  "total_count": 20
 }

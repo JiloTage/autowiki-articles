@@ -83,6 +83,62 @@
       "url": "articles/claude-code-architecture.html",
       "summary": "JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードアーカイブである。npm 配布パッケージの .map ファイルから抽出された約1,900の TypeScript ファイル・51万2千行超のコードで構成される。",
       "is_root": false
+    },
+    {
+      "id": "error-recovery-mechanisms",
+      "title": "エラーリカバリー機構",
+      "url": "articles/error-recovery-mechanisms.html",
+      "summary": "Claude Code のエラーリカバリー機構は、クエリループ（src/query.ts）のフェーズ4として実装されており、プロンプト長超過・最大出力トークン数到達・ネットワーク障害・ツール実行失敗・パーミッション拒否など多様な障害モードに対する体系的な回復戦略を提供する。各エラータイプごとに専用のリカバリーパスが定義されており、可能な限りユーザーセッションを中断せずに処理を継続できる設計になっている。",
+      "is_root": false
+    },
+    {
+      "id": "task-decomposition",
+      "title": "タスク分解戦略",
+      "url": "articles/task-decomposition.html",
+      "summary": "コーディネータモードにおけるタスク分解戦略は、複雑な作業を独立した並行実行可能な単位に分割するための体系的手法である。自己完結型プロンプトの設計・タスク依存グラフの構築・発見フェーズの運用・結果統合の方法論を包括し、マルチエージェント処理の効率を最大化する。",
+      "is_root": false
+    },
+    {
+      "id": "file-edit-tool",
+      "title": "FileEditTool の設計",
+      "url": "articles/file-edit-tool.html",
+      "summary": "FileEditTool は Claude Code におけるファイル精密編集の中核ツールであり、old_string/new_string 方式による差分編集と事前読み取り強制によって安全かつ正確なファイル変更を実現する。",
+      "is_root": false
+    },
+    {
+      "id": "permission-system",
+      "title": "パーミッションシステム",
+      "url": "articles/permission-system.html",
+      "summary": "Claude Code のパーミッションシステムは、ツール実行の可否をリアルタイムに判定する多層構造のアクセス制御機構である。パーミッションモードの選択、ツールごとの checkPermissions() 呼び出し、エージェントスコープごとのツールセット制限、MCP チャネルのパーミッション管理などを通じて、安全で細粒度のアクセス制御を実現する。",
+      "is_root": false
+    },
+    {
+      "id": "bash-tool-security",
+      "title": "BashTool セキュリティ設計",
+      "url": "articles/bash-tool-security.html",
+      "summary": "BashTool security design implements a multi-layered defense architecture.",
+      "is_root": false
+    },
+    {
+      "id": "agent-lifecycle",
+      "title": "エージェントライフサイクル",
+      "url": "articles/agent-lifecycle.html",
+      "summary": "Claude Code のエージェントライフサイクルは runAgent.ts が定義する6フェーズで構成される。エージェントの再開・サブエージェントのフォーク・メモリスナップショット管理など複雑な実行モデルを解説する。",
+      "is_root": false
+    },
+    {
+      "id": "mcp-oauth-flow",
+      "title": "MCP OAuth 認証フロー",
+      "url": "articles/mcp-oauth-flow.html",
+      "summary": "Claude Code の MCP OAuth 認証フローは src/services/mcp/auth.ts（88 KB）に実装されており、OAuth 2.0 認可コードフローによる MCP サーバーへの安全なアクセスを提供する。トークンの取得・更新・失効処理に加え、チャネル許可リストとパーミッション管理を組み合わせた多層セキュリティモデルを採用している。",
+      "is_root": false
+    },
+    {
+      "id": "system-prompt-design",
+      "title": "システムプロンプト設計",
+      "url": "articles/system-prompt-design.html",
+      "summary": "Claude Code のシステムプロンプト設計は、各ツールの prompt.ts ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略を包括的に解説する。",
+      "is_root": false
     }
   ],
   "links": [
@@ -151,6 +207,14 @@
       "target": "mcp-integration"
     },
     {
+      "source": "agent-architecture",
+      "target": "permission-system"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "agent-lifecycle"
+    },
+    {
       "source": "tool-system",
       "target": "claude-code-overview"
     },
@@ -165,6 +229,14 @@
     {
       "source": "tool-system",
       "target": "mcp-integration"
+    },
+    {
+      "source": "tool-system",
+      "target": "bash-tool-security"
+    },
+    {
+      "source": "tool-system",
+      "target": "file-edit-tool"
     },
     {
       "source": "query-engine",
@@ -197,6 +269,10 @@
     {
       "source": "query-loop",
       "target": "tool-system"
+    },
+    {
+      "source": "query-loop",
+      "target": "error-recovery-mechanisms"
     },
     {
       "source": "prompt-engineering",
@@ -215,6 +291,10 @@
       "target": "session-memory"
     },
     {
+      "source": "prompt-engineering",
+      "target": "system-prompt-design"
+    },
+    {
       "source": "mcp-integration",
       "target": "claude-code-overview"
     },
@@ -229,6 +309,10 @@
     {
       "source": "mcp-integration",
       "target": "bridge-system"
+    },
+    {
+      "source": "mcp-integration",
+      "target": "mcp-oauth-flow"
     },
     {
       "source": "session-memory",
@@ -265,6 +349,10 @@
     {
       "source": "coordinator-mode",
       "target": "tool-system"
+    },
+    {
+      "source": "coordinator-mode",
+      "target": "task-decomposition"
     },
     {
       "source": "bridge-system",
@@ -312,6 +400,158 @@
     },
     {
       "source": "claude-code-architecture",
+      "target": "mcp-integration"
+    },
+    {
+      "source": "error-recovery-mechanisms",
+      "target": "query-loop"
+    },
+    {
+      "source": "error-recovery-mechanisms",
+      "target": "context-compaction"
+    },
+    {
+      "source": "error-recovery-mechanisms",
+      "target": "tool-system"
+    },
+    {
+      "source": "error-recovery-mechanisms",
+      "target": "query-engine"
+    },
+    {
+      "source": "error-recovery-mechanisms",
+      "target": "session-memory"
+    },
+    {
+      "source": "task-decomposition",
+      "target": "coordinator-mode"
+    },
+    {
+      "source": "task-decomposition",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "task-decomposition",
+      "target": "prompt-engineering"
+    },
+    {
+      "source": "task-decomposition",
+      "target": "tool-system"
+    },
+    {
+      "source": "file-edit-tool",
+      "target": "tool-system"
+    },
+    {
+      "source": "file-edit-tool",
+      "target": "prompt-engineering"
+    },
+    {
+      "source": "file-edit-tool",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "file-edit-tool",
+      "target": "query-loop"
+    },
+    {
+      "source": "permission-system",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "permission-system",
+      "target": "tool-system"
+    },
+    {
+      "source": "permission-system",
+      "target": "query-engine"
+    },
+    {
+      "source": "permission-system",
+      "target": "mcp-integration"
+    },
+    {
+      "source": "permission-system",
+      "target": "query-loop"
+    },
+    {
+      "source": "bash-tool-security",
+      "target": "tool-system"
+    },
+    {
+      "source": "bash-tool-security",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "bash-tool-security",
+      "target": "prompt-engineering"
+    },
+    {
+      "source": "bash-tool-security",
+      "target": "query-loop"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "coordinator-mode"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "query-loop"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "mcp-integration"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "session-memory"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "tool-system"
+    },
+    {
+      "source": "agent-lifecycle",
+      "target": "prompt-engineering"
+    },
+    {
+      "source": "mcp-oauth-flow",
+      "target": "mcp-integration"
+    },
+    {
+      "source": "mcp-oauth-flow",
+      "target": "tool-system"
+    },
+    {
+      "source": "mcp-oauth-flow",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "mcp-oauth-flow",
+      "target": "bridge-system"
+    },
+    {
+      "source": "system-prompt-design",
+      "target": "prompt-engineering"
+    },
+    {
+      "source": "system-prompt-design",
+      "target": "tool-system"
+    },
+    {
+      "source": "system-prompt-design",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "system-prompt-design",
+      "target": "coordinator-mode"
+    },
+    {
+      "source": "system-prompt-design",
       "target": "mcp-integration"
     }
   ]

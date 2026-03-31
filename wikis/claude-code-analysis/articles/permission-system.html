@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パーミッションシステム - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    パーミッションシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">パーミッションシステム</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の<b>パーミッションシステム</b>は、ツール実行の可否をリアルタイムに判定する多層構造のアクセス制御機構である。パーミッションモードの選択、ツールごとの <code>checkPermissions()</code> 呼び出し、エージェントスコープごとのツールセット制限、MCP チャネルのパーミッション管理などを通じて、安全で細粒度のアクセス制御を実現する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>Claude Code の<b>パーミッションシステム</b>は、ユーザーが明示的に承認していない操作が自動実行されることを防ぐための仕組みである。全ツール実行の前に <code>checkPermissions()</code> が呼び出され、その結果に応じてツールの実行が許可・拒否・保留される。パーミッション設計は「最小権限の原則」に基づいており、必要な権限だけをエージェントごとに付与することで、ツールの誤用を防止する。</p>
+
+      <p>パーミッションシステムは以下のコンポーネントと密接に連携する。</p>
+      <ul>
+        <li><a href="tool-system.html">ツールシステム</a>: 各ツールが <code>checkPermissions()</code> メソッドを実装する</li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a>: エージェントごとのパーミッションスコーピング</li>
+        <li><a href="query-engine.html">QueryEngine</a>: パーミッション拒否のトラッキング</li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a>: MCP チャネルパーミッション管理</li>
+      </ul>
+
+      <h2 id="permission-modes">パーミッションモードの種類</h2>
+      <p>Claude Code は起動オプションや設定に応じて複数のパーミッションモードを持つ。</p>
+
+      <table>
+        <thead>
+          <tr><th>モード</th><th>説明</th><th>主な用途</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>自動承認モード（autoApprove）</strong></td>
+            <td>全ツール実行を自動的に承認する。ユーザーへの確認プロンプトが省略される。</td>
+            <td>CI/CD・バッチ処理・テスト環境</td>
+          </tr>
+          <tr>
+            <td><strong>手動承認モード（manual）</strong></td>
+            <td>破壊的操作（ファイル書き込み・シェル実行など）の前にユーザー確認を要求する。</td>
+            <td>インタラクティブな開発作業</td>
+          </tr>
+          <tr>
+            <td><strong>読み取り専用モード（readOnly）</strong></td>
+            <td>書き込み系ツールを完全に無効化し、読み取り操作のみ許可する。</td>
+            <td>コードレビュー・監査</td>
+          </tr>
+          <tr>
+            <td><strong>ホワイトリストモード（allowList）</strong></td>
+            <td>明示的に許可したツールのみ実行可能。デフォルト拒否の厳格なモード。</td>
+            <td>セキュリティ重視の環境</td>
+          </tr>
+          <tr>
+            <td><strong>プランモード（plan）</strong></td>
+            <td>ツールの実行計画を作成するが実際には実行しない。ドライランに相当する。</td>
+            <td>変更の事前確認</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>パーミッションモードはセッション開始時に決定され、<a href="agent-architecture.html">エージェント実行フロー</a>の「設定決定」フェーズでツールセットとともに確定される。サブエージェントはデフォルトで親エージェントのモードを継承するが、スコーピングによって上書きも可能である。</p>
+
+      <h2 id="check-permissions">ツールごとの checkPermissions()</h2>
+      <p>各ツールは <code>Tool</code> インターフェースの一部として <code>checkPermissions()</code> メソッドを実装している。このメソッドはツール実行の直前に呼び出され、現在のパーミッションコンテキストに基づいて実行の可否を判定する。</p>
+
+      <p>判定ロジックの主な要素は以下の通りである。</p>
+      <ul>
+        <li><strong>操作種別</strong>: 読み取り（低リスク）・書き込み（中リスク）・実行（高リスク）の分類</li>
+        <li><strong>対象パス</strong>: ファイル操作の場合、アクセス先パスをプロジェクトルートと照合する</li>
+        <li><strong>ツール固有ルール</strong>: BashTool のシェルコマンド検証、FileEditTool の上書き確認など</li>
+        <li><strong>ユーザー設定</strong>: 永続的なホワイトリスト・ブラックリスト（<code>settings.json</code> で管理）</li>
+      </ul>
+
+      <p><code>checkPermissions()</code> が拒否を返した場合、実行はブロックされ、拒否イベントが <a href="query-engine.html">QueryEngine</a> の拒否トラッカーに記録される。インタラクティブモードでは、ユーザーへの確認プロンプトが表示される前に <code>checkPermissions()</code> が実行され、確認後に再評価される。</p>
+
+      <figure style="margin: 1.5em 0;">
+        <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block;margin:0 auto;background:#f8f9fa;border:1px solid #a2a9b1;border-radius:4px;">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#36c"/>
+            </marker>
+            <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#c00"/>
+            </marker>
+            <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#090"/>
+            </marker>
+          </defs>
+
+          <!-- Tool Call -->
+          <rect x="20" y="130" width="120" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="150" text-anchor="middle" font-size="12" fill="#202122">ツール呼び出し</text>
+          <text x="80" y="167" text-anchor="middle" font-size="11" fill="#555">Tool.call()</text>
+
+          <!-- Arrow to checkPermissions -->
+          <line x1="140" y1="155" x2="190" y2="155" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- checkPermissions box -->
+          <rect x="190" y="120" width="150" height="70" rx="6" fill="#eaf3ff" stroke="#36c" stroke-width="1.5"/>
+          <text x="265" y="145" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">checkPermissions()</text>
+          <text x="265" y="162" text-anchor="middle" font-size="11" fill="#555">パーミッション判定</text>
+          <text x="265" y="178" text-anchor="middle" font-size="11" fill="#555">モード / パス / ルール</text>
+
+          <!-- DENY arrow -->
+          <line x1="265" y1="190" x2="265" y2="240" stroke="#c00" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+          <text x="275" y="220" font-size="11" fill="#c00">DENY</text>
+
+          <!-- DENY box -->
+          <rect x="190" y="240" width="150" height="50" rx="6" fill="#fff0f0" stroke="#c00" stroke-width="1.5"/>
+          <text x="265" y="262" text-anchor="middle" font-size="12" fill="#c00">実行ブロック</text>
+          <text x="265" y="278" text-anchor="middle" font-size="11" fill="#555">拒否ログ記録</text>
+
+          <!-- ALLOW arrow -->
+          <line x1="340" y1="155" x2="390" y2="155" stroke="#090" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+          <text x="352" y="148" font-size="11" fill="#090">ALLOW</text>
+
+          <!-- Interactive check diamond -->
+          <polygon points="440,125 500,155 440,185 380,155" fill="#fffbe6" stroke="#c80" stroke-width="1.5"/>
+          <text x="440" y="150" text-anchor="middle" font-size="11" fill="#202122">手動</text>
+          <text x="440" y="165" text-anchor="middle" font-size="11" fill="#202122">モード?</text>
+
+          <!-- YES: user confirm -->
+          <line x1="500" y1="155" x2="550" y2="155" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="510" y="148" font-size="11" fill="#36c">YES</text>
+          <rect x="550" y="130" width="110" height="50" rx="6" fill="#f0fff0" stroke="#090" stroke-width="1.5"/>
+          <text x="605" y="150" text-anchor="middle" font-size="12" fill="#202122">ユーザー確認</text>
+          <text x="605" y="166" text-anchor="middle" font-size="11" fill="#555">プロンプト表示</text>
+
+          <!-- NO: execute -->
+          <line x1="440" y1="185" x2="440" y2="240" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="448" y="220" font-size="11" fill="#202122">NO</text>
+          <rect x="390" y="240" width="100" height="50" rx="6" fill="#f0fff0" stroke="#090" stroke-width="1.5"/>
+          <text x="440" y="262" text-anchor="middle" font-size="12" fill="#202122">ツール実行</text>
+          <text x="440" y="278" text-anchor="middle" font-size="11" fill="#555">Tool.run()</text>
+
+          <!-- From user confirm to execute -->
+          <line x1="605" y1="180" x2="605" y2="265" stroke="#36c" stroke-width="1.5"/>
+          <line x1="605" y1="265" x2="490" y2="265" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="540" y="258" font-size="11" fill="#36c">承認</text>
+
+          <!-- Title -->
+          <text x="340" y="30" text-anchor="middle" font-size="14" fill="#202122" font-weight="bold">パーミッションフロー</text>
+          <text x="340" y="50" text-anchor="middle" font-size="11" fill="#555">Tool.call() → checkPermissions() → 実行判定</text>
+        </svg>
+        <figcaption style="text-align:center;font-size:0.85em;color:#555;margin-top:0.5em;">図1: パーミッション判定フロー</figcaption>
+      </figure>
+
+      <h2 id="permission-scoping">パーミッションスコーピング</h2>
+      <p>パーミッションスコーピングは、エージェントごとに利用可能なツールセットを制限する仕組みである。<a href="agent-architecture.html">エージェントアーキテクチャ</a>の「主要設計パターン」で述べられているように、ツールセットはエージェントごとに制限されながら SDK レベルのパーミッションは保持される。</p>
+
+      <p>スコーピングの主な目的は以下の通りである。</p>
+      <ul>
+        <li><strong>最小権限の保証</strong>: タスクに不要なツールを持たないサブエージェントを生成できる</li>
+        <li><strong>サンドボックス化</strong>: 特定の作業ディレクトリや操作範囲に限定したエージェントの構築</li>
+        <li><strong>セキュリティ分離</strong>: 信頼度の低い入力を処理するエージェントから危険ツールを除外する</li>
+      </ul>
+
+      <p>スコーピングはツールセットのマージ・重複排除メカニズムとも連携する。ビルトインツールが MCP ツールより優先されるルールにより、スコーピング設定が外部プラグインによって意図せず拡張されることを防ぐ。</p>
+
+      <h2 id="admin-trust-gate">管理者信頼ゲート</h2>
+      <p>フロントマター機能（エージェント定義ファイルの先頭に記述されるメタデータ）をロードする前に、ソースの信頼性をチェックする「管理者信頼ゲート」が設けられている。</p>
+
+      <p>信頼ゲートは以下の順序でソースを評価する。</p>
+      <ol>
+        <li><strong>ポリシー設定</strong>: 組織のポリシーから提供されたエージェントは最高信頼度</li>
+        <li><strong>プロジェクト設定</strong>: プロジェクトディレクトリ内の設定ファイルは高信頼度</li>
+        <li><strong>ユーザー設定</strong>: ユーザーのホームディレクトリ設定は中信頼度（ゲート通過が必要）</li>
+        <li><strong>プラグイン</strong>: 外部プラグインは検証必須</li>
+        <li><strong>不明ソース</strong>: ゲートを通過できず、ロードが拒否される</li>
+      </ol>
+
+      <p>この仕組みにより、悪意あるプロジェクトファイルや改ざんされたプラグインが危険なエージェント定義を注入するサプライチェーン攻撃を防ぐ。<a href="agent-architecture.html">エージェントアーキテクチャ</a>のロード優先順位（ビルトイン→プラグイン→ユーザー→プロジェクト→フラグ→ポリシー）は、信頼ゲートの評価順序と整合している。</p>
+
+      <h2 id="denial-tracking">パーミッション拒否のトラッキング</h2>
+      <p><a href="query-engine.html">QueryEngine</a> は会話ライフサイクル管理の一部として、パーミッション拒否イベントをトラッキングする。拒否トラッカーは以下の情報を記録する。</p>
+
+      <ul>
+        <li>拒否されたツール名とその引数</li>
+        <li>拒否の理由（モード制約・パスポリシー・ユーザー拒否など）</li>
+        <li>拒否発生時のメッセージ ID（会話コンテキストとの紐付け用）</li>
+        <li>累積拒否回数（セッション統計）</li>
+      </ul>
+
+      <p>トラッキングデータは以下の用途に活用される。</p>
+      <ul>
+        <li><strong>モデルへのフィードバック</strong>: 拒否されたアクションをモデルに通知し、代替戦略を検討させる</li>
+        <li><strong>テレメトリ</strong>: どのツールが頻繁に拒否されるかを収集し、UX 改善に活用する</li>
+        <li><strong>デバッグ</strong>: パーミッション設定のトラブルシューティング時に拒否ログを参照する</li>
+      </ul>
+
+      <p>拒否イベントは <a href="query-loop.html">クエリループ</a>のエラーリカバリーメカニズムとも連携しており、連続した拒否が発生した場合に適切なフォールバック処理が行われる。</p>
+
+      <h2 id="mcp-channel-permissions">MCP チャネルパーミッション管理</h2>
+      <p><a href="mcp-integration.html">MCP インテグレーション</a>において、各 MCP サーバーへの接続はチャネル単位でパーミッションが管理される。<code>src/services/mcp/</code> のチャネルセキュリティモジュールが以下を担当する。</p>
+
+      <table>
+        <thead>
+          <tr><th>管理項目</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>チャネル認証</td>
+            <td>各 MCP サーバーへの接続時に OAuth / API キーなどで認証を実施する</td>
+          </tr>
+          <tr>
+            <td>ツール公開制御</td>
+            <td>MCP サーバーが公開するツールのうち、許可リストに含まれるものだけを登録する</td>
+          </tr>
+          <tr>
+            <td>スコープ制限</td>
+            <td>サーバーごとに許可する操作のスコープ（読み取り専用・書き込み可など）を設定する</td>
+          </tr>
+          <tr>
+            <td>接続ライフサイクル</td>
+            <td>エージェント終了時に MCP 接続を解放し、リソースリークを防ぐ</td>
+          </tr>
+          <tr>
+            <td>依存フィルタリング</td>
+            <td>必要な MCP サーバーが利用可能な場合のみエージェントをロードする</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>MCP チャネルのパーミッション設定は <code>settings.json</code> の <code>mcpServers</code> セクションで定義され、<a href="agent-architecture.html">エージェント実行フロー</a>の「設定決定」フェーズで読み込まれる。チャネルパーミッションの拒否も <a href="query-engine.html">QueryEngine</a> の拒否トラッカーに記録される。</p>
+
+      <figure style="margin: 1.5em 0;">
+        <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;display:block;margin:0 auto;background:#f8f9fa;border:1px solid #a2a9b1;border-radius:4px;">
+          <defs>
+            <marker id="arr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#36c"/>
+            </marker>
+          </defs>
+
+          <!-- Title -->
+          <text x="310" y="28" text-anchor="middle" font-size="14" fill="#202122" font-weight="bold">MCP チャネルパーミッション構造</text>
+
+          <!-- Agent -->
+          <rect x="20" y="50" width="120" height="50" rx="6" fill="#eaf3ff" stroke="#36c" stroke-width="1.5"/>
+          <text x="80" y="72" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">エージェント</text>
+          <text x="80" y="88" text-anchor="middle" font-size="11" fill="#555">ツールセット</text>
+
+          <!-- Arrow to Permission Layer -->
+          <line x1="140" y1="75" x2="190" y2="75" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Permission Layer -->
+          <rect x="190" y="45" width="150" height="60" rx="6" fill="#fff8e1" stroke="#c80" stroke-width="1.5"/>
+          <text x="265" y="68" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">パーミッションレイヤー</text>
+          <text x="265" y="85" text-anchor="middle" font-size="11" fill="#555">チャネル認証 / スコープ</text>
+          <text x="265" y="100" text-anchor="middle" font-size="11" fill="#555">ツール公開フィルタ</text>
+
+          <!-- Arrow to MCP Servers -->
+          <line x1="340" y1="75" x2="390" y2="75" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- MCP Server A -->
+          <rect x="390" y="50" width="100" height="45" rx="6" fill="#f0fff0" stroke="#090" stroke-width="1.5"/>
+          <text x="440" y="70" text-anchor="middle" font-size="12" fill="#202122">MCP Server A</text>
+          <text x="440" y="85" text-anchor="middle" font-size="11" fill="#555">許可済み</text>
+
+          <!-- MCP Server B -->
+          <rect x="390" y="110" width="100" height="45" rx="6" fill="#f0fff0" stroke="#090" stroke-width="1.5"/>
+          <text x="440" y="130" text-anchor="middle" font-size="12" fill="#202122">MCP Server B</text>
+          <text x="440" y="145" text-anchor="middle" font-size="11" fill="#555">読取専用</text>
+
+          <!-- MCP Server C blocked -->
+          <rect x="390" y="170" width="100" height="45" rx="6" fill="#fff0f0" stroke="#c00" stroke-width="1.5"/>
+          <text x="440" y="190" text-anchor="middle" font-size="12" fill="#c00">MCP Server C</text>
+          <text x="440" y="205" text-anchor="middle" font-size="11" fill="#c00">ブロック</text>
+
+          <!-- Arrow from Permission to Server B -->
+          <line x1="340" y1="85" x2="390" y2="130" stroke="#36c" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <!-- Arrow from Permission to Server C -->
+          <line x1="340" y1="90" x2="390" y2="185" stroke="#c00" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="365" y="165" font-size="10" fill="#c00">拒否</text>
+
+          <!-- Denial Tracker -->
+          <rect x="190" y="190" width="150" height="60" rx="6" fill="#fff0f0" stroke="#c00" stroke-width="1.5"/>
+          <text x="265" y="213" text-anchor="middle" font-size="12" fill="#c00" font-weight="bold">拒否トラッカー</text>
+          <text x="265" y="230" text-anchor="middle" font-size="11" fill="#555">QueryEngine 内</text>
+          <text x="265" y="245" text-anchor="middle" font-size="11" fill="#555">拒否ログ記録</text>
+
+          <!-- Arrow from block to denial tracker -->
+          <line x1="390" y1="210" x2="340" y2="225" stroke="#c00" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- settings.json -->
+          <rect x="20" y="175" width="120" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="197" text-anchor="middle" font-size="12" fill="#202122">settings.json</text>
+          <text x="80" y="213" text-anchor="middle" font-size="11" fill="#555">mcpServers 設定</text>
+          <line x1="140" y1="200" x2="190" y2="210" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+        </svg>
+        <figcaption style="text-align:center;font-size:0.85em;color:#555;margin-top:0.5em;">図2: MCP チャネルパーミッション構造</figcaption>
+      </figure>
+
+      <h2 id="settings-integration">設定との統合</h2>
+      <p>パーミッションシステムの多くの設定は <code>settings.json</code>（ユーザー設定）および <code>.claude/settings.json</code>（プロジェクト設定）で永続化される。設定可能な主な項目を示す。</p>
+
+      <ul>
+        <li><code>permissions.defaultMode</code>: デフォルトのパーミッションモード</li>
+        <li><code>permissions.allowedTools</code>: 常時自動承認するツールのホワイトリスト</li>
+        <li><code>permissions.deniedTools</code>: 常時拒否するツールのブラックリスト</li>
+        <li><code>permissions.allowedPaths</code>: アクセス許可するファイルパスパターン</li>
+        <li><code>mcpServers.*.permissions</code>: MCP サーバーごとのチャネルパーミッション</li>
+      </ul>
+
+      <p>プロジェクト設定はユーザー設定より優先され、ポリシー設定はすべてに優先する。この優先順序は<a href="agent-architecture.html">エージェントアーキテクチャ</a>のロード優先順位と一致しており、システム全体で一貫したパーミッション管理が行われる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#permission-modes">パーミッションモードの種類</a></li>
+          <li><a href="#check-permissions">ツールごとの checkPermissions()</a></li>
+          <li><a href="#permission-scoping">パーミッションスコーピング</a></li>
+          <li><a href="#admin-trust-gate">管理者信頼ゲート</a></li>
+          <li><a href="#denial-tracking">パーミッション拒否のトラッキング</a></li>
+          <li><a href="#mcp-channel-permissions">MCP チャネルパーミッション管理</a></li>
+          <li><a href="#settings-integration">設定との統合</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li>（なし）</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
