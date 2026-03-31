@@ -22,7 +22,6 @@
         "trondheim",
         "oslo",
         "york-jorvík",
-        "reykjavik",
         "jorvík-skills-discovery",
         "roskilde-npm-sea-route",
         "althing-public-registry",
@@ -51,7 +50,8 @@
         "uppsala",
         "oslo",
         "reykjavik",
-        "gamla-uppsala-central-hub"
+        "gamla-uppsala-central-hub",
+        "reykjavik-session-memory"
       ],
       "summary": "ガムラ・ウプサラ（古いウプサラ）は、スウェーデン・ウプサラ市北部に位置する古代の聖地・王権の中心地。ヴァイキング時代の三大神殿（オーディン・トール・フレイ）、9年ごとの人身御供儀式、6〜7世紀の王墓群（インギャルド墳）、発掘遺物、現代の考古学公園について詳述する。",
       "expansion_status": "pending",
@@ -175,10 +175,10 @@
       ],
       "linked_from": [
         "hokuo-shinwa-no-machi",
+        "roskilde",
         "uppsala",
         "jorvík-skills-discovery",
-        "roskilde-npm-sea-route",
-        "roskilde"
+        "roskilde-npm-sea-route"
       ],
       "summary": "ヨーク（古ノルド語：ヨールヴィーク）はイングランド北部に位置する歴史都市で、866年のデーン人による征服から954年まで続いたヴァイキング王国「ヨールヴィーク王国」の首都として栄えた。豊富な考古学的遺物と現代のヨールヴィーク・ヴァイキング・センターにより、北欧神話とヴァイキング文化を体感できる世界的な観光地となっている。",
       "expansion_status": "pending",
@@ -189,14 +189,14 @@
       "title": "レイキャビク",
       "filename": "wikis/hokuo-shinwa-yukari-machi/articles/reykjavik.html",
       "created_at": "2026-03-30T16:22:57.254584+00:00",
-      "updated_at": "2026-03-31T00:48:25.159137+00:00",
+      "updated_at": "2026-03-31T12:49:38.403149+00:00",
       "links_to": [
-        "hokuo-shinwa-no-machi",
+        "gamla-uppsala",
         "trondheim",
         "roskilde",
         "oslo",
-        "gamla-uppsala",
-        "althing-public-registry"
+        "althing-public-registry",
+        "reykjavik-session-memory"
       ],
       "linked_from": [
         "hokuo-shinwa-no-machi",
@@ -205,7 +205,8 @@
         "trondheim",
         "oslo",
         "york-jorvík",
-        "althing-public-registry"
+        "althing-public-registry",
+        "reykjavik-session-memory"
       ],
       "summary": "レイキャビクはアイスランドの首都であり、874年のヴァイキングによる入植以来、北欧神話の主要文書であるエッダ・サガの成立地として知られる。世界最古の議会アルシング（930年）の開催地シングヴェトリルを近郊に擁し、北欧神話の伝承と保存において世界で最も重要な都市のひとつである。",
       "expansion_status": "pending",
@@ -286,14 +287,36 @@
         "claude-code-skills-sharing:monorepo-skills"
       ],
       "linked_from": [
-        "gamla-uppsala"
+        "gamla-uppsala",
+        "reykjavik-session-memory"
       ],
       "summary": "ガムラ・ウプサラは北欧神話の三大神オーディン・トール・フレイを祀る大神殿を中心に、スカンジナビア全域から巡礼者・商人・王侯が集まる「聖なる中枢」として機能した。セントラルリポジトリアプローチも「全ての知識が一点に集まり、そこから全チームに分配される」という中心地の思想を体現している。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "gamla-uppsala"
+    },
+    "reykjavik-session-memory": {
+      "id": "reykjavik-session-memory",
+      "title": "レイキャビクのエッダ・サガとセッションメモリ：知識を未来に伝える記憶の技法",
+      "filename": "wikis/hokuo-shinwa-yukari-machi/articles/reykjavik-session-memory.html",
+      "created_at": "2026-03-31T12:48:49.128730+00:00",
+      "updated_at": "2026-03-31T12:48:49.128730+00:00",
+      "links_to": [
+        "reykjavik",
+        "gamla-uppsala",
+        "gamla-uppsala-central-hub",
+        "claude-code-analysis:session-memory",
+        "claude-code-analysis:context-compaction"
+      ],
+      "linked_from": [
+        "reykjavik"
+      ],
+      "summary": "レイキャビクが13世紀に北欧神話を散文エッダ・詩のエッダとして文字に記録した「記憶の危機への応答」と、Claude Codeのセッションメモリが対話コンテキストを10セクション構造で保存する仕組みの類比を探る。揮発的な記憶を構造化して永続化するという設計思想の普遍性を考察する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "reaction:reykjavik:session-memory"
     }
   },
   "root_id": null,
-  "total_count": 12
+  "total_count": 13
 }

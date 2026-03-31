@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜 - ロボトミー手術の歴史</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ロボトミー手術の歴史</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ロボトミー手術の歴史</a> &gt;
+    インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">医療における<b>インフォームドコンセント</b>（IC）と、AIシステムにおける<b>パーミッションシステム</b>は、一見かけ離れた二つの概念である。しかし両者には深い構造的類似がある。専門的権威（医師・AIエージェント）が個人（患者・ユーザー）に代わって行動する場面において、「同意」というプロセスがなぜ不可欠なのか。歴史的な反省と技術的な設計の両面から、この「同意の哲学」を探る。</div>
+
+      <h2 id="rekishi-teki-haikei">歴史的背景：反省から生まれた「同意」の仕組み</h2>
+      <p>
+        <a href="informed-consent-no-rekishi.html">インフォームドコンセントの歴史</a>は、悲惨な逸脱の記録から始まる。ナチスの人体実験、タスキギー梅毒研究、そして<a href="robotomi-shujutsu-no-rekishi.html">ロボトミー手術</a>の乱用——これらはいずれも、専門的権威が「患者の利益のため」と信じて（あるいは信じることで）、当事者の同意なしに不可逆的な行為を実施した事例である。1947年のニュルンベルク綱領は「自発的な同意は絶対に不可欠である」と明記し、医療における同意の原則を世界に宣言した。
+      </p>
+      <p>
+        <a href="../../claude-code-analysis/articles/permission-system.html">Claude Code のパーミッションシステム</a>も、類似の認識から設計されている。AIエージェントはその性質上、ユーザーのコンピュータ上でファイルを編集し、シェルコマンドを実行し、外部サービスにアクセスする「権力」を持つ。この権力が透明性と同意なしに行使されれば、たとえ善意であっても重大な被害を引き起こしうる。パーミッションシステムは「AIは問われずして動くべきではない」という倫理的直観を技術的に実装した仕組みである。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360">
+          <rect width="720" height="360" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="360" y="28" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#202122">「同意」の二層：医療と AIの構造的類似</text>
+
+          <!-- Headers -->
+          <rect x="30" y="50" width="300" height="40" rx="6" fill="#e8f0fb" stroke="#36c" stroke-width="1.5"/>
+          <text x="180" y="76" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#36c">インフォームドコンセント（医療）</text>
+          <rect x="390" y="50" width="300" height="40" rx="6" fill="#e8f3e8" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="540" y="76" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#2e7d32">パーミッションシステム（AI）</text>
+
+          <!-- Row 1: 権威者 -->
+          <text x="360" y="125" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">【権威者】</text>
+          <rect x="50" y="132" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="180" y="154" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">医師・医療機関</text>
+          <line x1="310" y1="150" x2="410" y2="150" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="410" y="132" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="540" y="154" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">AIエージェント・Claude Code</text>
+
+          <!-- Row 2: 対象者 -->
+          <text x="360" y="193" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">【対象者】</text>
+          <rect x="50" y="200" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="180" y="222" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">患者（自律性の主体）</text>
+          <line x1="310" y1="218" x2="410" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="410" y="200" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="540" y="222" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">ユーザー（操作の最終承認者）</text>
+
+          <!-- Row 3: 行為 -->
+          <text x="360" y="261" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">【行為の性質】</text>
+          <rect x="50" y="268" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="180" y="290" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">侵襲的・不可逆的な医療処置</text>
+          <line x1="310" y1="286" x2="410" y2="286" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="410" y="268" width="260" height="36" rx="4" fill="#fff" stroke="#a2a9b1"/>
+          <text x="540" y="290" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#202122">ファイル変更・コマンド実行</text>
+
+          <!-- Row 4: 同意メカニズム -->
+          <text x="360" y="329" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">【同意のメカニズム】</text>
+          <rect x="50" y="333" width="260" height="20" rx="4" fill="#e8f0fb" stroke="#36c"/>
+          <text x="180" y="347" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#36c">説明→理解→自由意思による同意</text>
+          <line x1="310" y1="343" x2="410" y2="343" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="410" y="333" width="260" height="20" rx="4" fill="#e8f3e8" stroke="#2e7d32"/>
+          <text x="540" y="347" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#2e7d32">checkPermissions()→確認プロンプト→承認</text>
+        </svg>
+        <div class="diagram-caption">図1: インフォームドコンセントとパーミッションシステムの構造的類似</div>
+      </div>
+
+      <h2 id="kozo-teki-ruiji">構造的類似の解剖</h2>
+
+      <h3 id="information-disclosure">情報開示の義務</h3>
+      <p>
+        インフォームドコンセントの第一要素は「情報の提供」である。医師は診断名・治療法・リスク・代替案を患者が理解できる言語で説明しなければならない。単に同意書に署名させるだけでは不十分であり、患者が実質的に理解した上での同意が求められる。
+      </p>
+      <p>
+        Claude Codeのパーミッションシステムにおいても、ツール実行前にユーザーへの確認プロンプトが表示される際、「何をしようとしているか」が明確に提示される。たとえば「ファイル <code>X</code> を書き換えてよいか」という確認は、対象・操作・影響範囲をユーザーに知らせる情報開示行為である。手動承認モードにおける <code>checkPermissions()</code> の確認ダイアログは、医療における「術前説明」に相当する。
+      </p>
+
+      <h3 id="voluntary-consent">自由意思と強制の排除</h3>
+      <p>
+        ロボトミー時代の最大の倫理的問題は、患者が「同意した」とされながら実際には強制・欺瞞・無力化の状況に置かれていたことである。精神病院に収容された患者は、実質的に拒否権を持っていなかった。インフォームドコンセントの法理は「脅迫・欺瞞・過度な説得がない状態での同意」を要件とする。
+      </p>
+      <p>
+        Claude Codeのパーミッションシステムも、ユーザーが実質的な拒否権を持つことを設計の前提とする。自動承認モード（autoApprove）は存在するが、これはユーザーが意図的に「確認なしで全て許可する」と選択した状態である。デフォルトは手動承認モードであり、ユーザーは常に実行を中断・拒否できる。これは「デフォルト・セーフ」という設計思想を体現している。
+      </p>
+
+      <h3 id="revocability">同意の撤回可能性</h3>
+      <p>
+        現代のインフォームドコンセントは「同意はいつでも撤回できる」という原則を含む。手術途中であっても患者が同意を撤回すれば、医師はその意思を尊重する義務を負う（緊急時は例外）。
+      </p>
+      <p>
+        Claude Codeにおいても、ユーザーは実行中のプロセスを中断したり、特定ツールを後から無効化したりする権利を持つ。<a href="../../claude-code-analysis/articles/permission-system.html">パーミッションシステム</a>の「ホワイトリストモード」や「読み取り専用モード」は、ユーザーが事後的にAIの権限範囲を絞り込む手段を提供する。同意の継続性と撤回可能性は、医療とAIの双方で重要な原則である。
+      </p>
+
+      <h2 id="rekishi-teki-kyoukun">歴史的教訓：権威の暴走を防ぐ設計</h2>
+      <p>
+        インフォームドコンセントが法的・倫理的原則として確立されたのは、<b>歴史的な権威の暴走への反省</b>があったからである。<a href="walter-freeman-no-shougai.html">ウォルター・フリーマン</a>のような医師が「私は専門家だから患者の代わりに最善を判断できる」という温情主義（paternalism）の下に数千件のロボトミーを実施した。患者の声は組織的に無視された。
+      </p>
+      <p>
+        AIシステムにおいても同様のリスクが存在する。「AIが最善と判断したこと」をユーザーの確認なしに実行するシステムは、たとえ設計者の意図が善意であっても、ユーザーの自律性を侵害する可能性がある。Claude Codeのパーミッションシステムは、この「善意のAI温情主義」に対する予防措置として機能する。「より知識のある主体（医師・AI）が決定を下す」という論理的誘惑に対して、「それでも当事者の同意が先行しなければならない」という規範的抵抗を内蔵した設計である。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300">
+          <rect width="720" height="300" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="360" y="28" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#202122">温情主義の罠：医療とAIにおける「善意の権威」の危険性</text>
+
+          <!-- Left: Medical Paternalism -->
+          <rect x="30" y="50" width="300" height="220" rx="8" fill="#fff0f0" stroke="#c00" stroke-width="1.5"/>
+          <text x="180" y="80" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#c00">医療の温情主義（历史的事例）</text>
+          <text x="60" y="110" font-family="sans-serif" font-size="11" fill="#202122">「私が患者の最善を知っている」</text>
+          <text x="60" y="130" font-family="sans-serif" font-size="11" fill="#202122">→ ロボトミー：同意なき不可逆手術</text>
+          <text x="60" y="150" font-family="sans-serif" font-size="11" fill="#202122">→ タスキギー：治療の意図的差し控え</text>
+          <text x="60" y="170" font-family="sans-serif" font-size="11" fill="#202122">→ 精神病院：患者の声を組織的に無視</text>
+          <rect x="50" y="190" width="260" height="65" rx="4" fill="#ffe0e0" stroke="#c00"/>
+          <text x="180" y="210" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#c00">帰結：</text>
+          <text x="180" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">自律性の剥奪・不可逆的被害</text>
+          <text x="180" y="246" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">→ ニュルンベルク綱領・ICの確立</text>
+
+          <!-- Right: AI Paternalism -->
+          <rect x="390" y="50" width="300" height="220" rx="8" fill="#fff8e0" stroke="#c80" stroke-width="1.5"/>
+          <text x="540" y="80" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#c80">AIの温情主義（現在のリスク）</text>
+          <text x="420" y="110" font-family="sans-serif" font-size="11" fill="#202122">「AIが最善と判断した操作を実行」</text>
+          <text x="420" y="130" font-family="sans-serif" font-size="11" fill="#202122">→ ユーザー確認なしのファイル書き換え</text>
+          <text x="420" y="150" font-family="sans-serif" font-size="11" fill="#202122">→ 意図しないコマンド自動実行</text>
+          <text x="420" y="170" font-family="sans-serif" font-size="11" fill="#202122">→ 「効率」のためのユーザー無視</text>
+          <rect x="410" y="190" width="260" height="65" rx="4" fill="#fff3cd" stroke="#c80"/>
+          <text x="540" y="210" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#c80">予防策：</text>
+          <text x="540" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">パーミッションシステムの実装</text>
+          <text x="540" y="246" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">→ デフォルト確認・ユーザー主権</text>
+
+          <!-- Arrow in middle -->
+          <text x="360" y="165" text-anchor="middle" font-family="sans-serif" font-size="30" fill="#a2a9b1">↔</text>
+          <text x="360" y="185" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">構造的類似</text>
+        </svg>
+        <div class="diagram-caption">図2: 医療とAIにおける「善意の権威」の危険性と対策の対比</div>
+      </div>
+
+      <h2 id="level-of-consent">同意の粒度：一般同意から個別同意へ</h2>
+      <p>
+        医療倫理の発展とともに、インフォームドコンセントは「入院同意書への一回署名」から「処置ごとの個別説明と同意」へと精緻化された。手術全体への同意は、個々の処置への同意とは区別される。特に不可逆的・高リスクな処置ほど、より詳細な個別同意が求められる。
+      </p>
+      <p>
+        Claude Codeのパーミッションシステムも、操作のリスクレベルに応じた粒度の同意を実装している。ファイルの「読み取り」（低リスク）は多くの場合自動承認されるが、「書き込み」（中リスク）や「シェルコマンド実行」（高リスク）は明示的な確認を要求する。ホワイトリストモードでは操作の種類単位で細粒度の許可設定が可能であり、これは医療における「行為の種類別同意」に対応する。
+      </p>
+
+      <h2 id="vulnerable-populations">脆弱性への配慮</h2>
+      <p>
+        <a href="informed-consent-no-rekishi.html">インフォームドコンセント</a>の枠組みは、特に「脆弱な集団」——子ども、認知症患者、精神障害者——への特別な保護を要求する。これらの集団は同意能力（capacity）が制限される場合があり、代理決定者（surrogate decision maker）の関与が必要となる。ロボトミー手術の被害者の多くがまさにこの脆弱な集団から選ばれた事実は、倫理的保護の重要性を痛烈に示している。
+      </p>
+      <p>
+        AIシステムの文脈では、技術リテラシーの差がユーザーの「同意能力」に影響する。上級ユーザーはAIが何をしようとしているかを理解して同意できるが、初心者ユーザーはその含意を把握できないかもしれない。Claude Codeの確認プロンプトにおけるわかりやすい説明文や、リスクの高い操作における追加警告は、技術的に脆弱なユーザーを保護するための設計的配慮である。
+      </p>
+
+      <h2 id="futatsu-no-katachi">二つの「同意」が共有する核心</h2>
+      <p>
+        インフォームドコンセントとパーミッションシステムは、異なる領域で異なる問題に対処しているように見えて、実はひとつの根本的な問いに答えている——「他者の領域（身体・コンピュータ）に踏み込む権威は、どのような条件で正当化されるか」。
+      </p>
+      <p>
+        医療倫理の答えは「説明を受けた当事者の自由意思による同意があるとき」であり、AIシステム設計の答えも「ユーザーが理解した上で承認したとき」である。この収束は偶然ではない。それは人間の尊厳と自律性を守る普遍的な要請が、医療と技術という異なるドメインで同じ形をとって現れたことを示している。
+      </p>
+      <p>
+        <a href="iryou-rinri-no-hatten.html">現代医療倫理</a>が「自律尊重・善行・無危害・正義」の4原則を確立したように、AIシステムの倫理も「ユーザー主権・有益性・害の防止・公正なアクセス」という類似した原則群へと収束しつつある。ロボトミー時代の教訓は、医療の外側でも生き続けている。
+      </p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#rekishi-teki-haikei">歴史的背景</a></li>
+          <li><a href="#kozo-teki-ruiji">構造的類似の解剖</a>
+            <ul>
+              <li><a href="#information-disclosure">情報開示の義務</a></li>
+              <li><a href="#voluntary-consent">自由意思と強制の排除</a></li>
+              <li><a href="#revocability">同意の撤回可能性</a></li>
+            </ul>
+          </li>
+          <li><a href="#rekishi-teki-kyoukun">歴史的教訓</a></li>
+          <li><a href="#level-of-consent">同意の粒度</a></li>
+          <li><a href="#vulnerable-populations">脆弱性への配慮</a></li>
+          <li><a href="#futatsu-no-katachi">二つの「同意」が共有する核心</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="informed-consent-no-rekishi.html">インフォームドコンセントの歴史</a></li>
+          <li><a href="robotomi-shujutsu-no-rekishi.html">ロボトミー手術の歴史</a></li>
+          <li><a href="iryou-rinri-no-hatten.html">現代医療倫理の発展</a></li>
+          <li><a href="walter-freeman-no-shougai.html">ウォルター・フリーマンの生涯</a></li>
+          <li><a href="../../claude-code-analysis/articles/permission-system.html">パーミッションシステム（Claude Code コード解析）</a></li>
+          <li><a href="../../claude-code-analysis/articles/bash-tool-security.html">BashTool セキュリティ設計（Claude Code コード解析）</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="informed-consent-no-rekishi.html">インフォームドコンセントの歴史</a></li>
+        <li><a href="robotomi-shujutsu-no-rekishi.html">ロボトミー手術の歴史</a></li>
+        <li><a href="iryou-rinri-no-hatten.html">現代医療倫理の発展</a></li>
+        <li><a href="walter-freeman-no-shougai.html">ウォルター・フリーマンの生涯</a></li>
+        <li><a href="../../claude-code-analysis/articles/permission-system.html">パーミッションシステム（Claude Code コード解析）</a></li>
+        <li><a href="../../claude-code-analysis/articles/bash-tool-security.html">BashTool セキュリティ設計（Claude Code コード解析）</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

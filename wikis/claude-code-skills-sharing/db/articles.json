@@ -88,7 +88,6 @@
         "monorepo-skills",
         "central-repo-approach",
         "setup-automation",
-        "skills-marketplace-concept",
         "public-skills-registry",
         "internal-skills-marketplace",
         "skills-versioning-strategy",
@@ -180,7 +179,6 @@
         "git-submodule-approach",
         "monorepo-skills",
         "central-repo-approach",
-        "skills-marketplace-concept",
         "public-skills-registry",
         "internal-skills-marketplace",
         "skills-versioning-strategy",
@@ -199,15 +197,15 @@
       "title": "Claude Code プラグインマーケットプレイスの現状と活用ガイド",
       "filename": "wikis/claude-code-skills-sharing/articles/skills-marketplace-concept.html",
       "created_at": "2026-03-31T00:33:30.695102+00:00",
-      "updated_at": "2026-03-31T02:02:29.410888+00:00",
+      "updated_at": "2026-03-31T12:49:44.505873+00:00",
       "links_to": [
         "skills-sharing-overview",
         "npm-github-packages",
         "central-repo-approach",
         "monorepo-skills",
-        "git-submodule-approach",
-        "setup-automation",
-        "skills-quality-review"
+        "skills-quality-review",
+        "skills-discovery-and-catalog",
+        "claude-code-analysis:skills-marketplace-mcp-synthesis"
       ],
       "linked_from": [
         "skills-sharing-overview"
@@ -299,7 +297,8 @@
         "hokuo-shinwa-yukari-machi:jorvík-skills-discovery"
       ],
       "linked_from": [
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept"
       ],
       "summary": "Claude Code Skillsをチーム全体で効果的に活用するために、タグ付け・カテゴリ分類・カタログ自動生成・検索機能を整備し、Skillsの発見性を大幅に向上させる実践的な手法を解説する。",
       "expansion_status": "pending",

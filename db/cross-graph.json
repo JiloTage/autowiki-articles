@@ -109,6 +109,15 @@
       "summary": "ガムラ・ウプサラは北欧神話の三大神オーディン・トール・フレイを祀る大神殿を中心に、スカンジナビア全域から巡礼者・商人・王侯が集まる「聖なる中枢」として機能した。セントラルリポジトリアプローチも「全ての知識が一点に集まり、そこから全チームに分配される」という中心地の思想を体現している。"
     },
     {
+      "id": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "wiki": "hokuo-shinwa-yukari-machi",
+      "title": "レイキャビクのエッダ・サガとセッションメモリ：知識を未来に伝える記憶の技法",
+      "url": "wikis/hokuo-shinwa-yukari-machi/articles/reykjavik-session-memory.html",
+      "color": "#4a6fa5",
+      "is_root": false,
+      "summary": "レイキャビクが13世紀に北欧神話を散文エッダ・詩のエッダとして文字に記録した「記憶の危機への応答」と、Claude Codeのセッションメモリが対話コンテキストを10セクション構造で保存する仕組みの類比を探る。揮発的な記憶を構造化して永続化するという設計思想の普遍性を考察する。"
+    },
+    {
       "id": "claude-code-skills-sharing:skills-sharing-overview",
       "wiki": "claude-code-skills-sharing",
       "title": "Claude Code Skills共有方法 概要",
@@ -325,6 +334,15 @@
       "summary": "精神医療と人権の関係は、20世紀以降の医療倫理・国際法・社会運動の最も重要な交差点の一つである。強制入院・強制治療・施設への隔離という慣行は精神障害者の基本的権利を長期にわたって侵害してきたが、国連障害者権利条約（CRPD）の採択や当事者主体のリカバリー運動の台頭により、パラダイムシフトが進行している。"
     },
     {
+      "id": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "wiki": "robotomi-shujutsu-no-rekishi",
+      "title": "インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜",
+      "url": "wikis/robotomi-shujutsu-no-rekishi/articles/consent-permission-philosophy.html",
+      "color": "#8B4513",
+      "is_root": false,
+      "summary": "医療におけるインフォームドコンセントとAIシステムのパーミッションシステムの構造的類似を解析する。ロボトミー手術の歴史的教訓から浮かび上がる「善意の権威の暴走」への反省が、医療倫理とAI設計の両面で「同意」という仕組みを生み出した経緯を探る。"
+    },
+    {
       "id": "claude-code-analysis:claude-code-overview",
       "wiki": "claude-code-analysis",
       "title": "Claude Code 概要",
@@ -503,6 +521,15 @@
       "color": "#1565c0",
       "is_root": false,
       "summary": "Claude Code のシステムプロンプト設計は、各ツールの prompt.ts ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略を包括的に解説する。"
+    },
+    {
+      "id": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "wiki": "claude-code-analysis",
+      "title": "SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論",
+      "url": "wikis/claude-code-analysis/articles/skills-marketplace-mcp-synthesis.html",
+      "color": "#1565c0",
+      "is_root": false,
+      "summary": "Claude Code の能力を拡張する二つの補完的レイヤー——Skillsマーケットプレイス（高レベル：手順・ワークフローの共有）とMCP統合（低レベル：外部システムへの標準接続）——の統合アーキテクチャを解析する。両者に共通する三層信頼構造とセキュリティ設計を論じ、Claude Codeがプラットフォームとして進化する戦略的方向性を示す。"
     }
   ],
   "links": [
@@ -713,7 +740,7 @@
     },
     {
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
-      "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
       "type": "internal"
     },
     {
@@ -733,12 +760,12 @@
     },
     {
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
-      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
       "type": "internal"
     },
     {
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
-      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "target": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
       "type": "internal"
     },
     {
@@ -829,6 +856,31 @@
     {
       "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
       "target": "claude-code-skills-sharing:monorepo-skills",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "target": "hokuo-shinwa-yukari-machi:reykjavik",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "target": "claude-code-analysis:session-memory",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "target": "claude-code-analysis:context-compaction",
       "type": "cross"
     },
     {
@@ -1033,18 +1085,18 @@
     },
     {
       "source": "claude-code-skills-sharing:skills-marketplace-concept",
-      "target": "claude-code-skills-sharing:git-submodule-approach",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-skills-sharing:skills-marketplace-concept",
-      "target": "claude-code-skills-sharing:setup-automation",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-skills-sharing:skills-marketplace-concept",
       "target": "claude-code-skills-sharing:skills-quality-review",
       "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-marketplace-concept",
+      "target": "claude-code-skills-sharing:skills-discovery-and-catalog",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-marketplace-concept",
+      "target": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "type": "cross"
     },
     {
       "source": "claude-code-skills-sharing:public-skills-registry",
@@ -1393,7 +1445,7 @@
     },
     {
       "source": "robotomi-shujutsu-no-rekishi:informed-consent-no-rekishi",
-      "target": "robotomi-shujutsu-no-rekishi:robotomi-shujutsu-no-rekishi",
+      "target": "robotomi-shujutsu-no-rekishi:seishin-iryo-to-jinken",
       "type": "internal"
     },
     {
@@ -1408,7 +1460,12 @@
     },
     {
       "source": "robotomi-shujutsu-no-rekishi:informed-consent-no-rekishi",
-      "target": "robotomi-shujutsu-no-rekishi:seishin-iryo-to-jinken",
+      "target": "robotomi-shujutsu-no-rekishi:robotomi-shujutsu-no-rekishi",
+      "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:informed-consent-no-rekishi",
+      "target": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
       "type": "internal"
     },
     {
@@ -1475,6 +1532,36 @@
       "source": "robotomi-shujutsu-no-rekishi:seishin-iryo-to-jinken",
       "target": "robotomi-shujutsu-no-rekishi:iryou-rinri-no-hatten",
       "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "robotomi-shujutsu-no-rekishi:informed-consent-no-rekishi",
+      "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "robotomi-shujutsu-no-rekishi:robotomi-shujutsu-no-rekishi",
+      "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "robotomi-shujutsu-no-rekishi:iryou-rinri-no-hatten",
+      "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "robotomi-shujutsu-no-rekishi:walter-freeman-no-shougai",
+      "type": "internal"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "claude-code-analysis:permission-system",
+      "type": "cross"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "target": "claude-code-analysis:bash-tool-security",
+      "type": "cross"
     },
     {
       "source": "claude-code-analysis:claude-code-overview",
@@ -1668,22 +1755,12 @@
     },
     {
       "source": "claude-code-analysis:mcp-integration",
-      "target": "claude-code-analysis:claude-code-overview",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-analysis:mcp-integration",
-      "target": "claude-code-analysis:tool-system",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-analysis:mcp-integration",
       "target": "claude-code-analysis:agent-architecture",
       "type": "internal"
     },
     {
       "source": "claude-code-analysis:mcp-integration",
-      "target": "claude-code-analysis:bridge-system",
+      "target": "claude-code-analysis:permission-system",
       "type": "internal"
     },
     {
@@ -1692,18 +1769,8 @@
       "type": "internal"
     },
     {
-      "source": "claude-code-analysis:session-memory",
-      "target": "claude-code-analysis:claude-code-overview",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-analysis:session-memory",
-      "target": "claude-code-analysis:query-engine",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-analysis:session-memory",
-      "target": "claude-code-analysis:query-loop",
+      "source": "claude-code-analysis:mcp-integration",
+      "target": "claude-code-analysis:skills-marketplace-mcp-synthesis",
       "type": "internal"
     },
     {
@@ -1713,7 +1780,7 @@
     },
     {
       "source": "claude-code-analysis:session-memory",
-      "target": "claude-code-analysis:prompt-engineering",
+      "target": "claude-code-analysis:query-loop",
       "type": "internal"
     },
     {
@@ -1868,12 +1935,12 @@
     },
     {
       "source": "claude-code-analysis:permission-system",
-      "target": "claude-code-analysis:agent-architecture",
+      "target": "claude-code-analysis:tool-system",
       "type": "internal"
     },
     {
       "source": "claude-code-analysis:permission-system",
-      "target": "claude-code-analysis:tool-system",
+      "target": "claude-code-analysis:agent-architecture",
       "type": "internal"
     },
     {
@@ -1884,11 +1951,6 @@
     {
       "source": "claude-code-analysis:permission-system",
       "target": "claude-code-analysis:mcp-integration",
-      "type": "internal"
-    },
-    {
-      "source": "claude-code-analysis:permission-system",
-      "target": "claude-code-analysis:query-loop",
       "type": "internal"
     },
     {
@@ -1992,6 +2054,36 @@
       "type": "internal"
     },
     {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-analysis:mcp-integration",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-analysis:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-analysis:tool-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-analysis:permission-system",
+      "type": "internal"
+    },
+    {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-skills-sharing:skills-marketplace-concept",
+      "type": "cross"
+    },
+    {
+      "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "target": "claude-code-skills-sharing:skills-discovery-and-catalog",
+      "type": "cross"
+    },
+    {
       "source": "hokuo-shinwa-yukari-machi:york-jorvík",
       "target": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
       "type": "reaction",
@@ -2038,6 +2130,42 @@
       "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
       "type": "reaction",
       "reaction_id": "r-1cf7ed"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi:informed-consent-no-rekishi",
+      "target": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "type": "reaction",
+      "reaction_id": "r-2f9276"
+    },
+    {
+      "source": "claude-code-analysis:permission-system",
+      "target": "robotomi-shujutsu-no-rekishi:consent-permission-philosophy",
+      "type": "reaction",
+      "reaction_id": "r-2f9276"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik",
+      "target": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "type": "reaction",
+      "reaction_id": "r-d5effd"
+    },
+    {
+      "source": "claude-code-analysis:session-memory",
+      "target": "hokuo-shinwa-yukari-machi:reykjavik-session-memory",
+      "type": "reaction",
+      "reaction_id": "r-d5effd"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-marketplace-concept",
+      "target": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "type": "reaction",
+      "reaction_id": "r-958be2"
+    },
+    {
+      "source": "claude-code-analysis:mcp-integration",
+      "target": "claude-code-analysis:skills-marketplace-mcp-synthesis",
+      "type": "reaction",
+      "reaction_id": "r-958be2"
     }
   ]
 }

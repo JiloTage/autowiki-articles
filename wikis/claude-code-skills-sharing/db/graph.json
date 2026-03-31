@@ -254,15 +254,11 @@
     },
     {
       "source": "skills-marketplace-concept",
-      "target": "git-submodule-approach"
-    },
-    {
-      "source": "skills-marketplace-concept",
-      "target": "setup-automation"
-    },
-    {
-      "source": "skills-marketplace-concept",
       "target": "skills-quality-review"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "skills-discovery-and-catalog"
     },
     {
       "source": "public-skills-registry",

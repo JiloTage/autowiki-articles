@@ -83,6 +83,13 @@
       "url": "articles/gamla-uppsala-central-hub.html",
       "summary": "ガムラ・ウプサラは北欧神話の三大神オーディン・トール・フレイを祀る大神殿を中心に、スカンジナビア全域から巡礼者・商人・王侯が集まる「聖なる中枢」として機能した。セントラルリポジトリアプローチも「全ての知識が一点に集まり、そこから全チームに分配される」という中心地の思想を体現している。",
       "is_root": false
+    },
+    {
+      "id": "reykjavik-session-memory",
+      "title": "レイキャビクのエッダ・サガとセッションメモリ：知識を未来に伝える記憶の技法",
+      "url": "articles/reykjavik-session-memory.html",
+      "summary": "レイキャビクが13世紀に北欧神話を散文エッダ・詩のエッダとして文字に記録した「記憶の危機への応答」と、Claude Codeのセッションメモリが対話コンテキストを10セクション構造で保存する仕組みの類比を探る。揮発的な記憶を構造化して永続化するという設計思想の普遍性を考察する。",
+      "is_root": false
     }
   ],
   "links": [
@@ -252,7 +259,7 @@
     },
     {
       "source": "reykjavik",
-      "target": "hokuo-shinwa-no-machi"
+      "target": "gamla-uppsala"
     },
     {
       "source": "reykjavik",
@@ -268,11 +275,11 @@
     },
     {
       "source": "reykjavik",
-      "target": "gamla-uppsala"
+      "target": "althing-public-registry"
     },
     {
       "source": "reykjavik",
-      "target": "althing-public-registry"
+      "target": "reykjavik-session-memory"
     },
     {
       "source": "jorvík-skills-discovery",
@@ -309,6 +316,18 @@
     {
       "source": "gamla-uppsala-central-hub",
       "target": "hokuo-shinwa-no-machi"
+    },
+    {
+      "source": "reykjavik-session-memory",
+      "target": "reykjavik"
+    },
+    {
+      "source": "reykjavik-session-memory",
+      "target": "gamla-uppsala"
+    },
+    {
+      "source": "reykjavik-session-memory",
+      "target": "gamla-uppsala-central-hub"
     }
   ]
 }

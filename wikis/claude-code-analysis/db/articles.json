@@ -24,8 +24,6 @@
         "tool-system",
         "query-engine",
         "query-loop",
-        "mcp-integration",
-        "session-memory",
         "coordinator-mode",
         "bridge-system",
         "context-compaction",
@@ -63,7 +61,8 @@
         "bash-tool-security",
         "agent-lifecycle",
         "mcp-oauth-flow",
-        "system-prompt-design"
+        "system-prompt-design",
+        "skills-marketplace-mcp-synthesis"
       ],
       "summary": "Claude Code のエージェントシステムは AgentTool を中心に構成されており、サブエージェントの生成・実行・管理を行う。ビルトイン・カスタム・プラグインの3カテゴリのエージェントをサポートし、MCP サーバー依存フィルタリング・パーミッションスコーピング・コンテキスト分離などの高度な機能を持つ。",
       "expansion_status": "done",
@@ -89,7 +88,6 @@
         "agent-architecture",
         "query-loop",
         "prompt-engineering",
-        "mcp-integration",
         "coordinator-mode",
         "claude-code-architecture",
         "error-recovery-mechanisms",
@@ -99,7 +97,8 @@
         "bash-tool-security",
         "agent-lifecycle",
         "mcp-oauth-flow",
-        "system-prompt-design"
+        "system-prompt-design",
+        "skills-marketplace-mcp-synthesis"
       ],
       "summary": "Claude Code のツールシステムは Tool インターフェースを基盤とし、29の常時利用可能なコアツールと条件付きツールで構成される。各ツールは独立したディレクトリ構造を持ち、実装・UI・プロンプト・セキュリティ検証が分離されている。",
       "expansion_status": "done",
@@ -121,7 +120,6 @@
       "linked_from": [
         "claude-code-overview",
         "query-loop",
-        "session-memory",
         "bridge-system",
         "context-compaction",
         "error-recovery-mechanisms",
@@ -152,7 +150,6 @@
         "context-compaction",
         "error-recovery-mechanisms",
         "file-edit-tool",
-        "permission-system",
         "bash-tool-security",
         "agent-lifecycle"
       ],
@@ -178,7 +175,6 @@
         "claude-code-overview",
         "agent-architecture",
         "tool-system",
-        "session-memory",
         "coordinator-mode",
         "task-decomposition",
         "file-edit-tool",
@@ -196,13 +192,12 @@
       "title": "MCP インテグレーション",
       "filename": "mcp-integration.html",
       "created_at": "2026-03-31T12:16:57.681166+00:00",
-      "updated_at": "2026-03-31T12:38:00.182949+00:00",
+      "updated_at": "2026-03-31T12:49:44.565544+00:00",
       "links_to": [
-        "claude-code-overview",
-        "tool-system",
         "agent-architecture",
-        "bridge-system",
-        "mcp-oauth-flow"
+        "permission-system",
+        "mcp-oauth-flow",
+        "skills-marketplace-mcp-synthesis"
       ],
       "linked_from": [
         "claude-code-overview",
@@ -213,7 +208,8 @@
         "permission-system",
         "agent-lifecycle",
         "mcp-oauth-flow",
-        "system-prompt-design"
+        "system-prompt-design",
+        "skills-marketplace-mcp-synthesis"
       ],
       "summary": "Claude Code は Model Context Protocol（MCP）を完全実装しており、src/services/mcp/ ディレクトリ配下に22ファイルで構成される。MCP クライアント（119 KB）・設定管理（51 KB）・OAuth 認証（88 KB）・接続管理・チャネルセキュリティ・公式レジストリ・VS Code SDK 統合が含まれる。",
       "expansion_status": "done",
@@ -225,13 +221,11 @@
       "title": "セッションメモリ",
       "filename": "session-memory.html",
       "created_at": "2026-03-31T12:17:15.575985+00:00",
-      "updated_at": "2026-03-31T12:17:15.575985+00:00",
+      "updated_at": "2026-03-31T12:49:38.462885+00:00",
       "links_to": [
-        "claude-code-overview",
-        "query-engine",
-        "query-loop",
         "context-compaction",
-        "prompt-engineering"
+        "query-loop",
+        "reykjavik-session-memory"
       ],
       "linked_from": [
         "claude-code-overview",
@@ -285,7 +279,6 @@
       ],
       "linked_from": [
         "claude-code-overview",
-        "mcp-integration",
         "claude-code-architecture",
         "mcp-oauth-flow"
       ],
@@ -405,16 +398,18 @@
       "title": "パーミッションシステム",
       "filename": "permission-system.html",
       "created_at": "2026-03-31T12:36:41.320478+00:00",
-      "updated_at": "2026-03-31T12:36:58.068047+00:00",
+      "updated_at": "2026-03-31T12:49:30.032543+00:00",
       "links_to": [
-        "agent-architecture",
         "tool-system",
+        "agent-architecture",
         "query-engine",
         "mcp-integration",
-        "query-loop"
+        "consent-permission-philosophy"
       ],
       "linked_from": [
-        "agent-architecture"
+        "agent-architecture",
+        "mcp-integration",
+        "skills-marketplace-mcp-synthesis"
       ],
       "summary": "Claude Code のパーミッションシステムは、ツール実行の可否をリアルタイムに判定する多層構造のアクセス制御機構である。パーミッションモードの選択、ツールごとの checkPermissions() 呼び出し、エージェントスコープごとのツールセット制限、MCP チャネルのパーミッション管理などを通じて、安全で細粒度のアクセス制御を実現する。",
       "expansion_status": "done",
@@ -502,8 +497,30 @@
       "expansion_status": "pending",
       "origin": "expansion",
       "source_id": "prompt-engineering"
+    },
+    "skills-marketplace-mcp-synthesis": {
+      "id": "skills-marketplace-mcp-synthesis",
+      "title": "SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論",
+      "filename": "wikis/claude-code-analysis/articles/skills-marketplace-mcp-synthesis.html",
+      "created_at": "2026-03-31T12:48:56.592163+00:00",
+      "updated_at": "2026-03-31T12:48:56.592163+00:00",
+      "links_to": [
+        "mcp-integration",
+        "agent-architecture",
+        "tool-system",
+        "permission-system",
+        "claude-code-skills-sharing:skills-marketplace-concept",
+        "claude-code-skills-sharing:skills-discovery-and-catalog"
+      ],
+      "linked_from": [
+        "mcp-integration"
+      ],
+      "summary": "Claude Code の能力を拡張する二つの補完的レイヤー——Skillsマーケットプレイス（高レベル：手順・ワークフローの共有）とMCP統合（低レベル：外部システムへの標準接続）——の統合アーキテクチャを解析する。両者に共通する三層信頼構造とセキュリティ設計を論じ、Claude Codeがプラットフォームとして進化する戦略的方向性を示す。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "reaction:skills-marketplace-concept:mcp-integration"
     }
   },
   "root_id": null,
-  "total_count": 20
+  "total_count": 21
 }

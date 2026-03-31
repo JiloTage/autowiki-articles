@@ -87,9 +87,75 @@
       "catalyst": "北欧の聖なる中枢ガムラ・ウプサラとセントラルリポジトリの「単一信頼情報源」の類比",
       "affinity_score": 0.7,
       "created_at": "2026-03-31T00:46:36.306560+00:00"
+    },
+    {
+      "id": "r-2f9276",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "robotomi-shujutsu-no-rekishi",
+          "article": "informed-consent-no-rekishi"
+        },
+        {
+          "wiki": "claude-code-analysis",
+          "article": "permission-system"
+        }
+      ],
+      "product": {
+        "wiki": "robotomi-shujutsu-no-rekishi",
+        "slug": "consent-permission-philosophy",
+        "title": "インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜"
+      },
+      "catalyst": "ロボトミー時代の「同意なき治療」の反省がインフォームドコンセントを生んだように、AIの「同意なき行動」への懸念がパーミッションシステムを生んだという構造的類似",
+      "affinity_score": 0.87,
+      "created_at": "2026-03-31T12:49:08.418458+00:00"
+    },
+    {
+      "id": "r-d5effd",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "hokuo-shinwa-yukari-machi",
+          "article": "reykjavik"
+        },
+        {
+          "wiki": "claude-code-analysis",
+          "article": "session-memory"
+        }
+      ],
+      "product": {
+        "wiki": "hokuo-shinwa-yukari-machi",
+        "slug": "reykjavik-session-memory",
+        "title": "レイキャビクのエッダ・サガとセッションメモリ：知識を未来に伝える記憶の技法"
+      },
+      "catalyst": "スノッリが口承神話を構造化文書として記録し記憶の断絶を防いだように、セッションメモリが対話コンテキストを10セクション構造で保存しセッション間の断絶を防ぐという類比",
+      "affinity_score": 0.82,
+      "created_at": "2026-03-31T12:49:15.957868+00:00"
+    },
+    {
+      "id": "r-958be2",
+      "type": "synthesis",
+      "reagents": [
+        {
+          "wiki": "claude-code-skills-sharing",
+          "article": "skills-marketplace-concept"
+        },
+        {
+          "wiki": "claude-code-analysis",
+          "article": "mcp-integration"
+        }
+      ],
+      "product": {
+        "wiki": "claude-code-analysis",
+        "slug": "skills-marketplace-mcp-synthesis",
+        "title": "SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論"
+      },
+      "catalyst": "Skillsが高レベル（ワークフロー・知恵）の拡張を担いMCPが低レベル（データアクセス・外部サービス）の拡張を担う二層アーキテクチャとして統合され、Claude Codeを拡張可能なAI開発プラットフォームとして位置づける戦略の統合論",
+      "affinity_score": 0.8,
+      "created_at": "2026-03-31T12:49:23.552192+00:00"
     }
   ],
   "pending_affinities": [],
-  "last_react_total_articles": 26,
-  "last_react_at": "2026-03-31T00:49:07.110836+00:00"
+  "last_react_total_articles": 59,
+  "last_react_at": "2026-03-31T12:50:06.756697+00:00"
 }

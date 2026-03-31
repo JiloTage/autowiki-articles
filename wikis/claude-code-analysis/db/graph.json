@@ -139,6 +139,13 @@
       "url": "articles/system-prompt-design.html",
       "summary": "Claude Code のシステムプロンプト設計は、各ツールの prompt.ts ファイルと起動時に構築されるシステムプロンプトから成り、AI の行動を精密に制御する多層的な指示体系である。プロンプト構造・AI行動制御メカニズム・コンテキスト依存生成・AgentTool やコーディネータモードの特殊設計・キャッシュ最適化戦略を包括的に解説する。",
       "is_root": false
+    },
+    {
+      "id": "skills-marketplace-mcp-synthesis",
+      "title": "SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論",
+      "url": "articles/skills-marketplace-mcp-synthesis.html",
+      "summary": "Claude Code の能力を拡張する二つの補完的レイヤー——Skillsマーケットプレイス（高レベル：手順・ワークフローの共有）とMCP統合（低レベル：外部システムへの標準接続）——の統合アーキテクチャを解析する。両者に共通する三層信頼構造とセキュリティ設計を論じ、Claude Codeがプラットフォームとして進化する戦略的方向性を示す。",
+      "is_root": false
     }
   ],
   "links": [
@@ -296,35 +303,19 @@
     },
     {
       "source": "mcp-integration",
-      "target": "claude-code-overview"
-    },
-    {
-      "source": "mcp-integration",
-      "target": "tool-system"
-    },
-    {
-      "source": "mcp-integration",
       "target": "agent-architecture"
     },
     {
       "source": "mcp-integration",
-      "target": "bridge-system"
+      "target": "permission-system"
     },
     {
       "source": "mcp-integration",
       "target": "mcp-oauth-flow"
     },
     {
-      "source": "session-memory",
-      "target": "claude-code-overview"
-    },
-    {
-      "source": "session-memory",
-      "target": "query-engine"
-    },
-    {
-      "source": "session-memory",
-      "target": "query-loop"
+      "source": "mcp-integration",
+      "target": "skills-marketplace-mcp-synthesis"
     },
     {
       "source": "session-memory",
@@ -332,7 +323,7 @@
     },
     {
       "source": "session-memory",
-      "target": "prompt-engineering"
+      "target": "query-loop"
     },
     {
       "source": "coordinator-mode",
@@ -456,11 +447,11 @@
     },
     {
       "source": "permission-system",
-      "target": "agent-architecture"
+      "target": "tool-system"
     },
     {
       "source": "permission-system",
-      "target": "tool-system"
+      "target": "agent-architecture"
     },
     {
       "source": "permission-system",
@@ -469,10 +460,6 @@
     {
       "source": "permission-system",
       "target": "mcp-integration"
-    },
-    {
-      "source": "permission-system",
-      "target": "query-loop"
     },
     {
       "source": "bash-tool-security",
@@ -553,6 +540,22 @@
     {
       "source": "system-prompt-design",
       "target": "mcp-integration"
+    },
+    {
+      "source": "skills-marketplace-mcp-synthesis",
+      "target": "mcp-integration"
+    },
+    {
+      "source": "skills-marketplace-mcp-synthesis",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "skills-marketplace-mcp-synthesis",
+      "target": "tool-system"
+    },
+    {
+      "source": "skills-marketplace-mcp-synthesis",
+      "target": "permission-system"
     }
   ]
 }

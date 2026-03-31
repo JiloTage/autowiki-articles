@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">SkillsマーケットプレイスとMCP統合：Claude Codeエコシステム拡張の統合論</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の能力を「ビルトイン」を超えて拡張する方法は二つある——<a href="../../claude-code-skills-sharing/articles/skills-marketplace-concept.html">Skillsマーケットプレイス</a>（スラッシュコマンド・エージェント・フックの配布）と<a href="mcp-integration.html">MCP（Model Context Protocol）統合</a>（外部ツールサーバーへの標準接続）である。両者は「補完的な二層拡張アーキテクチャ」を形成する。Skillsは「人間の知恵を手順として共有する高レベル層」であり、MCPは「外部システムへのアクセスを標準化する低レベル層」である。この統合論は、Claude Codeのエコシステム戦略の核心を理解する鍵となる。</div>
+
+      <h2 id="two-extension-layers">二つの拡張レイヤー</h2>
+      <p>
+        Claude Code の能力は、ビルトインで定義された29のコアツールと標準エージェントを基盤として、外部からの二つの異なるレイヤーで拡張される。
+      </p>
+      <p>
+        第一のレイヤーは<b>Skillsマーケットプレイス</b>である。<a href="../../claude-code-skills-sharing/articles/skills-marketplace-concept.html">Claude Code プラグインシステム</a>は、スラッシュコマンド（<code>.claude/commands/</code>配下のMarkdown）・特化型サブエージェント・MCPサーバー定義・フック（hooks）を一つの「プラグイン」として配布する仕組みを持つ。これは「どう動くべきか（手順・ワークフロー・判断基準）」を共有するレイヤーである。コードレビューの手順、デプロイフローの自動化、特定のコーディング規約の適用など、チームや個人の「知恵」をAIの動作として形式化して共有する。
+      </p>
+      <p>
+        第二のレイヤーは<b>MCP（Model Context Protocol）統合</b>である。<a href="mcp-integration.html">MCP統合</a>は、外部システム——データベース・APIサービス・クラウドインフラ・専門ツール——をClaude Codeのツールとして接続するためのプロトコル標準を提供する。これは「何にアクセスできるか（データ・サービス・インフラ）」を拡張するレイヤーである。GitHubのPRデータ、Slackのメッセージ、Jiraのチケット、社内データベース——これらへのアクセスをMCPサーバーとして実装することで、Claude Codeはより豊かなコンテキストで作業できるようになる。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380">
+          <rect width="720" height="380" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="360" y="28" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#202122">Claude Code エコシステム拡張の二層アーキテクチャ</text>
+
+          <!-- Core layer -->
+          <rect x="200" y="300" width="320" height="60" rx="8" fill="#1565c0" stroke="#0d47a1" stroke-width="2"/>
+          <text x="360" y="327" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#fff">Claude Code コア</text>
+          <text x="360" y="347" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#cce0ff">29コアツール + 標準エージェント + QueryEngine</text>
+
+          <!-- MCP Layer (Layer 1 - bottom extension) -->
+          <rect x="80" y="190" width="560" height="80" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+          <text x="360" y="217" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1565c0">MCPレイヤー（低レベル拡張）</text>
+          <text x="360" y="237" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">外部システムへの標準接続プロトコル</text>
+          <text x="360" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">DB・API・クラウド・専門ツール → MCPサーバー → assembleToolPool() で統合</text>
+
+          <!-- Skills Layer (Layer 2 - high level) -->
+          <rect x="80" y="80" width="560" height="80" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="360" y="107" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#2e7d32">Skillsマーケットプレイスレイヤー（高レベル拡張）</text>
+          <text x="360" y="127" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#202122">人間の知恵・ワークフロー・判断基準の共有</text>
+          <text x="360" y="145" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">スラッシュコマンド・特化エージェント・フック → /plugin でインストール</text>
+
+          <!-- Arrows -->
+          <line x1="360" y1="270" x2="360" y2="300" stroke="#1565c0" stroke-width="2" marker-end="url(#arrow-blue)"/>
+          <defs>
+            <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#1565c0"/>
+            </marker>
+            <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#2e7d32"/>
+            </marker>
+          </defs>
+          <line x1="360" y1="160" x2="360" y2="190" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+          <!-- Interaction arrow between layers -->
+          <path d="M 640 130 Q 700 160 640 230" fill="none" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="685" y="180" font-family="sans-serif" font-size="10" fill="#9c27b0" transform="rotate(90 685 180)">Skills内でMCPを呼出</text>
+        </svg>
+        <div class="diagram-caption">図1: Claude Code エコシステム拡張の二層アーキテクチャ</div>
+      </div>
+
+      <h2 id="complementary-relationship">補完関係：知恵とデータアクセスの統合</h2>
+      <p>
+        SkillsマーケットプレイスとMCP統合は、相互に排他的な拡張方法ではなく、深く補完し合う関係にある。最も強力な拡張は、両者を組み合わせたときに生まれる。
+      </p>
+      <p>
+        典型的な例として「コードレビューSkill」を考える。スラッシュコマンドとして実装されたコードレビューSkillは「どのような観点でレビューするか」という手順を定義する（Skillsレイヤー）。しかし、プロジェクト固有のコーディング規約・過去の技術的決定・チームの設計哲学といった情報にアクセスするためには、社内ドキュメントDBへのMCPサーバー接続が必要になる（MCPレイヤー）。Skillが「知恵」を提供し、MCPが「情報」を提供することで、高品質なレビューが可能になる。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>観点</th>
+            <th>Skillsマーケットプレイス</th>
+            <th>MCP統合</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>拡張する対象</strong></td>
+            <td>行動・手順・判断基準</td>
+            <td>データアクセス・外部ツール呼び出し</td>
+          </tr>
+          <tr>
+            <td><strong>実装形式</strong></td>
+            <td>Markdown（スラッシュコマンド）・TypeScript（エージェント・フック）</td>
+            <td>任意言語のMCPサーバー（JSON-RPC）</td>
+          </tr>
+          <tr>
+            <td><strong>インストール方法</strong></td>
+            <td><code>/plugin install</code></td>
+            <td>MCP設定ファイルへの追加</td>
+          </tr>
+          <tr>
+            <td><strong>作者</strong></td>
+            <td>人間（開発者・チーム）</td>
+            <td>システム管理者・サービスプロバイダー</td>
+          </tr>
+          <tr>
+            <td><strong>ユースケース例</strong></td>
+            <td>「PRレビューSkill」「デプロイフローSkill」</td>
+            <td>「GitHub APIアクセス」「社内DB接続」</td>
+          </tr>
+          <tr>
+            <td><strong>セキュリティ制御</strong></td>
+            <td>allowed-tools宣言・マーケットプレイス審査</td>
+            <td>channelAllowlist・OAuth認証</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="ecosystem-strategy">エコシステム戦略：開放性と制御のバランス</h2>
+      <p>
+        両レイヤーの設計に共通するのは「三層の信頼構造」である。
+      </p>
+      <p>
+        Skillsマーケットプレイスには<b>公式（Anthropic管理）・コミュニティ・組織内</b>の三層がある。公式レイヤーはAnthropicのセキュリティ審査を経た高信頼Skillを提供し、コミュニティレイヤーは<code>awesome-claude-code</code>のようなキュレーションリストで多様なSkillを共有し、組織内レイヤーはプライベートリポジトリで社内限定Skillを管理する。
+      </p>
+      <p>
+        MCP統合にも<b>公式レジストリ（<code>officialRegistry.ts</code>）・コミュニティ提供・自社実装</b>という三層構造が対応している。Anthropicが認定した公式MCPサーバーは高信頼で即時利用可能であり、オープンソースコミュニティが公開するMCPサーバーは多様な外部サービスへのアクセスを提供し、組織は自社システム向けのカスタムMCPサーバーを実装できる。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300">
+          <rect width="720" height="300" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="360" y="28" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#202122">両レイヤーに共通する三層信頼構造</text>
+
+          <!-- Left: Skills -->
+          <rect x="20" y="50" width="330" height="230" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="185" y="76" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#2e7d32">Skillsマーケットプレイス</text>
+
+          <rect x="40" y="90" width="290" height="48" rx="4" fill="#fff" stroke="#2e7d32"/>
+          <text x="185" y="112" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#2e7d32">公式（Anthropic審査済み）</text>
+          <text x="185" y="128" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">claude-plugins-official ★最高信頼</text>
+
+          <rect x="40" y="148" width="290" height="48" rx="4" fill="#fff" stroke="#2e7d32"/>
+          <text x="185" y="170" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#2e7d32">コミュニティ</text>
+          <text x="185" y="186" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">awesome-claude-code / GitHubリポジトリ</text>
+
+          <rect x="40" y="206" width="290" height="48" rx="4" fill="#fff" stroke="#2e7d32"/>
+          <text x="185" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#2e7d32">組織内プライベート</text>
+          <text x="185" y="244" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">プライベートリポジトリ / マネージド配布</text>
+
+          <!-- Right: MCP -->
+          <rect x="370" y="50" width="330" height="230" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+          <text x="535" y="76" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1565c0">MCP統合</text>
+
+          <rect x="390" y="90" width="290" height="48" rx="4" fill="#fff" stroke="#1565c0"/>
+          <text x="535" y="112" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1565c0">公式レジストリ（officialRegistry.ts）</text>
+          <text x="535" y="128" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">Anthropic認定MCPサーバー ★最高信頼</text>
+
+          <rect x="390" y="148" width="290" height="48" rx="4" fill="#fff" stroke="#1565c0"/>
+          <text x="535" y="170" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1565c0">コミュニティ提供</text>
+          <text x="535" y="186" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">OSSのMCPサーバー実装 / GitHubリポジトリ</text>
+
+          <rect x="390" y="206" width="290" height="48" rx="4" fill="#fff" stroke="#1565c0"/>
+          <text x="535" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1565c0">自社実装</text>
+          <text x="535" y="244" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#555">社内システム向けカスタムMCPサーバー</text>
+        </svg>
+        <div class="diagram-caption">図2: SkillsマーケットプレイスとMCP統合に共通する三層信頼構造</div>
+      </div>
+
+      <h2 id="security-intersection">セキュリティの交差点：パーミッションとガバナンス</h2>
+      <p>
+        両レイヤーはセキュリティの観点でも深く接続している。Skillsマーケットプレイスのプラグイン定義には <code>allowed-tools</code> フィールドがあり、プラグインが実行可能なツールの範囲を宣言する。これはClaude Codeの<a href="permission-system.html">パーミッションシステム</a>と統合されており、インストール前にユーザーがプラグインの権限範囲を確認できる。
+      </p>
+      <p>
+        MCP統合も <code>channelAllowlist.ts</code> と <code>channelPermissions.ts</code> によって細粒度のアクセス制御を実装している。特定のMCPチャネルへのアクセスを許可リストで管理し、OAuth 2.0による認証でサーバーへのアクセスを保護する。両レイヤーともに「最小権限の原則」を設計思想として共有しており、エコシステムの拡張性と安全性を両立させている。
+      </p>
+
+      <h2 id="future-convergence">統合の未来：一つのエコシステムへの収束</h2>
+      <p>
+        Claude Codeのエコシステムは、SkillsマーケットプレイスとMCP統合が有機的に結びつく方向へ進化している。プラグインシステムは現在「スラッシュコマンド・サブエージェント・MCPサーバー・フック」を一つの配布単位としてパッケージできるが、これは両レイヤーが同じ配布・発見・インストールのインフラを共有することを意味する。
+      </p>
+      <p>
+        この統合の帰結として、将来のClaude Codeエコシステムは「<strong>MCP対応Skillパッケージ</strong>」が標準となる可能性がある——特定の外部サービス（例: GitHubリポジトリ管理）にアクセスするMCPサーバーと、そのサービスを活用するための高レベルワークフローSkillが一体化されて配布される形態である。これはClaude Codeを「AIコーディングアシスタント」から「拡張可能なAI開発プラットフォーム」へと位置づけるエコシステム戦略の中核を担う。
+      </p>
+      <p>
+        <a href="agent-architecture.html">エージェントアーキテクチャ</a>の多様性（ビルトイン・カスタム・プラグイン）と<a href="tool-system.html">ツールシステム</a>の拡張性が、Skillsマーケットプレイス（高レベル）とMCP統合（低レベル）という二つの拡張レイヤーによって支えられる構造は、Claude Codeが単一の製品ではなくプラットフォームとして設計されていることを示している。
+      </p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#two-extension-layers">二つの拡張レイヤー</a></li>
+          <li><a href="#complementary-relationship">補完関係</a></li>
+          <li><a href="#ecosystem-strategy">エコシステム戦略</a></li>
+          <li><a href="#security-intersection">セキュリティの交差点</a></li>
+          <li><a href="#future-convergence">統合の未来</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="permission-system.html">パーミッションシステム</a></li>
+          <li><a href="../../claude-code-skills-sharing/articles/skills-marketplace-concept.html">Claude Code プラグインマーケットプレイス（Skills共有ガイド）</a></li>
+          <li><a href="../../claude-code-skills-sharing/articles/skills-discovery-and-catalog.html">Skills発見性向上のためのカタログ（Skills共有ガイド）</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="permission-system.html">パーミッションシステム</a></li>
+        <li><a href="../../claude-code-skills-sharing/articles/skills-marketplace-concept.html">Claude Code プラグインマーケットプレイス（Skills共有ガイド）</a></li>
+        <li><a href="../../claude-code-skills-sharing/articles/skills-discovery-and-catalog.html">Skills発見性向上のためのカタログ（Skills共有ガイド）</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -26,7 +26,8 @@
         "informed-consent-no-rekishi",
         "iryou-rinri-no-hatten",
         "nihon-no-seishin-iryo-shi",
-        "seishin-iryo-to-jinken"
+        "seishin-iryo-to-jinken",
+        "consent-permission-philosophy"
       ],
       "summary": "ロボトミー手術（前頭葉切截術）は20世紀前半に精神疾患の治療法として登場し、短期間で世界中に普及したものの、深刻な倫理問題と医学的批判により急速に廃れた神経外科手術の一形態である。",
       "expansion_status": "done",
@@ -137,7 +138,8 @@
       ],
       "linked_from": [
         "egas-moniz",
-        "rosemary-kennedy-to-robotomi"
+        "rosemary-kennedy-to-robotomi",
+        "consent-permission-philosophy"
       ],
       "summary": "ウォルター・フリーマン（Walter Freeman、1895–1972）はアメリカの精神科医。改造した氷千枚通しを用いた経眼窩式ロボトミーを考案・大衆化し、生涯に3,400例以上の手術を実施した。医学倫理を無視したとして後世に強く批判される。",
       "expansion_status": "pending",
@@ -149,19 +151,21 @@
       "title": "インフォームドコンセントの歴史",
       "filename": "wikis/robotomi-shujutsu-no-rekishi/articles/informed-consent-no-rekishi.html",
       "created_at": "2026-03-31T03:46:00.513318+00:00",
-      "updated_at": "2026-03-31T03:46:00.513318+00:00",
+      "updated_at": "2026-03-31T12:49:29.972838+00:00",
       "links_to": [
-        "robotomi-shujutsu-no-rekishi",
+        "seishin-iryo-to-jinken",
         "iryou-rinri-no-hatten",
         "patient-rights-movement",
-        "seishin-iryo-to-jinken"
+        "robotomi-shujutsu-no-rekishi",
+        "consent-permission-philosophy"
       ],
       "linked_from": [
         "robotomi-shujutsu-no-rekishi",
         "egas-moniz",
         "patient-rights-movement",
         "iryou-rinri-no-hatten",
-        "seishin-iryo-to-jinken"
+        "seishin-iryo-to-jinken",
+        "consent-permission-philosophy"
       ],
       "summary": "インフォームドコンセント（informed consent）とは、患者が十分な情報を得た上で自らの意思で医療行為に同意する権利および手続きである。ナチスの人体実験への反省を起点として生まれたニュルンベルク綱領（1947年）から現代に至るまで、患者の自律性を守る医療倫理規範の発展を辿る。",
       "expansion_status": "pending",
@@ -189,7 +193,8 @@
         "walter-freeman-no-shougai",
         "informed-consent-no-rekishi",
         "nihon-no-seishin-iryo-shi",
-        "seishin-iryo-to-jinken"
+        "seishin-iryo-to-jinken",
+        "consent-permission-philosophy"
       ],
       "summary": "現代の生命倫理学（bioethics）は、ナチスの人体実験・タスキギー梅毒研究・ロボトミー手術のような強制的・非倫理的医療への深刻な反省の上に構築された。自律尊重・善行・無危害・正義の4原則の確立、IRB制度の誕生、新技術への適用まで、現代医療倫理の歴史的発展を詳述する。",
       "expansion_status": "pending",
@@ -243,8 +248,30 @@
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "robotomi-shujutsu-no-rekishi"
+    },
+    "consent-permission-philosophy": {
+      "id": "consent-permission-philosophy",
+      "title": "インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜",
+      "filename": "wikis/robotomi-shujutsu-no-rekishi/articles/consent-permission-philosophy.html",
+      "created_at": "2026-03-31T12:48:40.524790+00:00",
+      "updated_at": "2026-03-31T12:48:40.524790+00:00",
+      "links_to": [
+        "informed-consent-no-rekishi",
+        "robotomi-shujutsu-no-rekishi",
+        "iryou-rinri-no-hatten",
+        "walter-freeman-no-shougai",
+        "claude-code-analysis:permission-system",
+        "claude-code-analysis:bash-tool-security"
+      ],
+      "linked_from": [
+        "informed-consent-no-rekishi"
+      ],
+      "summary": "医療におけるインフォームドコンセントとAIシステムのパーミッションシステムの構造的類似を解析する。ロボトミー手術の歴史的教訓から浮かび上がる「善意の権威の暴走」への反省が、医療倫理とAI設計の両面で「同意」という仕組みを生み出した経緯を探る。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "reaction:informed-consent-no-rekishi:permission-system"
     }
   },
   "root_id": null,
-  "total_count": 10
+  "total_count": 11
 }

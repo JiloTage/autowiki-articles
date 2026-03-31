@@ -69,6 +69,13 @@
       "url": "articles/seishin-iryo-to-jinken.html",
       "summary": "精神医療と人権の関係は、20世紀以降の医療倫理・国際法・社会運動の最も重要な交差点の一つである。強制入院・強制治療・施設への隔離という慣行は精神障害者の基本的権利を長期にわたって侵害してきたが、国連障害者権利条約（CRPD）の採択や当事者主体のリカバリー運動の台頭により、パラダイムシフトが進行している。",
       "is_root": false
+    },
+    {
+      "id": "consent-permission-philosophy",
+      "title": "インフォームドコンセントとパーミッションシステム：「同意」の哲学と技術の系譜",
+      "url": "articles/consent-permission-philosophy.html",
+      "summary": "医療におけるインフォームドコンセントとAIシステムのパーミッションシステムの構造的類似を解析する。ロボトミー手術の歴史的教訓から浮かび上がる「善意の権威の暴走」への反省が、医療倫理とAI設計の両面で「同意」という仕組みを生み出した経緯を探る。",
+      "is_root": false
     }
   ],
   "links": [
@@ -194,7 +201,7 @@
     },
     {
       "source": "informed-consent-no-rekishi",
-      "target": "robotomi-shujutsu-no-rekishi"
+      "target": "seishin-iryo-to-jinken"
     },
     {
       "source": "informed-consent-no-rekishi",
@@ -206,7 +213,11 @@
     },
     {
       "source": "informed-consent-no-rekishi",
-      "target": "seishin-iryo-to-jinken"
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "informed-consent-no-rekishi",
+      "target": "consent-permission-philosophy"
     },
     {
       "source": "iryou-rinri-no-hatten",
@@ -259,6 +270,22 @@
     {
       "source": "seishin-iryo-to-jinken",
       "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "consent-permission-philosophy",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "consent-permission-philosophy",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "consent-permission-philosophy",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "consent-permission-philosophy",
+      "target": "walter-freeman-no-shougai"
     }
   ]
 }
