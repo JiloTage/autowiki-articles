@@ -73,6 +73,42 @@
       "summary": "レイキャビクはアイスランドの首都であり、874年のヴァイキングによる入植以来、北欧神話の主要文書であるエッダ・サガの成立地として知られる。世界最古の議会アルシング（930年）の開催地シングヴェトリルを近郊に擁し、北欧神話の伝承と保存において世界で最も重要な都市のひとつである。"
     },
     {
+      "id": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "wiki": "hokuo-shinwa-yukari-machi",
+      "title": "ヨールヴィークの発掘術とSkillsカタログ：未知の価値を体系化する技法",
+      "url": "wikis/hokuo-shinwa-yukari-machi/articles/jorvík-skills-discovery.html",
+      "color": "#4a6fa5",
+      "is_root": false,
+      "summary": "ヴァイキングがヨールヴィーク（現ヨーク）の地中に遺した無数の遺物を20世紀の考古学者が発掘・分類・公開したプロセスと、Claude Code Skillsをチームで発見・カタログ化する仕組みは、「未知の価値を体系化する」という行為において深く対応する。"
+    },
+    {
+      "id": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "wiki": "hokuo-shinwa-yukari-machi",
+      "title": "ロスキレの港とnpmという現代の海路：知識の流通拠点",
+      "url": "wikis/hokuo-shinwa-yukari-machi/articles/roskilde-npm-sea-route.html",
+      "color": "#4a6fa5",
+      "is_root": false,
+      "summary": "デンマークの古都ロスキレが中世の北海交易における中継港として機能し、北欧世界全体に物資・文化・信仰を流通させたように、npmはソフトウェア開発の世界においてコードパッケージを地球規模で流通させる「デジタルの港湾都市」である。"
+    },
+    {
+      "id": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "wiki": "hokuo-shinwa-yukari-machi",
+      "title": "アルシングとパブリックレジストリ：開かれた知識共有の民主制",
+      "url": "wikis/hokuo-shinwa-yukari-machi/articles/althing-public-registry.html",
+      "color": "#4a6fa5",
+      "is_root": false,
+      "summary": "930年、レイキャビク近郊のシングヴェトリルに成立した「アルシング」は世界最古の議会として知られ、北欧全土の自由民が法律を議論・制定・共有する開かれた場を提供した。Claude Code Skillsをパブリックなnpmレジストリでオープンソース公開する行為は、アルシングが体現した「知識・規範の民主的共有」という思想の現代的継承である。"
+    },
+    {
+      "id": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "wiki": "hokuo-shinwa-yukari-machi",
+      "title": "ガムラ・ウプサラの神殿とセントラルリポジトリ：聖なる中心地の思想",
+      "url": "wikis/hokuo-shinwa-yukari-machi/articles/gamla-uppsala-central-hub.html",
+      "color": "#4a6fa5",
+      "is_root": false,
+      "summary": "ガムラ・ウプサラは北欧神話の三大神オーディン・トール・フレイを祀る大神殿を中心に、スカンジナビア全域から巡礼者・商人・王侯が集まる「聖なる中枢」として機能した。セントラルリポジトリアプローチも「全ての知識が一点に集まり、そこから全チームに分配される」という中心地の思想を体現している。"
+    },
+    {
       "id": "claude-code-skills-sharing:skills-sharing-overview",
       "wiki": "claude-code-skills-sharing",
       "title": "Claude Code Skills共有方法 概要",
@@ -256,6 +292,11 @@
       "type": "internal"
     },
     {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "type": "internal"
+    },
+    {
       "source": "hokuo-shinwa-yukari-machi:roskilde",
       "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
       "type": "internal"
@@ -278,6 +319,16 @@
     {
       "source": "hokuo-shinwa-yukari-machi:roskilde",
       "target": "hokuo-shinwa-yukari-machi:reykjavik",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde",
+      "target": "hokuo-shinwa-yukari-machi:york-jorvík",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde",
+      "target": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
       "type": "internal"
     },
     {
@@ -386,6 +437,11 @@
       "type": "internal"
     },
     {
+      "source": "hokuo-shinwa-yukari-machi:york-jorvík",
+      "target": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "type": "internal"
+    },
+    {
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
       "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
       "type": "internal"
@@ -409,6 +465,101 @@
       "source": "hokuo-shinwa-yukari-machi:reykjavik",
       "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
       "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik",
+      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "target": "hokuo-shinwa-yukari-machi:york-jorvík",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "target": "claude-code-skills-sharing:skills-discovery-and-catalog",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "target": "claude-code-skills-sharing:setup-automation",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "target": "hokuo-shinwa-yukari-machi:roskilde",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "target": "hokuo-shinwa-yukari-machi:york-jorvík",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "target": "claude-code-skills-sharing:npm-github-packages",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "target": "claude-code-skills-sharing:skills-versioning-strategy",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "target": "hokuo-shinwa-yukari-machi:reykjavik",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "target": "claude-code-skills-sharing:public-skills-registry",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "target": "claude-code-skills-sharing:skills-quality-review",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "target": "hokuo-shinwa-yukari-machi:hokuo-shinwa-no-machi",
+      "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "target": "claude-code-skills-sharing:central-repo-approach",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "target": "claude-code-skills-sharing:skills-quality-review",
+      "type": "cross"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "target": "claude-code-skills-sharing:monorepo-skills",
+      "type": "cross"
     },
     {
       "source": "claude-code-skills-sharing:skills-sharing-overview",
@@ -474,6 +625,11 @@
       "source": "claude-code-skills-sharing:npm-github-packages",
       "target": "claude-code-skills-sharing:private-npm-registry",
       "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "type": "cross"
     },
     {
       "source": "claude-code-skills-sharing:git-submodule-approach",
@@ -549,6 +705,11 @@
       "source": "claude-code-skills-sharing:central-repo-approach",
       "target": "claude-code-skills-sharing:skills-update-notification",
       "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "type": "cross"
     },
     {
       "source": "claude-code-skills-sharing:setup-automation",
@@ -636,6 +797,11 @@
       "type": "internal"
     },
     {
+      "source": "claude-code-skills-sharing:public-skills-registry",
+      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "type": "cross"
+    },
+    {
       "source": "claude-code-skills-sharing:internal-skills-marketplace",
       "target": "claude-code-skills-sharing:skills-sharing-overview",
       "type": "internal"
@@ -724,6 +890,11 @@
       "source": "claude-code-skills-sharing:skills-discovery-and-catalog",
       "target": "claude-code-skills-sharing:git-submodule-approach",
       "type": "internal"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-discovery-and-catalog",
+      "target": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "type": "cross"
     },
     {
       "source": "claude-code-skills-sharing:private-npm-registry",
@@ -794,6 +965,54 @@
       "source": "claude-code-skills-sharing:skills-quality-review",
       "target": "claude-code-skills-sharing:central-repo-approach",
       "type": "internal"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:york-jorvík",
+      "target": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "type": "reaction",
+      "reaction_id": "r-286eb0"
+    },
+    {
+      "source": "claude-code-skills-sharing:skills-discovery-and-catalog",
+      "target": "hokuo-shinwa-yukari-machi:jorvík-skills-discovery",
+      "type": "reaction",
+      "reaction_id": "r-286eb0"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:roskilde",
+      "target": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "type": "reaction",
+      "reaction_id": "r-b92ac9"
+    },
+    {
+      "source": "claude-code-skills-sharing:npm-github-packages",
+      "target": "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route",
+      "type": "reaction",
+      "reaction_id": "r-b92ac9"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:reykjavik",
+      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "type": "reaction",
+      "reaction_id": "r-2403cd"
+    },
+    {
+      "source": "claude-code-skills-sharing:public-skills-registry",
+      "target": "hokuo-shinwa-yukari-machi:althing-public-registry",
+      "type": "reaction",
+      "reaction_id": "r-2403cd"
+    },
+    {
+      "source": "hokuo-shinwa-yukari-machi:gamla-uppsala",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "type": "reaction",
+      "reaction_id": "r-1cf7ed"
+    },
+    {
+      "source": "claude-code-skills-sharing:central-repo-approach",
+      "target": "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub",
+      "type": "reaction",
+      "reaction_id": "r-1cf7ed"
     }
   ]
 }

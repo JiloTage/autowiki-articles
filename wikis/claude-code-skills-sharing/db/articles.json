@@ -39,14 +39,15 @@
       "title": "npm / GitHub Packagesによるプライベートスキル配布",
       "filename": "wikis/claude-code-skills-sharing/articles/npm-github-packages.html",
       "created_at": "2026-03-30T17:06:18.331880+00:00",
-      "updated_at": "2026-03-31T00:35:19.756065+00:00",
+      "updated_at": "2026-03-31T00:48:49.929144+00:00",
       "links_to": [
         "skills-sharing-overview",
         "git-submodule-approach",
         "setup-automation",
         "central-repo-approach",
         "public-skills-registry",
-        "private-npm-registry"
+        "private-npm-registry",
+        "hokuo-shinwa-yukari-machi:roskilde-npm-sea-route"
       ],
       "linked_from": [
         "skills-sharing-overview",
@@ -132,13 +133,14 @@
       "title": "セントラルリポジトリからのスキル配布",
       "filename": "wikis/claude-code-skills-sharing/articles/central-repo-approach.html",
       "created_at": "2026-03-30T17:06:18.498102+00:00",
-      "updated_at": "2026-03-31T00:35:22.611930+00:00",
+      "updated_at": "2026-03-31T00:48:50.047859+00:00",
       "links_to": [
         "skills-sharing-overview",
         "git-submodule-approach",
         "npm-github-packages",
         "setup-automation",
-        "skills-update-notification"
+        "skills-update-notification",
+        "hokuo-shinwa-yukari-machi:gamla-uppsala-central-hub"
       ],
       "linked_from": [
         "skills-sharing-overview",
@@ -219,13 +221,14 @@
       "title": "パブリックSkillsレジストリへの公開とオープンソース展開",
       "filename": "wikis/claude-code-skills-sharing/articles/public-skills-registry.html",
       "created_at": "2026-03-31T00:33:45.141174+00:00",
-      "updated_at": "2026-03-31T00:33:50.416881+00:00",
+      "updated_at": "2026-03-31T00:48:49.988508+00:00",
       "links_to": [
         "npm-github-packages",
         "skills-sharing-overview",
         "central-repo-approach",
         "git-submodule-approach",
-        "setup-automation"
+        "setup-automation",
+        "hokuo-shinwa-yukari-machi:althing-public-registry"
       ],
       "linked_from": [
         "npm-github-packages"
@@ -284,14 +287,15 @@
       "title": "Skills発見性向上のためのカタログとタグ管理",
       "filename": "wikis/claude-code-skills-sharing/articles/skills-discovery-and-catalog.html",
       "created_at": "2026-03-31T00:34:11.397387+00:00",
-      "updated_at": "2026-03-31T00:34:11.397387+00:00",
+      "updated_at": "2026-03-31T00:48:37.276757+00:00",
       "links_to": [
         "skills-sharing-overview",
         "setup-automation",
         "central-repo-approach",
         "monorepo-skills",
         "npm-github-packages",
-        "git-submodule-approach"
+        "git-submodule-approach",
+        "hokuo-shinwa-yukari-machi:jorvík-skills-discovery"
       ],
       "linked_from": [
         "setup-automation"
