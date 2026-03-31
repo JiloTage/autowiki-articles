@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リポジトリ構造 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    リポジトリ構造
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">リポジトリ構造</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードアーカイブである。npm 配布パッケージの .map ファイルから抽出された約1,900の TypeScript ファイル・51万2千行超のコードで構成される。src/ 配下に34のサブディレクトリを持ち、tools・services・commands・bridge・skills・coordinator などに体系的に整理されている。</div>
+
+      <h2 id="repository-origin">リポジトリの背景</h2>
+      <p>JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードの教育的・防衛的セキュリティ研究アーカイブとして公開されている。2026年3月31日に npm 配布パッケージに含まれる <code>.map</code>（ソースマップ）ファイルを通じてソースコードが検出・公開された。</p>
+
+      <h2 id="repo-statistics">リポジトリ統計</h2>
+      <ul>
+        <li>ファイル数: 約1,900ファイル（TypeScript）</li>
+        <li>コード行数: 51万2千行超</li>
+        <li>主要言語: TypeScript（TSX を含む）</li>
+        <li>トップレベルファイル: README.md（10.8 KB）・src/ ディレクトリ</li>
+      </ul>
+
+      <h2 id="src-structure">src/ ディレクトリ構造</h2>
+      <h3>トップレベルファイル</h3>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>main.tsx</td><td>803.9 KB</td><td>アプリケーションブートストラップ・初期化</td></tr>
+          <tr><td>query.ts</td><td>68.7 KB</td><td>マルチターン LLM 処理ループ</td></tr>
+          <tr><td>QueryEngine.ts</td><td>46.6 KB</td><td>会話ライフサイクルオーケストレーター</td></tr>
+          <tr><td>interactiveHelpers.tsx</td><td>57.4 KB</td><td>ターミナル UI インタラクションヘルパー</td></tr>
+          <tr><td>commands.ts</td><td>25.2 KB</td><td>コマンド登録・ルーティング</td></tr>
+          <tr><td>Tool.ts</td><td>29.5 KB</td><td>コアツール型システム</td></tr>
+          <tr><td>tools.ts</td><td>17.3 KB</td><td>ツールアセンブリ・フィルタリング</td></tr>
+          <tr><td>context.ts</td><td>6.4 KB</td><td>システム・ユーザーコンテキスト生成</td></tr>
+          <tr><td>history.ts</td><td>14.1 KB</td><td>会話履歴管理</td></tr>
+          <tr><td>setup.ts</td><td>20.6 KB</td><td>アプリケーションセットアップ・設定</td></tr>
+          <tr><td>cost-tracker.ts</td><td>10.7 KB</td><td>API 使用コスト追跡</td></tr>
+          <tr><td>Task.ts</td><td>3.2 KB</td><td>タスク抽象化</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="subdirectories">主要サブディレクトリ（34個）</h2>
+      <table>
+        <thead><tr><th>ディレクトリ</th><th>ファイル数</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>tools/</td><td>47ツール</td><td>ツール実装（各ツール独自ディレクトリ）</td></tr>
+          <tr><td>services/</td><td>多数</td><td>API・MCP・OAuth・アナリティクス・圧縮・LSP・音声・プラグイン・メモリ</td></tr>
+          <tr><td>commands/</td><td>多数</td><td>スラッシュコマンド実装</td></tr>
+          <tr><td>bridge/</td><td>33</td><td>IDE 拡張機能通信レイヤー</td></tr>
+          <tr><td>skills/</td><td>多数</td><td>スキルロード・バンドルスキル・MCP スキルビルダー</td></tr>
+          <tr><td>coordinator/</td><td>多数</td><td>マルチエージェントオーケストレーション</td></tr>
+          <tr><td>entrypoints/</td><td>多数</td><td>CLI・SDK・MCP・init エントリポイント</td></tr>
+          <tr><td>components/</td><td>多数</td><td>React/Ink UI コンポーネント</td></tr>
+          <tr><td>screens/</td><td>多数</td><td>ターミナル画面レイアウト</td></tr>
+          <tr><td>state/</td><td>多数</td><td>アプリケーション状態管理</td></tr>
+          <tr><td>remote/</td><td>多数</td><td>リモートエージェント制御</td></tr>
+          <tr><td>schemas/</td><td>多数</td><td>Zod バリデーションスキーマ</td></tr>
+          <tr><td>plugins/</td><td>多数</td><td>プラグインシステム</td></tr>
+          <tr><td>utils/</td><td>多数</td><td>共有ユーティリティ</td></tr>
+          <tr><td>constants/</td><td>多数</td><td>アプリケーション定数</td></tr>
+          <tr><td>types/</td><td>多数</td><td>共有 TypeScript 型</td></tr>
+          <tr><td>hooks/</td><td>多数</td><td>React フック</td></tr>
+          <tr><td>keybindings/</td><td>多数</td><td>キーボードショートカット処理</td></tr>
+          <tr><td>migrations/</td><td>多数</td><td>DB・状態マイグレーション</td></tr>
+          <tr><td>vim/</td><td>多数</td><td>Vim モードサポート</td></tr>
+          <tr><td>voice/</td><td>多数</td><td>音声入力システム</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="key-architectural-choices">主要なアーキテクチャの選択</h2>
+      <h3>TypeScript + React/Ink</h3>
+      <p>TypeScript をメイン言語として採用し、ターミナル UI には React の Ink ライブラリを使用する。これにより宣言的な UI 構築とコンポーネントの再利用が可能になる。</p>
+      <h3>Zod バリデーション</h3>
+      <p><code>schemas/</code> ディレクトリに Zod スキーマを集約し、実行時の型バリデーションを徹底する。API レスポンス・設定ファイル・ユーザー入力などすべての外部データに適用される。</p>
+      <h3>プラグインシステム</h3>
+      <p><code>plugins/</code> ディレクトリにプラグインシステムを実装し、拡張性を確保する。サードパーティのツール・コマンド・エージェントをプラグインとして追加できる。</p>
+      <h3>マルチエントリポイント</h3>
+      <p><code>entrypoints/</code> に CLI・SDK・MCP・init の各エントリポイントを持ち、Claude Code を様々な方法で利用できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#repository-origin">リポジトリの背景</a></li>
+          <li><a href="#repo-statistics">リポジトリ統計</a></li>
+          <li><a href="#src-structure">src/ ディレクトリ構造</a></li>
+          <li><a href="#subdirectories">主要サブディレクトリ</a></li>
+          <li><a href="#key-architectural-choices">主要なアーキテクチャの選択</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="bridge-system.html">ブリッジシステム</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="bridge-system.html">ブリッジシステム</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

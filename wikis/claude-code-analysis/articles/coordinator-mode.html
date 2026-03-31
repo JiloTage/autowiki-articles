@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コーディネータモード - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    コーディネータモード
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">コーディネータモード</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">コーディネータモード（src/coordinator/coordinatorMode.ts）はマルチエージェント並列処理を管理する Claude Code の高度な機能である。「並列性はスーパーパワー」という設計哲学のもと、独立したワーカーエージェントを並行起動して複雑なタスクを分散処理する。コーディネータ内部ツールのワーカーへのアクセス除外・自己完結型プロンプト要件・XML タスク結果フォーマットなどの設計原則を持つ。</div>
+
+      <h2 id="overview">コーディネータモード概要</h2>
+      <p>コーディネータモードは <code>src/coordinator/coordinatorMode.ts</code> に実装された Claude Code のマルチエージェント処理機能である。複雑なタスクを独立した作業単位に分解し、複数のワーカーエージェントに並行して割り当てることで処理効率を大幅に向上させる。</p>
+
+      <h2 id="philosophy">設計哲学</h2>
+      <p>コーディネータモードの中核的な設計哲学は「並列性はあなたのスーパーパワー」である。</p>
+      <blockquote>
+        <p>「Parallelism is your superpower. Workers are async. Launch independent workers concurrently whenever possible.」</p>
+        <p>（並列性はあなたのスーパーパワー。ワーカーは非同期。可能な限り独立したワーカーを並行起動する。）</p>
+      </blockquote>
+      <p>この哲学は Claude Code のプロンプト設計にも反映されており、独立したタスクは常に並行実行することが推奨される。</p>
+
+      <h2 id="coordinator-worker-model">コーディネータ・ワーカーモデル</h2>
+      <p>コーディネータモードは以下の役割分担で動作する。</p>
+      <h3>コーディネータの役割</h3>
+      <ul>
+        <li>タスクの分析・分解</li>
+        <li>ワーカーエージェントへの作業割り当て</li>
+        <li>ワーカーの進捗モニタリング</li>
+        <li>結果の統合・要約</li>
+        <li>タスクの依存関係管理</li>
+      </ul>
+      <h3>ワーカーの役割</h3>
+      <ul>
+        <li>割り当てられた独立したタスクの実行</li>
+        <li>自律的な判断・ツール使用</li>
+        <li>結果の XML フォーマットでの返却</li>
+      </ul>
+
+      <h2 id="tool-restrictions">ツール制限</h2>
+      <p>コーディネータの内部ツール（チーム管理・メッセージング）はワーカーへのアクセスから除外される。これによりワーカーがコーディネータの制御機能を誤用するリスクを排除する。</p>
+
+      <h2 id="task-notification-format">タスク通知フォーマット</h2>
+      <p>タスクの完了通知は XML でラップされたユーザーメッセージとしてコーディネータに届く。</p>
+      <pre><code>&lt;task_id&gt;{タスクID}&lt;/task_id&gt;
+&lt;status&gt;{completed|failed|timeout}&lt;/status&gt;
+&lt;summary&gt;{結果の要約}&lt;/summary&gt;
+&lt;result&gt;{詳細な結果}&lt;/result&gt;</code></pre>
+
+      <h2 id="self-contained-prompts">自己完結型プロンプト</h2>
+      <p>コーディネータの重要な原則の一つは「すべてのプロンプトはワーカーが必要とするすべてを含む自己完結型でなければならない」という点である。ワーカーエージェントは親コンテキストにアクセスできないため、割り当て時のプロンプトにすべての必要な情報を含める必要がある。コーディネータは委任前に発見事項を自己完結型の仕様に統合する。</p>
+
+      <h2 id="reuse-vs-spawn">ワーカー再利用 vs 新規生成</h2>
+      <p>コーディネータはワーカーを再利用するか新規生成するかを状況に応じて判断する。</p>
+      <ul>
+        <li><strong>再利用</strong>: コンテキストの重複が高い場合（例: 同じファイルへの連続操作）</li>
+        <li><strong>新規生成</strong>: コンテキストが発散した場合（例: 全く異なるタスク領域）</li>
+      </ul>
+      <p>この判断により、コンテキストキャッシュの効率と実行の独立性のバランスを取る。</p>
+
+      <h2 id="relationship-to-agent-tool">AgentTool との関係</h2>
+      <p>コーディネータモードは<a href="agent-architecture.html">AgentTool</a> を基盤として構築されている。AgentTool が個々のサブエージェントの生成・実行を担当するのに対し、コーディネータモードはより高レベルでの並列エージェント管理を提供する。コーディネータモードは AgentTool の上位抽象として機能する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">コーディネータモード概要</a></li>
+          <li><a href="#philosophy">設計哲学</a></li>
+          <li><a href="#coordinator-worker-model">コーディネータ・ワーカーモデル</a></li>
+          <li><a href="#tool-restrictions">ツール制限</a></li>
+          <li><a href="#task-notification-format">タスク通知フォーマット</a></li>
+          <li><a href="#self-contained-prompts">自己完結型プロンプト</a></li>
+          <li><a href="#reuse-vs-spawn">ワーカー再利用 vs 新規生成</a></li>
+          <li><a href="#relationship-to-agent-tool">AgentTool との関係</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

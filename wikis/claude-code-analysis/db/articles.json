@@ -1,0 +1,299 @@
+{
+  "articles": {
+    "claude-code-overview": {
+      "id": "claude-code-overview",
+      "title": "Claude Code 概要",
+      "filename": "claude-code-overview.html",
+      "created_at": "2026-03-31T12:16:28.090256+00:00",
+      "updated_at": "2026-03-31T12:16:28.090256+00:00",
+      "links_to": [
+        "agent-architecture",
+        "tool-system",
+        "query-engine",
+        "query-loop",
+        "mcp-integration",
+        "session-memory",
+        "coordinator-mode",
+        "bridge-system",
+        "context-compaction",
+        "prompt-engineering",
+        "claude-code-architecture"
+      ],
+      "linked_from": [
+        "agent-architecture",
+        "tool-system",
+        "query-engine",
+        "query-loop",
+        "mcp-integration",
+        "session-memory",
+        "coordinator-mode",
+        "bridge-system",
+        "context-compaction",
+        "claude-code-architecture"
+      ],
+      "summary": "Claude Code は Anthropic が開発したAIコーディングアシスタントのCLIツールであり、TypeScriptで実装された約51万行のコードベースを持つ。エージェント型アーキテクチャを採用し、ファイル操作・シェル実行・Web検索など多様なツールをAIが自律的に活用できる設計になっている。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "agent-architecture": {
+      "id": "agent-architecture",
+      "title": "エージェントアーキテクチャ",
+      "filename": "agent-architecture.html",
+      "created_at": "2026-03-31T12:16:41.294745+00:00",
+      "updated_at": "2026-03-31T12:16:41.294745+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "coordinator-mode",
+        "tool-system",
+        "prompt-engineering",
+        "mcp-integration"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "tool-system",
+        "prompt-engineering",
+        "mcp-integration",
+        "coordinator-mode",
+        "claude-code-architecture"
+      ],
+      "summary": "Claude Code のエージェントシステムは AgentTool を中心に構成されており、サブエージェントの生成・実行・管理を行う。ビルトイン・カスタム・プラグインの3カテゴリのエージェントをサポートし、MCP サーバー依存フィルタリング・パーミッションスコーピング・コンテキスト分離などの高度な機能を持つ。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "tool-system": {
+      "id": "tool-system",
+      "title": "ツールシステム",
+      "filename": "tool-system.html",
+      "created_at": "2026-03-31T12:16:41.352082+00:00",
+      "updated_at": "2026-03-31T12:16:41.352082+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "agent-architecture",
+        "prompt-engineering",
+        "mcp-integration"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "agent-architecture",
+        "query-loop",
+        "prompt-engineering",
+        "mcp-integration",
+        "coordinator-mode",
+        "claude-code-architecture"
+      ],
+      "summary": "Claude Code のツールシステムは Tool インターフェースを基盤とし、29の常時利用可能なコアツールと条件付きツールで構成される。各ツールは独立したディレクトリ構造を持ち、実装・UI・プロンプト・セキュリティ検証が分離されている。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "query-engine": {
+      "id": "query-engine",
+      "title": "QueryEngine",
+      "filename": "query-engine.html",
+      "created_at": "2026-03-31T12:16:41.408327+00:00",
+      "updated_at": "2026-03-31T12:16:41.408327+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "query-loop",
+        "session-memory",
+        "context-compaction"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "query-loop",
+        "session-memory",
+        "bridge-system",
+        "context-compaction"
+      ],
+      "summary": "QueryEngine（src/QueryEngine.ts、46.6 KB）は Claude Code の会話ライフサイクルを管理するコアコンポーネントである。可変メッセージ状態の維持・パーミッション拒否のトラッキング・API 使用量の管理・セッションのトランスクリプトストレージへの永続化を担当する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "query-loop": {
+      "id": "query-loop",
+      "title": "クエリループ",
+      "filename": "query-loop.html",
+      "created_at": "2026-03-31T12:16:57.565760+00:00",
+      "updated_at": "2026-03-31T12:16:57.565760+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "query-engine",
+        "context-compaction",
+        "tool-system"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "query-engine",
+        "session-memory",
+        "context-compaction"
+      ],
+      "summary": "クエリループ（src/query.ts、68.7 KB）はマルチターンの LLM 処理を実装する非同期ジェネレータである。セットアップ・コンテキスト準備・モデル呼び出し・エラーリカバリー・ツール実行・継続の6フェーズで構成され、プロンプトが長すぎる場合や最大出力トークン数に達した場合のリカバリーメカニズムを備える。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "prompt-engineering": {
+      "id": "prompt-engineering",
+      "title": "プロンプト設計",
+      "filename": "prompt-engineering.html",
+      "created_at": "2026-03-31T12:16:57.622579+00:00",
+      "updated_at": "2026-03-31T12:16:57.622579+00:00",
+      "links_to": [
+        "tool-system",
+        "agent-architecture",
+        "coordinator-mode",
+        "session-memory"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "agent-architecture",
+        "tool-system",
+        "session-memory",
+        "coordinator-mode"
+      ],
+      "summary": "Claude Code の各ツールは prompt.ts ファイルに詳細な使用指示を格納しており、AI の行動を精密に制御する。BashTool・FileEditTool・GrepTool・AgentTool・コーディネータモードなど各コンポーネントに固有のプロンプト設計パターンがある。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "mcp-integration": {
+      "id": "mcp-integration",
+      "title": "MCP インテグレーション",
+      "filename": "mcp-integration.html",
+      "created_at": "2026-03-31T12:16:57.681166+00:00",
+      "updated_at": "2026-03-31T12:16:57.681166+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "tool-system",
+        "agent-architecture",
+        "bridge-system"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "agent-architecture",
+        "tool-system",
+        "bridge-system",
+        "claude-code-architecture"
+      ],
+      "summary": "Claude Code は Model Context Protocol（MCP）を完全実装しており、src/services/mcp/ ディレクトリ配下に22ファイルで構成される。MCP クライアント（119 KB）・設定管理（51 KB）・OAuth 認証（88 KB）・接続管理・チャネルセキュリティ・公式レジストリ・VS Code SDK 統合が含まれる。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "session-memory": {
+      "id": "session-memory",
+      "title": "セッションメモリ",
+      "filename": "session-memory.html",
+      "created_at": "2026-03-31T12:17:15.575985+00:00",
+      "updated_at": "2026-03-31T12:17:15.575985+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "query-engine",
+        "query-loop",
+        "context-compaction",
+        "prompt-engineering"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "query-engine",
+        "prompt-engineering",
+        "context-compaction"
+      ],
+      "summary": "Claude Code のセッションメモリシステム（src/services/SessionMemory/）は10セクション構造のテンプレートを用いた永続的メモリ管理を提供する。セクションごとに約2000トークンの制限があり、並行 Edit ツール呼び出しで更新される。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "coordinator-mode": {
+      "id": "coordinator-mode",
+      "title": "コーディネータモード",
+      "filename": "coordinator-mode.html",
+      "created_at": "2026-03-31T12:17:15.632436+00:00",
+      "updated_at": "2026-03-31T12:17:15.632436+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "agent-architecture",
+        "prompt-engineering",
+        "tool-system"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "agent-architecture",
+        "prompt-engineering"
+      ],
+      "summary": "コーディネータモード（src/coordinator/coordinatorMode.ts）はマルチエージェント並列処理を管理する Claude Code の高度な機能である。「並列性はスーパーパワー」という設計哲学のもと、独立したワーカーエージェントを並行起動して複雑なタスクを分散処理する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "bridge-system": {
+      "id": "bridge-system",
+      "title": "ブリッジシステム",
+      "filename": "bridge-system.html",
+      "created_at": "2026-03-31T12:17:15.690799+00:00",
+      "updated_at": "2026-03-31T12:17:15.690799+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "mcp-integration",
+        "query-engine"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "mcp-integration",
+        "claude-code-architecture"
+      ],
+      "summary": "ブリッジシステム（src/bridge/、33ファイル）は Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間の双方向通信を実現する。JWT 認証によるメッセージセキュリティ・セッションライフサイクル管理・デバイス信頼管理などを実装する。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "context-compaction": {
+      "id": "context-compaction",
+      "title": "コンテキスト圧縮",
+      "filename": "context-compaction.html",
+      "created_at": "2026-03-31T12:17:15.748251+00:00",
+      "updated_at": "2026-03-31T12:17:15.748251+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "query-loop",
+        "session-memory",
+        "query-engine"
+      ],
+      "linked_from": [
+        "claude-code-overview",
+        "query-engine",
+        "query-loop",
+        "session-memory"
+      ],
+      "summary": "Claude Code のコンテキスト圧縮システム（src/services/compact/、11ファイル）はトークン制限への対応機構である。コアコンパクション（60 KB）・自動コンパクション・マイクロコンパクション・セッションメモリ対応コンパクション・圧縮プロンプトの5コンポーネントで構成される。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    },
+    "claude-code-architecture": {
+      "id": "claude-code-architecture",
+      "title": "リポジトリ構造",
+      "filename": "claude-code-architecture.html",
+      "created_at": "2026-03-31T12:17:15.805801+00:00",
+      "updated_at": "2026-03-31T12:17:15.805801+00:00",
+      "links_to": [
+        "claude-code-overview",
+        "agent-architecture",
+        "tool-system",
+        "bridge-system",
+        "mcp-integration"
+      ],
+      "linked_from": [
+        "claude-code-overview"
+      ],
+      "summary": "JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードアーカイブである。npm 配布パッケージの .map ファイルから抽出された約1,900の TypeScript ファイル・51万2千行超のコードで構成される。",
+      "expansion_status": "pending",
+      "origin": "expansion",
+      "source_id": "claude-code-overview"
+    }
+  },
+  "root_id": null,
+  "total_count": 12
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コンテキスト圧縮 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    コンテキスト圧縮
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">コンテキスト圧縮</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code のコンテキスト圧縮システム（src/services/compact/、11ファイル）はトークン制限への対応機構である。コアコンパクション（60 KB）・自動コンパクション・マイクロコンパクション・セッションメモリ対応コンパクション・圧縮プロンプトの5コンポーネントで構成される。クエリループのコンテキスト準備フェーズで適用され、長時間セッションでも安定した動作を保証する。</div>
+
+      <h2 id="overview">コンテキスト圧縮概要</h2>
+      <p>コンテキスト圧縮は <code>src/services/compact/</code> ディレクトリ（11ファイル）に実装されており、LLM のトークン制限に対応するためのシステムである。長時間の対話セッションでは会話履歴が膨大になり、コンテキストウィンドウを超えてしまう。コンテキスト圧縮はこの問題を解決するために会話履歴を要約・削減する。</p>
+
+      <h2 id="components">圧縮コンポーネント</h2>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>compact.ts</td><td>60.8 KB</td><td>コア圧縮ロジック</td></tr>
+          <tr><td>autoCompact.ts</td><td>—</td><td>自動圧縮トリガー</td></tr>
+          <tr><td>microCompact.ts</td><td>—</td><td>細粒度マイクロ圧縮</td></tr>
+          <tr><td>sessionMemoryCompact.ts</td><td>—</td><td>メモリ対応圧縮</td></tr>
+          <tr><td>prompt.ts</td><td>16 KB</td><td>圧縮プロンプトテンプレート</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="compaction-strategies">圧縮戦略</h2>
+      <p><a href="query-loop.html">クエリループ</a>のコンテキスト準備フェーズでは複数の圧縮戦略が適用される。</p>
+      <h3>snip/microcompact</h3>
+      <p>古いメッセージを削減・細粒度に圧縮する。<code>microCompact.ts</code> が細粒度の圧縮を担当し、重要度の低い詳細を省略しながら要点を保持する。</p>
+      <h3>collapse</h3>
+      <p>類似メッセージをまとめる。繰り返しパターンのあるメッセージ（例: 連続するツール呼び出しの結果）を統合して効率的に表現する。</p>
+      <h3>autocompact</h3>
+      <p><code>autoCompact.ts</code> がコンテキストが制限に近づいた場合に自動的に圧縮を実行する。閾値に達すると <code>compact.ts</code> のフル圧縮を実行し、会話全体を要約する。</p>
+
+      <h2 id="compaction-prompt">圧縮プロンプト</h2>
+      <p><code>prompt.ts</code>（16 KB）は圧縮に使用するプロンプトテンプレートを格納する。このプロンプトは LLM に対して会話履歴を要約する際の指示を提供し、重要な情報（タスク状態・重要な発見・エラー修正など）が保持されるよう誘導する。</p>
+
+      <h2 id="session-memory-integration">セッションメモリとの統合</h2>
+      <p><code>sessionMemoryCompact.ts</code> は<a href="session-memory.html">セッションメモリ</a>を考慮した圧縮を実装する。圧縮時にセッションメモリの10セクション構造を保護し、重要な構造化情報が圧縮によって失われないようにする。</p>
+
+      <h2 id="error-recovery">エラー時の圧縮</h2>
+      <p>クエリループはプロンプトが長すぎる（<code>prompt_too_long</code>）エラーが発生した場合に動的に圧縮を実行する。</p>
+      <ol>
+        <li>エラーを受信して保留する</li>
+        <li>圧縮ドレインを実行（段階的に圧縮量を増やす）</li>
+        <li>リアクティブ圧縮を適用（全体を再圧縮）</li>
+        <li>トークンエスカレーション（大きなコンテキストウィンドウのモデルに切り替え）</li>
+      </ol>
+
+      <h2 id="quality-preservation">品質保持</h2>
+      <p>圧縮の際には以下の情報が優先的に保持される。</p>
+      <ul>
+        <li>タスクの仕様・要件</li>
+        <li>現在の作業状態</li>
+        <li>重要なファイル・コードの変更</li>
+        <li>エラーと修正のパターン</li>
+        <li>ユーザーの指示・制約</li>
+      </ul>
+      <p>一方、詳細なツール実行ログや冗長な繰り返し情報は優先度が低く、圧縮で削減される。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">コンテキスト圧縮概要</a></li>
+          <li><a href="#components">圧縮コンポーネント</a></li>
+          <li><a href="#compaction-strategies">圧縮戦略</a></li>
+          <li><a href="#compaction-prompt">圧縮プロンプト</a></li>
+          <li><a href="#session-memory-integration">セッションメモリとの統合</a></li>
+          <li><a href="#error-recovery">エラー時の圧縮</a></li>
+          <li><a href="#quality-preservation">品質保持</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+          <li><a href="session-memory.html">セッションメモリ</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

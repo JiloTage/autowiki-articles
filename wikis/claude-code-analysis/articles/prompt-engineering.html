@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロンプト設計 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    プロンプト設計
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">プロンプト設計</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code の各ツールは prompt.ts ファイルに詳細な使用指示を格納しており、AI の行動を精密に制御する。BashTool・FileEditTool・GrepTool・AgentTool・コーディネータモードなど各コンポーネントに固有のプロンプト設計パターンがある。セキュリティ・一貫性・効率性を重視した指示体系が構築されている。</div>
+
+      <h2 id="overview">プロンプト設計の概要</h2>
+      <p>Claude Code では各ツールが <code>prompt.ts</code> ファイルに使用指示を格納している。これらのプロンプトは LLM が各ツールをいつ・どのように使用するかを制御する重要な設計要素である。プロンプト設計には一貫したパターンが見られ、セキュリティ・効率性・ユーザー体験の向上を目的としている。</p>
+
+      <h2 id="bash-tool-prompt">BashTool プロンプト</h2>
+      <p>BashTool のプロンプトは以下の重要な指示を含む。</p>
+      <ul>
+        <li><code>find</code>・<code>grep</code>・<code>cat</code>・<code>head</code>・<code>tail</code>・<code>sed</code>・<code>awk</code>・<code>echo</code> の代わりに専用ツールを使用する</li>
+        <li>独立したコマンドは単一メッセージ内で複数ツール呼び出しとして実行する</li>
+        <li>順次実行が必要な依存コマンドは <code>&amp;&amp;</code> でチェーンする</li>
+        <li>明示的に要求されない限り、破壊的 git コマンドを使用しない</li>
+        <li>明示的に要求されない限り、コミットしない</li>
+        <li>main/master への force-push は絶対に行わない</li>
+        <li>サンドボックスモード: 一時ファイルに <code>$TMPDIR</code> を強制使用する</li>
+      </ul>
+
+      <h2 id="file-edit-prompt">FileEditTool プロンプト</h2>
+      <p>FileEditTool は以下の重要な制約を持つ。</p>
+      <ul>
+        <li>編集前に必ず FileReadTool で読み取ること（強制）</li>
+        <li>読み取り出力の正確なインデント（タブ/スペース）を保持する</li>
+        <li><code>old_string</code> はファイル内で一意でなければならない；ユニーク性を確保するため2〜4行の隣接する文脈を提供する</li>
+        <li>ファイル全体のリネームには <code>replace_all</code> を使用する</li>
+        <li>絶対に必要でない限り新規ファイルを作成しない</li>
+      </ul>
+
+      <h2 id="grep-prompt">GrepTool プロンプト</h2>
+      <p>GrepTool は以下の指示を含む。</p>
+      <ul>
+        <li>ripgrep をベースとして構築；常に bash の <code>grep</code>/<code>rg</code> の代わりに Grep を使用する</li>
+        <li>完全な正規表現構文をサポート；クロスライン検索には <code>multiline: true</code> を使用する</li>
+        <li>3つの出力モード: <code>content</code>・<code>files_with_matches</code>（デフォルト）・<code>count</code></li>
+        <li>オープンエンドなマルチラウンド検索には Agent ツールを使用する</li>
+      </ul>
+
+      <h2 id="web-fetch-prompt">WebFetchTool プロンプト</h2>
+      <p>WebFetchTool は著作権コンテンツへの配慮を持つ設計になっている。</p>
+      <ul>
+        <li>2段階コンテンツ取得: 事前承認ドメインはフルコンテンツ取得可能；その他は125文字以内の引用制限</li>
+        <li>歌詞や著作権コンテンツの逐語的複製を禁止</li>
+        <li>HTML からマークダウンへの変換後に処理</li>
+      </ul>
+
+      <h2 id="agent-tool-prompt">AgentTool プロンプト</h2>
+      <p>AgentTool は並行実行を強調する設計になっている。</p>
+      <ul>
+        <li>常にエージェント起動の3〜5語の説明を含める</li>
+        <li>エージェント結果をユーザーに表示する前に要約する</li>
+        <li>並行実行: 「単一メッセージ内で複数のツール使用コンテントブロックを送信する」</li>
+        <li>フォーク機能: 「Don't peek（フォーク出力を覗き見しない）」「Never fabricate or predict fork results（フォーク結果を捏造・予測しない）」</li>
+        <li>「スマートな同僚が部屋に入ってきたようにエージェントにブリーフィングする」</li>
+      </ul>
+
+      <h2 id="coordinator-prompt">コーディネータシステムプロンプト</h2>
+      <p>コーディネータモードは明確な並行化哲学を持つ。</p>
+      <ul>
+        <li>「並列性はあなたのスーパーパワー。ワーカーは非同期。可能な限り独立したワーカーを並行起動する」</li>
+        <li>「すべてのプロンプトはワーカーが必要とするすべてを含む自己完結型でなければならない」</li>
+        <li>コンテキスト重複が高い場合はワーカーを再利用；コンテキストが分岐した場合は新規ワーカーを生成</li>
+        <li>タスク結果フォーマット: <code>&lt;task_id&gt;</code>・<code>&lt;status&gt;</code>・<code>&lt;summary&gt;</code>・<code>&lt;result&gt;</code> を含む XML ラップメッセージ</li>
+      </ul>
+
+      <h2 id="session-memory-prompt">セッションメモリ更新プロンプト</h2>
+      <p>セッションメモリの更新には厳格な構造が求められる。</p>
+      <ul>
+        <li>10の構造化セクションと厳格なヘッダー保持</li>
+        <li>セクションあたり約2000トークンの制限；重要度の低い詳細を削除して圧縮</li>
+        <li>継続性のために「Current State」セクションを常に更新する</li>
+        <li>並行 Edit ツール呼び出しを使用；編集後はプロセスを語らずに停止する</li>
+      </ul>
+
+      <h2 id="prompt-cache-stability">プロンプトキャッシュ安定性</h2>
+      <p>Claude Code はプロンプトキャッシュを活用してコストを削減する。ツールの説明文は実行ごとに変化しないように設計されており、API のプロンプトキャッシュヒット率を最大化する。ツールセットのアセンブリ時には名前での重複排除を行い、順序の安定性を維持してキャッシュ効率を高める。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">プロンプト設計の概要</a></li>
+          <li><a href="#bash-tool-prompt">BashTool プロンプト</a></li>
+          <li><a href="#file-edit-prompt">FileEditTool プロンプト</a></li>
+          <li><a href="#grep-prompt">GrepTool プロンプト</a></li>
+          <li><a href="#web-fetch-prompt">WebFetchTool プロンプト</a></li>
+          <li><a href="#agent-tool-prompt">AgentTool プロンプト</a></li>
+          <li><a href="#coordinator-prompt">コーディネータシステムプロンプト</a></li>
+          <li><a href="#session-memory-prompt">セッションメモリ更新プロンプト</a></li>
+          <li><a href="#prompt-cache-stability">プロンプトキャッシュ安定性</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+          <li><a href="session-memory.html">セッションメモリ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code 概要 - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    Claude Code 概要
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Code 概要</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code は Anthropic が開発したAIコーディングアシスタントのCLIツールであり、TypeScriptで実装された約51万行のコードベースを持つ。エージェント型アーキテクチャを採用し、ファイル操作・シェル実行・Web検索など多様なツールをAIが自律的に活用できる設計になっている。</div>
+
+      <h2 id="what-is-claude-code">Claude Code とは</h2>
+      <p>Claude Code は Anthropic が開発した AI コーディングアシスタントの CLI（コマンドラインインターフェース）ツールである。2026年3月31日に npm 配布パッケージの <code>.map</code> ファイルを通じてソースコードが公開され、<a href="claude-code-architecture.html">JiloTage/claude-code リポジトリ</a>にアーカイブされた。</p>
+      <p>コードベースは TypeScript で実装されており、約1,900のファイルと51万2千行以上のコードから構成される。主なディレクトリとして <code>src/</code> 配下に tools・services・commands・bridge・skills・coordinator など34のサブディレクトリが存在する。</p>
+
+      <h2 id="core-components">主要コンポーネント</h2>
+      <p>Claude Code のアーキテクチャは複数の層から構成されている。</p>
+      <h3>エントリポイント層</h3>
+      <p><code>src/entrypoints/cli.tsx</code>（39.3 KB）が CLI のエントリポイントであり、コマンドライン引数の解析・初期化・アプリケーションのブートストラップを担当する。<code>src/main.tsx</code>（803.9 KB）がコアアプリケーションの初期化を行う最大のファイルである。</p>
+      <h3>クエリエンジン層</h3>
+      <p><a href="query-engine.html">QueryEngine</a>（<code>src/QueryEngine.ts</code>、46.6 KB）が会話のライフサイクルを管理し、<a href="query-loop.html">クエリループ</a>（<code>src/query.ts</code>、68.7 KB）がマルチターンの LLM 処理を実装する。</p>
+      <h3>ツール実行層</h3>
+      <p><a href="tool-system.html">ツールシステム</a>は29の常時利用可能なコアツールと、フィーチャーフラグで制御される条件付きツールで構成される。各ツールは独自のディレクトリ（例: <code>src/tools/BashTool/</code>）を持ち、実装・UI・プロンプト・ユーティリティが分離されている。</p>
+      <h3>サービス層</h3>
+      <p>Anthropic API クライアント・<a href="mcp-integration.html">MCPプロトコル</a>・<a href="session-memory.html">セッションメモリ</a>・<a href="context-compaction.html">コンテキスト圧縮</a>・LSP・OAuth・アナリティクスなど多様なサービスが含まれる。</p>
+      <h3>ブリッジ層</h3>
+      <p><a href="bridge-system.html">ブリッジシステム</a>（<code>src/bridge/</code>、33ファイル）が Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間の双方向通信を実現する。</p>
+
+      <h2 id="architecture-overview">アーキテクチャ全体像</h2>
+      <p>Claude Code のデータフローは以下のように構成されている：</p>
+      <pre><code>CLI エントリ (entrypoints/cli.tsx)
+    ↓
+QueryEngine（セッション・コスト・パーミッション管理）
+    ↓
+クエリループ（マルチターンジェネレータ + 圧縮）
+    ↓
+ツール実行層
+    ├── ファイルツール (Read/Edit/Write/Glob/Grep)
+    ├── BashTool（サンドボックスシェル実行）
+    ├── AgentTool（サブエージェント生成）
+    ├── WebFetch/WebSearch（インターネットアクセス）
+    ├── MCP ツール（プロトコルブリッジ外部ツール）
+    └── Skill/Command ツール
+    ↓
+サービス層
+    ├── Anthropic API (claude.ts - ストリーミング、リトライ)
+    ├── MCP プロトコル（サーバー管理、認証、チャネル）
+    ├── セッションメモリ（10セクション構造化メモリ）
+    ├── 圧縮サービス（トークン管理）
+    └── アナリティクス（テレメトリ、GrowthBook フィーチャーフラグ）
+    ↓
+ブリッジ層（IDE 拡張機能 ↔ CLI）</code></pre>
+
+      <h2 id="key-design-principles">主要設計原則</h2>
+      <ul>
+        <li><strong>エージェント型アーキテクチャ</strong>: AI がツールを自律的に選択・実行して複雑なタスクを完遂する</li>
+        <li><strong>並行実行</strong>: 独立したツール呼び出しを並行実行し、パフォーマンスを最大化する</li>
+        <li><strong>パーミッション制御</strong>: 各ツールが <code>checkPermissions()</code> を実装し、アクセス制御を徹底する</li>
+        <li><strong>コンテキスト管理</strong>: トークン制限に対応するため圧縮・要約機構を備える</li>
+        <li><strong>フィーチャーフラグ</strong>: GrowthBook を用いた段階的なフィーチャーロールアウト</li>
+        <li><strong>マルチエージェント</strong>: <a href="agent-architecture.html">AgentTool</a> によるサブエージェントの生成と<a href="coordinator-mode.html">コーディネータモード</a>による並列化</li>
+      </ul>
+
+      <h2 id="file-sizes">主要ファイルのサイズ</h2>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>src/main.tsx</td><td>803.9 KB</td><td>アプリケーションコア</td></tr>
+          <tr><td>src/tools/AgentTool/AgentTool.tsx</td><td>233.7 KB</td><td>エージェントツール</td></tr>
+          <tr><td>src/services/mcp/client.ts</td><td>119.1 KB</td><td>MCP クライアント</td></tr>
+          <tr><td>src/bridge/bridgeMain.ts</td><td>115.6 KB</td><td>ブリッジコアプロトコル</td></tr>
+          <tr><td>src/services/api/claude.ts</td><td>125.8 KB</td><td>Anthropic API クライアント</td></tr>
+          <tr><td>src/query.ts</td><td>68.7 KB</td><td>マルチターンクエリ処理</td></tr>
+          <tr><td>src/QueryEngine.ts</td><td>46.6 KB</td><td>会話ライフサイクル管理</td></tr>
+        </tbody>
+      </table>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#what-is-claude-code">Claude Code とは</a></li>
+          <li><a href="#core-components">主要コンポーネント</a></li>
+          <li><a href="#architecture-overview">アーキテクチャ全体像</a></li>
+          <li><a href="#key-design-principles">主要設計原則</a></li>
+          <li><a href="#file-sizes">主要ファイルのサイズ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+          <li><a href="session-memory.html">セッションメモリ</a></li>
+          <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+          <li><a href="bridge-system.html">ブリッジシステム</a></li>
+          <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+        <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+        <li><a href="bridge-system.html">ブリッジシステム</a></li>
+        <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

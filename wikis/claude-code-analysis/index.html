@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code コード解析 - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Claude Code コード解析</h1>
+    <p>Claude CodeのGitHubリポジトリのコード解析。エージェントのデザインやツールの定義、構造、プロンプトなど</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">12</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">57</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="articles/claude-code-overview.html">Claude Code 概要</a></td><td>Claude Code は Anthropic が開発したAIコーディングアシスタントのCLIツールであり、TypeScriptで実装された約51万行のコードベースを持つ。エージェント型アーキテクチャ...</td><td>2026-03-31</td><td>21</td></tr>
+        <tr><td><a href="articles/agent-architecture.html">エージェントアーキテクチャ</a></td><td>Claude Code のエージェントシステムは AgentTool を中心に構成されており、サブエージェントの生成・実行・管理を行う。ビルトイン・カスタム・プラグインの3カテゴリのエージェントをサポ...</td><td>2026-03-31</td><td>11</td></tr>
+        <tr><td><a href="articles/tool-system.html">ツールシステム</a></td><td>Claude Code のツールシステムは Tool インターフェースを基盤とし、29の常時利用可能なコアツールと条件付きツールで構成される。各ツールは独立したディレクトリ構造を持ち、実装・UI・プロ...</td><td>2026-03-31</td><td>11</td></tr>
+        <tr><td><a href="articles/query-engine.html">QueryEngine</a></td><td>QueryEngine（src/QueryEngine.ts、46.6 KB）は Claude Code の会話ライフサイクルを管理するコアコンポーネントである。可変メッセージ状態の維持・パーミッショ...</td><td>2026-03-31</td><td>9</td></tr>
+        <tr><td><a href="articles/query-loop.html">クエリループ</a></td><td>クエリループ（src/query.ts、68.7 KB）はマルチターンの LLM 処理を実装する非同期ジェネレータである。セットアップ・コンテキスト準備・モデル呼び出し・エラーリカバリー・ツール実行・...</td><td>2026-03-31</td><td>8</td></tr>
+        <tr><td><a href="articles/prompt-engineering.html">プロンプト設計</a></td><td>Claude Code の各ツールは prompt.ts ファイルに詳細な使用指示を格納しており、AI の行動を精密に制御する。BashTool・FileEditTool・GrepTool・Agent...</td><td>2026-03-31</td><td>9</td></tr>
+        <tr><td><a href="articles/mcp-integration.html">MCP インテグレーション</a></td><td>Claude Code は Model Context Protocol（MCP）を完全実装しており、src/services/mcp/ ディレクトリ配下に22ファイルで構成される。MCP クライアン...</td><td>2026-03-31</td><td>9</td></tr>
+        <tr><td><a href="articles/session-memory.html">セッションメモリ</a></td><td>Claude Code のセッションメモリシステム（src/services/SessionMemory/）は10セクション構造のテンプレートを用いた永続的メモリ管理を提供する。セクションごとに約20...</td><td>2026-03-31</td><td>9</td></tr>
+        <tr><td><a href="articles/coordinator-mode.html">コーディネータモード</a></td><td>コーディネータモード（src/coordinator/coordinatorMode.ts）はマルチエージェント並列処理を管理する Claude Code の高度な機能である。「並列性はスーパーパワー...</td><td>2026-03-31</td><td>7</td></tr>
+        <tr><td><a href="articles/bridge-system.html">ブリッジシステム</a></td><td>ブリッジシステム（src/bridge/、33ファイル）は Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間の双方向通信を実現する。JWT 認証によるメッセ...</td><td>2026-03-31</td><td>6</td></tr>
+        <tr><td><a href="articles/context-compaction.html">コンテキスト圧縮</a></td><td>Claude Code のコンテキスト圧縮システム（src/services/compact/、11ファイル）はトークン制限への対応機構である。コアコンパクション（60 KB）・自動コンパクション・マ...</td><td>2026-03-31</td><td>8</td></tr>
+        <tr><td><a href="articles/claude-code-architecture.html">リポジトリ構造</a></td><td>JiloTage/claude-code リポジトリは Anthropic の Claude Code CLI のソースコードアーカイブである。npm 配布パッケージの .map ファイルから抽出され...</td><td>2026-03-31</td><td>6</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

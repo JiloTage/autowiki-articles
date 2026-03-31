@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントアーキテクチャ - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    エージェントアーキテクチャ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">エージェントアーキテクチャ</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code のエージェントシステムは AgentTool を中心に構成されており、サブエージェントの生成・実行・管理を行う。ビルトイン・カスタム・プラグインの3カテゴリのエージェントをサポートし、MCP サーバー依存フィルタリング・パーミッションスコーピング・コンテキスト分離などの高度な機能を持つ。</div>
+
+      <h2 id="agent-tool-overview">AgentTool 概要</h2>
+      <p>エージェントシステムの中核は <code>src/tools/AgentTool/</code> ディレクトリに実装されており、以下のファイルで構成される。</p>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>AgentTool.tsx</td><td>233.7 KB</td><td>メインエージェントツール実装</td></tr>
+          <tr><td>UI.tsx</td><td>125.4 KB</td><td>エージェント UI レンダリング</td></tr>
+          <tr><td>runAgent.ts</td><td>35.8 KB</td><td>エージェント実行ロジック</td></tr>
+          <tr><td>loadAgentsDir.ts</td><td>26.2 KB</td><td>エージェントの検出・ロード</td></tr>
+          <tr><td>agentToolUtils.ts</td><td>22.7 KB</td><td>共有ユーティリティ</td></tr>
+          <tr><td>prompt.ts</td><td>16.7 KB</td><td>エージェントシステムプロンプト生成</td></tr>
+          <tr><td>resumeAgent.ts</td><td>9.7 KB</td><td>エージェント再開ロジック</td></tr>
+          <tr><td>forkSubagent.ts</td><td>8.7 KB</td><td>サブエージェントフォーク</td></tr>
+          <tr><td>agentMemory.ts</td><td>5.9 KB</td><td>エージェントメモリ管理</td></tr>
+          <tr><td>agentMemorySnapshot.ts</td><td>5.6 KB</td><td>メモリスナップショット</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="agent-execution-flow">エージェント実行フロー</h2>
+      <p><code>runAgent.ts</code> が定義するエージェントの実行フローは以下の通りである。</p>
+      <ol>
+        <li><strong>初期化</strong>: ユニークなエージェント ID を生成し、テレメトリを登録する</li>
+        <li><strong>状態準備</strong>: ファイル状態キャッシュを準備し、パーミッションコンテキストを解決する</li>
+        <li><strong>設定決定</strong>: パーミッションモード・ツールセット・MCP 接続を決定する</li>
+        <li><strong>フックとスキル</strong>: フロントマターフックを登録し、スキルを初期メッセージとしてプリロードする</li>
+        <li><strong>ストリーミング処理</strong>: クエリループからメッセージをストリームし、トランスクリプトをインクリメンタルに記録する</li>
+        <li><strong>クリーンアップ</strong>: MCP 接続を解放し、フックをクリアし、バックグラウンドタスクを終了し、エージェント状態を GC する</li>
+      </ol>
+
+      <h2 id="agent-categories">エージェントカテゴリ</h2>
+      <p>Claude Code は3つのエージェントカテゴリをサポートする。</p>
+      <h3>ビルトインエージェント</h3>
+      <p>ハードコードされたエージェントで、動的なプロンプト生成コールバックを持つ。一般目的・プランニング・検証・探索の各用途に対応するエージェントが含まれる。</p>
+      <h3>カスタムエージェント</h3>
+      <p>ユーザー・プロジェクト・ポリシーが定義したエージェントで、プロンプトはクロージャに格納される。プロジェクト設定ファイルやユーザー設定から動的にロードされる。</p>
+      <h3>プラグインエージェント</h3>
+      <p>外部プラグインシステムから提供されるエージェント。プラグインシステムを通じてロードされ、通常のエージェントと同様に動作する。</p>
+
+      <h2 id="loading-hierarchy">ロード優先順位</h2>
+      <p><code>loadAgentsDir.ts</code> は以下の優先順位でエージェントをロードする（後のものが前のものを上書き）。</p>
+      <ol>
+        <li>ビルトイン</li>
+        <li>プラグイン</li>
+        <li>ユーザー</li>
+        <li>プロジェクト</li>
+        <li>フラグ</li>
+        <li>ポリシー設定</li>
+      </ol>
+
+      <h2 id="key-design-patterns">主要設計パターン</h2>
+      <h3>コンテキスト分離</h3>
+      <p>非同期エージェントはリンクが切れた abort コントローラーを取得し、同期エージェントは親コンテキストを共有する。これによりエージェントが独立して実行できる一方、必要に応じてキャンセルが可能になる。</p>
+      <h3>パーミッションスコーピング</h3>
+      <p>ツールセットはエージェントごとに制限されながら、SDK レベルのパーミッションは保持される。これにより細粒度のアクセス制御が実現される。</p>
+      <h3>重複排除</h3>
+      <p>ツールセットは名前でマージ・重複排除される。ビルトインツールが MCP ツールより優先される。</p>
+      <h3>管理者信頼ゲート</h3>
+      <p>フロントマター機能はロード前にソースの信頼性をチェックする。ユーザー定義設定はこのゲートを通過する必要がある。</p>
+      <h3>MCP 依存フィルタリング</h3>
+      <p>エージェントは必要な MCP サーバーが利用可能な場合のみロードされる。これにより設定ミスによるエラーを防止する。</p>
+
+      <h2 id="fork-subagent">サブエージェントフォーク</h2>
+      <p><code>forkSubagent.ts</code> は親エージェントの状態からサブエージェントを生成する機能を提供する。フォーク設計の原則は「Don't peek（フォーク出力を覗き見しない）」と「Never fabricate or predict fork results（フォーク結果を捏造・予測しない）」である。エージェントの出力は実際の実行結果のみを信頼する。</p>
+
+      <h2 id="agent-memory">エージェントメモリ</h2>
+      <p><code>agentMemory.ts</code> と <code>agentMemorySnapshot.ts</code> がエージェントの実行中の状態を管理する。メモリはスナップショットとして保存され、エージェントの再開（<code>resumeAgent.ts</code>）時に復元される。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#agent-tool-overview">AgentTool 概要</a></li>
+          <li><a href="#agent-execution-flow">エージェント実行フロー</a></li>
+          <li><a href="#agent-categories">エージェントカテゴリ</a></li>
+          <li><a href="#loading-hierarchy">ロード優先順位</a></li>
+          <li><a href="#key-design-patterns">主要設計パターン</a></li>
+          <li><a href="#fork-subagent">サブエージェントフォーク</a></li>
+          <li><a href="#agent-memory">エージェントメモリ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="coordinator-mode.html">コーディネータモード</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

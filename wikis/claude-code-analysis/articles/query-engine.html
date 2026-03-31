@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueryEngine - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    QueryEngine
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">QueryEngine</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">QueryEngine（src/QueryEngine.ts、46.6 KB）は Claude Code の会話ライフサイクルを管理するコアコンポーネントである。可変メッセージ状態の維持・パーミッション拒否のトラッキング・API 使用量の管理・セッションのトランスクリプトストレージへの永続化を担当する。ask() ラッパーはステートレスな一発クエリを提供する。</div>
+
+      <h2 id="overview">QueryEngine 概要</h2>
+      <p>QueryEngine は Claude Code における会話管理の中枢である。複数ターンにわたる対話において状態を保持し、LLM（大規模言語モデル）との通信を管理する。実装は <code>src/QueryEngine.ts</code>（46.6 KB）に格納されている。</p>
+
+      <h2 id="responsibilities">主な責務</h2>
+      <ul>
+        <li><strong>可変メッセージ状態の維持</strong>: 複数ターンにわたる会話履歴を管理する</li>
+        <li><strong>パーミッション拒否のトラッキング</strong>: ユーザーがツール実行を拒否した記録を保持する</li>
+        <li><strong>API 使用量の管理</strong>: トークン消費量・コストを追跡する</li>
+        <li><strong>Abort コントローラーの管理</strong>: キャンセル処理のためのコントローラーを管理する</li>
+        <li><strong>セッション永続化</strong>: トランスクリプトをストレージに保存する</li>
+      </ul>
+
+      <h2 id="ask-wrapper">ask() ラッパー</h2>
+      <p>QueryEngine は <code>ask()</code> メソッドを提供する。これはステートレスな一発クエリのための便利なラッパーであり、会話状態を持たない単純な質問・応答のユースケースに対応する。</p>
+
+      <h2 id="relationship-to-query-loop">クエリループとの関係</h2>
+      <p>QueryEngine は<a href="query-loop.html">クエリループ</a>（<code>src/query.ts</code>）を内部的に使用する。クエリループが実際のマルチターン LLM 処理を担当する非同期ジェネレータであるのに対し、QueryEngine はそのライフサイクル全体を管理するラッパーレイヤーである。</p>
+      <ul>
+        <li>QueryEngine → セッション・状態・パーミッションの管理</li>
+        <li>クエリループ → 実際の LLM 通信・ツール実行の制御</li>
+      </ul>
+
+      <h2 id="session-persistence">セッション永続化</h2>
+      <p>QueryEngine はセッションをトランスクリプトストレージに永続化する。これにより Claude Code のセッションが中断された場合でも状態を復元できる。セッション再開時は保存されたトランスクリプトから状態を再構築する。</p>
+
+      <h2 id="abort-management">Abort コントローラー管理</h2>
+      <p>QueryEngine は abort コントローラーを管理し、ユーザーやシステムからのキャンセルリクエストを処理する。エージェントモードでは、非同期サブエージェントが独立した abort コントローラーを持つことで、親エージェントのキャンセルがサブエージェントに伝播しないよう制御できる。</p>
+
+      <h2 id="permission-tracking">パーミッション拒否トラッキング</h2>
+      <p>ユーザーがツール実行を拒否した場合、QueryEngine はその記録を保持する。これにより Claude は同じツール呼び出しを繰り返し試みることなく、代替アプローチを模索できる。拒否の記録はセッション内で維持され、会話の文脈として LLM に提供される。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">QueryEngine 概要</a></li>
+          <li><a href="#responsibilities">主な責務</a></li>
+          <li><a href="#ask-wrapper">ask() ラッパー</a></li>
+          <li><a href="#relationship-to-query-loop">クエリループとの関係</a></li>
+          <li><a href="#session-persistence">セッション永続化</a></li>
+          <li><a href="#abort-management">Abort コントローラー管理</a></li>
+          <li><a href="#permission-tracking">パーミッション拒否トラッキング</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+          <li><a href="session-memory.html">セッションメモリ</a></li>
+          <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="session-memory.html">セッションメモリ</a></li>
+        <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

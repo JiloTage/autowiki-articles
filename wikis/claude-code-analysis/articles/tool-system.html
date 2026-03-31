@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ツールシステム - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    ツールシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ツールシステム</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code のツールシステムは Tool インターフェースを基盤とし、29の常時利用可能なコアツールと条件付きツールで構成される。各ツールは独立したディレクトリ構造を持ち、実装・UI・プロンプト・セキュリティ検証が分離されている。ツールは並行実行安全性・読み取り専用フラグ・パーミッションチェックを実装し、AI が安全にシステムを操作できる設計になっている。</div>
+
+      <h2 id="tool-interface">Tool インターフェース</h2>
+      <p>すべてのツールは <code>src/Tool.ts</code>（29.5 KB）で定義された <code>Tool&lt;Input, Output, P&gt;</code> インターフェースを実装する。このインターフェースは以下のメソッドを要求する。</p>
+      <ul>
+        <li><code>call()</code> — コンテキストと進捗コールバックを伴って実行する</li>
+        <li><code>description()</code> — コンテキストに応じた説明文を生成する</li>
+        <li><code>checkPermissions()</code> — アクセス制御を強制する</li>
+        <li><code>isConcurrencySafe()</code> — 並行実行の安全性を宣言する</li>
+        <li><code>isReadOnly()</code> — 破壊的操作かどうかをフラグで示す</li>
+      </ul>
+
+      <h2 id="tool-assembly">ツールアセンブリ</h2>
+      <p><code>src/tools.ts</code>（17.3 KB）が <code>getAllBaseTools()</code> と <code>assembleToolPool()</code> を通じてツールを組み立てる。アセンブリプロセスでは名前での重複排除（ビルトインツールが MCP ツールより優先）とプロンプトキャッシュの安定性維持が行われる。</p>
+
+      <h2 id="core-tools">コアツール（常時利用可能）</h2>
+      <table>
+        <thead><tr><th>カテゴリ</th><th>ツール</th></tr></thead>
+        <tbody>
+          <tr><td>ファイル操作</td><td>FileReadTool, FileEditTool, FileWriteTool</td></tr>
+          <tr><td>実行</td><td>BashTool, SkillTool, AgentTool</td></tr>
+          <tr><td>検索・発見</td><td>GlobTool, GrepTool, WebSearchTool, WebFetchTool, ToolSearchTool</td></tr>
+          <tr><td>タスク管理</td><td>TaskStopTool, TaskOutputTool, TodoWriteTool</td></tr>
+          <tr><td>ユーザーインタラクション</td><td>AskUserQuestionTool, BriefTool</td></tr>
+          <tr><td>プランニング</td><td>EnterPlanModeTool, ExitPlanModeV2Tool</td></tr>
+          <tr><td>コード編集</td><td>NotebookEditTool</td></tr>
+          <tr><td>インフラ</td><td>LSPTool, ConfigTool, TungstenTool</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="conditional-tools">条件付きツール</h2>
+      <p>フィーチャーフラグや環境条件によって有効化されるツールが存在する。</p>
+      <table>
+        <thead><tr><th>ツール</th><th>有効化条件</th></tr></thead>
+        <tbody>
+          <tr><td>REPLTool</td><td>USER_TYPE='ant'</td></tr>
+          <tr><td>SuggestBackgroundPRTool</td><td>USER_TYPE='ant'</td></tr>
+          <tr><td>SleepTool</td><td>PROACTIVE または KAIROS フィーチャー</td></tr>
+          <tr><td>CronCreate/Delete/List</td><td>AGENT_TRIGGERS</td></tr>
+          <tr><td>RemoteTriggerTool</td><td>AGENT_TRIGGERS_REMOTE</td></tr>
+          <tr><td>WebBrowserTool</td><td>WEB_BROWSER_TOOL</td></tr>
+          <tr><td>WorkflowTool</td><td>WORKFLOW_SCRIPTS</td></tr>
+          <tr><td>PowerShellTool</td><td>シェル検出</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="tool-directory-structure">ツールディレクトリ構造</h2>
+      <p>各ツールは独自のディレクトリに配置される（例: <code>src/tools/BashTool/</code>）。標準的な構成は以下の通り。</p>
+      <ul>
+        <li><code>{ToolName}.ts</code> または <code>.tsx</code> — コア実装</li>
+        <li><code>UI.tsx</code> — ターミナル UI レンダリング</li>
+        <li><code>prompt.ts</code> — ツールの説明・指示</li>
+        <li><code>utils.ts</code> — ヘルパー関数</li>
+        <li>セキュリティ・バリデーションファイル（例: BashTool の <code>bashSecurity.ts</code>、<code>pathValidation.ts</code>、<code>sedValidation.ts</code>）</li>
+      </ul>
+      <p>ツールディレクトリは計47個存在し、各ツールが独立した実装単位を形成している。</p>
+
+      <h2 id="bash-tool">BashTool の設計</h2>
+      <p>BashTool はセキュリティに特に注意が払われており、以下のファイルで構成される。</p>
+      <ul>
+        <li><code>BashTool.ts</code> — コアシェル実行</li>
+        <li><code>bashSecurity.ts</code> — コマンドのセキュリティ検証</li>
+        <li><code>pathValidation.ts</code> — パスのバリデーション</li>
+        <li><code>sedValidation.ts</code> — sed コマンドの検証</li>
+      </ul>
+      <p>BashTool は <code>find</code>、<code>grep</code>、<code>cat</code>、<code>head</code>、<code>tail</code>、<code>sed</code>、<code>awk</code>、<code>echo</code> など専用ツールで代替可能なコマンドの使用を抑制し、より安全な専用ツールへの誘導を行う。サンドボックスモードでは一時ファイルに <code>$TMPDIR</code> を強制使用する。</p>
+
+      <h2 id="file-tools">ファイルツールの設計</h2>
+      <p>FileReadTool（39.1 KB）は通常のテキストファイルに加え、画像・PDF・Jupyter Notebook をサポートする。FileEditTool は編集前に必ず FileReadTool での読み取りを要求し（強制）、<code>old_string</code> がファイル内で一意であることを検証する。</p>
+
+      <h2 id="web-tools">Web ツールの設計</h2>
+      <p>WebFetchTool は2段階のコンテンツ取得ポリシーを持つ。事前承認済みドメインはフルコンテンツを取得できるが、その他のドメインは125文字以内の引用制限が適用される。また著作権コンテンツの逐語複製を禁止する。コンテンツは HTML からマークダウンに変換されてから処理される。</p>
+
+      <h2 id="tool-execution">ツール実行の並行性</h2>
+      <p><code>isConcurrencySafe()</code> メソッドが <code>true</code> を返すツールは並行実行可能である。Claude Code はツール呼び出しを可能な限り並行実行してパフォーマンスを最大化するが、依存関係のあるツール呼び出しは順次実行する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#tool-interface">Tool インターフェース</a></li>
+          <li><a href="#tool-assembly">ツールアセンブリ</a></li>
+          <li><a href="#core-tools">コアツール</a></li>
+          <li><a href="#conditional-tools">条件付きツール</a></li>
+          <li><a href="#tool-directory-structure">ツールディレクトリ構造</a></li>
+          <li><a href="#bash-tool">BashTool の設計</a></li>
+          <li><a href="#file-tools">ファイルツールの設計</a></li>
+          <li><a href="#web-tools">Web ツールの設計</a></li>
+          <li><a href="#tool-execution">ツール実行の並行性</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

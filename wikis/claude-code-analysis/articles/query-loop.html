@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クエリループ - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    クエリループ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">クエリループ</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">クエリループ（src/query.ts、68.7 KB）はマルチターンの LLM 処理を実装する非同期ジェネレータである。セットアップ・コンテキスト準備・モデル呼び出し・エラーリカバリー・ツール実行・継続の6フェーズで構成され、プロンプトが長すぎる場合や最大出力トークン数に達した場合のリカバリーメカニズムを備える。</div>
+
+      <h2 id="overview">クエリループ概要</h2>
+      <p>クエリループは <code>src/query.ts</code>（68.7 KB）に実装された非同期ジェネレータで、Claude Code の LLM 通信の中核を担う。QueryEngine から呼び出され、ユーザーとの複数ターンの対話を処理する。</p>
+
+      <h2 id="phases">処理フェーズ</h2>
+      <p>クエリループは以下の6フェーズで構成される。</p>
+
+      <h3>フェーズ1: セットアップ</h3>
+      <p>状態を初期化し、メモリ・スキルをプリフェッチし、モデルを設定する。GrowthBook フィーチャーフラグをチェックして条件付き機能を有効化する。</p>
+
+      <h3>フェーズ2: コンテキスト準備</h3>
+      <p>コンテキストに対して以下の変換を適用する。</p>
+      <ul>
+        <li><strong>snip/microcompact</strong>: 古いメッセージを削減・圧縮する</li>
+        <li><strong>collapse</strong>: 類似メッセージをまとめる</li>
+        <li><strong>autocompact</strong>: コンテキストが限界に近づいた場合に自動圧縮する</li>
+      </ul>
+
+      <h3>フェーズ3: モデル呼び出し</h3>
+      <p>Anthropic API を呼び出してレスポンスをストリーミングする。フォールバックモデルのサポートにより、主要モデルが利用不可の場合に代替モデルで処理を継続できる。</p>
+
+      <h3>フェーズ4: エラーリカバリー</h3>
+      <p>回復可能なエラー（プロンプトが長すぎる・最大出力トークン数超過）を保留し、以下の戦略でリカバリーを試みる。</p>
+      <ul>
+        <li>コンテキスト圧縮のドレイン</li>
+        <li>リアクティブ圧縮</li>
+        <li>トークンエスカレーション</li>
+      </ul>
+
+      <h3>フェーズ5: ツール実行</h3>
+      <p>並行実行（ストリーミング）または順次実行でツールを呼び出す。ツールの <code>isConcurrencySafe()</code> によって実行方式が決定される。実行後に要約を生成する。</p>
+
+      <h3>フェーズ6: 継続</h3>
+      <p>次のターンをキューに入れるか、ターミナル状態を返して処理を終了する。</p>
+
+      <h2 id="design-patterns">主要設計パターン</h2>
+      <h3>継続点での状態再構築</h3>
+      <p>状態は継続点でリーズントラッキングとともに全体的に再構築される。これにより複雑な中断・再開シナリオを処理できる。</p>
+      <h3>フィーチャーゲーテッドモジュール</h3>
+      <p>条件付きインポートによるツリーシェイキング対応で、不要なコードを実行時に除外する。</p>
+      <h3>using ステートメントによるリソース管理</h3>
+      <p>すべてのジェネレータ終了パスで <code>using</code> ステートメントを使用してリソースのクリーンアップを保証する。</p>
+
+      <h2 id="error-handling">エラーハンドリング</h2>
+      <p>クエリループは以下のエラータイプを特別に処理する。</p>
+      <ul>
+        <li><strong>prompt_too_long</strong>: コンテキスト圧縮を実行し再試行</li>
+        <li><strong>max_output_tokens</strong>: トークンエスカレーションまたはモデル切り替え</li>
+        <li><strong>APIエラー</strong>: <code>src/services/api/withRetry.ts</code>（28.2 KB）のバックオフリトライ</li>
+        <li><strong>tool_use エラー</strong>: ツールエラーをメッセージとして LLM に返し継続</li>
+      </ul>
+
+      <h2 id="streaming">ストリーミング処理</h2>
+      <p>クエリループはレスポンスをストリーミングで処理する。テキストチャンクは受信と同時に UI に表示され、ツール使用宣言も即座に処理が開始される。これによりユーザーは LLM の思考プロセスをリアルタイムで確認できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">クエリループ概要</a></li>
+          <li><a href="#phases">処理フェーズ</a></li>
+          <li><a href="#design-patterns">主要設計パターン</a></li>
+          <li><a href="#error-handling">エラーハンドリング</a></li>
+          <li><a href="#streaming">ストリーミング処理</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+          <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

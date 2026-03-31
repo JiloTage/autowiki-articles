@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP インテグレーション - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    MCP インテグレーション
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">MCP インテグレーション</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code は Model Context Protocol（MCP）を完全実装しており、src/services/mcp/ ディレクトリ配下に22ファイルで構成される。MCP クライアント（119 KB）・設定管理（51 KB）・OAuth 認証（88 KB）・接続管理・チャネルセキュリティ・公式レジストリ・VS Code SDK 統合が含まれる。外部ツールサーバーとの接続を標準化し、エコシステムの拡張性を実現する。</div>
+
+      <h2 id="mcp-overview">MCP 概要</h2>
+      <p>Model Context Protocol（MCP）は AI システムが外部ツールやサービスと標準化された方法で通信するためのプロトコルである。Claude Code は <code>src/services/mcp/</code> ディレクトリ（22ファイル）に完全な MCP 実装を持ち、外部ツールサーバーと接続してツールのエコシステムを拡張できる。</p>
+
+      <h2 id="mcp-files">MCP サービスのファイル構成</h2>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>client.ts</td><td>119 KB</td><td>MCP クライアントの完全実装</td></tr>
+          <tr><td>auth.ts</td><td>88 KB</td><td>認証・OAuth フロー</td></tr>
+          <tr><td>config.ts</td><td>51 KB</td><td>サーバー設定管理</td></tr>
+          <tr><td>useManageMCPConnections.ts</td><td>44 KB</td><td>接続管理フック</td></tr>
+          <tr><td>channelAllowlist.ts</td><td>—</td><td>チャネル許可リスト</td></tr>
+          <tr><td>channelPermissions.ts</td><td>—</td><td>チャネルパーミッション管理</td></tr>
+          <tr><td>officialRegistry.ts</td><td>—</td><td>公式 MCP サーバーレジストリ</td></tr>
+          <tr><td>vscodeSdkMcp.ts</td><td>—</td><td>VS Code SDK 統合</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="mcp-client">MCP クライアント</h2>
+      <p><code>client.ts</code>（119 KB）は MCP プロトコルの完全な実装を提供する。外部ツールサーバーへの接続・ツール一覧の取得・ツール呼び出しの実行・レスポンスの処理を担当する。MCP ツールは通常のビルトインツールと同じインターフェースで扱われ、ツールアセンブリ時にシームレスに統合される。</p>
+
+      <h2 id="authentication">認証・OAuth</h2>
+      <p><code>auth.ts</code>（88 KB）は MCP サーバーへの認証フローを実装する。OAuth 2.0 に対応し、トークンの取得・更新・管理を行う。認証済みの MCP サーバーへのアクセスを安全に制御する。</p>
+
+      <h2 id="server-config">サーバー設定管理</h2>
+      <p><code>config.ts</code>（51 KB）は MCP サーバーの設定を管理する。サーバーの追加・削除・更新・一覧表示の機能を提供し、設定はユーザー設定ファイルに永続化される。</p>
+
+      <h2 id="channel-security">チャネルセキュリティ</h2>
+      <p><code>channelAllowlist.ts</code> と <code>channelPermissions.ts</code> がチャネルレベルのセキュリティを実装する。特定のチャネルへのアクセスを許可リストで制御し、細粒度のパーミッション管理を実現する。</p>
+
+      <h2 id="official-registry">公式レジストリ</h2>
+      <p><code>officialRegistry.ts</code> は Anthropic が認定した公式 MCP サーバーのレジストリを管理する。ユーザーはレジストリから MCP サーバーを検索・インストールできる。</p>
+
+      <h2 id="tool-integration">ツール統合</h2>
+      <p>MCP ツールは <code>src/tools.ts</code> の <code>assembleToolPool()</code> でビルトインツールと統合される。ビルトインツールが MCP ツールより優先されるため、名前衝突時はビルトインが勝つ。MCP ツールはエージェントごとのツールセットに含まれ、<a href="agent-architecture.html">エージェントの MCP 依存フィルタリング</a>により必要なサーバーが利用可能な場合のみロードされる。</p>
+
+      <h2 id="connection-lifecycle">接続ライフサイクル</h2>
+      <p>MCP 接続は <code>useManageMCPConnections.ts</code> で管理される。接続は React フックとして実装されており、コンポーネントのライフサイクルと同期する。エージェント終了時には <code>runAgent.ts</code> のクリーンアップフェーズで接続が解放される。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#mcp-overview">MCP 概要</a></li>
+          <li><a href="#mcp-files">MCP サービスのファイル構成</a></li>
+          <li><a href="#mcp-client">MCP クライアント</a></li>
+          <li><a href="#authentication">認証・OAuth</a></li>
+          <li><a href="#server-config">サーバー設定管理</a></li>
+          <li><a href="#channel-security">チャネルセキュリティ</a></li>
+          <li><a href="#official-registry">公式レジストリ</a></li>
+          <li><a href="#tool-integration">ツール統合</a></li>
+          <li><a href="#connection-lifecycle">接続ライフサイクル</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="tool-system.html">ツールシステム</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="bridge-system.html">ブリッジシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="bridge-system.html">ブリッジシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="tool-system.html">ツールシステム</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

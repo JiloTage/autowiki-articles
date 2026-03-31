@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>セッションメモリ - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    セッションメモリ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">セッションメモリ</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code のセッションメモリシステム（src/services/SessionMemory/）は10セクション構造のテンプレートを用いた永続的メモリ管理を提供する。セクションごとに約2000トークンの制限があり、並行 Edit ツール呼び出しで更新される。「Current State」セクションの継続的更新により会話の継続性を維持する。</div>
+
+      <h2 id="overview">セッションメモリ概要</h2>
+      <p>セッションメモリは <code>src/services/SessionMemory/</code> に実装されており、Claude Code が長時間のセッションや複数のセッションをまたいでコンテキストを維持するための仕組みである。構造化された10セクションのテンプレートを使用して、プロジェクトに関する重要な情報を整理・保持する。</p>
+
+      <h2 id="ten-sections">10セクション構造</h2>
+      <p>セッションメモリは以下の10セクションで構成される。</p>
+      <ol>
+        <li><strong>Session Title</strong>: セッションの識別名</li>
+        <li><strong>Current State</strong>: 現在の作業状態（継続性のため常に最新に更新）</li>
+        <li><strong>Task Specification</strong>: タスクの仕様・要件</li>
+        <li><strong>Files and Functions</strong>: 関連ファイル・関数の一覧</li>
+        <li><strong>Workflow</strong>: 作業ワークフロー・手順</li>
+        <li><strong>Errors &amp; Corrections</strong>: エラーと修正内容の記録</li>
+        <li><strong>Codebase Documentation</strong>: コードベースのドキュメント</li>
+        <li><strong>Learnings</strong>: セッション中に得た知見</li>
+        <li><strong>Key Results</strong>: 重要な成果・結果</li>
+        <li><strong>Worklog</strong>: 作業ログ</li>
+      </ol>
+
+      <h2 id="update-strategy">更新戦略</h2>
+      <p>セッションメモリの更新は以下の原則に従う。</p>
+      <ul>
+        <li><strong>並行 Edit 呼び出し</strong>: 複数セクションを並行して更新する</li>
+        <li><strong>厳格なヘッダー保持</strong>: セクションヘッダーは変更しない</li>
+        <li><strong>トークン制限遵守</strong>: セクションあたり約2000トークンに収める</li>
+        <li><strong>選択的圧縮</strong>: 重要度の低い詳細を削除して新情報のための余地を作る</li>
+        <li><strong>Current State の優先更新</strong>: 継続性確保のため必ず更新する</li>
+      </ul>
+
+      <h2 id="memory-vs-compaction">セッションメモリとコンテキスト圧縮の違い</h2>
+      <p>セッションメモリと<a href="context-compaction.html">コンテキスト圧縮</a>は異なる目的を持つ。</p>
+      <ul>
+        <li><strong>セッションメモリ</strong>: 構造化された長期情報の保持；セッションをまたいで永続する</li>
+        <li><strong>コンテキスト圧縮</strong>: トークン制限への対応；会話履歴を要約して圧縮する</li>
+      </ul>
+      <p>セッションメモリはコンテキスト圧縮が行われても保持される構造化データとして機能する。</p>
+
+      <h2 id="integration">クエリループとの統合</h2>
+      <p>セッションメモリは<a href="query-loop.html">クエリループ</a>のセットアップフェーズでプリフェッチされ、LLM への初期コンテキストとして提供される。これにより Claude は新しいセッションを開始する際にも前回の作業状態を即座に把握できる。</p>
+
+      <h2 id="memory-snapshots">エージェントメモリスナップショット</h2>
+      <p>エージェントシステムも独自のメモリ管理を持つ（<code>src/tools/AgentTool/agentMemory.ts</code>・<code>agentMemorySnapshot.ts</code>）。これらはエージェントの実行状態をスナップショットとして保存し、エージェントの再開時に復元する機能を提供する。セッションメモリとは独立して動作する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">セッションメモリ概要</a></li>
+          <li><a href="#ten-sections">10セクション構造</a></li>
+          <li><a href="#update-strategy">更新戦略</a></li>
+          <li><a href="#memory-vs-compaction">セッションメモリとコンテキスト圧縮の違い</a></li>
+          <li><a href="#integration">クエリループとの統合</a></li>
+          <li><a href="#memory-snapshots">エージェントメモリスナップショット</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+          <li><a href="query-loop.html">クエリループ</a></li>
+          <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+          <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="query-loop.html">クエリループ</a></li>
+        <li><a href="context-compaction.html">コンテキスト圧縮</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+        <li><a href="prompt-engineering.html">プロンプト設計</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブリッジシステム - Claude Code コード解析</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code コード解析</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code コード解析</a> &gt;
+    ブリッジシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ブリッジシステム</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">ブリッジシステム（src/bridge/、33ファイル）は Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間の双方向通信を実現する。JWT 認証によるメッセージセキュリティ・セッションライフサイクル管理・デバイス信頼管理などを実装し、IDE 上での Claude Code のシームレスな統合を可能にする。</div>
+
+      <h2 id="overview">ブリッジシステム概要</h2>
+      <p>ブリッジシステムは <code>src/bridge/</code> ディレクトリ（33ファイル）に実装されており、Claude Code CLI と IDE 拡張機能（VS Code、JetBrains）間のリアルタイム双方向通信を担当する。ユーザーが IDE 内から直接 Claude Code を操作できるようにする重要なインフラである。</p>
+
+      <h2 id="key-files">主要ファイル</h2>
+      <table>
+        <thead><tr><th>ファイル</th><th>サイズ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>bridgeMain.ts</td><td>115.6 KB</td><td>コアブリッジプロトコル</td></tr>
+          <tr><td>replBridge.ts</td><td>100.5 KB</td><td>REPL モードブリッジ</td></tr>
+          <tr><td>remoteBridgeCore.ts</td><td>39.4 KB</td><td>リモートブリッジプロトコルコア</td></tr>
+          <tr><td>jwtUtils.ts</td><td>—</td><td>JWT 認証メッセージセキュリティ</td></tr>
+          <tr><td>createSession.ts</td><td>—</td><td>セッション作成</td></tr>
+          <tr><td>sessionRunner.ts</td><td>—</td><td>セッション実行</td></tr>
+          <tr><td>trustedDevice.ts</td><td>—</td><td>デバイス信頼管理</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="bridge-protocol">ブリッジプロトコル</h2>
+      <p><code>bridgeMain.ts</code>（115.6 KB）がコアプロトコルを実装する。IDE 拡張機能からのリクエストを受信し、Claude Code CLI に転送する。レスポンスはリアルタイムでストリーミングされて IDE に返却される。</p>
+
+      <h2 id="repl-bridge">REPL ブリッジ</h2>
+      <p><code>replBridge.ts</code>（100.5 KB）は REPL（Read-Eval-Print Loop）モードのブリッジを実装する。インタラクティブな対話モードをサポートし、ユーザーが IDE のターミナルや専用パネルから Claude と直接対話できる。</p>
+
+      <h2 id="jwt-security">JWT セキュリティ</h2>
+      <p><code>jwtUtils.ts</code> は JWT（JSON Web Token）を用いたメッセージの認証・検証を実装する。IDE 拡張機能と CLI 間の通信が改ざんされていないことを保証し、不正なクライアントからのリクエストを拒否する。</p>
+
+      <h2 id="session-lifecycle">セッションライフサイクル</h2>
+      <p><code>createSession.ts</code> と <code>sessionRunner.ts</code> がセッションのライフサイクルを管理する。</p>
+      <ul>
+        <li><strong>作成</strong>: IDE からのリクエストでセッションを開始し、認証情報を検証する</li>
+        <li><strong>実行</strong>: Claude との対話を管理し、ツール実行結果を IDE にストリーミングする</li>
+        <li><strong>終了</strong>: セッションのクリーンアップと状態の保存を行う</li>
+      </ul>
+
+      <h2 id="trusted-device">デバイス信頼管理</h2>
+      <p><code>trustedDevice.ts</code> はデバイスの信頼レベルを管理する。信頼済みデバイスからの接続は追加認証なしで処理され、未知のデバイスは認証フローを経る必要がある。</p>
+
+      <h2 id="ide-integrations">IDE 統合</h2>
+      <p>ブリッジシステムは以下の IDE との統合を提供する。</p>
+      <ul>
+        <li><strong>VS Code</strong>: <a href="mcp-integration.html">MCP</a> の <code>vscodeSdkMcp.ts</code> との連携を含む</li>
+        <li><strong>JetBrains</strong>: IntelliJ IDEA・PyCharm・WebStorm などの JetBrains 製 IDE をサポート</li>
+      </ul>
+
+      <h2 id="remote-capabilities">リモート機能</h2>
+      <p><code>remoteBridgeCore.ts</code>（39.4 KB）はリモートマシンでの Claude Code 実行をサポートするプロトコルを実装する。SSH 接続先やクラウドサーバーで Claude Code を実行しつつ、ローカルの IDE からシームレスに操作できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">ブリッジシステム概要</a></li>
+          <li><a href="#key-files">主要ファイル</a></li>
+          <li><a href="#bridge-protocol">ブリッジプロトコル</a></li>
+          <li><a href="#repl-bridge">REPL ブリッジ</a></li>
+          <li><a href="#jwt-security">JWT セキュリティ</a></li>
+          <li><a href="#session-lifecycle">セッションライフサイクル</a></li>
+          <li><a href="#trusted-device">デバイス信頼管理</a></li>
+          <li><a href="#ide-integrations">IDE 統合</a></li>
+          <li><a href="#remote-capabilities">リモート機能</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+          <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+          <li><a href="query-engine.html">QueryEngine</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+        <li><a href="query-engine.html">QueryEngine</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="claude-code-overview.html">Claude Code 概要</a></li>
+        <li><a href="mcp-integration.html">MCP インテグレーション</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
