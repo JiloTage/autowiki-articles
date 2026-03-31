@@ -1,0 +1,77 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "egas-moniz",
+      "proposed_title": "エガス・モニス",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "ロボトミー手術の発明者。ノーベル賞受賞から死後の再評価まで波乱に富んだ人物像を持つ。",
+      "interestingness_score": 0.95,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "rosemary-kennedy-to-robotomi",
+      "proposed_title": "ローズマリー・ケネディとロボトミー",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "最も有名なロボトミー被害者の一人。ケネディ家の隠された歴史として社会的影響も大きい。",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "walter-freeman-no-shougai",
+      "proposed_title": "ウォルター・フリーマンの生涯",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "経眼窩式ロボトミーを普及させた問題的人物の評価は今も二分される。科学者の倫理的責任を問う。",
+      "interestingness_score": 0.91,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "chlorpromazine-to-seishin-yakuri",
+      "proposed_title": "クロルプロマジンと精神薬理学の革命",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "ロボトミー衰退の直接的要因。抗精神病薬の誕生は精神医学の歴史的転換点である。",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "informed-consent-no-rekishi",
+      "proposed_title": "インフォームドコンセントの歴史",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "ロボトミーをはじめとする非倫理的医療への反省から生まれた現代医療倫理の根幹。",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "iryou-rinri-no-hatten",
+      "proposed_title": "現代医療倫理の発展",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "ニュルンベルク綱領からヘルシンキ宣言まで、ロボトミー時代の反省を踏まえた倫理規範の歴史。",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "patient-rights-movement",
+      "proposed_title": "患者権利運動の歴史",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "ロボトミーへの反発が一因となった1960-70年代の患者権利運動の展開を詳述。",
+      "interestingness_score": 0.86,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "nihon-no-seishin-iryo-shi",
+      "proposed_title": "日本の精神医療史",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "日本でも実施されたロボトミーを含む、近現代の精神医療政策と患者処遇の変遷。",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "seishin-iryo-to-jinken",
+      "proposed_title": "精神医療と人権",
+      "source_id": "robotomi-shujutsu-no-rekishi",
+      "rationale": "強制入院・強制治療・施設化など精神医療と人権の複雑な関係を歴史的・国際的に考察。",
+      "interestingness_score": 0.84,
+      "status": "processing"
+    }
+  ]
+}

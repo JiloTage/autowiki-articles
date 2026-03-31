@@ -21,6 +21,15 @@
       "article_count": 14,
       "color": "#2e7d32",
       "status": "active"
+    },
+    "robotomi-shujutsu-no-rekishi": {
+      "id": "robotomi-shujutsu-no-rekishi",
+      "title": "ロボトミー手術の歴史",
+      "root_topic": "ロボトミー手術の歴史",
+      "created_at": "2026-03-31T03:37:05.515513+00:00",
+      "article_count": 10,
+      "color": "#8B4513",
+      "status": "active"
     }
   }
 }

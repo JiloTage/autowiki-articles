@@ -1,0 +1,264 @@
+{
+  "nodes": [
+    {
+      "id": "robotomi-shujutsu-no-rekishi",
+      "title": "ロボトミー手術の歴史",
+      "url": "articles/robotomi-shujutsu-no-rekishi.html",
+      "summary": "ロボトミー手術（前頭葉切截術）は20世紀前半に精神疾患の治療法として登場し、短期間で世界中に普及したものの、深刻な倫理問題と医学的批判により急速に廃れた神経外科手術の一形態である。",
+      "is_root": false
+    },
+    {
+      "id": "egas-moniz",
+      "title": "エガス・モニス",
+      "url": "articles/egas-moniz.html",
+      "summary": "エガス・モニス（António Caetano de Abreu Freire Egas Moniz、1874–1955）はポルトガルの神経科医・政治家。前頭葉切截術（ロボトミー手術）の発明者として1949年ノーベル生理学・医学賞を受賞したが、その後の医学的・倫理的評価は激しく分かれ、20世紀医学史上最も議論を呼ぶ人物の一人として記憶される。",
+      "is_root": false
+    },
+    {
+      "id": "chlorpromazine-to-seishin-yakuri",
+      "title": "クロルプロマジンと精神薬理学の革命",
+      "url": "articles/chlorpromazine-to-seishin-yakuri.html",
+      "summary": "クロルプロマジン（chlorpromazine、商品名ラルガクチル／ソラジン）は1952年にフランスで発見された世界初の抗精神病薬であり、統合失調症の陽性症状に著効を示した。ロボトミーを含む外科的精神医療の衰退を直接促進し、ドーパミン仮説の端緒を開いて精神薬理学という新分野を確立した歴史的転換点である。",
+      "is_root": false
+    },
+    {
+      "id": "patient-rights-movement",
+      "title": "患者権利運動の歴史",
+      "url": "articles/patient-rights-movement.html",
+      "summary": "1960〜70年代のアメリカを中心に勃興した患者権利運動は、公民権運動・女性解放運動・障害者権利運動と連動しながら、精神医療における強制・管理・人権侵害への組織的抵抗として発展した。反精神医学運動（サズ・レイン）、AHA患者の権利章典（1973年）、脱施設化政策、主要判例、ケン・キージーの文化的影響、国際的法整備を通じて、ロボトミーが象徴する強制的精神医療への抵抗運動の全容を詳述する。",
+      "is_root": false
+    },
+    {
+      "id": "rosemary-kennedy-to-robotomi",
+      "title": "ローズマリー・ケネディとロボトミー",
+      "url": "articles/rosemary-kennedy-to-robotomi.html",
+      "summary": "ローズマリー・ケネディ（1918–2005）はジョン・F・ケネディ大統領の姉であり、1941年に父ジョセフ・ケネディの独断でウォルター・フリーマンによるロボトミー手術を受けた。術後に重篤な障害を抱えた彼女の事例は、ロボトミー史上最も広く知られた悲劇的ケースであり、障害者権利運動と医療倫理の歴史に深い痕跡を残している。",
+      "is_root": false
+    },
+    {
+      "id": "walter-freeman-no-shougai",
+      "title": "ウォルター・フリーマンの生涯",
+      "url": "articles/walter-freeman-no-shougai.html",
+      "summary": "ウォルター・フリーマン（Walter Freeman、1895–1972）はアメリカの精神科医。改造した氷千枚通しを用いた経眼窩式ロボトミーを考案・大衆化し、生涯に3,400例以上の手術を実施した。医学倫理を無視したとして後世に強く批判される。",
+      "is_root": false
+    },
+    {
+      "id": "informed-consent-no-rekishi",
+      "title": "インフォームドコンセントの歴史",
+      "url": "articles/informed-consent-no-rekishi.html",
+      "summary": "インフォームドコンセント（informed consent）とは、患者が十分な情報を得た上で自らの意思で医療行為に同意する権利および手続きである。ナチスの人体実験への反省を起点として生まれたニュルンベルク綱領（1947年）から現代に至るまで、患者の自律性を守る医療倫理規範の発展を辿る。",
+      "is_root": false
+    },
+    {
+      "id": "iryou-rinri-no-hatten",
+      "title": "現代医療倫理の発展",
+      "url": "articles/iryou-rinri-no-hatten.html",
+      "summary": "現代の生命倫理学（bioethics）は、ナチスの人体実験・タスキギー梅毒研究・ロボトミー手術のような強制的・非倫理的医療への深刻な反省の上に構築された。自律尊重・善行・無危害・正義の4原則の確立、IRB制度の誕生、新技術への適用まで、現代医療倫理の歴史的発展を詳述する。",
+      "is_root": false
+    },
+    {
+      "id": "nihon-no-seishin-iryo-shi",
+      "title": "日本の精神医療史",
+      "url": "articles/nihon-no-seishin-iryo-shi.html",
+      "summary": "日本における近代精神医療の歴史は、江戸時代の私宅監置制度に始まり、明治期の精神病者監護法（1900年）、戦後の精神衛生法（1950年）によるロボトミー導入期、宇都宮病院事件（1984年）を契機とした精神保健法改正、そして現代の地域移行政策に至る複雑な変遷をたどってきた。",
+      "is_root": false
+    },
+    {
+      "id": "seishin-iryo-to-jinken",
+      "title": "精神医療と人権",
+      "url": "articles/seishin-iryo-to-jinken.html",
+      "summary": "精神医療と人権の関係は、20世紀以降の医療倫理・国際法・社会運動の最も重要な交差点の一つである。強制入院・強制治療・施設への隔離という慣行は精神障害者の基本的権利を長期にわたって侵害してきたが、国連障害者権利条約（CRPD）の採択や当事者主体のリカバリー運動の台頭により、パラダイムシフトが進行している。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "egas-moniz"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "rosemary-kennedy-to-robotomi"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "chlorpromazine-to-seishin-yakuri"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "nihon-no-seishin-iryo-shi"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "robotomi-shujutsu-no-rekishi",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "egas-moniz",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "egas-moniz",
+      "target": "walter-freeman-no-shougai"
+    },
+    {
+      "source": "egas-moniz",
+      "target": "rosemary-kennedy-to-robotomi"
+    },
+    {
+      "source": "egas-moniz",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "egas-moniz",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "chlorpromazine-to-seishin-yakuri",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "chlorpromazine-to-seishin-yakuri",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "chlorpromazine-to-seishin-yakuri",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "chlorpromazine-to-seishin-yakuri",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "patient-rights-movement",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "patient-rights-movement",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "patient-rights-movement",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "patient-rights-movement",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "patient-rights-movement",
+      "target": "nihon-no-seishin-iryo-shi"
+    },
+    {
+      "source": "rosemary-kennedy-to-robotomi",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "rosemary-kennedy-to-robotomi",
+      "target": "walter-freeman-no-shougai"
+    },
+    {
+      "source": "rosemary-kennedy-to-robotomi",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "rosemary-kennedy-to-robotomi",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "walter-freeman-no-shougai",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "walter-freeman-no-shougai",
+      "target": "egas-moniz"
+    },
+    {
+      "source": "walter-freeman-no-shougai",
+      "target": "rosemary-kennedy-to-robotomi"
+    },
+    {
+      "source": "walter-freeman-no-shougai",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "informed-consent-no-rekishi",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "informed-consent-no-rekishi",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "informed-consent-no-rekishi",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "informed-consent-no-rekishi",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "iryou-rinri-no-hatten",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "iryou-rinri-no-hatten",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "iryou-rinri-no-hatten",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "iryou-rinri-no-hatten",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "nihon-no-seishin-iryo-shi",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "nihon-no-seishin-iryo-shi",
+      "target": "seishin-iryo-to-jinken"
+    },
+    {
+      "source": "nihon-no-seishin-iryo-shi",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "nihon-no-seishin-iryo-shi",
+      "target": "iryou-rinri-no-hatten"
+    },
+    {
+      "source": "seishin-iryo-to-jinken",
+      "target": "robotomi-shujutsu-no-rekishi"
+    },
+    {
+      "source": "seishin-iryo-to-jinken",
+      "target": "nihon-no-seishin-iryo-shi"
+    },
+    {
+      "source": "seishin-iryo-to-jinken",
+      "target": "patient-rights-movement"
+    },
+    {
+      "source": "seishin-iryo-to-jinken",
+      "target": "informed-consent-no-rekishi"
+    },
+    {
+      "source": "seishin-iryo-to-jinken",
+      "target": "iryou-rinri-no-hatten"
+    }
+  ]
+}
