@@ -44,9 +44,9 @@
     },
     {
       "id": "skills-marketplace-concept",
-      "title": "Claude Code Skillsマーケットプレイスの概念と将来展望",
+      "title": "Claude Code プラグインマーケットプレイスの現状と活用ガイド",
       "url": "articles/skills-marketplace-concept.html",
-      "summary": "Claude Code Skillsの公開・発見・共有を体系化する「マーケットプレイス」という概念を解説し、公式・コミュニティ・組織内の三層構造、Skills検索・発見メカニズム、そして今後の技術的・社会的展望を考察する。",
+      "summary": "Claude Code には公式のプラグインシステムとマーケットプレイスが存在する。/plugin コマンドによるインストール、公式（Anthropic管理）・コミュニティ・組織内の三層構造、.claude-plugin/marketplace.jsonによるカスタムマーケットプレイスの作成方法、セキュリティとガバナンスを解説する。",
       "is_root": false
     },
     {
@@ -259,6 +259,10 @@
     {
       "source": "skills-marketplace-concept",
       "target": "setup-automation"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "skills-quality-review"
     },
     {
       "source": "public-skills-registry",
