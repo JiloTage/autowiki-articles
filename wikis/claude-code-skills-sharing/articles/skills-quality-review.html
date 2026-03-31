@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skillsの品質管理とコードレビュープロセス - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Skillsの品質管理とコードレビュープロセス
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Skillsの品質管理とコードレビュープロセス</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code Skillsを社内で安全・高品質に共有するための品質基準、コードレビューチェックリスト、自動テスト、セキュリティ審査、および承認ワークフローを体系的に解説する。</div>
+
+      <p><b>Skillsの品質管理とコードレビュープロセス</b>は、<a href="skills-sharing-overview.html">Claude Code Skills共有方法 概要</a>で紹介した各配布アプローチを安全かつ信頼性高く運用するための重要な基盤である。Skillsは自然言語指示とツール権限の組み合わせであり、不適切に設計されたSkillはセキュリティリスクや予期しない動作を引き起こす可能性がある。本記事では、Skillsの品質を一定水準に保つための基準定義からレビュー手順、自動化テスト、承認ワークフローまでを網羅的に説明する。</p>
+
+      <h2 id="quality-standards">品質基準の定義</h2>
+      <p>組織がSkillsを共有リポジトリに受け入れる前に、明確な品質基準を定義しておくことが不可欠である。品質基準は「機能要件」「ドキュメント要件」「セキュリティ要件」の3軸で評価する。</p>
+
+      <h3 id="functional-requirements">機能要件</h3>
+      <ul>
+        <li>Skillの目的・対象ユーザーが明確に定義されている</li>
+        <li>想定される入力と出力の形式が明示されている</li>
+        <li>エラー発生時の動作（ロールバック、通知など）が記述されている</li>
+        <li>冪等性（同一操作を複数回実行した際の安全性）が考慮されている</li>
+        <li>他のSkillや外部ツールとの依存関係が文書化されている</li>
+      </ul>
+
+      <h3 id="documentation-requirements">ドキュメント要件</h3>
+      <ul>
+        <li>Markdownファイル先頭に YAML frontmatter（<code>name</code>, <code>description</code>, <code>version</code>, <code>author</code>）が記述されている</li>
+        <li>使用例（Examples セクション）が最低1件含まれている</li>
+        <li>使用が推奨されないケース（Caveats セクション）が記載されている</li>
+        <li>変更履歴（CHANGELOG）または commitメッセージで変更内容が追跡可能である</li>
+      </ul>
+
+      <h3 id="security-requirements">セキュリティ要件</h3>
+      <ul>
+        <li>許可するツール（<code>allowed-tools</code>）が最小権限原則に従い限定されている</li>
+        <li>ファイルシステムへの書き込みやネットワークアクセスを要するSkillは明示的に理由が記載されている</li>
+        <li>シークレット・認証情報をハードコードしていない</li>
+        <li>ユーザー入力をそのまま外部コマンドに渡すプロンプトインジェクション脆弱性がない</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <rect width="680" height="340" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">品質基準の3軸評価フレームワーク</text>
+
+          <!-- 機能要件 -->
+          <rect x="30" y="50" width="190" height="260" rx="8" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <rect x="30" y="50" width="190" height="36" rx="8" fill="#36c"/>
+          <text x="125" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="white">機能要件</text>
+          <text x="125" y="104" text-anchor="middle" font-size="11" fill="#202122">目的・対象の明確化</text>
+          <text x="125" y="124" text-anchor="middle" font-size="11" fill="#202122">入出力形式の定義</text>
+          <text x="125" y="144" text-anchor="middle" font-size="11" fill="#202122">エラー処理の記述</text>
+          <text x="125" y="164" text-anchor="middle" font-size="11" fill="#202122">冪等性の考慮</text>
+          <text x="125" y="184" text-anchor="middle" font-size="11" fill="#202122">依存関係の文書化</text>
+
+          <!-- ドキュメント要件 -->
+          <rect x="244" y="50" width="190" height="260" rx="8" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <rect x="244" y="50" width="190" height="36" rx="8" fill="#36c"/>
+          <text x="339" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="white">ドキュメント要件</text>
+          <text x="339" y="104" text-anchor="middle" font-size="11" fill="#202122">YAML frontmatter</text>
+          <text x="339" y="124" text-anchor="middle" font-size="11" fill="#202122">使用例（最低1件）</text>
+          <text x="339" y="144" text-anchor="middle" font-size="11" fill="#202122">Caveatsセクション</text>
+          <text x="339" y="164" text-anchor="middle" font-size="11" fill="#202122">変更履歴の追跡</text>
+
+          <!-- セキュリティ要件 -->
+          <rect x="458" y="50" width="190" height="260" rx="8" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <rect x="458" y="50" width="190" height="36" rx="8" fill="#36c"/>
+          <text x="553" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="white">セキュリティ要件</text>
+          <text x="553" y="104" text-anchor="middle" font-size="11" fill="#202122">最小権限原則</text>
+          <text x="553" y="124" text-anchor="middle" font-size="11" fill="#202122">書込み/NW理由明示</text>
+          <text x="553" y="144" text-anchor="middle" font-size="11" fill="#202122">シークレット禁止</text>
+          <text x="553" y="164" text-anchor="middle" font-size="11" fill="#202122">インジェクション防止</text>
+
+          <!-- 判定ライン -->
+          <line x1="30" y1="220" x2="648" y2="220" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="340" y="245" text-anchor="middle" font-size="12" fill="#555">全要件クリア → レビュー通過</text>
+          <text x="340" y="268" text-anchor="middle" font-size="12" fill="#c0392b">いずれか未達 → 差し戻し（要修正）</text>
+
+          <!-- 総合評価バッジ -->
+          <rect x="265" y="284" width="150" height="32" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="340" y="304" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">合格: マージ承認</text>
+        </svg>
+        <div class="diagram-caption">図1: Skills品質基準の3軸評価フレームワーク</div>
+      </div>
+
+      <h2 id="review-checklist">コードレビューチェックリスト</h2>
+      <p>プルリクエスト（PR）を受け付けた際にレビュアーが確認すべき項目を、チェックリスト形式で整備しておくと運用が標準化される。以下は推奨チェックリストの全項目である。</p>
+
+      <h3 id="checklist-structure">構造・形式チェック</h3>
+      <pre><code>## PR チェックリスト（レビュアー用）
+
+### 構造・形式
+- [ ] ファイル名は kebab-case で命名されているか（例: review-pr.md）
+- [ ] 拡張子が .md であるか
+- [ ] YAML frontmatter が正しい形式で記述されているか
+- [ ] name フィールドがファイル名と一致しているか
+- [ ] description が1〜2文の簡潔な説明になっているか
+
+### コンテンツ品質
+- [ ] 指示文が明確で曖昧な表現を含まないか
+- [ ] 想定外の操作（ファイル削除・強制プッシュなど）を引き起こさないか
+- [ ] 使用例が実際に動作することをレビュアーが手動確認したか
+- [ ] 既存の類似Skillと機能が重複していないか
+
+### セキュリティ
+- [ ] allowed-tools の権限スコープが必要最小限か
+- [ ] Bash ツール使用時に危険なコマンドが含まれないか
+- [ ] 外部 URL へのアクセス要求が正当化されているか
+- [ ] ハードコードされたシークレット・トークンがないか</code></pre>
+
+      <h3 id="checklist-semantic">意味・整合性チェック</h3>
+      <p>構造チェックに加えて、Skillの意図と実際の動作の整合性を確認する。特に、プロンプト内で「必ず〜してください」という強い命令が意図せず副作用を生む場合がある。レビュアーはSkillをローカル環境で実際に試行し、想定外の動作がないかを確認することが望ましい。</p>
+
+      <h2 id="automated-testing">自動テストと静的解析</h2>
+      <p>人手によるレビューに加えて、CIパイプラインで自動検証を行うことで、レビュー負荷を低減しながら品質の底上げを図れる。<a href="setup-automation.html">セットアップ自動化スクリプト</a>と組み合わせることで、PRマージ前の自動チェックを一元管理できる。</p>
+
+      <h3 id="frontmatter-validation">frontmatter検証</h3>
+      <p>YAML frontmatterの必須フィールドを検証するスクリプトをCIに組み込む。以下はPythonによる実装例である：</p>
+      <pre><code>#!/usr/bin/env python3
+# validate_skills.py
+import sys
+import yaml
+from pathlib import Path
+
+REQUIRED_FIELDS = ["name", "description", "version", "author"]
+
+def validate_skill(path: Path) -> list[str]:
+    errors = []
+    text = path.read_text()
+    if not text.startswith("---"):
+        errors.append(f"{path}: YAML frontmatter が見つかりません")
+        return errors
+    try:
+        front = yaml.safe_load(text.split("---")[1])
+    except yaml.YAMLError as e:
+        errors.append(f"{path}: frontmatter パースエラー: {e}")
+        return errors
+    for field in REQUIRED_FIELDS:
+        if field not in front:
+            errors.append(f"{path}: 必須フィールド '{field}' がありません")
+    return errors
+
+if __name__ == "__main__":
+    skill_dir = Path(".claude/commands")
+    all_errors = []
+    for skill_file in skill_dir.glob("*.md"):
+        all_errors.extend(validate_skill(skill_file))
+    if all_errors:
+        for e in all_errors:
+            print(e, file=sys.stderr)
+        sys.exit(1)
+    print("全 Skills の frontmatter 検証: OK")</code></pre>
+
+      <h3 id="linter">Markdownリンター</h3>
+      <p>markdownlintやtextlintをCIで実行し、文書品質を担保する。組織の表記ゆれ（「スキル」vs「Skill」など）を統一するカスタムルールを追加することも有効である。GitHub Actionsでの設定例：</p>
+      <pre><code># .github/workflows/skill-lint.yml
+name: Skill Quality Check
+on: [pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g markdownlint-cli
+      - run: markdownlint '.claude/commands/**/*.md'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml
+      - run: python validate_skills.py</code></pre>
+
+      <h3 id="duplicate-detection">重複検出</h3>
+      <p>既存Skillと機能が重複する新規Skillの追加を防ぐため、description の類似度チェックをCIに組み込む方法がある。単純なキーワードマッチングから、埋め込みベクトルを用いた意味的類似度計算まで、組織の規模に応じて選択する。</p>
+
+      <h2 id="security-review">セキュリティ審査プロセス</h2>
+      <p>Skillsが持つツール権限はClaude Codeの動作範囲を直接規定するため、セキュリティ審査は品質管理の中でも特に重要なフェーズである。</p>
+
+      <h3 id="permission-tiers">権限ティア分類</h3>
+      <p>Skillsをツール権限の強度に応じて3ティアに分類し、ティアに応じて審査の厳格さを調整する：</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280">
+          <rect width="640" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Skill権限ティア分類</text>
+
+          <!-- ティア1 -->
+          <rect x="30" y="45" width="175" height="205" rx="8" fill="white" stroke="#2e7d32" stroke-width="2"/>
+          <rect x="30" y="45" width="175" height="36" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="118" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">Tier 1: 読み取り専用</text>
+          <text x="118" y="100" text-anchor="middle" font-size="11" fill="#202122">Read, Grep, Glob</text>
+          <text x="118" y="118" text-anchor="middle" font-size="11" fill="#202122">ファイル参照のみ</text>
+          <text x="118" y="148" text-anchor="middle" font-size="11" fill="#555">審査: 軽量</text>
+          <text x="118" y="166" text-anchor="middle" font-size="11" fill="#555">承認: 1名</text>
+          <text x="118" y="186" text-anchor="middle" font-size="11" fill="#555">SLA: 1営業日</text>
+          <rect x="60" y="215" width="115" height="22" rx="4" fill="#e8f5e9"/>
+          <text x="118" y="230" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">低リスク</text>
+
+          <!-- ティア2 -->
+          <rect x="232" y="45" width="175" height="205" rx="8" fill="white" stroke="#e65100" stroke-width="2"/>
+          <rect x="232" y="45" width="175" height="36" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+          <text x="320" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#bf360c">Tier 2: 書き込みあり</text>
+          <text x="320" y="100" text-anchor="middle" font-size="11" fill="#202122">Edit, Write, Bash(限定)</text>
+          <text x="320" y="118" text-anchor="middle" font-size="11" fill="#202122">ローカルFS変更あり</text>
+          <text x="320" y="148" text-anchor="middle" font-size="11" fill="#555">審査: 標準</text>
+          <text x="320" y="166" text-anchor="middle" font-size="11" fill="#555">承認: 2名（うち1名シニア）</text>
+          <text x="320" y="186" text-anchor="middle" font-size="11" fill="#555">SLA: 3営業日</text>
+          <rect x="265" y="215" width="110" height="22" rx="4" fill="#fff3e0"/>
+          <text x="320" y="230" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">中リスク</text>
+
+          <!-- ティア3 -->
+          <rect x="434" y="45" width="175" height="205" rx="8" fill="white" stroke="#c62828" stroke-width="2"/>
+          <rect x="434" y="45" width="175" height="36" rx="8" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+          <text x="522" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#b71c1c">Tier 3: 高権限</text>
+          <text x="522" y="100" text-anchor="middle" font-size="11" fill="#202122">Bash(無制限), WebFetch</text>
+          <text x="522" y="118" text-anchor="middle" font-size="11" fill="#202122">ネットワーク/外部実行</text>
+          <text x="522" y="148" text-anchor="middle" font-size="11" fill="#555">審査: 厳格</text>
+          <text x="522" y="166" text-anchor="middle" font-size="11" fill="#555">承認: 3名＋セキュリティTL</text>
+          <text x="522" y="186" text-anchor="middle" font-size="11" fill="#555">SLA: 1週間</text>
+          <rect x="462" y="215" width="120" height="22" rx="4" fill="#ffebee"/>
+          <text x="522" y="230" text-anchor="middle" font-size="11" font-weight="bold" fill="#c62828">高リスク</text>
+
+          <text x="320" y="268" text-anchor="middle" font-size="11" fill="#777">ティアはPR作成時に申請者が申告し、レビュアーが確認する</text>
+        </svg>
+        <div class="diagram-caption">図2: Skills権限ティア分類と審査基準</div>
+      </div>
+
+      <h3 id="injection-check">プロンプトインジェクション対策</h3>
+      <p>Skillの指示文にユーザー入力を埋め込む際、入力値がClaudeの指示として誤解釈されるプロンプトインジェクションリスクがある。レビュー時には以下のパターンに注意する：</p>
+      <ul>
+        <li>ユーザー提供のファイル名・コメントをそのままプロンプトに組み込む構造</li>
+        <li>「以下の指示に従ってください:」の後に外部データが続く形式</li>
+        <li>外部URLから取得したコンテンツを直接コンテキストに注入する処理</li>
+      </ul>
+
+      <h2 id="approval-workflow">承認ワークフロー</h2>
+      <p>Skillsの追加・更新は、通常のソフトウェア開発と同様にPRベースの承認ワークフローで管理する。<a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>や<a href="npm-github-packages.html">npm / GitHub Packages</a>を採用している場合、GitHubのブランチ保護ルールと組み合わせることで承認フローを強制できる。</p>
+
+      <h3 id="workflow-steps">承認フローの標準ステップ</h3>
+      <ol>
+        <li><strong>PR作成</strong>: 申請者がSkillのMarkdownファイルをブランチにコミットし、PRを作成。PRテンプレートに権限ティア・目的・テスト結果を記載する。</li>
+        <li><strong>CI自動チェック</strong>: frontmatter検証・リンター・重複検出が自動実行される。CIが失敗した場合は申請者が修正を行う。</li>
+        <li><strong>レビュアーアサイン</strong>: ティアに応じたレビュアー数が自動アサインされる（CODEOWNERS ファイルで設定）。</li>
+        <li><strong>レビュー実施</strong>: レビュアーはチェックリストに基づき確認し、コメントを記入する。</li>
+        <li><strong>セキュリティ審査</strong>（Tier 2/3のみ）: セキュリティチームがツール権限スコープを精査する。</li>
+        <li><strong>承認・マージ</strong>: 必要数の承認が揃った後、マージ可能となる。マージはスカッシュマージ推奨。</li>
+        <li><strong>バージョンタグ付け</strong>: マージ後にセマンティックバージョニングのタグを付与し、リリースノートを生成する。</li>
+      </ol>
+
+      <h3 id="codeowners">CODEOWNERS設定例</h3>
+      <pre><code># .github/CODEOWNERS
+# Tier 3 Skills（高権限）はセキュリティチームの承認が必須
+.claude/commands/deploy*.md       @org/security-team @org/senior-engineers
+.claude/commands/infra*.md        @org/security-team @org/infra-team
+
+# 一般 Skills は Skills管理チームがレビュー
+.claude/commands/                 @org/skills-maintainers</code></pre>
+
+      <h2 id="post-merge-monitoring">マージ後のモニタリング</h2>
+      <p>品質管理はマージ時点で完結しない。共有後のSkillsが実際の業務でどのように使われているか、問題が発生していないかを継続的にモニタリングする仕組みも重要である。</p>
+
+      <h3 id="usage-tracking">利用状況の追跡</h3>
+      <p><a href="monorepo-skills.html">モノレポ構成</a>や<a href="central-repo-approach.html">セントラルリポジトリ</a>を採用している場合、各Skillに対するIssue・フィードバックをGitHub Issuesで収集する運用が効果的である。バグ報告や改善要望は通常のPRフローで対応する。</p>
+
+      <h3 id="deprecation-policy">非推奨化・廃止ポリシー</h3>
+      <p>使用されなくなったSkillや、セキュリティ上の問題が発覚したSkillは速やかに非推奨化・廃止する。非推奨化の際はSkillのfrontmatterに <code>deprecated: true</code> フラグを追加し、代替Skillへの誘導メッセージを冒頭に記載する。廃止は非推奨化から最短でも1ヶ月の猶予期間を設けることを推奨する。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#quality-standards">品質基準の定義</a></li>
+          <li class="toc-h3"><a href="#functional-requirements">機能要件</a></li>
+          <li class="toc-h3"><a href="#documentation-requirements">ドキュメント要件</a></li>
+          <li class="toc-h3"><a href="#security-requirements">セキュリティ要件</a></li>
+          <li><a href="#review-checklist">コードレビューチェックリスト</a></li>
+          <li class="toc-h3"><a href="#checklist-structure">構造・形式チェック</a></li>
+          <li class="toc-h3"><a href="#checklist-semantic">意味・整合性チェック</a></li>
+          <li><a href="#automated-testing">自動テストと静的解析</a></li>
+          <li class="toc-h3"><a href="#frontmatter-validation">frontmatter検証</a></li>
+          <li class="toc-h3"><a href="#linter">Markdownリンター</a></li>
+          <li class="toc-h3"><a href="#duplicate-detection">重複検出</a></li>
+          <li><a href="#security-review">セキュリティ審査プロセス</a></li>
+          <li class="toc-h3"><a href="#permission-tiers">権限ティア分類</a></li>
+          <li class="toc-h3"><a href="#injection-check">プロンプトインジェクション対策</a></li>
+          <li><a href="#approval-workflow">承認ワークフロー</a></li>
+          <li class="toc-h3"><a href="#workflow-steps">承認フローの標準ステップ</a></li>
+          <li class="toc-h3"><a href="#codeowners">CODEOWNERS設定例</a></li>
+          <li><a href="#post-merge-monitoring">マージ後のモニタリング</a></li>
+          <li class="toc-h3"><a href="#usage-tracking">利用状況の追跡</a></li>
+          <li class="toc-h3"><a href="#deprecation-policy">非推奨化・廃止ポリシー</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Claude Code Skills共有方法 概要</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packages詳細</a></li>
+          <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Claude Code Skills共有方法 概要</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packages詳細</a></li>
+        <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

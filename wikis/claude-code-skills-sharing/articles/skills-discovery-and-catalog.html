@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills発見性向上のためのカタログとタグ管理 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Skills発見性向上のためのカタログとタグ管理
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Skills発見性向上のためのカタログとタグ管理</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code Skillsをチーム全体で効果的に活用するために、タグ付け・カテゴリ分類・カタログ自動生成・検索機能を整備し、Skillsの発見性を大幅に向上させる実践的な手法を解説する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Skills発見性向上のためのカタログとタグ管理</b>は、組織内でClaude Code Skillsの数が増えるにつれて重要性を増す課題への解決策を提供する。<a href="setup-automation.html">セットアップ自動化</a>によってSkillsのインストールが容易になっても、「どんなSkillsが存在するか」「目的のSkillsをどう見つけるか」が分からなければ活用は進まない。カタログとタグ管理の整備によって、チームメンバーが必要なSkillsを迅速に発見し、重複開発を防ぎ、組織の知識資産を最大化できる。</p>
+
+      <p>この記事では、Skillsのメタデータ設計から始まり、タグ付けの標準化、カタログページの自動生成、検索機能の実装まで、発見性向上のための一連の仕組みを構築する方法を解説する。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で紹介した各配布アプローチと組み合わせることで、より強力なSkills管理体制を実現できる。</p>
+
+      <h2 id="metadata-format">Skills READMEの標準メタデータフォーマット</h2>
+      <p>各Skillsファイルの先頭に構造化されたメタデータブロックを記述することが、カタログ管理の基盤となる。YAMLフロントマター形式を採用すると、既存のMarkdownパーサーやCIツールとの親和性が高い。</p>
+
+      <pre><code>---
+# skills/review-pr.md
+name: review-pr
+version: "1.2.0"
+title: プルリクエストレビュー支援
+description: |
+  PRの差分を分析し、コードの品質・セキュリティ・パフォーマンス観点から
+  レビューコメントを生成する。
+tags:
+  - code-review
+  - git
+  - quality
+  - security
+category: development
+author: platform-team
+created_at: "2025-11-01"
+updated_at: "2026-02-15"
+dependencies: []
+compatible_with:
+  - claude-3-5-sonnet
+  - claude-sonnet-4-6
+examples:
+  - "/review-pr 123"
+  - "/review-pr --focus=security"
+---
+
+# {{SKILL_CONTENT_BELOW}}
+</code></pre>
+
+      <h3 id="tag-taxonomy">タグ分類体系の設計</h3>
+      <p>タグは3つの階層で管理すると、大規模なSkillsカタログでも整理しやすい。</p>
+
+      <pre><code># tags-taxonomy.yml - 組織全体で共有するタグ定義
+categories:
+  development:
+    description: 開発作業支援
+    tags:
+      - code-review    # コードレビュー
+      - refactoring    # リファクタリング
+      - testing        # テスト生成・実行
+      - debugging      # デバッグ支援
+      - documentation  # ドキュメント生成
+
+  operations:
+    description: 運用・インフラ作業
+    tags:
+      - deployment     # デプロイ作業
+      - monitoring     # 監視・アラート
+      - incident       # インシデント対応
+      - database       # DB操作・マイグレーション
+
+  workflow:
+    description: 開発フロー・プロセス改善
+    tags:
+      - git            # Git操作
+      - ci-cd          # CI/CD設定
+      - planning       # 計画・設計
+      - communication  # コミュニケーション支援
+
+  quality:
+    description: 品質管理
+    tags:
+      - security       # セキュリティ検査
+      - performance    # パフォーマンス最適化
+      - accessibility  # アクセシビリティ
+      - i18n           # 国際化対応
+</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320">
+          <rect width="640" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Skillsカタログ管理アーキテクチャ</text>
+
+          <!-- Skills Files -->
+          <rect x="20" y="50" width="140" height="120" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="90" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Skillsファイル群</text>
+          <rect x="30" y="82" width="120" height="22" rx="3" fill="#e8f4fd" stroke="#3366cc" stroke-width="1"/>
+          <text x="90" y="97" text-anchor="middle" font-size="10" fill="#202122">review-pr.md</text>
+          <rect x="30" y="110" width="120" height="22" rx="3" fill="#e8f4fd" stroke="#3366cc" stroke-width="1"/>
+          <text x="90" y="125" text-anchor="middle" font-size="10" fill="#202122">deploy-staging.md</text>
+          <rect x="30" y="138" width="120" height="22" rx="3" fill="#e8f4fd" stroke="#3366cc" stroke-width="1"/>
+          <text x="90" y="153" text-anchor="middle" font-size="10" fill="#202122">gen-tests.md</text>
+
+          <!-- Arrow 1 -->
+          <line x1="160" y1="110" x2="200" y2="110" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowCat)"/>
+
+          <!-- Metadata Extractor -->
+          <rect x="200" y="75" width="130" height="70" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+          <text x="265" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#bf360c">メタデータ抽出</text>
+          <text x="265" y="118" text-anchor="middle" font-size="10" fill="#e65100">YAMLフロントマター</text>
+          <text x="265" y="134" text-anchor="middle" font-size="10" fill="#e65100">パーサー</text>
+
+          <!-- Arrow 2 -->
+          <line x1="330" y1="110" x2="370" y2="110" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowCat)"/>
+
+          <!-- Catalog DB -->
+          <rect x="370" y="75" width="130" height="70" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="435" y="100" text-anchor="middle" font-size="11" font-weight="bold" fill="#1b5e20">カタログDB</text>
+          <text x="435" y="118" text-anchor="middle" font-size="10" fill="#2e7d32">catalog.json</text>
+          <text x="435" y="134" text-anchor="middle" font-size="10" fill="#2e7d32">tags-index.json</text>
+
+          <!-- Arrow 3 -->
+          <line x1="500" y1="110" x2="540" y2="110" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowCat)"/>
+
+          <!-- Outputs -->
+          <rect x="540" y="50" width="85" height="200" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="582" y="75" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">出力</text>
+          <rect x="550" y="85" width="65" height="26" rx="3" fill="#fce4ec" stroke="#880e4f" stroke-width="1"/>
+          <text x="582" y="102" text-anchor="middle" font-size="9" fill="#880e4f">HTML</text>
+          <text x="582" y="114" text-anchor="middle" font-size="9" fill="#880e4f">カタログ</text>
+          <rect x="550" y="120" width="65" height="26" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+          <text x="582" y="137" text-anchor="middle" font-size="9" fill="#0d47a1">検索</text>
+          <text x="582" y="149" text-anchor="middle" font-size="9" fill="#0d47a1">インデックス</text>
+          <rect x="550" y="155" width="65" height="26" rx="3" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1"/>
+          <text x="582" y="172" text-anchor="middle" font-size="9" fill="#6a1b9a">README</text>
+          <text x="582" y="184" text-anchor="middle" font-size="9" fill="#6a1b9a">自動更新</text>
+          <rect x="550" y="190" width="65" height="26" rx="3" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+          <text x="582" y="207" text-anchor="middle" font-size="9" fill="#1b5e20">Slack</text>
+          <text x="582" y="219" text-anchor="middle" font-size="9" fill="#1b5e20">通知</text>
+
+          <!-- Tags taxonomy box -->
+          <rect x="200" y="185" width="260" height="55" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="1.5"/>
+          <text x="330" y="207" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">タグ分類体系 (tags-taxonomy.yml)</text>
+          <text x="330" y="225" text-anchor="middle" font-size="10" fill="#795548">development / operations / workflow / quality</text>
+
+          <!-- Arrow from taxonomy to extractor -->
+          <line x1="265" y1="185" x2="265" y2="145" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowCatY)"/>
+
+          <!-- CI/CD label -->
+          <rect x="20" y="250" width="500" height="30" rx="5" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+          <text x="270" y="270" text-anchor="middle" font-size="10" fill="#6a1b9a">GitHub Actions: Skillsファイル変更時にカタログを自動再生成してコミット</text>
+
+          <defs>
+            <marker id="arrowCat" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arrowCatY" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#f9a825"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Skillsカタログ管理アーキテクチャの全体像</div>
+      </div>
+
+      <h2 id="catalog-generator">カタログページの自動生成スクリプト</h2>
+      <p>Skillsリポジトリ内のMarkdownファイルを走査し、メタデータを抽出してカタログを自動生成するPythonスクリプトを用意する。<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>や<a href="monorepo-skills.html">モノレポ構成</a>いずれにも適用できる。</p>
+
+      <pre><code>#!/usr/bin/env python3
+# scripts/build-catalog.py - Skillsカタログ自動生成スクリプト
+import os
+import json
+import re
+from pathlib import Path
+from datetime import datetime
+
+try:
+    import yaml
+except ImportError:
+    import subprocess
+    subprocess.check_call(["pip", "install", "pyyaml", "-q"])
+    import yaml
+
+SKILLS_DIR = Path("commands")
+OUTPUT_DIR = Path("docs/catalog")
+CATALOG_JSON = OUTPUT_DIR / "catalog.json"
+TAGS_INDEX_JSON = OUTPUT_DIR / "tags-index.json"
+
+def extract_frontmatter(filepath: Path) -> dict:
+    """YAMLフロントマターを抽出する"""
+    content = filepath.read_text(encoding="utf-8")
+    match = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+    if match:
+        try:
+            return yaml.safe_load(match.group(1)) or {}
+        except yaml.YAMLError:
+            pass
+    # フロントマターがない場合はファイル名からname推定
+    return {"name": filepath.stem, "title": filepath.stem, "tags": []}
+
+def build_catalog() -> dict:
+    """全SkillsのカタログJSONを生成する"""
+    catalog = {"generated_at": datetime.utcnow().isoformat(), "skills": []}
+    tags_index: dict[str, list[str]] = {}
+
+    for skill_file in sorted(SKILLS_DIR.glob("*.md")):
+        meta = extract_frontmatter(skill_file)
+        meta.setdefault("name", skill_file.stem)
+        meta.setdefault("filename", str(skill_file))
+        catalog["skills"].append(meta)
+
+        for tag in meta.get("tags", []):
+            tags_index.setdefault(tag, []).append(meta["name"])
+
+    catalog["total"] = len(catalog["skills"])
+    return catalog, tags_index
+
+def generate_html_catalog(catalog: dict, tags_index: dict) -> str:
+    """カタログのHTMLページを生成する"""
+    tag_nav = "\n".join(
+        f'<a href="#tag-{tag}" class="tag-link">{tag} ({len(skills)})</a>'
+        for tag, skills in sorted(tags_index.items())
+    )
+    skill_cards = "\n".join(
+        f'''<div class="skill-card" data-tags="{' '.join(s.get('tags', []))}">
+  <h3 class="skill-name">/{s['name']}</h3>
+  <p class="skill-title">{s.get('title', '')}</p>
+  <p class="skill-desc">{s.get('description', '').strip()[:120]}...</p>
+  <div class="skill-tags">{''.join(f'<span class="tag">{t}</span>' for t in s.get('tags', []))}</div>
+</div>'''
+        for s in catalog["skills"]
+    )
+    return f"""<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><title>Skills Catalog</title>
+<!-- catalog.css をリンク -->
+</head><body>
+<h1>Claude Code Skills カタログ</h1>
+<p>全 {catalog['total']} Skills（最終更新: {catalog['generated_at'][:10]}）</p>
+<nav class="tag-nav">{tag_nav}</nav>
+<div class="skill-grid">{skill_cards}</div>
+</body></html>"""
+
+if __name__ == "__main__":
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    catalog, tags_index = build_catalog()
+    CATALOG_JSON.write_text(json.dumps(catalog, ensure_ascii=False, indent=2))
+    TAGS_INDEX_JSON.write_text(json.dumps(tags_index, ensure_ascii=False, indent=2))
+    html = generate_html_catalog(catalog, tags_index)
+    (OUTPUT_DIR / "index.html").write_text(html)
+    print(f"Generated catalog: {catalog['total']} skills, {len(tags_index)} tags")
+</code></pre>
+
+      <h2 id="search-implementation">検索機能の実装</h2>
+      <p>カタログに検索機能を追加することで、タグ・タイトル・説明文を横断したSkills検索が可能になる。クライアントサイドのJavaScriptで実装することで、サーバー不要の静的サイトとして運用できる。</p>
+
+      <h3 id="search-index">検索インデックスの生成</h3>
+      <pre><code># scripts/build-search-index.py - 検索インデックス生成
+import json
+from pathlib import Path
+
+def build_search_index(catalog_path: str) -> list[dict]:
+    """全文検索用インデックスを生成する"""
+    catalog = json.loads(Path(catalog_path).read_text())
+    index = []
+    for skill in catalog["skills"]:
+        index.append({
+            "id": skill["name"],
+            "title": skill.get("title", ""),
+            "description": skill.get("description", ""),
+            "tags": skill.get("tags", []),
+            "category": skill.get("category", ""),
+            # 全フィールドを結合した検索対象文字列
+            "searchable": " ".join([
+                skill.get("name", ""),
+                skill.get("title", ""),
+                skill.get("description", ""),
+                " ".join(skill.get("tags", [])),
+                skill.get("category", ""),
+            ]).lower()
+        })
+    return index
+
+if __name__ == "__main__":
+    index = build_search_index("docs/catalog/catalog.json")
+    Path("docs/catalog/search-index.json").write_text(
+        json.dumps(index, ensure_ascii=False, indent=2)
+    )
+    print(f"Search index built: {len(index)} entries")
+</code></pre>
+
+      <h3 id="search-frontend">フロントエンド検索UI</h3>
+      <pre><code>// catalog-search.js - カタログ検索フロントエンド
+(async () => {
+  const resp = await fetch('search-index.json');
+  const index = await resp.json();
+
+  const input = document.getElementById('skill-search');
+  const results = document.getElementById('search-results');
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim().toLowerCase();
+    if (!query) {
+      results.innerHTML = '';
+      return;
+    }
+    const matched = index.filter(s => s.searchable.includes(query));
+    results.innerHTML = matched.length > 0
+      ? matched.map(s => `
+          <div class="search-result">
+            <a href="${s.id}.html"><strong>/${s.id}</strong></a>
+            <span class="result-title">${s.title}</span>
+            <div class="result-tags">
+              ${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+            </div>
+          </div>`).join('')
+      : `<p class="no-result">「${query}」に一致するSkillsが見つかりませんでした。</p>`;
+  });
+})();
+</code></pre>
+
+      <h2 id="readme-standard">Skills READMEの標準フォーマット</h2>
+      <p>Skillsの発見性を高めるもう一つの柱が、READMEの標準化だ。<a href="npm-github-packages.html">npm / GitHub Packages</a>や<a href="git-submodule-approach.html">Gitサブモジュール</a>経由で配布する場合でも、一貫したREADMEフォーマットがあればユーザーが使い方を素早く把握できる。</p>
+
+      <pre><code># /skill-name - Skills名（一行で機能を説明）
+
+## 概要
+このSkillsが何をするものか、どんな課題を解決するかを2〜3文で記述する。
+
+## 使い方
+```
+/skill-name [必須引数] [--オプション値]
+```
+
+## 引数・オプション
+| 引数 | 必須 | 説明 |
+|------|------|------|
+| target | Yes | 対象ファイルまたはディレクトリ |
+| --focus | No | 重点チェック項目（security/performance/style） |
+
+## 使用例
+```
+# 基本的な使い方
+/skill-name src/components/
+
+# セキュリティに特化したチェック
+/skill-name src/ --focus=security
+```
+
+## 前提条件
+- Claude Code 1.0以降
+- プロジェクトにGit管理が必要
+
+## タグ
+`code-review` `quality` `security`
+
+## バージョン履歴
+- 1.2.0 (2026-02-15): --focus オプション追加
+- 1.0.0 (2025-11-01): 初回リリース
+</code></pre>
+
+      <h2 id="ci-integration">CI/CDによるカタログ自動更新</h2>
+      <p>Skillsリポジトリへのコミット時に自動的にカタログを再生成し、常に最新状態を維持するGitHub Actionsワークフローを設定する。これにより手動でのカタログ更新作業が不要になり、発見性が常に保たれる。</p>
+
+      <pre><code># .github/workflows/update-catalog.yml
+name: Update Skills Catalog
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'commands/**/*.md'
+      - 'scripts/build-catalog.py'
+      - 'tags-taxonomy.yml'
+
+jobs:
+  build-catalog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Build catalog
+        run: |
+          python scripts/build-catalog.py
+          python scripts/build-search-index.py
+
+      - name: Validate tag taxonomy
+        run: python scripts/validate-tags.py
+
+      - name: Commit updated catalog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/catalog/
+          git diff --staged --quiet || git commit -m "chore: update skills catalog [skip ci]"
+          git push
+
+      - name: Post summary to Slack
+        if: success()
+        run: |
+          TOTAL=$(python -c "import json; d=json.load(open('docs/catalog/catalog.json')); print(d['total'])")
+          echo "Catalog updated: ${TOTAL} skills"
+</code></pre>
+
+      <h3 id="tag-validation">タグ検証スクリプト</h3>
+      <p>未定義のタグや表記揺れを防ぐため、タグ分類体系に基づいてSkillsファイルのタグを検証するスクリプトをCIに組み込む。</p>
+
+      <pre><code>#!/usr/bin/env python3
+# scripts/validate-tags.py - タグ整合性検証
+import json, sys, yaml
+from pathlib import Path
+
+taxonomy = yaml.safe_load(Path("tags-taxonomy.yml").read_text())
+valid_tags = {tag for cat in taxonomy["categories"].values() for tag in cat["tags"]}
+
+catalog = json.loads(Path("docs/catalog/catalog.json").read_text())
+errors = []
+for skill in catalog["skills"]:
+    for tag in skill.get("tags", []):
+        if tag not in valid_tags:
+            errors.append(f"[{skill['name']}] 未定義タグ: '{tag}'")
+
+if errors:
+    print("タグ検証エラー:")
+    for e in errors:
+        print(f"  - {e}")
+    print(f"\n有効なタグ一覧: {', '.join(sorted(valid_tags))}")
+    sys.exit(1)
+else:
+    print(f"タグ検証OK: {len(catalog['skills'])}個のSkillsが有効なタグを使用")
+</code></pre>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#metadata-format">Skills READMEの標準メタデータフォーマット</a>
+            <ul>
+              <li><a href="#tag-taxonomy">タグ分類体系の設計</a></li>
+            </ul>
+          </li>
+          <li><a href="#catalog-generator">カタログページの自動生成スクリプト</a></li>
+          <li><a href="#search-implementation">検索機能の実装</a>
+            <ul>
+              <li><a href="#search-index">検索インデックスの生成</a></li>
+              <li><a href="#search-frontend">フロントエンド検索UI</a></li>
+            </ul>
+          </li>
+          <li><a href="#readme-standard">Skills READMEの標準フォーマット</a></li>
+          <li><a href="#ci-integration">CI/CDによるカタログ自動更新</a>
+            <ul>
+              <li><a href="#tag-validation">タグ検証スクリプト</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+          <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

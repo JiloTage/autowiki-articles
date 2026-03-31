@@ -5,23 +5,33 @@
       "title": "Claude Code Skills共有方法 概要",
       "filename": "wikis/claude-code-skills-sharing/articles/skills-sharing-overview.html",
       "created_at": "2026-03-30T17:01:16.233005+00:00",
-      "updated_at": "2026-03-30T17:01:16.233005+00:00",
+      "updated_at": "2026-03-31T00:35:18.631520+00:00",
       "links_to": [
         "npm-github-packages",
         "git-submodule-approach",
         "monorepo-skills",
         "central-repo-approach",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "skills-quality-review"
       ],
       "linked_from": [
         "npm-github-packages",
         "git-submodule-approach",
         "monorepo-skills",
         "central-repo-approach",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "public-skills-registry",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "private-npm-registry",
+        "skills-update-notification",
+        "skills-quality-review"
       ],
       "summary": "Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "root"
     },
     "npm-github-packages": {
@@ -29,22 +39,32 @@
       "title": "npm / GitHub Packagesによるプライベートスキル配布",
       "filename": "wikis/claude-code-skills-sharing/articles/npm-github-packages.html",
       "created_at": "2026-03-30T17:06:18.331880+00:00",
-      "updated_at": "2026-03-30T17:06:18.331880+00:00",
+      "updated_at": "2026-03-31T00:35:19.756065+00:00",
       "links_to": [
         "skills-sharing-overview",
         "git-submodule-approach",
         "setup-automation",
-        "central-repo-approach"
+        "central-repo-approach",
+        "public-skills-registry",
+        "private-npm-registry"
       ],
       "linked_from": [
         "skills-sharing-overview",
         "git-submodule-approach",
         "monorepo-skills",
         "central-repo-approach",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "public-skills-registry",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "private-npm-registry",
+        "skills-update-notification",
+        "skills-quality-review"
       ],
       "summary": "GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "skills-sharing-overview"
     },
@@ -53,22 +73,30 @@
       "title": "Gitサブモジュールを使ったスキル共有アプローチ",
       "filename": "wikis/claude-code-skills-sharing/articles/git-submodule-approach.html",
       "created_at": "2026-03-30T17:06:18.387600+00:00",
-      "updated_at": "2026-03-30T17:06:18.387600+00:00",
+      "updated_at": "2026-03-31T00:35:20.661850+00:00",
       "links_to": [
         "skills-sharing-overview",
         "npm-github-packages",
         "setup-automation",
-        "central-repo-approach"
+        "central-repo-approach",
+        "skills-versioning-strategy"
       ],
       "linked_from": [
         "skills-sharing-overview",
         "npm-github-packages",
         "monorepo-skills",
         "central-repo-approach",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "public-skills-registry",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "skills-update-notification",
+        "skills-quality-review"
       ],
       "summary": "Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "skills-sharing-overview"
     },
@@ -77,19 +105,25 @@
       "title": "モノレポ構成でのClaude Code Skills管理",
       "filename": "wikis/claude-code-skills-sharing/articles/monorepo-skills.html",
       "created_at": "2026-03-30T17:06:18.442852+00:00",
-      "updated_at": "2026-03-30T17:06:18.442852+00:00",
+      "updated_at": "2026-03-31T00:35:21.678308+00:00",
       "links_to": [
         "skills-sharing-overview",
         "npm-github-packages",
         "git-submodule-approach",
-        "setup-automation"
+        "setup-automation",
+        "internal-skills-marketplace"
       ],
       "linked_from": [
         "skills-sharing-overview",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "skills-quality-review"
       ],
       "summary": "すべてのプロジェクトを単一リポジトリで管理するモノレポ構成において、Claude Code Skillsを一元管理する方法。高い可視性と即時反映が可能。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "skills-sharing-overview"
     },
@@ -98,21 +132,29 @@
       "title": "セントラルリポジトリからのスキル配布",
       "filename": "wikis/claude-code-skills-sharing/articles/central-repo-approach.html",
       "created_at": "2026-03-30T17:06:18.498102+00:00",
-      "updated_at": "2026-03-30T17:06:18.498102+00:00",
+      "updated_at": "2026-03-31T00:35:22.611930+00:00",
       "links_to": [
         "skills-sharing-overview",
         "git-submodule-approach",
         "npm-github-packages",
-        "setup-automation"
+        "setup-automation",
+        "skills-update-notification"
       ],
       "linked_from": [
         "skills-sharing-overview",
         "npm-github-packages",
         "git-submodule-approach",
-        "setup-automation"
+        "setup-automation",
+        "skills-marketplace-concept",
+        "public-skills-registry",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "skills-update-notification",
+        "skills-quality-review"
       ],
       "summary": "最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "skills-sharing-overview"
     },
@@ -121,27 +163,207 @@
       "title": "スキル配布のセットアップ自動化スクリプト",
       "filename": "wikis/claude-code-skills-sharing/articles/setup-automation.html",
       "created_at": "2026-03-30T17:06:18.554159+00:00",
-      "updated_at": "2026-03-30T17:06:18.554159+00:00",
+      "updated_at": "2026-03-31T00:35:23.515626+00:00",
       "links_to": [
         "skills-sharing-overview",
         "npm-github-packages",
         "git-submodule-approach",
         "central-repo-approach",
-        "monorepo-skills"
+        "monorepo-skills",
+        "skills-discovery-and-catalog"
       ],
       "linked_from": [
         "skills-sharing-overview",
         "npm-github-packages",
         "git-submodule-approach",
         "monorepo-skills",
-        "central-repo-approach"
+        "central-repo-approach",
+        "skills-marketplace-concept",
+        "public-skills-registry",
+        "internal-skills-marketplace",
+        "skills-versioning-strategy",
+        "skills-discovery-and-catalog",
+        "private-npm-registry",
+        "skills-update-notification",
+        "skills-quality-review"
       ],
       "summary": "Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法に依らず適用できる。",
+      "expansion_status": "done",
+      "origin": "expanded",
+      "source_id": "skills-sharing-overview"
+    },
+    "skills-marketplace-concept": {
+      "id": "skills-marketplace-concept",
+      "title": "Claude Code Skillsマーケットプレイスの概念と将来展望",
+      "filename": "wikis/claude-code-skills-sharing/articles/skills-marketplace-concept.html",
+      "created_at": "2026-03-31T00:33:30.695102+00:00",
+      "updated_at": "2026-03-31T00:33:30.695102+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "npm-github-packages",
+        "central-repo-approach",
+        "monorepo-skills",
+        "git-submodule-approach",
+        "setup-automation"
+      ],
+      "linked_from": [
+        "skills-sharing-overview"
+      ],
+      "summary": "Claude Code Skillsの公開・発見・共有を体系化する「マーケットプレイス」という概念を解説し、公式・コミュニティ・組織内の三層構造、Skills検索・発見メカニズム、そして今後の技術的・社会的展望を考察する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "skills-sharing-overview"
+    },
+    "public-skills-registry": {
+      "id": "public-skills-registry",
+      "title": "パブリックSkillsレジストリへの公開とオープンソース展開",
+      "filename": "wikis/claude-code-skills-sharing/articles/public-skills-registry.html",
+      "created_at": "2026-03-31T00:33:45.141174+00:00",
+      "updated_at": "2026-03-31T00:33:50.416881+00:00",
+      "links_to": [
+        "npm-github-packages",
+        "skills-sharing-overview",
+        "central-repo-approach",
+        "git-submodule-approach",
+        "setup-automation"
+      ],
+      "linked_from": [
+        "npm-github-packages"
+      ],
+      "summary": "Claude Code Skillsをnpmパブリックレジストリに公開し、オープンソースコミュニティで共有する方法を解説する。ライセンス選択の指針、パブリック公開とプライベート配布の使い分け、コミュニティへの貢献方法も網羅する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "npm-github-packages"
+    },
+    "internal-skills-marketplace": {
+      "id": "internal-skills-marketplace",
+      "title": "組織内Skillsマーケットプレイスプラットフォームの構築",
+      "filename": "wikis/claude-code-skills-sharing/articles/internal-skills-marketplace.html",
+      "created_at": "2026-03-31T00:33:45.175300+00:00",
+      "updated_at": "2026-03-31T00:33:45.175300+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "monorepo-skills",
+        "npm-github-packages",
+        "setup-automation",
+        "central-repo-approach",
+        "git-submodule-approach"
+      ],
+      "linked_from": [
+        "monorepo-skills"
+      ],
+      "summary": "組織内でClaude Code Skillsを検索・評価・インストールできるマーケットプレイスプラットフォームの設計と実装ガイド。Skills検索UI/API、インストールワークフロー、レーティング・レビュー機能、アーキテクチャを包括的に解説する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "monorepo-skills"
+    },
+    "skills-versioning-strategy": {
+      "id": "skills-versioning-strategy",
+      "title": "Skillsリポジトリのバージョニング戦略とリリース管理",
+      "filename": "wikis/claude-code-skills-sharing/articles/skills-versioning-strategy.html",
+      "created_at": "2026-03-31T00:34:07.387844+00:00",
+      "updated_at": "2026-03-31T00:34:07.387844+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "git-submodule-approach",
+        "npm-github-packages",
+        "setup-automation",
+        "central-repo-approach",
+        "monorepo-skills"
+      ],
+      "linked_from": [
+        "git-submodule-approach"
+      ],
+      "summary": "Claude Code Skillsを共有リポジトリで管理する際のバージョニング戦略を体系的に解説する。セマンティックバージョニング、Gitタグ戦略、CHANGELOG自動生成、ブランチ戦略、リリースノートの作成まで、安定した配布基盤の構築方法を紹介する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "git-submodule-approach"
+    },
+    "skills-discovery-and-catalog": {
+      "id": "skills-discovery-and-catalog",
+      "title": "Skills発見性向上のためのカタログとタグ管理",
+      "filename": "wikis/claude-code-skills-sharing/articles/skills-discovery-and-catalog.html",
+      "created_at": "2026-03-31T00:34:11.397387+00:00",
+      "updated_at": "2026-03-31T00:34:11.397387+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "setup-automation",
+        "central-repo-approach",
+        "monorepo-skills",
+        "npm-github-packages",
+        "git-submodule-approach"
+      ],
+      "linked_from": [
+        "setup-automation"
+      ],
+      "summary": "Claude Code Skillsをチーム全体で効果的に活用するために、タグ付け・カテゴリ分類・カタログ自動生成・検索機能を整備し、Skillsの発見性を大幅に向上させる実践的な手法を解説する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "setup-automation"
+    },
+    "private-npm-registry": {
+      "id": "private-npm-registry",
+      "title": "Verdaccioによるプライベートnpmレジストリの自社運営",
+      "filename": "wikis/claude-code-skills-sharing/articles/private-npm-registry.html",
+      "created_at": "2026-03-31T00:34:13.864688+00:00",
+      "updated_at": "2026-03-31T00:34:20.427143+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "npm-github-packages",
+        "setup-automation"
+      ],
+      "linked_from": [
+        "npm-github-packages"
+      ],
+      "summary": "オープンソースのnpmプロキシ/レジストリサーバーVerdaccioを社内に自前でホスティングし、Claude Code Skillsを完全にプライベートな環境で配布する方法。GitHubへの依存を排除しつつ、npmエコシステムの利便性を維持できる。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "npm-github-packages"
+    },
+    "skills-update-notification": {
+      "id": "skills-update-notification",
+      "title": "Skillsの更新通知と変更管理の自動化",
+      "filename": "wikis/claude-code-skills-sharing/articles/skills-update-notification.html",
+      "created_at": "2026-03-31T00:34:23.697075+00:00",
+      "updated_at": "2026-03-31T00:34:23.697075+00:00",
+      "links_to": [
+        "central-repo-approach",
+        "setup-automation",
+        "skills-sharing-overview",
+        "git-submodule-approach",
+        "npm-github-packages"
+      ],
+      "linked_from": [
+        "central-repo-approach"
+      ],
+      "summary": "Claude Code Skillsリポジトリの更新を開発者に確実に届けるための通知・変更管理ガイド。GitHub Actionsによるアラート自動化、RSS/Atomフィード生成、自動更新スクリプト、変更影響範囲の可視化、通知フィルタリング設計を体系的に解説する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "central-repo-approach"
+    },
+    "skills-quality-review": {
+      "id": "skills-quality-review",
+      "title": "Skillsの品質管理とコードレビュープロセス",
+      "filename": "wikis/claude-code-skills-sharing/articles/skills-quality-review.html",
+      "created_at": "2026-03-31T00:34:44.706447+00:00",
+      "updated_at": "2026-03-31T00:34:44.706447+00:00",
+      "links_to": [
+        "skills-sharing-overview",
+        "setup-automation",
+        "git-submodule-approach",
+        "npm-github-packages",
+        "monorepo-skills",
+        "central-repo-approach"
+      ],
+      "linked_from": [
+        "skills-sharing-overview"
+      ],
+      "summary": "Claude Code Skillsを社内で安全・高品質に共有するための品質基準、コードレビューチェックリスト、自動テスト、セキュリティ審査、および承認ワークフローを体系的に解説する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "skills-sharing-overview"
     }
   },
   "root_id": null,
-  "total_count": 6
+  "total_count": 14
 }

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdaccioによるプライベートnpmレジストリの自社運営 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Verdaccioによるプライベートnpmレジストリの自社運営
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Verdaccioによるプライベートnpmレジストリの自社運営</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">オープンソースのnpmプロキシ/レジストリサーバーVerdaccioを社内に自前でホスティングし、Claude Code Skillsを完全にプライベートな環境で配布する方法。GitHubへの依存を排除しつつ、npmエコシステムの利便性を維持できる。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Verdaccioによるプライベートnpmレジストリの自社運営</b>は、サードパーティサービスに依存せず自社インフラ上にnpmレジストリを構築してClaude Code Skillsを配布するアプローチだ。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で述べたnpmベースの配布手法の一形態であり、<a href="npm-github-packages.html">GitHub Packagesを使った配布</a>と同じnpmプロトコルを使いながら、ホスティング先を完全に社内に置ける点が最大の差別化要素となる。</p>
+      <p>Verdaccioはオープンソース（MIT）のNode.js製ソフトウェアで、プロキシ・キャッシュ・プライベートパッケージホスティングの3機能を1つのプロセスで提供する。インターネット疎通のないオンプレミス環境や、外部サービス利用が制限されるエンタープライズ環境での運用に特に適している。</p>
+
+      <h2 id="docker-deployment">Dockerによるデプロイ</h2>
+
+      <h3 id="docker-compose-setup">Docker Composeによるセットアップ</h3>
+      <p>最も手軽な運用方法はDockerコンテナを使ったデプロイだ。以下の <code>docker-compose.yml</code> を用意する：</p>
+      <pre><code>version: "3.8"
+services:
+  verdaccio:
+    image: verdaccio/verdaccio:5
+    container_name: verdaccio
+    ports:
+      - "4873:4873"
+    volumes:
+      - ./verdaccio/conf:/verdaccio/conf
+      - verdaccio-storage:/verdaccio/storage
+      - verdaccio-plugins:/verdaccio/plugins
+    environment:
+      - VERDACCIO_PORT=4873
+    restart: unless-stopped
+
+volumes:
+  verdaccio-storage:
+  verdaccio-plugins:</code></pre>
+
+      <h3 id="config-file">設定ファイル（config.yaml）</h3>
+      <p><code>./verdaccio/conf/config.yaml</code> に最低限の設定を記述する：</p>
+      <pre><code>storage: /verdaccio/storage
+auth:
+  htpasswd:
+    file: /verdaccio/conf/htpasswd
+    max_users: 100
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+
+packages:
+  '@myorg/*':
+    access: $authenticated
+    publish: $authenticated
+    unpublish: $authenticated
+
+  '**':
+    access: $authenticated
+    proxy: npmjs
+
+logs:
+  - {type: stdout, format: pretty, level: http}
+
+web:
+  enable: true
+  title: MyOrg Private Registry</code></pre>
+
+      <h3 id="start-and-verify">起動と動作確認</h3>
+      <pre><code># コンテナを起動
+docker compose up -d
+
+# ログ確認
+docker compose logs -f verdaccio
+
+# 動作確認（レジストリのping）
+curl http://localhost:4873/-/ping</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340">
+          <rect width="640" height="340" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Verdaccio プライベートレジストリ構成図</text>
+
+          <!-- 開発者 PC -->
+          <rect x="20" y="55" width="130" height="55" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="85" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">Skills 開発者</text>
+          <text x="85" y="96" text-anchor="middle" font-size="10" fill="#2e7d32">npm publish</text>
+
+          <!-- 矢印: 開発者 → Verdaccio -->
+          <line x1="150" y1="82" x2="220" y2="82" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowV)"/>
+
+          <!-- Verdaccio サーバー -->
+          <rect x="220" y="45" width="200" height="120" rx="8" fill="#e3f2fd" stroke="#3366cc" stroke-width="2"/>
+          <text x="320" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">Verdaccio</text>
+          <text x="320" y="86" text-anchor="middle" font-size="10" fill="#1565c0">http://registry.myorg.local:4873</text>
+          <rect x="235" y="94" width="170" height="28" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="320" y="113" text-anchor="middle" font-size="10" fill="#36c">@myorg/* パッケージ保管</text>
+          <rect x="235" y="128" width="170" height="28" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="320" y="147" text-anchor="middle" font-size="10" fill="#36c">公開npmプロキシ・キャッシュ</text>
+
+          <!-- 矢印: Verdaccio → npmjs (アップストリーム) -->
+          <line x1="420" y1="140" x2="480" y2="140" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowV)"/>
+          <text x="450" y="132" text-anchor="middle" font-size="9" fill="#777">プロキシ</text>
+
+          <!-- npmjs -->
+          <rect x="480" y="120" width="130" height="42" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+          <text x="545" y="144" text-anchor="middle" font-size="11" fill="#bf360c">registry.npmjs.org</text>
+
+          <!-- 開発チームA -->
+          <rect x="20" y="200" width="130" height="40" rx="6" fill="#fce4ec" stroke="#880e4f" stroke-width="1.5"/>
+          <text x="85" y="225" text-anchor="middle" font-size="11" fill="#880e4f">開発チームA</text>
+
+          <!-- 開発チームB -->
+          <rect x="20" y="252" width="130" height="40" rx="6" fill="#fce4ec" stroke="#880e4f" stroke-width="1.5"/>
+          <text x="85" y="277" text-anchor="middle" font-size="11" fill="#880e4f">開発チームB</text>
+
+          <!-- CI/CD -->
+          <rect x="20" y="304" width="130" height="28" rx="6" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+          <text x="85" y="322" text-anchor="middle" font-size="11" fill="#6a1b9a">CI/CDパイプライン</text>
+
+          <!-- 矢印: Verdaccio → チームA/B -->
+          <line x1="220" y1="130" x2="150" y2="220" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowV)"/>
+          <line x1="220" y1="130" x2="150" y2="272" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowV)"/>
+          <line x1="220" y1="130" x2="150" y2="318" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowV)"/>
+
+          <text x="175" y="195" text-anchor="middle" font-size="9" fill="#777">npm install</text>
+
+          <defs>
+            <marker id="arrowV" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Verdaccioを中心としたプライベートnpmレジストリ構成</div>
+      </div>
+
+      <h2 id="auth-config">認証設定</h2>
+
+      <h3 id="htpasswd-users">ユーザーの作成</h3>
+      <p>Verdaccioはデフォルトで <code>htpasswd</code> ベースの認証を使用する。ユーザーの追加はnpm adduser コマンドで行う：</p>
+      <pre><code># レジストリに向けてユーザーを作成
+npm adduser --registry http://registry.myorg.local:4873
+
+# または npx verdaccio-htpasswd でハッシュを直接生成してファイルに追記
+npx verdaccio-htpasswd -b /path/to/htpasswd alice "secretpassword"</code></pre>
+
+      <h3 id="token-auth">トークン認証（CI/CD向け）</h3>
+      <p>CI環境ではインタラクティブなログインができないため、環境変数にトークンを設定する方式を使う。プロジェクトルートの <code>.npmrc</code>：</p>
+      <pre><code>@myorg:registry=http://registry.myorg.local:4873
+//registry.myorg.local:4873/:_authToken=${VERDACCIO_TOKEN}</code></pre>
+
+      <h3 id="ldap-plugin">LDAPプラグインによる社内認証連携</h3>
+      <p>Active DirectoryやOpenLDAPと連携する場合は <code>verdaccio-ldap</code> プラグインを使用する。<code>config.yaml</code> の <code>auth</code> セクションを以下のように変更する：</p>
+      <pre><code>auth:
+  ldap:
+    type: ldap
+    client_options:
+      url: "ldap://ldap.myorg.local"
+      adminDn: "cn=verdaccio,ou=serviceaccounts,dc=myorg,dc=local"
+      adminPassword: "${LDAP_ADMIN_PASSWORD}"
+      searchBase: "ou=users,dc=myorg,dc=local"
+      searchFilter: "(uid={{username}})"</code></pre>
+
+      <h2 id="upstream-proxy">アップストリームプロキシ設定</h2>
+      <p>Verdaccioのプロキシ機能を活用すると、<code>@myorg</code> スコープ以外の公開パッケージも社内レジストリ経由で取得できる。一度取得したパッケージはローカルキャッシュに保存されるため、npmjs.orgへの通信が遮断されても既取得パッケージのインストールが継続できる。</p>
+      <pre><code>packages:
+  # 社内専用スコープ: npmjsへのプロキシなし
+  '@myorg/*':
+    access: $authenticated
+    publish: $authenticated
+
+  # 別スコープは別アップリンクへ委譲
+  '@company-oss/*':
+    access: $authenticated
+    proxy: github-packages
+
+  # それ以外は公開npmjs経由
+  '**':
+    access: $authenticated
+    proxy: npmjs
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    cache: true
+    maxage: 10m
+  github-packages:
+    url: https://npm.pkg.github.com/
+    auth:
+      type: bearer
+      token_env: GITHUB_NPM_TOKEN</code></pre>
+
+      <h2 id="comparison-github-packages">GitHub Packagesとの比較</h2>
+      <p>Verdaccioと<a href="npm-github-packages.html">GitHub Packages</a>はどちらもプライベートnpmレジストリとして機能するが、運用面での差異が大きい。どちらを選択するかは組織のセキュリティポリシーとインフラ管理コストのトレードオフによる。<a href="setup-automation.html">セットアップ自動化スクリプト</a>を整備することで、どちらの方式でも開発者の初期設定負担を均等に下げられる。</p>
+
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#eaecf0;">
+              <th style="padding:8px;border:1px solid #a2a9b1;text-align:left;">観点</th>
+              <th style="padding:8px;border:1px solid #a2a9b1;text-align:left;">Verdaccio（自社運営）</th>
+              <th style="padding:8px;border:1px solid #a2a9b1;text-align:left;">GitHub Packages</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:7px;border:1px solid #a2a9b1;">ホスティング</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">自社サーバー / クラウドVMなど</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">GitHub.com（SaaS）</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+              <td style="padding:7px;border:1px solid #a2a9b1;">GitHub依存</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">なし</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">必須（Token管理）</td>
+            </tr>
+            <tr>
+              <td style="padding:7px;border:1px solid #a2a9b1;">初期コスト</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">高（サーバー構築・運用）</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">低（GitHubアカウントのみ）</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+              <td style="padding:7px;border:1px solid #a2a9b1;">インターネット不要</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">可能（キャッシュ活用）</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">不可</td>
+            </tr>
+            <tr>
+              <td style="padding:7px;border:1px solid #a2a9b1;">認証統合</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">LDAP / htpasswd / プラグイン</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">GitHub SSO / PAT</td>
+            </tr>
+            <tr style="background:#f8f9fa;">
+              <td style="padding:7px;border:1px solid #a2a9b1;">公開npmプロキシ</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">組み込み対応</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">非対応</td>
+            </tr>
+            <tr>
+              <td style="padding:7px;border:1px solid #a2a9b1;">Web UI</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">シンプルなWeb UI付属</td>
+              <td style="padding:7px;border:1px solid #a2a9b1;">GitHubリポジトリのUI</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="operations-monitoring">運用と監視</h2>
+
+      <h3 id="health-check">ヘルスチェック</h3>
+      <p>Docker Composeにヘルスチェックを追加することで、コンテナの自動再起動と監視ツールとの連携が容易になる：</p>
+      <pre><code>services:
+  verdaccio:
+    image: verdaccio/verdaccio:5
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4873/-/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s</code></pre>
+
+      <h3 id="backup-strategy">ストレージバックアップ</h3>
+      <p>Verdaccioのパッケージデータは <code>/verdaccio/storage</code> に保存される。Dockerボリュームをホスト側ディレクトリにマウントし、定期バックアップを設定する：</p>
+      <pre><code># ホストディレクトリへのマウント（docker-compose.yml）
+volumes:
+  - /data/verdaccio/storage:/verdaccio/storage
+  - /data/verdaccio/conf:/verdaccio/conf
+
+# cronによる日次バックアップ例
+0 2 * * * tar czf /backup/verdaccio-$(date +\%Y\%m\%d).tar.gz /data/verdaccio/storage</code></pre>
+
+      <h3 id="log-monitoring">ログ監視</h3>
+      <p>Verdaccioのログを構造化出力に切り替えることで、fluentdやPromtail経由でLoki/Elasticsearchへ転送できる：</p>
+      <pre><code>logs:
+  - {type: stdout, format: json, level: http}</code></pre>
+
+      <p>Skills配布全体の運用自動化については<a href="setup-automation.html">セットアップ自動化スクリプト</a>も参照のこと。また、複数プロジェクト間でSkillsを共有する戦略については<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で体系的に解説している。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#docker-deployment">Dockerによるデプロイ</a></li>
+          <li class="toc-h3"><a href="#docker-compose-setup">Docker Composeによるセットアップ</a></li>
+          <li class="toc-h3"><a href="#config-file">設定ファイル（config.yaml）</a></li>
+          <li class="toc-h3"><a href="#start-and-verify">起動と動作確認</a></li>
+          <li><a href="#auth-config">認証設定</a></li>
+          <li class="toc-h3"><a href="#htpasswd-users">ユーザーの作成</a></li>
+          <li class="toc-h3"><a href="#token-auth">トークン認証（CI/CD向け）</a></li>
+          <li class="toc-h3"><a href="#ldap-plugin">LDAPプラグインによる社内認証連携</a></li>
+          <li><a href="#upstream-proxy">アップストリームプロキシ設定</a></li>
+          <li><a href="#comparison-github-packages">GitHub Packagesとの比較</a></li>
+          <li><a href="#operations-monitoring">運用と監視</a></li>
+          <li class="toc-h3"><a href="#health-check">ヘルスチェック</a></li>
+          <li class="toc-h3"><a href="#backup-strategy">ストレージバックアップ</a></li>
+          <li class="toc-h3"><a href="#log-monitoring">ログ監視</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

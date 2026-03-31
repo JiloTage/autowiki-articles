@@ -1,5 +1,5 @@
 {
-  "last_phase": "sync",
+  "last_phase": "phase_2",
   "expansion_frontier": [],
   "settings": {
     "max_total_articles": 50,
@@ -7,5 +7,5 @@
     "language": "ja"
   },
   "created_at": "2026-03-30T17:06:23.084499+00:00",
-  "updated_at": "2026-03-30T17:06:31.837499+00:00"
+  "updated_at": "2026-03-31T00:37:00.531758+00:00"
 }

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skillsリポジトリのバージョニング戦略とリリース管理 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Skillsリポジトリのバージョニング戦略とリリース管理
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Skillsリポジトリのバージョニング戦略とリリース管理</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code Skillsを共有リポジトリで管理する際のバージョニング戦略を体系的に解説する。セマンティックバージョニング、Gitタグ戦略、CHANGELOG自動生成、ブランチ戦略、リリースノートの作成まで、安定した配布基盤の構築方法を紹介する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Skillsリポジトリのバージョニング戦略とリリース管理</b>は、Claude Code Skillsを社内で安定かつ継続的に共有するための重要な基盤だ。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で紹介した各アプローチに共通して適用できる考え方であり、特に<a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>や<a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a>においてバージョニングは中核的な役割を担う。適切なバージョン管理なしには、どのプロジェクトがどのSkillsを使っているかの追跡が困難になり、破壊的変更の影響範囲の把握も難しくなる。</p>
+
+      <h2 id="semantic-versioning">セマンティックバージョニングの適用</h2>
+      <p>Skillsリポジトリには<b>セマンティックバージョニング（SemVer）</b>の適用が強く推奨される。SemVerは <code>MAJOR.MINOR.PATCH</code> の形式でバージョンを表現し、各数値の意味が明確に定義されている。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 260" width="620" height="260">
+          <rect width="620" height="260" fill="#f8f9fa" rx="8"/>
+          <text x="310" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">セマンティックバージョニング（SemVer）の構造</text>
+
+          <!-- Version display -->
+          <rect x="160" y="55" width="300" height="60" rx="8" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="230" y="92" text-anchor="middle" font-size="32" font-weight="bold" fill="#3366cc">2</text>
+          <text x="310" y="92" text-anchor="middle" font-size="32" font-weight="bold" fill="#a2a9b1">.</text>
+          <text x="360" y="92" text-anchor="middle" font-size="32" font-weight="bold" fill="#3366cc">4</text>
+          <text x="400" y="92" text-anchor="middle" font-size="32" font-weight="bold" fill="#a2a9b1">.</text>
+          <text x="440" y="92" text-anchor="middle" font-size="32" font-weight="bold" fill="#3366cc">1</text>
+
+          <!-- Labels -->
+          <text x="230" y="130" text-anchor="middle" font-size="11" fill="#202122" font-weight="bold">MAJOR</text>
+          <text x="380" y="130" text-anchor="middle" font-size="11" fill="#202122" font-weight="bold">MINOR</text>
+          <text x="440" y="130" text-anchor="middle" font-size="11" fill="#202122" font-weight="bold">PATCH</text>
+
+          <!-- Descriptions -->
+          <rect x="20" y="150" width="175" height="85" rx="6" fill="#fce4ec" stroke="#c62828" stroke-width="1.5"/>
+          <text x="107" y="170" text-anchor="middle" font-size="11" font-weight="bold" fill="#b71c1c">MAJOR (破壊的変更)</text>
+          <text x="107" y="188" text-anchor="middle" font-size="10" fill="#c62828">既存Skillの引数・動作</text>
+          <text x="107" y="204" text-anchor="middle" font-size="10" fill="#c62828">が根本的に変わる場合</text>
+          <text x="107" y="220" text-anchor="middle" font-size="10" fill="#c62828">例: v1.x.x → v2.0.0</text>
+
+          <rect x="220" y="150" width="175" height="85" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="307" y="170" text-anchor="middle" font-size="11" font-weight="bold" fill="#1b5e20">MINOR (後方互換)</text>
+          <text x="307" y="188" text-anchor="middle" font-size="10" fill="#2e7d32">新しいSkillの追加や</text>
+          <text x="307" y="204" text-anchor="middle" font-size="10" fill="#2e7d32">既存機能の拡張</text>
+          <text x="307" y="220" text-anchor="middle" font-size="10" fill="#2e7d32">例: v2.3.x → v2.4.0</text>
+
+          <rect x="420" y="150" width="175" height="85" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+          <text x="507" y="170" text-anchor="middle" font-size="11" font-weight="bold" fill="#0d47a1">PATCH (バグ修正)</text>
+          <text x="507" y="188" text-anchor="middle" font-size="10" fill="#1565c0">既存Skillの誤記修正や</text>
+          <text x="507" y="204" text-anchor="middle" font-size="10" fill="#1565c0">軽微な改善</text>
+          <text x="507" y="220" text-anchor="middle" font-size="10" fill="#1565c0">例: v2.4.0 → v2.4.1</text>
+        </svg>
+        <div class="diagram-caption">図1: SemVerの各数値が示す変更の種類と対応するバージョンアップ例</div>
+      </div>
+
+      <p>Skillsにおける破壊的変更の例としては、Skillのスラッグ（ファイル名）変更、必須引数の追加、動作の根本的な変更などが挙げられる。後方互換な変更には、新しいSkillファイルの追加や、既存Skillへのオプション引数追加が含まれる。</p>
+
+      <h2 id="git-tag-strategy">Gitタグ戦略</h2>
+      <p>バージョンの記録にはGitタグを使用する。アノテーテッドタグ（annotated tag）はタグ作成者・日時・メッセージを記録できるため、ライトウェイトタグより推奨される。</p>
+
+      <h3 id="tag-creation">タグの作成と命名規則</h3>
+      <pre><code># アノテーテッドタグの作成（推奨）
+git tag -a v2.4.1 -m "fix: deploy skillのコメント誤記を修正"
+
+# タグをリモートにプッシュ
+git push origin v2.4.1
+
+# 全タグをまとめてプッシュ
+git push origin --tags
+
+# タグ一覧の確認
+git tag -l "v*" --sort=-version:refname</code></pre>
+
+      <p>命名規則は <code>v{MAJOR}.{MINOR}.{PATCH}</code> に統一し、プレリリース版には <code>v2.5.0-beta.1</code> や <code>v2.5.0-rc.1</code> のサフィックスを付与する。</p>
+
+      <h3 id="submodule-pin">サブモジュールでのバージョン固定</h3>
+      <p><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>では、タグを使ったバージョン固定が重要なプラクティスだ：</p>
+      <pre><code># サブモジュールを特定バージョンに固定
+cd .claude/shared-commands
+git checkout v2.4.1
+cd ../..
+git add .claude/shared-commands
+git commit -m "chore: claude-skills を v2.4.1 に更新"</code></pre>
+
+      <h2 id="branch-strategy">ブランチ戦略</h2>
+      <p>Skillsリポジトリのブランチ戦略は、複雑なGit Flowよりもシンプルな構成が適している。推奨構成は <code>main</code> ブランチと <code>stable</code> ブランチの2本立てだ。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 220" width="620" height="220">
+          <rect width="620" height="220" fill="#f8f9fa" rx="8"/>
+          <text x="310" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Skillsリポジトリのブランチ戦略</text>
+
+          <!-- main branch line -->
+          <line x1="40" y1="80" x2="580" y2="80" stroke="#3366cc" stroke-width="3"/>
+          <text x="20" y="84" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">main</text>
+
+          <!-- stable branch line -->
+          <line x1="40" y1="150" x2="580" y2="150" stroke="#2e7d32" stroke-width="3"/>
+          <text x="30" y="154" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">stable</text>
+
+          <!-- commits on main -->
+          <circle cx="100" cy="80" r="10" fill="#3366cc"/>
+          <text x="100" y="65" text-anchor="middle" font-size="9" fill="#202122">feat</text>
+
+          <circle cx="210" cy="80" r="10" fill="#3366cc"/>
+          <text x="210" y="65" text-anchor="middle" font-size="9" fill="#202122">fix</text>
+
+          <circle cx="320" cy="80" r="10" fill="#3366cc"/>
+          <text x="320" y="65" text-anchor="middle" font-size="9" fill="#202122">feat</text>
+
+          <circle cx="430" cy="80" r="10" fill="#e65100"/>
+          <text x="430" y="65" text-anchor="middle" font-size="9" fill="#e65100">v2.5.0</text>
+          <text x="430" y="57" text-anchor="middle" font-size="9" fill="#e65100">tag</text>
+
+          <circle cx="540" cy="80" r="10" fill="#3366cc"/>
+          <text x="540" y="65" text-anchor="middle" font-size="9" fill="#202122">feat</text>
+
+          <!-- stable tags -->
+          <circle cx="210" cy="150" r="10" fill="#2e7d32"/>
+          <text x="210" y="170" text-anchor="middle" font-size="9" fill="#2e7d32">v2.4.1</text>
+
+          <circle cx="430" cy="150" r="10" fill="#2e7d32"/>
+          <text x="430" y="170" text-anchor="middle" font-size="9" fill="#2e7d32">v2.5.0</text>
+
+          <!-- merge arrows -->
+          <line x1="210" y1="90" x2="210" y2="140" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="430" y1="90" x2="430" y2="140" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="310" y="122" text-anchor="middle" font-size="9" fill="#777">リリース時にマージ</text>
+        </svg>
+        <div class="diagram-caption">図2: main（開発）とstable（リリース済み）の2ブランチ構成</div>
+      </div>
+
+      <h3 id="branch-roles">各ブランチの役割</h3>
+      <p><code>main</code> ブランチは日常的な開発の主軸であり、新しいSkillの追加・修正がすべてここに集約される。<code>stable</code> ブランチはリリース済みの安定版を示し、リリースタイミングで <code>main</code> からマージする。チームによっては <code>stable</code> ブランチを省略し、タグだけで管理するシンプルな構成も有効だ。</p>
+
+      <h2 id="changelog">CHANGELOGの自動生成</h2>
+      <p>バージョン間の変更内容を記録するCHANGELOGは、手動管理よりも<b>自動生成ツール</b>を活用することで継続的なメンテナンスが容易になる。コミットメッセージに<a href="https://www.conventionalcommits.org/">Conventional Commits</a>形式を採用することがその前提条件となる。</p>
+
+      <h3 id="conventional-commits">Conventional Commitsの採用</h3>
+      <pre><code># Conventional Commits 形式の例
+feat: review-pr スキルに --draft オプションを追加
+fix: deploy スキルの環境変数参照エラーを修正
+docs: README にバージョニングポリシーを追記
+refactor: generate-tests スキルの引数処理を整理
+BREAKING CHANGE: commit スキルの引数形式を変更</code></pre>
+
+      <h3 id="git-cliff">git-cliffによるCHANGELOG自動生成</h3>
+      <p>git-cliffはRust製のCHANGELOG生成ツールで、Conventional Commitsを解析してMarkdown形式のCHANGELOGを自動生成する：</p>
+      <pre><code># cliff.toml の基本設定例
+[changelog]
+header = "# Changelog\n\n"
+body = """
+## {{ version }} - {{ timestamp | date(format="%Y-%m-%d") }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message }}{% endfor %}
+{% endfor %}
+"""
+
+[git]
+conventional_commits = true
+commit_parsers = [
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^docs", group = "Documentation" },
+  { message = "^refactor", group = "Refactoring" },
+]</code></pre>
+
+      <pre><code># バージョンタグ付きでCHANGELOGを生成
+git cliff --tag v2.5.0 -o CHANGELOG.md
+
+# 最新タグから現在のHEADまでの差分を表示
+git cliff --unreleased</code></pre>
+
+      <h2 id="release-workflow">リリースワークフロー</h2>
+      <p>バージョンリリースの手順を標準化することで、誰がリリースを担当しても一貫した品質を維持できる。以下のワークフローをチームで共有し、<a href="setup-automation.html">セットアップ自動化スクリプト</a>に組み込むことを推奨する。</p>
+
+      <h3 id="release-checklist">リリースチェックリスト</h3>
+      <pre><code>#!/bin/bash
+# release.sh - Skillsリポジトリのリリーススクリプト
+set -e
+
+VERSION=$1
+if [ -z "$VERSION" ]; then
+  echo "Usage: ./release.sh v2.5.0"
+  exit 1
+fi
+
+echo "=== Skillsリポジトリ リリース: $VERSION ==="
+
+# 1. mainブランチであることを確認
+BRANCH=$(git branch --show-current)
+if [ "$BRANCH" != "main" ]; then
+  echo "Error: mainブランチで実行してください（現在: $BRANCH）"
+  exit 1
+fi
+
+# 2. ローカルが最新であることを確認
+git pull origin main
+
+# 3. CHANGELOGを更新
+git cliff --tag $VERSION -o CHANGELOG.md
+git add CHANGELOG.md
+git commit -m "chore: CHANGELOG を $VERSION 用に更新"
+
+# 4. タグを作成
+git tag -a $VERSION -m "release: $VERSION"
+
+# 5. stableブランチをマージ
+git checkout stable
+git merge main --no-ff -m "release: $VERSION を stable にマージ"
+git checkout main
+
+# 6. リモートにプッシュ
+git push origin main stable
+git push origin $VERSION
+
+echo "=== リリース完了: $VERSION ==="</code></pre>
+
+      <h3 id="release-notes">リリースノートの作成</h3>
+      <p>GitHubのReleasesページにリリースノートを公開することで、利用者はバージョンアップ時の変更点を容易に確認できる。CHANGELOGから自動生成する方法が効率的だ：</p>
+      <pre><code># GitHub CLI を使ったリリース作成
+# CHANGELOGから最新バージョンのノートを抽出してリリース
+NOTES=$(git cliff --latest --strip all)
+
+gh release create v2.5.0 \
+  --title "v2.5.0 - 新規Skill追加とバグ修正" \
+  --notes "$NOTES" \
+  --target stable</code></pre>
+
+      <h2 id="version-policy">バージョンポリシーの文書化</h2>
+      <p>バージョニングポリシーはSkillsリポジトリのREADMEまたは専用の <code>VERSIONING.md</code> に明文化し、チーム全体が参照できるようにする。特に以下の項目を明示することが重要だ。</p>
+
+      <h3 id="support-policy">サポートポリシー</h3>
+      <p>MAJORバージョンのサポート期間（例：「現行MAJOR版と1つ前のMAJOR版をサポート」）を定めることで、利用者がアップグレードを計画しやすくなる。<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>や<a href="monorepo-skills.html">モノレポ構成</a>を採用している場合でも、このポリシーは有効だ。</p>
+
+      <h3 id="deprecation">非推奨化プロセス</h3>
+      <p>Skillを廃止する際には、<code>MINOR</code>バージョンで非推奨警告を追加し、次の<code>MAJOR</code>バージョンで削除するという段階的なプロセスを採用する。非推奨のSkillファイルの冒頭に以下のような警告コメントを追記することで、利用者への通知が可能だ：</p>
+      <pre><code><!-- ⚠️ DEPRECATED: このSkillはv3.0.0で削除予定です。
+     代替: new-deploy.md を使用してください。 -->
+# deploy (非推奨)
+...</code></pre>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#semantic-versioning">セマンティックバージョニングの適用</a></li>
+          <li><a href="#git-tag-strategy">Gitタグ戦略</a></li>
+          <li class="toc-h3"><a href="#tag-creation">タグの作成と命名規則</a></li>
+          <li class="toc-h3"><a href="#submodule-pin">サブモジュールでのバージョン固定</a></li>
+          <li><a href="#branch-strategy">ブランチ戦略</a></li>
+          <li class="toc-h3"><a href="#branch-roles">各ブランチの役割</a></li>
+          <li><a href="#changelog">CHANGELOGの自動生成</a></li>
+          <li class="toc-h3"><a href="#conventional-commits">Conventional Commitsの採用</a></li>
+          <li class="toc-h3"><a href="#git-cliff">git-cliffによる自動生成</a></li>
+          <li><a href="#release-workflow">リリースワークフロー</a></li>
+          <li class="toc-h3"><a href="#release-checklist">リリースチェックリスト</a></li>
+          <li class="toc-h3"><a href="#release-notes">リリースノートの作成</a></li>
+          <li><a href="#version-policy">バージョンポリシーの文書化</a></li>
+          <li class="toc-h3"><a href="#support-policy">サポートポリシー</a></li>
+          <li class="toc-h3"><a href="#deprecation">非推奨化プロセス</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+          <li><a href="monorepo-skills.html">モノレポ構成でのSkills管理</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        <li><a href="monorepo-skills.html">モノレポ構成でのSkills管理</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
