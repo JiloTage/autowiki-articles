@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ロボトミー手術の歴史 - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>ロボトミー手術の歴史</h1>
+    <p>20世紀の精神医学における最も劇的で論争的な医療行為の一つ、ロボトミー手術の起源・普及・倫理的問題・衰退を網羅的に扱うwiki。発明者エガス・モニスからウォルター・フリーマンの大衆化、インフォームドコンセント・患者権利運動・現代医療倫理の発展まで。</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">10</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">47</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/robotomi-shujutsu-no-rekishi.html">ロボトミー手術の歴史</a></td>
+          <td>ロボトミー手術（前頭葉切截術）は20世紀前半に精神疾患の治療法として登場し、短期間で世界中に普及したものの、深刻な倫理問題と医学的批判により急速に廃れた神経外科手術の一形態である。</td>
+          <td>2026-03-31</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/egas-moniz.html">エガス・モニス</a></td>
+          <td>エガス・モニス（António Caetano de Abreu Freire Egas Moniz、1874–1955）はポルトガルの神経科医・政治家。前頭葉切截術（ロボトミー手術）の発明者として1949年ノーベル生理学・医学賞を受賞したが、その後の医学的・倫理的評価は激しく分かれ、20世紀医学史上最も議論を呼ぶ人物の一人として記憶される。</td>
+          <td>2026-03-31</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/rosemary-kennedy-to-robotomi.html">ローズマリー・ケネディとロボトミー</a></td>
+          <td>ローズマリー・ケネディ（1918–2005）はジョン・F・ケネディ大統領の姉であり、1941年に父ジョセフ・ケネディの独断でウォルター・フリーマンによるロボトミー手術を受けた。術後に重篤な障害を抱えた彼女の事例は、ロボトミー史上最も広く知られた悲劇的ケースである。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/walter-freeman-no-shougai.html">ウォルター・フリーマンの生涯</a></td>
+          <td>ウォルター・フリーマン（Walter Freeman、1895–1972）はアメリカの精神科医。改造した氷千枚通しを用いた経眼窩式ロボトミーを考案・大衆化し、生涯に3,400例以上の手術を実施した。医学倫理を無視したとして後世に強く批判される。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/chlorpromazine-to-seishin-yakuri.html">クロルプロマジンと精神薬理学の革命</a></td>
+          <td>クロルプロマジン（chlorpromazine）は1952年にフランスで発見された世界初の抗精神病薬であり、ロボトミーを含む外科的精神医療の衰退を直接促進し、精神薬理学という新分野を確立した歴史的転換点である。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/informed-consent-no-rekishi.html">インフォームドコンセントの歴史</a></td>
+          <td>インフォームドコンセント（informed consent）とは、患者が十分な情報を得た上で自らの意思で医療行為に同意する権利および手続きである。ナチスの人体実験への反省を起点として生まれたニュルンベルク綱領（1947年）から現代に至るまで、患者の自律性を守る医療倫理規範の発展を辿る。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/iryou-rinri-no-hatten.html">現代医療倫理の発展</a></td>
+          <td>現代の生命倫理学（bioethics）は、ナチスの人体実験・タスキギー梅毒研究・ロボトミー手術のような強制的・非倫理的医療への深刻な反省の上に構築された。4原則の確立、IRB制度の誕生、新技術への適用まで詳述する。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/patient-rights-movement.html">患者権利運動の歴史</a></td>
+          <td>1960〜70年代のアメリカを中心に勃興した患者権利運動は、公民権運動・女性解放運動・障害者権利運動と連動しながら、精神医療における強制・管理・人権侵害への組織的抵抗として発展した。</td>
+          <td>2026-03-31</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/nihon-no-seishin-iryo-shi.html">日本の精神医療史</a></td>
+          <td>日本における近代精神医療の歴史は、江戸時代の私宅監置制度に始まり、明治期の精神病者監護法（1900年）、戦後の精神衛生法（1950年）によるロボトミー導入期、宇都宮病院事件（1984年）を契機とした精神保健法改正、そして現代の地域移行政策に至る。</td>
+          <td>2026-03-31</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/seishin-iryo-to-jinken.html">精神医療と人権</a></td>
+          <td>精神医療と人権の関係は、20世紀以降の医療倫理・国際法・社会運動の最も重要な交差点の一つである。国連障害者権利条約（CRPD）の採択や当事者主体のリカバリー運動の台頭により、パラダイムシフトが進行している。</td>
+          <td>2026-03-31</td>
+          <td>5</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>
