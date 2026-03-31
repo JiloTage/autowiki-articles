@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code プラグインマーケットプレイスの現状と活用ガイド - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Claude Code プラグインマーケットプレイスの現状と活用ガイド
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Code プラグインマーケットプレイスの現状と活用ガイド</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code には公式のプラグインシステムとマーケットプレイスが存在する。<code>/plugin</code> コマンドによるインストール、公式・コミュニティ・組織内の三層構造、カスタムマーケットプレイスの作成方法を解説する。</div>
+
+      <h2 id="plugin-system-overview">Claude Code プラグインシステムの概要</h2>
+      <p>Claude Code には <b>公式プラグインシステム</b> が実装されており、スラッシュコマンド・サブエージェント・MCPサーバー・フックをひとつの配布単位（プラグイン）にパッケージして共有できる。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で紹介した手動的なアプローチを大きく超え、<code>/plugin</code> コマンドひとつで検索・インストール・管理が完結する。</p>
+      <p>プラグインが含むことができるコンポーネントは以下の4種類である。</p>
+      <ul>
+        <li><strong>スラッシュコマンド（Skills）</strong>: <code>.claude/commands/</code> 配下のMarkdownファイル。繰り返し実行するタスクを定型化する。</li>
+        <li><strong>サブエージェント</strong>: 特定の開発タスク（コードレビュー、テスト生成など）に特化した目的型エージェント。</li>
+        <li><strong>MCPサーバー</strong>: GitHub、Slack、Figmaなど外部ツールへの接続を提供するModel Context Protocolサーバー。</li>
+        <li><strong>フック</strong>: ツール呼び出し前後などのライフサイクルイベントにカスタム処理を追加する仕組み。</li>
+      </ul>
+
+      <h2 id="plugin-command">/plugin コマンドの使い方</h2>
+      <p><code>/plugin</code> コマンドはタブ型UIを提供し、以下の操作が行える。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" width="700" height="320">
+          <rect width="700" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="350" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">/plugin コマンドのUI構成</text>
+
+          <!-- Tab bar -->
+          <rect x="40" y="50" width="155" height="36" rx="6" fill="#3367d6"/>
+          <text x="117" y="73" text-anchor="middle" font-size="13" fill="#fff" font-weight="bold">Discover</text>
+          <rect x="205" y="50" width="155" height="36" rx="6" fill="#e8e8e8"/>
+          <text x="282" y="73" text-anchor="middle" font-size="13" fill="#555">Installed</text>
+          <rect x="370" y="50" width="155" height="36" rx="6" fill="#e8e8e8"/>
+          <text x="447" y="73" text-anchor="middle" font-size="13" fill="#555">Marketplaces</text>
+          <rect x="535" y="50" width="125" height="36" rx="6" fill="#e8e8e8"/>
+          <text x="597" y="73" text-anchor="middle" font-size="13" fill="#555">Errors</text>
+
+          <!-- Content area -->
+          <rect x="40" y="100" width="620" height="195" rx="6" fill="#fff" stroke="#ddd" stroke-width="1.5"/>
+
+          <!-- Discover tab content -->
+          <text x="60" y="128" font-size="12" fill="#333" font-weight="bold">利用可能なマーケットプレイスからプラグインを検索・インストール</text>
+          <rect x="55" y="140" width="590" height="40" rx="4" fill="#f0f4ff" stroke="#b0c4ff" stroke-width="1"/>
+          <text x="75" y="165" font-size="12" fill="#3367d6">▶ Frontend Design  413,000+ インストール  ★4.8  [インストール]</text>
+          <rect x="55" y="188" width="590" height="40" rx="4" fill="#f0f4ff" stroke="#b0c4ff" stroke-width="1"/>
+          <text x="75" y="213" font-size="12" fill="#3367d6">▶ GitHub Integration  310,000+ インストール  ★4.7  [インストール]</text>
+          <rect x="55" y="236" width="590" height="40" rx="4" fill="#f0f4ff" stroke="#b0c4ff" stroke-width="1"/>
+          <text x="75" y="261" font-size="12" fill="#3367d6">▶ Test Generator Pro  220,000+ インストール  ★4.6  [インストール]</text>
+        </svg>
+        <div class="diagram-caption">図1: /plugin コマンドのタブUI（Discover・Installed・Marketplaces・Errors）</div>
+      </div>
+
+      <h3 id="install-command">CLIからのインストール</h3>
+      <p>プラグインはCLIから直接インストールすることも可能だ。</p>
+      <pre><code># 公式マーケットプレイスからインストール
+/plugin install &lt;plugin-name&gt;@claude-plugins-official
+
+# コミュニティマーケットプレイスを追加
+/plugin marketplace add &lt;user-or-org&gt;/&lt;repo-name&gt;
+
+# 追加されたマーケットプレイスから検索・インストール
+/plugin install &lt;plugin-name&gt;</code></pre>
+
+      <h2 id="three-tier-structure">三層マーケットプレイス構造</h2>
+      <p>Claude Code のプラグインエコシステムは、公開範囲と管理主体によって三つの層に分類できる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400">
+          <rect width="700" height="400" fill="#f8f9fa" rx="8"/>
+          <text x="350" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#202122">プラグインマーケットプレイスの三層構造</text>
+
+          <!-- 層1: 公式マーケットプレイス -->
+          <rect x="40" y="55" width="620" height="100" rx="10" fill="#e8f0fe" stroke="#3367d6" stroke-width="2"/>
+          <text x="350" y="80" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a56db">公式マーケットプレイス（Anthropic管理）</text>
+          <text x="350" y="100" text-anchor="middle" font-size="12" fill="#1a56db">・claude-plugins-official として自動登録済み</text>
+          <text x="350" y="118" text-anchor="middle" font-size="12" fill="#1a56db">・Anthropic審査・品質保証済みプラグイン</text>
+          <text x="350" y="136" text-anchor="middle" font-size="12" fill="#1a56db">・提出先: claude.ai/settings/plugins/submit</text>
+
+          <!-- 層2: コミュニティマーケットプレイス -->
+          <rect x="80" y="175" width="540" height="100" rx="10" fill="#e6f4ea" stroke="#1e7e34" stroke-width="2"/>
+          <text x="350" y="200" text-anchor="middle" font-size="14" font-weight="bold" fill="#155724">コミュニティマーケットプレイス（OSS）</text>
+          <text x="350" y="220" text-anchor="middle" font-size="12" fill="#155724">・Git リポジトリ + .claude-plugin/marketplace.json で構築</text>
+          <text x="350" y="238" text-anchor="middle" font-size="12" fill="#155724">・awesome-claude-code 等のキュレーションリスト</text>
+          <text x="350" y="256" text-anchor="middle" font-size="12" fill="#155724">・/plugin marketplace add で追加</text>
+
+          <!-- 層3: 組織内マーケットプレイス -->
+          <rect x="120" y="295" width="460" height="90" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+          <text x="350" y="320" text-anchor="middle" font-size="14" font-weight="bold" fill="#bf360c">組織内マーケットプレイス（プライベート）</text>
+          <text x="350" y="340" text-anchor="middle" font-size="12" fill="#bf360c">・プライベートリポジトリで運営</text>
+          <text x="350" y="358" text-anchor="middle" font-size="12" fill="#bf360c">・組織マネージド設定で全員に自動配布</text>
+
+          <defs>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <line x1="350" y1="155" x2="350" y2="172" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <line x1="350" y1="275" x2="350" y2="292" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <text x="362" y="168" font-size="10" fill="#555">継承・活用</text>
+          <text x="362" y="288" font-size="10" fill="#555">継承・活用</text>
+        </svg>
+        <div class="diagram-caption">図2: Claude Code プラグインエコシステムの三層構造</div>
+      </div>
+
+      <h3 id="official-marketplace">公式マーケットプレイス（Anthropic管理）</h3>
+      <p>Anthropicが運営する公式マーケットプレイス（<code>claude-plugins-official</code>）は、Claude Code 起動時に自動的に登録される。フロントエンドデザイン、GitHub連携、Slack統合、コード解析など多様なプラグインが公開されており、<code>/plugin</code> コマンドから即時インストールできる。</p>
+      <p>開発したプラグインを公式マーケットプレイスに提出する場合は以下の窓口を利用する。</p>
+      <ul>
+        <li><strong>claude.ai 経由</strong>: <code>claude.ai/settings/plugins/submit</code></li>
+        <li><strong>Console経由</strong>: <code>platform.claude.com/plugins/submit</code></li>
+      </ul>
+      <p>Anthropicの審査プロセスを経て、セキュリティ・品質が確認されたプラグインのみが掲載される。</p>
+
+      <h3 id="community-marketplace">コミュニティマーケットプレイス</h3>
+      <p>コミュニティが主体となるマーケットプレイスは、Git リポジトリに <code>.claude-plugin/marketplace.json</code> ファイルを配置することで誰でも構築できる。<code>/plugin marketplace add user/repo</code> コマンドで追加し、そこに収録されたプラグインを通常の <code>/plugin install</code> でインストールできる。</p>
+      <p>代表的なコミュニティリソースとして <strong>awesome-claude-code</strong>（GitHub）がある。スラッシュコマンド・スキル・フック・プラグインをキュレーションした包括的なリスト集であり、コミュニティが継続的に更新している。</p>
+
+      <h3 id="internal-marketplace">組織内マーケットプレイス</h3>
+      <p>企業・組織内部のプライベートマーケットプレイスは、プライベートリポジトリで運営する。<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>や<a href="monorepo-skills.html">モノレポ構成</a>をプラグイン形式に昇格させた形態だ。組織のマネージド設定を使えば、全メンバーのClaude Codeにプラグインを自動配布できる。</p>
+
+      <h2 id="build-custom-marketplace">カスタムマーケットプレイスの構築</h2>
+      <p>コミュニティや組織向けの独自マーケットプレイスを構築するには、Gitリポジトリに以下の構成を用意する。</p>
+      <pre><code>my-team-marketplace/
+├── .claude-plugin/
+│   └── marketplace.json   ← マーケットプレイス定義
+├── plugins/
+│   ├── code-review/
+│   │   ├── PLUGIN.md
+│   │   └── commands/
+│   └── deploy-helper/
+│       ├── PLUGIN.md
+│       └── commands/
+└── README.md</code></pre>
+
+      <h3 id="marketplace-json">marketplace.json の構造</h3>
+      <pre><code>{
+  "name": "My Team Marketplace",
+  "description": "社内Claude Code プラグイン集",
+  "plugins": [
+    {
+      "name": "code-review",
+      "title": "コードレビュー支援",
+      "description": "PRレビューを自動化するプラグイン",
+      "path": "plugins/code-review"
+    },
+    {
+      "name": "deploy-helper",
+      "title": "デプロイ自動化",
+      "description": "デプロイフローを一元管理するプラグイン",
+      "path": "plugins/deploy-helper"
+    }
+  ]
+}</code></pre>
+      <p>このリポジトリを GitHub に公開（または社内のプライベートリポジトリに配置）した後、チームメンバーが <code>/plugin marketplace add &lt;org&gt;/my-team-marketplace</code> を実行すると、プラグインが検索可能になる。</p>
+
+      <h2 id="plugin-vs-direct-sharing">プラグイン配布 vs 直接共有の使い分け</h2>
+      <p>プラグインシステムを使う方法と、<a href="npm-github-packages.html">npmパッケージ</a>・<a href="git-submodule-approach.html">Gitサブモジュール</a>・<a href="central-repo-approach.html">セントラルリポジトリ</a>などの直接共有方法は、用途によって使い分ける。</p>
+      <ul>
+        <li><strong>プラグイン配布</strong>: Claude Code エコシステム内での発見性を高めたい場合、スラッシュコマンド以外の機能（MCPサーバー・フック）も含める場合、広く公開したい場合に適している。</li>
+        <li><strong>npm / GitHub Packages</strong>: バージョン管理の厳密性が求められる場合、CI/CDパイプラインとの統合が必要な場合に適している。</li>
+        <li><strong>Gitサブモジュール・セントラルリポジトリ</strong>: 小〜中規模チームで追加ツール導入を避けたい場合、既存のGitワークフローをそのまま活用したい場合に適している。</li>
+      </ul>
+
+      <h2 id="security-and-governance">セキュリティとガバナンス</h2>
+      <p>プラグインはコマンド実行・ファイル操作・ネットワークアクセスなど強力な操作を行う可能性があるため、マーケットプレイス選択とインストール判断は慎重に行う必要がある。</p>
+      <h3 id="permission-declaration">権限宣言と最小権限の原則</h3>
+      <p>各プラグインが要求する権限は <code>allowed-tools</code> フィールドで宣言され、インストール前に確認できる。最小権限の原則に基づき、必要最小限の権限のみを要求するプラグインを選択することが推奨される。公式マーケットプレイス掲載のプラグインはAnthropicのセキュリティ審査を通過しているため、コミュニティプラグインより信頼度が高い。</p>
+      <h3 id="source-verification">ソース確認</h3>
+      <p>コミュニティマーケットプレイスから取得するプラグインは、インストール前にソースコードを確認し、不審な操作が含まれていないかをチェックすることが重要だ。<a href="skills-quality-review.html">Skillsの品質管理とコードレビュープロセス</a>に記載する審査チェックリストを適用するとよい。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#plugin-system-overview">プラグインシステムの概要</a></li>
+          <li><a href="#plugin-command">/plugin コマンドの使い方</a></li>
+          <li class="toc-h3"><a href="#install-command">CLIからのインストール</a></li>
+          <li><a href="#three-tier-structure">三層マーケットプレイス構造</a></li>
+          <li class="toc-h3"><a href="#official-marketplace">公式マーケットプレイス</a></li>
+          <li class="toc-h3"><a href="#community-marketplace">コミュニティマーケットプレイス</a></li>
+          <li class="toc-h3"><a href="#internal-marketplace">組織内マーケットプレイス</a></li>
+          <li><a href="#build-custom-marketplace">カスタムマーケットプレイスの構築</a></li>
+          <li class="toc-h3"><a href="#marketplace-json">marketplace.json の構造</a></li>
+          <li><a href="#plugin-vs-direct-sharing">プラグイン配布 vs 直接共有</a></li>
+          <li><a href="#security-and-governance">セキュリティとガバナンス</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Claude Code Skills共有方法 概要</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+          <li><a href="monorepo-skills.html">モノレポ構成でのClaude Code Skills管理</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールを使ったスキル共有アプローチ</a></li>
+          <li><a href="setup-automation.html">スキル配布のセットアップ自動化スクリプト</a></li>
+          <li><a href="skills-quality-review.html">Skillsの品質管理とコードレビュープロセス</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Claude Code Skills共有方法 概要</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+        <li><a href="monorepo-skills.html">モノレポ構成でのClaude Code Skills管理</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールを使ったスキル共有アプローチ</a></li>
+        <li><a href="setup-automation.html">スキル配布のセットアップ自動化スクリプト</a></li>
+        <li><a href="skills-quality-review.html">Skillsの品質管理とコードレビュープロセス</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -55,6 +55,34 @@
       "url": "articles/reykjavik.html",
       "summary": "レイキャビクはアイスランドの首都であり、874年のヴァイキングによる入植以来、北欧神話の主要文書であるエッダ・サガの成立地として知られる。世界最古の議会アルシング（930年）の開催地シングヴェトリルを近郊に擁し、北欧神話の伝承と保存において世界で最も重要な都市のひとつである。",
       "is_root": false
+    },
+    {
+      "id": "jorvík-skills-discovery",
+      "title": "ヨールヴィークの発掘術とSkillsカタログ：未知の価値を体系化する技法",
+      "url": "articles/jorvík-skills-discovery.html",
+      "summary": "ヴァイキングがヨールヴィーク（現ヨーク）の地中に遺した無数の遺物を20世紀の考古学者が発掘・分類・公開したプロセスと、Claude Code Skillsをチームで発見・カタログ化する仕組みは、「未知の価値を体系化する」という行為において深く対応する。",
+      "is_root": false
+    },
+    {
+      "id": "roskilde-npm-sea-route",
+      "title": "ロスキレの港とnpmという現代の海路：知識の流通拠点",
+      "url": "articles/roskilde-npm-sea-route.html",
+      "summary": "デンマークの古都ロスキレが中世の北海交易における中継港として機能し、北欧世界全体に物資・文化・信仰を流通させたように、npmはソフトウェア開発の世界においてコードパッケージを地球規模で流通させる「デジタルの港湾都市」である。",
+      "is_root": false
+    },
+    {
+      "id": "althing-public-registry",
+      "title": "アルシングとパブリックレジストリ：開かれた知識共有の民主制",
+      "url": "articles/althing-public-registry.html",
+      "summary": "930年、レイキャビク近郊のシングヴェトリルに成立した「アルシング」は世界最古の議会として知られ、北欧全土の自由民が法律を議論・制定・共有する開かれた場を提供した。Claude Code Skillsをパブリックなnpmレジストリでオープンソース公開する行為は、アルシングが体現した「知識・規範の民主的共有」という思想の現代的継承である。",
+      "is_root": false
+    },
+    {
+      "id": "gamla-uppsala-central-hub",
+      "title": "ガムラ・ウプサラの神殿とセントラルリポジトリ：聖なる中心地の思想",
+      "url": "articles/gamla-uppsala-central-hub.html",
+      "summary": "ガムラ・ウプサラは北欧神話の三大神オーディン・トール・フレイを祀る大神殿を中心に、スカンジナビア全域から巡礼者・商人・王侯が集まる「聖なる中枢」として機能した。セントラルリポジトリアプローチも「全ての知識が一点に集まり、そこから全チームに分配される」という中心地の思想を体現している。",
+      "is_root": false
     }
   ],
   "links": [
@@ -103,6 +131,10 @@
       "target": "roskilde"
     },
     {
+      "source": "gamla-uppsala",
+      "target": "gamla-uppsala-central-hub"
+    },
+    {
       "source": "roskilde",
       "target": "hokuo-shinwa-no-machi"
     },
@@ -121,6 +153,14 @@
     {
       "source": "roskilde",
       "target": "reykjavik"
+    },
+    {
+      "source": "roskilde",
+      "target": "york-jorvík"
+    },
+    {
+      "source": "roskilde",
+      "target": "roskilde-npm-sea-route"
     },
     {
       "source": "uppsala",
@@ -207,6 +247,10 @@
       "target": "reykjavik"
     },
     {
+      "source": "york-jorvík",
+      "target": "jorvík-skills-discovery"
+    },
+    {
       "source": "reykjavik",
       "target": "hokuo-shinwa-no-machi"
     },
@@ -225,6 +269,46 @@
     {
       "source": "reykjavik",
       "target": "gamla-uppsala"
+    },
+    {
+      "source": "reykjavik",
+      "target": "althing-public-registry"
+    },
+    {
+      "source": "jorvík-skills-discovery",
+      "target": "york-jorvík"
+    },
+    {
+      "source": "jorvík-skills-discovery",
+      "target": "hokuo-shinwa-no-machi"
+    },
+    {
+      "source": "roskilde-npm-sea-route",
+      "target": "roskilde"
+    },
+    {
+      "source": "roskilde-npm-sea-route",
+      "target": "york-jorvík"
+    },
+    {
+      "source": "roskilde-npm-sea-route",
+      "target": "hokuo-shinwa-no-machi"
+    },
+    {
+      "source": "althing-public-registry",
+      "target": "reykjavik"
+    },
+    {
+      "source": "althing-public-registry",
+      "target": "hokuo-shinwa-no-machi"
+    },
+    {
+      "source": "gamla-uppsala-central-hub",
+      "target": "gamla-uppsala"
+    },
+    {
+      "source": "gamla-uppsala-central-hub",
+      "target": "hokuo-shinwa-no-machi"
     }
   ]
 }

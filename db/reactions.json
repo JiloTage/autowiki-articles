@@ -1,6 +1,95 @@
 {
-  "reactions": [],
+  "reactions": [
+    {
+      "id": "r-286eb0",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "hokuo-shinwa-yukari-machi",
+          "article": "york-jorvík"
+        },
+        {
+          "wiki": "claude-code-skills-sharing",
+          "article": "skills-discovery-and-catalog"
+        }
+      ],
+      "product": {
+        "wiki": "hokuo-shinwa-yukari-machi",
+        "slug": "jorvík-skills-discovery",
+        "title": "ヨールヴィークの発掘術とSkillsカタログ：未知の価値を体系化する技法"
+      },
+      "catalyst": "ヴァイキング遺物発掘とSkillsカタログ化の三段階プロセス（発掘→分類→公開）の類比",
+      "affinity_score": 0.75,
+      "created_at": "2026-03-31T00:46:24.301290+00:00"
+    },
+    {
+      "id": "r-b92ac9",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "hokuo-shinwa-yukari-machi",
+          "article": "roskilde"
+        },
+        {
+          "wiki": "claude-code-skills-sharing",
+          "article": "npm-github-packages"
+        }
+      ],
+      "product": {
+        "wiki": "hokuo-shinwa-yukari-machi",
+        "slug": "roskilde-npm-sea-route",
+        "title": "ロスキレの港とnpmという現代の海路：知識の流通拠点"
+      },
+      "catalyst": "ヴァイキング海上交易拠点ロスキレとnpmパッケージ配布の「流通インフラ」の類比",
+      "affinity_score": 0.72,
+      "created_at": "2026-03-31T00:46:36.194616+00:00"
+    },
+    {
+      "id": "r-2403cd",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "hokuo-shinwa-yukari-machi",
+          "article": "reykjavik"
+        },
+        {
+          "wiki": "claude-code-skills-sharing",
+          "article": "public-skills-registry"
+        }
+      ],
+      "product": {
+        "wiki": "hokuo-shinwa-yukari-machi",
+        "slug": "althing-public-registry",
+        "title": "アルシングとパブリックレジストリ：開かれた知識共有の民主制"
+      },
+      "catalyst": "世界最古の議会アルシングとオープンソースパブリックレジストリの「民主的知識共有」の類比",
+      "affinity_score": 0.72,
+      "created_at": "2026-03-31T00:46:36.250606+00:00"
+    },
+    {
+      "id": "r-1cf7ed",
+      "type": "analogy",
+      "reagents": [
+        {
+          "wiki": "hokuo-shinwa-yukari-machi",
+          "article": "gamla-uppsala"
+        },
+        {
+          "wiki": "claude-code-skills-sharing",
+          "article": "central-repo-approach"
+        }
+      ],
+      "product": {
+        "wiki": "hokuo-shinwa-yukari-machi",
+        "slug": "gamla-uppsala-central-hub",
+        "title": "ガムラ・ウプサラの神殿とセントラルリポジトリ：聖なる中心地の思想"
+      },
+      "catalyst": "北欧の聖なる中枢ガムラ・ウプサラとセントラルリポジトリの「単一信頼情報源」の類比",
+      "affinity_score": 0.7,
+      "created_at": "2026-03-31T00:46:36.306560+00:00"
+    }
+  ],
   "pending_affinities": [],
-  "last_react_total_articles": 0,
-  "last_react_at": "2026-03-30T13:51:44.081552+00:00"
+  "last_react_total_articles": 26,
+  "last_react_at": "2026-03-31T00:49:07.110836+00:00"
 }

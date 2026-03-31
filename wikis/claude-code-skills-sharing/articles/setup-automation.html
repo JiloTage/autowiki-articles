@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スキル配布のセットアップ自動化スクリプト - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    スキル配布のセットアップ自動化スクリプト
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">スキル配布のセットアップ自動化スクリプト</h1>
+      <div class="article-meta">最終更新: 2026-03-30</div>
+      <div class="article-summary">Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法（npm/Gitサブモジュール/セントラルリポジトリ）に依らず適用できる。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>セットアップ自動化スクリプト</b>は、選択した配布方法（<a href="npm-github-packages.html">npm / GitHub Packages</a>、<a href="git-submodule-approach.html">Gitサブモジュール</a>、<a href="central-repo-approach.html">セントラルリポジトリ</a>のいずれか）に関わらず、開発者が「1コマンド」でClaude Code Skillsを利用可能にするための自動化層だ。</p>
+
+      <h2 id="universal-installer">汎用インストーラースクリプト</h2>
+      <p>どの配布方法にも対応できる汎用的なインストーラーの設計：</p>
+
+      <pre><code>#!/usr/bin/env bash
+# install-claude-skills.sh - 汎用Claude Code Skillsインストーラー
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GLOBAL_COMMANDS_DIR="$HOME/.claude/commands"
+
+usage() {
+  cat &lt;&lt;EOF
+Usage: $0 [OPTIONS]
+
+Options:
+  --mode=MODE       配布モード: submodule|central|npm (default: auto-detect)
+  --global          グローバルインストール (~/.claude/commands/)
+  --project=PATH    プロジェクトパスを指定
+  --update          既存インストールを更新
+  -h, --help        このヘルプを表示
+
+Examples:
+  $0 --global                        # グローバルインストール
+  $0 --project=/path/to/my-project   # プロジェクトローカルインストール
+  $0 --update --global               # グローバルインストールを更新
+EOF
+}
+
+# 配布モードの自動検出
+detect_mode() {
+  if [ -f "package.json" ] && grep -q "claude-skills" package.json 2>/dev/null; then
+    echo "npm"
+  elif [ -f ".gitmodules" ] && grep -q "claude-skills" .gitmodules 2>/dev/null; then
+    echo "submodule"
+  else
+    echo "central"
+  fi
+}
+
+install_global() {
+  local source_dir="$1"
+  mkdir -p "$GLOBAL_COMMANDS_DIR"
+  for skill in "$source_dir"/*.md; do
+    [ -f "$skill" ] || continue
+    local name=$(basename "$skill")
+    ln -sf "$skill" "$GLOBAL_COMMANDS_DIR/$name"
+    echo "  ✓ $name"
+  done
+}
+
+# メイン処理
+MODE=$(detect_mode)
+echo "Mode: $MODE"
+# ... (各モードに応じた処理)
+</code></pre>
+
+      <h2 id="makefile-targets">Makefileによるタスク定義</h2>
+      <p>プロジェクトにMakefileがある場合、Skillsのセットアップをmakeターゲットとして定義するとチーム全員が同じコマンドで操作できる：</p>
+
+      <pre><code># Makefile
+.PHONY: setup-skills update-skills list-skills
+
+## Claude Code Skills をセットアップ
+setup-skills:
+    @echo "Setting up Claude Code Skills..."
+    @bash install-claude-skills.sh --global
+    @echo "Done."
+
+## Claude Code Skills を最新に更新
+update-skills:
+    @git submodule update --remote .claude/shared-commands
+    @bash install-claude-skills.sh --update --global
+
+## インストール済みのSkillsを一覧表示
+list-skills:
+    @ls -la ~/.claude/commands/*.md 2>/dev/null || echo "No skills installed"</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 290" width="600" height="290">
+          <rect width="600" height="290" fill="#f8f9fa" rx="8"/>
+          <text x="300" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">セットアップ自動化の全体フロー</text>
+
+          <!-- 開発者 -->
+          <rect x="30" y="55" width="100" height="50" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+          <text x="80" y="76" text-anchor="middle" font-size="11" fill="#0d47a1">新規開発者</text>
+          <text x="80" y="93" text-anchor="middle" font-size="9" fill="#1565c0">（オンボーディング）</text>
+
+          <!-- make setup-skills -->
+          <rect x="165" y="55" width="140" height="50" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+          <text x="235" y="76" text-anchor="middle" font-size="11" font-weight="bold" fill="#bf360c">make setup-skills</text>
+          <text x="235" y="93" text-anchor="middle" font-size="9" fill="#e65100">1コマンドで全自動</text>
+
+          <line x1="130" y1="80" x2="165" y2="80" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow5)"/>
+
+          <!-- 分岐 -->
+          <line x1="305" y1="80" x2="340" y2="80" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow5)"/>
+
+          <!-- 配布方法選択 -->
+          <rect x="340" y="40" width="220" height="180" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="450" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">配布方法に応じた処理</text>
+
+          <rect x="355" y="70" width="190" height="36" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+          <text x="450" y="85" text-anchor="middle" font-size="10" fill="#1b5e20">npm install @myorg/claude-skills</text>
+          <text x="450" y="100" text-anchor="middle" font-size="9" fill="#2e7d32">（npmモード）</text>
+
+          <rect x="355" y="115" width="190" height="36" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+          <text x="450" y="130" text-anchor="middle" font-size="10" fill="#0d47a1">git submodule update --init</text>
+          <text x="450" y="145" text-anchor="middle" font-size="9" fill="#1565c0">（submoduleモード）</text>
+
+          <rect x="355" y="160" width="190" height="36" rx="4" fill="#fce4ec" stroke="#880e4f" stroke-width="1"/>
+          <text x="450" y="175" text-anchor="middle" font-size="10" fill="#880e4f">git clone + symlink</text>
+          <text x="450" y="190" text-anchor="middle" font-size="9" fill="#880e4f">（centralモード）</text>
+
+          <!-- 結果 -->
+          <rect x="100" y="175" width="200" height="50" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="200" y="195" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">~/.claude/commands/ に</text>
+          <text x="200" y="212" text-anchor="middle" font-size="10" fill="#e65100">Skillsが配置され使用可能に</text>
+
+          <line x1="340" y1="200" x2="300" y2="200" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow5)"/>
+
+          <!-- GitHub Actions -->
+          <rect x="30" y="248" width="540" height="30" rx="5" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+          <text x="300" y="265" text-anchor="middle" font-size="10" fill="#6a1b9a">GitHub Actions: 新規リポジトリ作成時にsetup-skillsを自動実行（Repository Dispatch活用）</text>
+
+          <defs>
+            <marker id="arrow5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: セットアップ自動化の全体フロー</div>
+      </div>
+
+      <h2 id="dotfiles-integration">dotfilesリポジトリとの統合</h2>
+      <p>多くのエンジニアはdotfilesリポジトリを持っており、Claude Code Skillsのグローバルインストールをdotfilesのセットアップに組み込むことで、新マシンへの移行が容易になる：</p>
+
+      <pre><code># dotfiles/install.sh の一部
+# Claude Code Skills のセットアップ
+if command -v git &gt;/dev/null 2>&amp;1; then
+  SKILLS_REPO="git@github.com:myorg/claude-skills.git"
+  SKILLS_DIR="$HOME/.claude-skills"
+
+  if [ ! -d "$SKILLS_DIR" ]; then
+    git clone "$SKILLS_REPO" "$SKILLS_DIR"
+  fi
+
+  mkdir -p "$HOME/.claude/commands"
+  for skill in "$SKILLS_DIR/commands/"*.md; do
+    ln -sf "$skill" "$HOME/.claude/commands/$(basename "$skill")"
+  done
+  echo "Claude Code Skills installed."
+fi</code></pre>
+
+      <h2 id="github-actions-automation">GitHub Actions による自動配布</h2>
+      <p>Skills リポジトリに変更がpushされたとき、自動的に組織内の全リポジトリに通知する仕組み：</p>
+
+      <pre><code># .github/workflows/notify-update.yml（Skills リポジトリ側）
+name: Notify Skills Update
+on:
+  push:
+    branches: [main]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Claude Code Skills が更新されました。\n`make update-skills` を実行して最新版を取得してください。\nChangelog: ${{ github.event.head_commit.message }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}</code></pre>
+
+      <h2 id="windows-support">Windows環境への対応</h2>
+      <p>Windows環境ではシンボリックリンクに制限があるため、コピー方式またはPowerShellスクリプトを使う：</p>
+      <pre><code># install-claude-skills.ps1
+$SkillsDir = "$env:USERPROFILE\.claude-skills"
+$CommandsDir = "$env:USERPROFILE\.claude\commands"
+
+New-Item -ItemType Directory -Force -Path $CommandsDir | Out-Null
+
+Get-ChildItem "$SkillsDir\commands\*.md" | ForEach-Object {
+  $dest = Join-Path $CommandsDir $_.Name
+  Copy-Item $_.FullName $dest -Force
+  Write-Host "Copied: $($_.Name)"
+}</code></pre>
+
+      <h2 id="verification">インストール検証スクリプト</h2>
+      <pre><code>#!/bin/bash
+# verify-skills.sh - インストール状態を確認
+echo "=== Claude Code Skills 確認 ==="
+COMMANDS_DIR="$HOME/.claude/commands"
+
+if [ -d "$COMMANDS_DIR" ]; then
+  count=$(ls "$COMMANDS_DIR"/*.md 2>/dev/null | wc -l)
+  echo "グローバルSkills: ${count}個"
+  ls -1 "$COMMANDS_DIR"/*.md 2>/dev/null | while read f; do
+    echo "  - /$(basename "${f%.md}")"
+  done
+else
+  echo "Skills未インストール"
+fi</code></pre>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#universal-installer">汎用インストーラースクリプト</a></li>
+          <li><a href="#makefile-targets">Makefileによるタスク定義</a></li>
+          <li><a href="#dotfiles-integration">dotfilesリポジトリとの統合</a></li>
+          <li><a href="#github-actions-automation">GitHub Actions による自動配布</a></li>
+          <li><a href="#windows-support">Windows環境への対応</a></li>
+          <li><a href="#verification">インストール検証スクリプト</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        <li><a href="monorepo-skills.html">モノレポでのSkills管理</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

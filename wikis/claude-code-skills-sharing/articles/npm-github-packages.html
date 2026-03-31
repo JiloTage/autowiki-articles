@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>npm / GitHub Packagesによるプライベートスキル配布 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    npm / GitHub Packagesによるプライベートスキル配布
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">npm / GitHub Packagesによるプライベートスキル配布</h1>
+      <div class="article-meta">最終更新: 2026-03-30</div>
+      <div class="article-summary">GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>GitHub Packagesを使ったnpm配布</b>は、GitHubのプライベートリポジトリをnpmレジストリとして活用し、Claude Code Skillsを組織内に配布する方法だ。<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で示した4つのアプローチの中で最も成熟したバージョン管理機能を提供する。</p>
+
+      <h2 id="prerequisites">前提条件</h2>
+      <p>この方法を実装するには以下が必要となる：</p>
+      <ul>
+        <li>GitHub OrganizationまたはPersonal Accountのプライベートリポジトリ</li>
+        <li>GitHub Personal Access Token（packages:read, packages:write スコープ）</li>
+        <li>各開発者の環境にNode.js / npm インストール済み</li>
+      </ul>
+
+      <h2 id="package-setup">パッケージリポジトリのセットアップ</h2>
+
+      <h3 id="repo-structure">リポジトリ構造</h3>
+      <p>Skillsを格納するプライベートリポジトリを以下の構造で作成する：</p>
+      <pre><code>claude-skills/
+├── package.json
+├── README.md
+├── commands/
+│   ├── deploy.md
+│   ├── review-pr.md
+│   ├── generate-tests.md
+│   └── run-ci.md
+└── scripts/
+    └── postinstall.js</code></pre>
+
+      <h3 id="package-json">package.jsonの設定</h3>
+      <p>パッケージをGitHub Packagesに公開するための `package.json` 設定：</p>
+      <pre><code>{
+  "name": "@myorg/claude-skills",
+  "version": "1.0.0",
+  "description": "社内共有Claude Code Skills",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "files": [
+    "commands/",
+    "scripts/"
+  ]
+}</code></pre>
+
+      <h3 id="postinstall">インストール後自動リンクスクリプト</h3>
+      <p>インストール後にSkillsを自動的に `.claude/commands/` に配置する `scripts/postinstall.js`：</p>
+      <pre><code>const fs = require('fs');
+const path = require('path');
+
+const projectRoot = process.env.INIT_CWD || process.cwd();
+const claudeCommandsDir = path.join(projectRoot, '.claude', 'commands');
+const skillsDir = path.join(__dirname, '..', 'commands');
+
+// .claude/commands/ ディレクトリを作成
+fs.mkdirSync(claudeCommandsDir, { recursive: true });
+
+// 各Skillファイルにシンボリックリンクを作成
+const skills = fs.readdirSync(skillsDir).filter(f => f.endsWith('.md'));
+for (const skill of skills) {
+  const target = path.join(skillsDir, skill);
+  const link = path.join(claudeCommandsDir, skill);
+  if (!fs.existsSync(link)) {
+    fs.symlinkSync(target, link);
+    console.log(`Linked: ${skill}`);
+  }
+}</code></pre>
+
+      <h2 id="publishing">パッケージの公開</h2>
+
+      <h3 id="npmrc-setup">認証設定（.npmrc）</h3>
+      <p>パッケージ公開者のホームディレクトリに `~/.npmrc` を設定する：</p>
+      <pre><code>//npm.pkg.github.com/:_authToken=ghp_YOUR_GITHUB_TOKEN
+@myorg:registry=https://npm.pkg.github.com</code></pre>
+
+      <h3 id="publish-command">公開コマンド</h3>
+      <pre><code># バージョンを更新してパブリッシュ
+npm version patch  # または minor / major
+npm publish</code></pre>
+
+      <h2 id="installing">利用者側のインストール</h2>
+
+      <h3 id="user-npmrc">利用者の.npmrc設定</h3>
+      <p>プロジェクトルートに `.npmrc` ファイルを作成（Gitにコミット可能）：</p>
+      <pre><code>@myorg:registry=https://npm.pkg.github.com</code></pre>
+
+      <p>認証トークンはホームディレクトリの `~/.npmrc` に記述し、リポジトリにはコミットしない：</p>
+      <pre><code>//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}</code></pre>
+
+      <h3 id="install-command">インストールコマンド</h3>
+      <pre><code># プロジェクトに追加
+npm install --save-dev @myorg/claude-skills
+
+# または特定バージョンを固定
+npm install --save-dev @myorg/claude-skills@1.2.0</code></pre>
+
+      <h2 id="ci-integration">CI/CD連携</h2>
+      <p>GitHub ActionsでGITHUB_TOKENを使うと、追加設定なしでインストールできる：</p>
+      <pre><code>- name: Install Claude Skills
+  run: npm install
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 320" width="620" height="320">
+          <rect width="620" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="310" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">npm / GitHub Packagesによる配布フロー</text>
+
+          <!-- Skills Repo -->
+          <rect x="30" y="55" width="140" height="60" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="100" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">Skills Repo</text>
+          <text x="100" y="97" text-anchor="middle" font-size="10" fill="#2e7d32">@myorg/claude-skills</text>
+
+          <!-- 矢印: Repo -> Publish -->
+          <line x1="170" y1="85" x2="215" y2="85" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow2)"/>
+          <text x="192" y="76" text-anchor="middle" font-size="9" fill="#777">npm publish</text>
+
+          <!-- GitHub Packages Registry -->
+          <rect x="215" y="55" width="160" height="60" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+          <text x="295" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">GitHub Packages</text>
+          <text x="295" y="95" text-anchor="middle" font-size="10" fill="#1565c0">npm.pkg.github.com</text>
+          <text x="295" y="109" text-anchor="middle" font-size="10" fill="#1565c0">（プライベートレジストリ）</text>
+
+          <!-- 矢印: Registry -> Projects -->
+          <line x1="375" y1="85" x2="420" y2="85" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrow2)"/>
+          <text x="397" y="76" text-anchor="middle" font-size="9" fill="#777">npm install</text>
+
+          <!-- Projects -->
+          <rect x="420" y="40" width="160" height="40" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+          <text x="500" y="65" text-anchor="middle" font-size="11" fill="#bf360c">プロジェクトA</text>
+
+          <rect x="420" y="90" width="160" height="40" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+          <text x="500" y="115" text-anchor="middle" font-size="11" fill="#bf360c">プロジェクトB</text>
+
+          <rect x="420" y="140" width="160" height="40" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+          <text x="500" y="165" text-anchor="middle" font-size="11" fill="#bf360c">プロジェクトC ...</text>
+
+          <!-- 矢印: Registry -> ProjectB -->
+          <line x1="375" y1="85" x2="420" y2="110" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <!-- 矢印: Registry -> ProjectC -->
+          <line x1="375" y1="85" x2="420" y2="155" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+          <!-- postinstall -->
+          <rect x="420" y="205" width="160" height="50" rx="6" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5"/>
+          <text x="500" y="226" text-anchor="middle" font-size="11" font-weight="bold" fill="#6a1b9a">postinstall.js</text>
+          <text x="500" y="244" text-anchor="middle" font-size="10" fill="#6a1b9a">.claude/commands/ へ</text>
+          <text x="500" y="258" text-anchor="middle" font-size="10" fill="#6a1b9a">自動リンク</text>
+
+          <!-- 矢印: Projects -> postinstall -->
+          <line x1="500" y1="180" x2="500" y2="205" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+          <!-- Claude Code -->
+          <rect x="150" y="260" width="300" height="45" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="300" y="280" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">Claude Code</text>
+          <text x="300" y="297" text-anchor="middle" font-size="10" fill="#e65100">/deploy, /review-pr などのSkillが利用可能に</text>
+
+          <!-- 矢印: postinstall -> Claude Code -->
+          <line x1="480" y1="255" x2="380" y2="305" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+          <defs>
+            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: npm / GitHub Packagesを使ったSkills配布フロー</div>
+      </div>
+
+      <h2 id="version-management">バージョン管理戦略</h2>
+      <p>セマンティックバージョニング（semver）を活用することで、破壊的変更を安全に管理できる：</p>
+      <ul>
+        <li><strong>patch</strong>（1.0.x）: バグ修正、表現の改善</li>
+        <li><strong>minor</strong>（1.x.0）: 新しいSkillの追加</li>
+        <li><strong>major</strong>（x.0.0）: 既存Skillのインターフェース変更・削除</li>
+      </ul>
+
+      <h2 id="pros-cons">メリット・デメリット</h2>
+      <p>この方法の主なメリットは、明示的なバージョン固定（`package.json` の `devDependencies`）により、チーム全員が同じSkillバージョンを使用できる点だ。また、`npm outdated` で更新確認ができ、`npm update` で一括更新も容易。デメリットは初期設定コストの高さと、開発者全員がGitHub Personal Access Tokenを設定する必要がある点だ。<a href="setup-automation.html">セットアップ自動化スクリプト</a>でトークン設定を自動化することを推奨する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#prerequisites">前提条件</a></li>
+          <li><a href="#package-setup">パッケージリポジトリのセットアップ</a></li>
+          <li class="toc-h3"><a href="#repo-structure">リポジトリ構造</a></li>
+          <li class="toc-h3"><a href="#package-json">package.jsonの設定</a></li>
+          <li class="toc-h3"><a href="#postinstall">インストール後自動リンクスクリプト</a></li>
+          <li><a href="#publishing">パッケージの公開</a></li>
+          <li><a href="#installing">利用者側のインストール</a></li>
+          <li><a href="#ci-integration">CI/CD連携</a></li>
+          <li><a href="#version-management">バージョン管理戦略</a></li>
+          <li><a href="#pros-cons">メリット・デメリット</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

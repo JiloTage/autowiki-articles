@@ -24,10 +24,13 @@
   </div>
 
   <div class="stats-bar">
-    <span>Wiki数: <span class="stat-value">1</span></span>
-    <span>総記事数: <span class="stat-value">8</span></span>
-    <span>反応数: <span class="stat-value">0</span></span>
+    <span>Wiki数: <span class="stat-value">2</span></span>
+    <span>総記事数: <span class="stat-value">26</span></span>
+    <span>反応数: <span class="stat-value">4</span></span>
   </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-container"></div>
 
   <div class="search-container">
     <input type="text" id="search-input" class="search-input" placeholder="全wikiを横断検索...">
@@ -41,7 +44,15 @@
         <h3><a href="wikis/hokuo-shinwa-yukari-machi/index.html">北欧神話にゆかりのある街</a></h3>
         <p class="wiki-topic">北欧神話にゆかりのある街</p>
         <div class="wiki-stats">
-          <span>記事数: 8</span>
+          <span>記事数: 12</span>
+          <span>ステータス: active</span>
+        </div>
+      </div>
+      <div class="wiki-card" style="border-left: 4px solid #2e7d32">
+        <h3><a href="wikis/claude-code-skills-sharing/index.html">Claude Code Skills共有ガイド</a></h3>
+        <p class="wiki-topic">Claude Code用skillsの共有方法（marketplace npmなど）の調査。想定はプライベートリポジトリで社内に広く共有したい</p>
+        <div class="wiki-stats">
+          <span>記事数: 14</span>
           <span>ステータス: active</span>
         </div>
       </div>
@@ -52,7 +63,50 @@
 
   <div id="reactions" class="reaction-log">
     <h2>化学反応ログ</h2>
-    <p>まだ化学反応は発生していません。/auto-wiki-react で反応を起こしましょう。</p>
+    <div class="reaction-entry">
+      <span class="reaction-type reaction-analogy">analogy</span>
+      <span class="reaction-reagents">
+        <a href="wikis/hokuo-shinwa-yukari-machi/articles/york-jorvík.html">york-jorvík</a>
+        <span class="reaction-arrow">+</span>
+        <a href="wikis/claude-code-skills-sharing/articles/skills-discovery-and-catalog.html">skills-discovery-and-catalog</a>
+      </span>
+      <span class="reaction-arrow">→</span>
+      <a href="wikis/hokuo-shinwa-yukari-machi/articles/jorvík-skills-discovery.html" class="reaction-product">ヨールヴィークの発掘術とSkillsカタログ：未知の価値を体系化する技法</a>
+      <div class="reaction-catalyst">ヴァイキング遺物発掘とSkillsカタログ化の三段階プロセス（発掘→分類→公開）の類比</div>
+    </div>
+    <div class="reaction-entry">
+      <span class="reaction-type reaction-analogy">analogy</span>
+      <span class="reaction-reagents">
+        <a href="wikis/hokuo-shinwa-yukari-machi/articles/roskilde.html">roskilde</a>
+        <span class="reaction-arrow">+</span>
+        <a href="wikis/claude-code-skills-sharing/articles/npm-github-packages.html">npm-github-packages</a>
+      </span>
+      <span class="reaction-arrow">→</span>
+      <a href="wikis/hokuo-shinwa-yukari-machi/articles/roskilde-npm-sea-route.html" class="reaction-product">ロスキレの港とnpmという現代の海路：知識の流通拠点</a>
+      <div class="reaction-catalyst">ヴァイキング海上交易拠点ロスキレとnpmパッケージ配布の「流通インフラ」の類比</div>
+    </div>
+    <div class="reaction-entry">
+      <span class="reaction-type reaction-analogy">analogy</span>
+      <span class="reaction-reagents">
+        <a href="wikis/hokuo-shinwa-yukari-machi/articles/reykjavik.html">reykjavik</a>
+        <span class="reaction-arrow">+</span>
+        <a href="wikis/claude-code-skills-sharing/articles/public-skills-registry.html">public-skills-registry</a>
+      </span>
+      <span class="reaction-arrow">→</span>
+      <a href="wikis/hokuo-shinwa-yukari-machi/articles/althing-public-registry.html" class="reaction-product">アルシングとパブリックレジストリ：開かれた知識共有の民主制</a>
+      <div class="reaction-catalyst">世界最古の議会アルシングとオープンソースパブリックレジストリの「民主的知識共有」の類比</div>
+    </div>
+    <div class="reaction-entry">
+      <span class="reaction-type reaction-analogy">analogy</span>
+      <span class="reaction-reagents">
+        <a href="wikis/hokuo-shinwa-yukari-machi/articles/gamla-uppsala.html">gamla-uppsala</a>
+        <span class="reaction-arrow">+</span>
+        <a href="wikis/claude-code-skills-sharing/articles/central-repo-approach.html">central-repo-approach</a>
+      </span>
+      <span class="reaction-arrow">→</span>
+      <a href="wikis/hokuo-shinwa-yukari-machi/articles/gamla-uppsala-central-hub.html" class="reaction-product">ガムラ・ウプサラの神殿とセントラルリポジトリ：聖なる中心地の思想</a>
+      <div class="reaction-catalyst">北欧の聖なる中枢ガムラ・ウプサラとセントラルリポジトリの「単一信頼情報源」の類比</div>
+    </div>
   </div>
 
   <footer class="wiki-footer">
@@ -62,10 +116,12 @@
 
 <script src="assets/js/graph.js"></script>
 <script src="assets/js/search.js"></script>
+<script src="assets/js/admin.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     AutoWikiGraph.init('graph', 'db/cross-graph.json', { portal: true });
     AutoWikiSearch.init('search-input', 'search-results', null, { portal: true });
+    AutoWikiAdmin.init('admin-container');
   });
 </script>
 </body>

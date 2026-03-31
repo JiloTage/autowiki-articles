@@ -1,0 +1,416 @@
+{
+  "nodes": [
+    {
+      "id": "skills-sharing-overview",
+      "title": "Claude Code Skills共有方法 概要",
+      "url": "articles/skills-sharing-overview.html",
+      "summary": "Claude Code用のSkillsをプライベートリポジトリで社内に広く共有するための方法を体系的に解説する。npm/GitHubパッケージ、Gitサブモジュール、モノレポ構成など複数のアプローチを比較検討する。",
+      "is_root": false
+    },
+    {
+      "id": "npm-github-packages",
+      "title": "npm / GitHub Packagesによるプライベートスキル配布",
+      "url": "articles/npm-github-packages.html",
+      "summary": "GitHub Packagesのプライベートnpmレジストリを活用してClaude Code Skillsを社内に配布する方法。セマンティックバージョニングによる厳密なバージョン管理と、package.jsonによる依存関係の記録が可能。",
+      "is_root": false
+    },
+    {
+      "id": "git-submodule-approach",
+      "title": "Gitサブモジュールを使ったスキル共有アプローチ",
+      "url": "articles/git-submodule-approach.html",
+      "summary": "Gitのサブモジュール機能を活用して、Claude Code Skillsを専用リポジトリからプロジェクトに組み込む方法。追加ツール不要でGit標準機能のみを使う、バランスの良いアプローチ。",
+      "is_root": false
+    },
+    {
+      "id": "monorepo-skills",
+      "title": "モノレポ構成でのClaude Code Skills管理",
+      "url": "articles/monorepo-skills.html",
+      "summary": "すべてのプロジェクトを単一リポジトリで管理するモノレポ構成において、Claude Code Skillsを一元管理する方法。高い可視性と即時反映が可能。",
+      "is_root": false
+    },
+    {
+      "id": "central-repo-approach",
+      "title": "セントラルリポジトリからのスキル配布",
+      "url": "articles/central-repo-approach.html",
+      "summary": "最もシンプルなClaude Code Skills共有方法。Skillsを集約した専用プライベートリポジトリを作成し、各開発者がクローンして手動またはスクリプトでセットアップする。追加ツール不要で即日導入できる。",
+      "is_root": false
+    },
+    {
+      "id": "setup-automation",
+      "title": "スキル配布のセットアップ自動化スクリプト",
+      "url": "articles/setup-automation.html",
+      "summary": "Claude Code Skillsの配布・インストール・更新を自動化するスクリプトパターン集。開発者のオンボーディングを「ワンコマンド」に集約し、配布方法に依らず適用できる。",
+      "is_root": false
+    },
+    {
+      "id": "skills-marketplace-concept",
+      "title": "Claude Code プラグインマーケットプレイスの現状と活用ガイド",
+      "url": "articles/skills-marketplace-concept.html",
+      "summary": "Claude Code には公式のプラグインシステムとマーケットプレイスが存在する。/plugin コマンドによるインストール、公式（Anthropic管理）・コミュニティ・組織内の三層構造、.claude-plugin/marketplace.jsonによるカスタムマーケットプレイスの作成方法、セキュリティとガバナンスを解説する。",
+      "is_root": false
+    },
+    {
+      "id": "public-skills-registry",
+      "title": "パブリックSkillsレジストリへの公開とオープンソース展開",
+      "url": "articles/public-skills-registry.html",
+      "summary": "Claude Code Skillsをnpmパブリックレジストリに公開し、オープンソースコミュニティで共有する方法を解説する。ライセンス選択の指針、パブリック公開とプライベート配布の使い分け、コミュニティへの貢献方法も網羅する。",
+      "is_root": false
+    },
+    {
+      "id": "internal-skills-marketplace",
+      "title": "組織内Skillsマーケットプレイスプラットフォームの構築",
+      "url": "articles/internal-skills-marketplace.html",
+      "summary": "組織内でClaude Code Skillsを検索・評価・インストールできるマーケットプレイスプラットフォームの設計と実装ガイド。Skills検索UI/API、インストールワークフロー、レーティング・レビュー機能、アーキテクチャを包括的に解説する。",
+      "is_root": false
+    },
+    {
+      "id": "skills-versioning-strategy",
+      "title": "Skillsリポジトリのバージョニング戦略とリリース管理",
+      "url": "articles/skills-versioning-strategy.html",
+      "summary": "Claude Code Skillsを共有リポジトリで管理する際のバージョニング戦略を体系的に解説する。セマンティックバージョニング、Gitタグ戦略、CHANGELOG自動生成、ブランチ戦略、リリースノートの作成まで、安定した配布基盤の構築方法を紹介する。",
+      "is_root": false
+    },
+    {
+      "id": "skills-discovery-and-catalog",
+      "title": "Skills発見性向上のためのカタログとタグ管理",
+      "url": "articles/skills-discovery-and-catalog.html",
+      "summary": "Claude Code Skillsをチーム全体で効果的に活用するために、タグ付け・カテゴリ分類・カタログ自動生成・検索機能を整備し、Skillsの発見性を大幅に向上させる実践的な手法を解説する。",
+      "is_root": false
+    },
+    {
+      "id": "private-npm-registry",
+      "title": "Verdaccioによるプライベートnpmレジストリの自社運営",
+      "url": "articles/private-npm-registry.html",
+      "summary": "オープンソースのnpmプロキシ/レジストリサーバーVerdaccioを社内に自前でホスティングし、Claude Code Skillsを完全にプライベートな環境で配布する方法。GitHubへの依存を排除しつつ、npmエコシステムの利便性を維持できる。",
+      "is_root": false
+    },
+    {
+      "id": "skills-update-notification",
+      "title": "Skillsの更新通知と変更管理の自動化",
+      "url": "articles/skills-update-notification.html",
+      "summary": "Claude Code Skillsリポジトリの更新を開発者に確実に届けるための通知・変更管理ガイド。GitHub Actionsによるアラート自動化、RSS/Atomフィード生成、自動更新スクリプト、変更影響範囲の可視化、通知フィルタリング設計を体系的に解説する。",
+      "is_root": false
+    },
+    {
+      "id": "skills-quality-review",
+      "title": "Skillsの品質管理とコードレビュープロセス",
+      "url": "articles/skills-quality-review.html",
+      "summary": "Claude Code Skillsを社内で安全・高品質に共有するための品質基準、コードレビューチェックリスト、自動テスト、セキュリティ審査、および承認ワークフローを体系的に解説する。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "skills-sharing-overview",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "skills-marketplace-concept"
+    },
+    {
+      "source": "skills-sharing-overview",
+      "target": "skills-quality-review"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "setup-automation"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "public-skills-registry"
+    },
+    {
+      "source": "npm-github-packages",
+      "target": "private-npm-registry"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "setup-automation"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "git-submodule-approach",
+      "target": "skills-versioning-strategy"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "setup-automation"
+    },
+    {
+      "source": "monorepo-skills",
+      "target": "internal-skills-marketplace"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "setup-automation"
+    },
+    {
+      "source": "central-repo-approach",
+      "target": "skills-update-notification"
+    },
+    {
+      "source": "setup-automation",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "setup-automation",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "setup-automation",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "setup-automation",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "setup-automation",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "setup-automation",
+      "target": "skills-discovery-and-catalog"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-marketplace-concept",
+      "target": "skills-quality-review"
+    },
+    {
+      "source": "public-skills-registry",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "public-skills-registry",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "public-skills-registry",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "public-skills-registry",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "public-skills-registry",
+      "target": "setup-automation"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "setup-automation"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "internal-skills-marketplace",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-versioning-strategy",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-discovery-and-catalog",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "private-npm-registry",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "private-npm-registry",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "private-npm-registry",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-update-notification",
+      "target": "central-repo-approach"
+    },
+    {
+      "source": "skills-update-notification",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-update-notification",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "skills-update-notification",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-update-notification",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "skills-sharing-overview"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "setup-automation"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "git-submodule-approach"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "npm-github-packages"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "monorepo-skills"
+    },
+    {
+      "source": "skills-quality-review",
+      "target": "central-repo-approach"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "skills-marketplace-concept",
+      "proposed_title": "Claude Code Skillsマーケットプレイスの概念と将来展望",
+      "source_id": "skills-sharing-overview",
+      "rationale": "Skills共有の究極形としてのマーケットプレイス概念、公式・コミュニティ・組織内マーケットプレイスの可能性を探る",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "internal-skills-marketplace",
+      "proposed_title": "組織内Skillsマーケットプレイスプラットフォームの構築",
+      "source_id": "monorepo-skills",
+      "rationale": "モノレポを基盤にした社内向けSkills検索・発見・インストールのマーケットプレイスUI/APIの設計と実装",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "public-skills-registry",
+      "proposed_title": "パブリックSkillsレジストリへの公開とオープンソース展開",
+      "source_id": "npm-github-packages",
+      "rationale": "npmパブリックレジストリやGitHubを使ったパブリックSkills公開・オープンソース展開の方法論",
+      "interestingness_score": 0.82,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "skills-discovery-and-catalog",
+      "proposed_title": "Skills発見性向上のためのカタログとタグ管理",
+      "source_id": "setup-automation",
+      "rationale": "自動化スクリプトを拡張してSkillsカタログページを生成・タグ付け・検索可能にし、組織内の発見性を高める方法",
+      "interestingness_score": 0.78,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "skills-versioning-strategy",
+      "proposed_title": "Skillsリポジトリのバージョニング戦略とリリース管理",
+      "source_id": "git-submodule-approach",
+      "rationale": "Gitタグ・セマンティックバージョニングを使ったSkillsのリリース管理とCHANGELOGの自動生成",
+      "interestingness_score": 0.75,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "skills-update-notification",
+      "proposed_title": "Skillsの更新通知と変更管理の自動化",
+      "source_id": "central-repo-approach",
+      "rationale": "セントラルリポジトリのSkills更新をSlack・GitHub通知等で開発者に自動的に届ける仕組みの構築",
+      "interestingness_score": 0.73,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "private-npm-registry",
+      "proposed_title": "Verdaccioによるプライベートnpmレジストリの自社運営",
+      "source_id": "npm-github-packages",
+      "rationale": "GitHub Packagesに依存せず自社インフラでnpmレジストリを運営し、Skills配布の完全な制御を実現する方法",
+      "interestingness_score": 0.72,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "skills-quality-review",
+      "proposed_title": "Skillsの品質管理とコードレビュープロセス",
+      "source_id": "skills-sharing-overview",
+      "rationale": "共有・配布するSkillsの品質担保のためのレビューフロー、テスト方法、ガイドライン策定",
+      "interestingness_score": 0.71,
+      "status": "processing"
+    }
+  ]
+}

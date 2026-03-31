@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skillsの更新通知と変更管理の自動化 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    Skillsの更新通知と変更管理の自動化
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Skillsの更新通知と変更管理の自動化</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code Skillsリポジトリの更新を開発者に確実に届けるための通知・変更管理ガイド。GitHub Actionsによるアラート自動化、RSS/Atomフィード生成、自動更新スクリプト、変更影響範囲の可視化、通知フィルタリング設計を体系的に解説する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Skillsの更新通知と変更管理の自動化</b>は、<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>をはじめとするSkills共有運用において、更新が開発者の手元に確実・迅速に届く仕組みを整えるための実践ガイドだ。Skillsはコードと同様に継続的に改善されるため、変更をサイレントに放置するとチーム内でバージョンの断片化が起きる。適切な通知フローを設計することで、全員が常に最新のSkillsを使える環境を維持できる。</p>
+
+      <h2 id="github-actions-notification">GitHub Actionsによる通知自動化</h2>
+
+      <h3 id="slack-notify">Slackチャンネルへのプッシュ通知</h3>
+      <p>Skillsリポジトリへのマージ（`main`へのpush）をトリガーとして、GitHub ActionsがSlackに通知を送る構成が最もシンプルで信頼性が高い。以下のワークフローファイルをSkillsリポジトリの `.github/workflows/notify-slack.yml` に配置する：</p>
+      <pre><code>name: Notify Skills Update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'commands/**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- commands/ | tr '\n' ', ' | sed 's/,$//')
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": ":wrench: *Claude Code Skills が更新されました*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":wrench: *Claude Code Skills が更新されました*\n変更ファイル: `${{ steps.changes.outputs.files }}`\nコミット: ${{ github.sha }}\n\n`bash ~/.claude-skills/install.sh` を実行して最新版を適用してください。"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_SKILLS_WEBHOOK }}</code></pre>
+
+      <h3 id="pr-description">PRマージ時の変更サマリー生成</h3>
+      <p>PRがマージされる際、変更されたSkillファイルを自動で列挙してPR本文にコメントするアクションも有効だ。レビュアーと受け取り側の両方が変更内容を把握しやすくなる：</p>
+      <pre><code>- name: Comment changed skills on PR
+  uses: actions/github-script@v7
+  with:
+    script: |
+      const { data: files } = await github.rest.pulls.listFiles({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.payload.pull_request.number,
+      });
+      const skillFiles = files
+        .filter(f => f.filename.startsWith('commands/'))
+        .map(f => `- \`${f.filename}\` (${f.status})`)
+        .join('\n');
+      if (skillFiles) {
+        await github.rest.issues.createComment({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          issue_number: context.payload.pull_request.number,
+          body: `## 変更されたSkills\n${skillFiles}\n\nマージ後、チームメンバーに \`install.sh\` 再実行を案内してください。`,
+        });
+      }</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280">
+          <rect width="600" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="300" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">GitHub Actions 通知フロー</text>
+
+          <!-- Developer push -->
+          <rect x="20" y="50" width="130" height="50" rx="6" fill="#e3f2fd" stroke="#3366cc" stroke-width="2"/>
+          <text x="85" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">開発者</text>
+          <text x="85" y="90" text-anchor="middle" font-size="10" fill="#3366cc">git push / PR merge</text>
+
+          <!-- Arrow: dev -> github -->
+          <line x1="150" y1="75" x2="190" y2="75" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowN)"/>
+
+          <!-- GitHub Repo -->
+          <rect x="190" y="50" width="130" height="50" rx="6" fill="#fce4ec" stroke="#880e4f" stroke-width="2"/>
+          <text x="255" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">GitHub</text>
+          <text x="255" y="90" text-anchor="middle" font-size="10" fill="#880e4f">myorg/claude-skills</text>
+
+          <!-- Arrow: github -> actions -->
+          <line x1="320" y1="75" x2="360" y2="75" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowN)"/>
+
+          <!-- GitHub Actions -->
+          <rect x="360" y="50" width="130" height="50" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="425" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">GitHub Actions</text>
+          <text x="425" y="90" text-anchor="middle" font-size="10" fill="#2e7d32">notify-slack.yml</text>
+
+          <!-- Arrow: actions -> slack -->
+          <line x1="490" y1="75" x2="540" y2="75" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowN)"/>
+
+          <!-- Slack -->
+          <rect x="540" y="50" width="50" height="50" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="565" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Slack</text>
+          <text x="565" y="90" text-anchor="middle" font-size="9" fill="#e65100">#skills</text>
+
+          <!-- RSS Feed box -->
+          <rect x="190" y="140" width="130" height="50" rx="6" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2"/>
+          <text x="255" y="162" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">RSS/Atomフィード</text>
+          <text x="255" y="180" text-anchor="middle" font-size="10" fill="#6a1b9a">feed.xml 自動生成</text>
+
+          <!-- Arrow: github -> rss -->
+          <line x1="255" y1="100" x2="255" y2="140" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowN)"/>
+
+          <!-- Auto update cron -->
+          <rect x="360" y="140" width="130" height="50" rx="6" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+          <text x="425" y="162" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Cron自動更新</text>
+          <text x="425" y="180" text-anchor="middle" font-size="10" fill="#00838f">週次 git pull</text>
+
+          <!-- Arrow: actions -> cron -->
+          <line x1="425" y1="100" x2="425" y2="140" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowN)"/>
+
+          <!-- Developer receives -->
+          <rect x="190" y="230" width="300" height="40" rx="6" fill="white" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="248" text-anchor="middle" font-size="11" fill="#202122">各開発者が通知を受け取り install.sh を実行</text>
+          <text x="340" y="263" text-anchor="middle" font-size="10" fill="#555">→ 最新 Skills が全員に適用される</text>
+
+          <!-- Arrow: rss -> dev -->
+          <line x1="255" y1="190" x2="255" y2="230" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowN)"/>
+          <!-- Arrow: cron -> dev -->
+          <line x1="425" y1="190" x2="425" y2="230" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowN)"/>
+
+          <defs>
+            <marker id="arrowN" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Skills更新の通知・伝搬フロー全体像</div>
+      </div>
+
+      <h2 id="rss-feed">RSS/Atomフィード生成</h2>
+
+      <h3 id="feed-generation">フィード自動生成スクリプト</h3>
+      <p>Slack通知を受け取らないメンバーや、RSSリーダーで変更を追跡したいメンバー向けに、Skillsリポジトリの更新をAtomフィードとして公開できる。GitHub Actionsでコミットログから自動生成する例：</p>
+      <pre><code>#!/usr/bin/env python3
+# generate_feed.py - git logからAtomフィードを生成
+
+import subprocess, datetime, xml.etree.ElementTree as ET
+
+REPO_URL = "https://github.com/myorg/claude-skills"
+FEED_PATH = "feed.xml"
+
+def get_commits(n=20):
+    result = subprocess.run(
+        ["git", "log", f"-{n}", "--format=%H|%s|%ai", "--", "commands/"],
+        capture_output=True, text=True
+    )
+    entries = []
+    for line in result.stdout.strip().splitlines():
+        sha, subject, date = line.split("|", 2)
+        entries.append({"sha": sha, "subject": subject, "date": date})
+    return entries
+
+def build_feed(commits):
+    feed = ET.Element("feed", xmlns="http://www.w3.org/2005/Atom")
+    ET.SubElement(feed, "title").text = "Claude Code Skills Updates"
+    ET.SubElement(feed, "id").text = REPO_URL
+    ET.SubElement(feed, "updated").text = commits[0]["date"] if commits else ""
+    link = ET.SubElement(feed, "link")
+    link.set("href", REPO_URL)
+
+    for c in commits:
+        entry = ET.SubElement(feed, "entry")
+        ET.SubElement(entry, "id").text = f"{REPO_URL}/commit/{c['sha']}"
+        ET.SubElement(entry, "title").text = c["subject"]
+        ET.SubElement(entry, "updated").text = c["date"]
+        content = ET.SubElement(entry, "content")
+        content.set("type", "text")
+        content.text = f"Commit: {c['sha'][:8]}\n{c['subject']}"
+    return ET.tostring(feed, encoding="unicode", xml_declaration=True)
+
+if __name__ == "__main__":
+    commits = get_commits()
+    with open(FEED_PATH, "w") as f:
+        f.write(build_feed(commits))
+    print(f"Generated {FEED_PATH} with {len(commits)} entries.")</code></pre>
+
+      <p>GitHub Actionsで `push` のたびにこのスクリプトを実行し、生成した `feed.xml` をリポジトリルートにコミットするか、GitHub Pagesで公開することで常に最新フィードが参照できる。</p>
+
+      <h2 id="auto-update-script">自動更新スクリプト</h2>
+
+      <h3 id="cron-setup">cron jobによる定期更新</h3>
+      <p><a href="setup-automation.html">セットアップ自動化スクリプト</a>と連携して、定期的に最新Skillsへ自動更新する仕組みを構築できる。各開発者のマシンに以下の設定を加えるか、オンボーディングスクリプトに含める：</p>
+      <pre><code># ~/.config/cron/skills-update.sh
+#!/bin/bash
+set -euo pipefail
+
+SKILLS_DIR="$HOME/.claude-skills"
+LOG="$HOME/.claude-skills-update.log"
+
+echo "[$(date -Iseconds)] Checking for updates..." >> "$LOG"
+
+if [ ! -d "$SKILLS_DIR" ]; then
+  echo "[$(date -Iseconds)] Skills dir not found, skipping." >> "$LOG"
+  exit 0
+fi
+
+BEFORE=$(git -C "$SKILLS_DIR" rev-parse HEAD)
+git -C "$SKILLS_DIR" pull --ff-only --quiet 2>> "$LOG"
+AFTER=$(git -C "$SKILLS_DIR" rev-parse HEAD)
+
+if [ "$BEFORE" != "$AFTER" ]; then
+  echo "[$(date -Iseconds)] Updated: $BEFORE -> $AFTER" >> "$LOG"
+  bash "$SKILLS_DIR/install.sh" >> "$LOG" 2>&1
+  # macOS向け: terminal-notifier がインストール済みの場合
+  if command -v terminal-notifier &>/dev/null; then
+    terminal-notifier -title "Claude Skills 更新" \
+      -message "新しいSkillsが適用されました" -sound default
+  fi
+else
+  echo "[$(date -Iseconds)] Already up-to-date." >> "$LOG"
+fi</code></pre>
+
+      <p>crontabへの登録例（毎週月曜 9:00 に実行）：</p>
+      <pre><code># crontab -e
+0 9 * * 1 bash ~/.config/cron/skills-update.sh</code></pre>
+
+      <h3 id="githook-update">git hookを利用した更新トリガー</h3>
+      <p>開発者がプロジェクトリポジトリで `git pull` を実行したタイミングに合わせて Skills を更新する方法もある。グローバルな `post-merge` フックを設定することで、git操作のついでに Skills が最新化される：</p>
+      <pre><code># ~/.config/git/hooks/post-merge
+#!/bin/bash
+# プロジェクトのpullに便乗してSkillsも更新
+if [ -d "$HOME/.claude-skills" ]; then
+  git -C "$HOME/.claude-skills" pull --ff-only --quiet 2>/dev/null || true
+fi</code></pre>
+      <pre><code># ~/.gitconfig に追加
+[core]
+  hooksPath = ~/.config/git/hooks</code></pre>
+
+      <h2 id="impact-visualization">変更影響範囲の可視化</h2>
+
+      <h3 id="changelog-format">構造化CHANGELOGフォーマット</h3>
+      <p>Skillsの変更が「誰に」「どのくらい影響するか」を伝えるため、CHANGELOG.mdを構造化して記載する。影響範囲タグを付けることで、開発者が自分に関係する変更をすぐに識別できる：</p>
+      <pre><code>## [2026-03-31] - Skills v1.4.0
+
+### 破壊的変更 🔴 [要再実行]
+- `commands/deploy.md`: `--env` フラグの挙動を変更。`staging` → `stg` に短縮
+
+### 機能追加 🟢
+- `commands/review-pr.md`: レビューコメントの自動分類機能を追加
+- `commands/generate-tests.md`: カバレッジレポート出力オプションを追加
+
+### バグ修正 🟡
+- `commands/run-migrations.md`: ロールバック時のエラーハンドリングを修正
+
+### 影響対象チーム
+| Skill | 影響チーム |
+|---|---|
+| deploy | Backend, DevOps |
+| review-pr | 全チーム |
+| generate-tests | Frontend, Backend |</code></pre>
+
+      <h3 id="diff-summary-action">差分サマリーの自動生成</h3>
+      <p>GitHub Actionsでマージ時にコミット差分を解析し、影響するSkillファイルの一覧と変更規模（追加/削除行数）をREADMEの「最近の変更」セクションに自動更新することもできる：</p>
+      <pre><code">- name: Update README recent changes
+  run: |
+    CHANGES=$(git diff HEAD~1 HEAD --stat -- commands/ \
+      | grep '\.md' \
+      | awk '{print "- " $1 " (" $2 " changes)"}')
+    DATE=$(date +%Y-%m-%d)
+    # README.md の ## 最近の変更 セクションを更新
+    python3 scripts/update_readme_changes.py "$DATE" "$CHANGES"</code></pre>
+
+      <h2 id="notification-filtering">通知フィルタリング設計</h2>
+
+      <h3 id="filter-by-team">チーム別フィルタリング</h3>
+      <p>全開発者が全Skillの更新通知を受け取ると通知疲れが起きる。Skillファイルにフロントマター形式でメタデータを記述し、通知先チームを絞り込む設計が効果的だ：</p>
+      <pre><code>---
+name: deploy
+description: アプリケーションのデプロイを実行する
+teams: [backend, devops]
+breaking_change: false
+---
+
+# /deploy
+
+...（Skill本文）</code></pre>
+
+      <p>GitHub Actionsで変更されたファイルのメタデータを読み取り、対象チームのSlackチャンネルのみに通知を送ることができる：</p>
+      <pre><code">changed_files.forEach(file => {
+  const meta = parseSkillFrontmatter(file);
+  meta.teams.forEach(team => {
+    const webhook = TEAM_WEBHOOKS[team];
+    if (webhook) postToSlack(webhook, file, meta);
+  });
+});</code></pre>
+
+      <h3 id="breaking-change-alert">破壊的変更の優先アラート</h3>
+      <p>破壊的変更（引数の変更、削除、動作の変更）は特別扱いして、通常のチャンネルに加えてDMや @here メンションで通知する。`breaking_change: true` のフラグが立っているSkillが変更された場合のみ強い通知を出すフィルター：</p>
+      <pre><code">- name: Alert on breaking changes
+  if: contains(steps.meta.outputs.flags, 'breaking_change=true')
+  uses: slackapi/slack-github-action@v1
+  with:
+    payload: |
+      {
+        "text": ":rotating_light: <!here> *破壊的変更があります* :rotating_light:\n`${{ steps.changes.outputs.files }}` が変更されました。\n*即時適用が必要です:* `bash install.sh`"
+      }
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_SKILLS_URGENT_WEBHOOK }}</code></pre>
+
+      <p>通知設計は<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で紹介した各アプローチ（<a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>、<a href="npm-github-packages.html">npm / GitHub Packages</a>）にも適用できる汎用パターンであり、配布方法にかかわらずチーム全体のSkills活用度を高める基盤となる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#github-actions-notification">GitHub Actionsによる通知自動化</a></li>
+          <li class="toc-h3"><a href="#slack-notify">Slackチャンネルへのプッシュ通知</a></li>
+          <li class="toc-h3"><a href="#pr-description">PRマージ時の変更サマリー生成</a></li>
+          <li><a href="#rss-feed">RSS/Atomフィード生成</a></li>
+          <li class="toc-h3"><a href="#feed-generation">フィード自動生成スクリプト</a></li>
+          <li><a href="#auto-update-script">自動更新スクリプト</a></li>
+          <li class="toc-h3"><a href="#cron-setup">cron jobによる定期更新</a></li>
+          <li class="toc-h3"><a href="#githook-update">git hookを利用した更新トリガー</a></li>
+          <li><a href="#impact-visualization">変更影響範囲の可視化</a></li>
+          <li class="toc-h3"><a href="#changelog-format">構造化CHANGELOGフォーマット</a></li>
+          <li class="toc-h3"><a href="#diff-summary-action">差分サマリーの自動生成</a></li>
+          <li><a href="#notification-filtering">通知フィルタリング設計</a></li>
+          <li class="toc-h3"><a href="#filter-by-team">チーム別フィルタリング</a></li>
+          <li class="toc-h3"><a href="#breaking-change-alert">破壊的変更の優先アラート</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesアプローチ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

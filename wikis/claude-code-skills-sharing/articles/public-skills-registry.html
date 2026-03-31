@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パブリックSkillsレジストリへの公開とオープンソース展開 - Claude Code Skills共有ガイド</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Claude Code Skills共有ガイド</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Claude Code Skills共有ガイド</a> &gt;
+    パブリックSkillsレジストリへの公開とオープンソース展開
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">パブリックSkillsレジストリへの公開とオープンソース展開</h1>
+      <div class="article-meta">最終更新: 2026-03-31</div>
+      <div class="article-summary">Claude Code Skillsをnpmパブリックレジストリに公開し、オープンソースコミュニティで共有する方法を解説する。ライセンス選択の指針、パブリック公開とプライベート配布の使い分け、コミュニティへの貢献方法も網羅する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>パブリックSkillsレジストリへの公開</b>とは、Claude Code Skillsをnpm公式レジストリ（registry.npmjs.org）に公開し、世界中の開発者が自由にインストール・利用できる状態にすることだ。<a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a>が組織内配布に特化しているのとは対照的に、パブリック公開はオープンソース文化に基づいたコミュニティ共有を目的とする。</p>
+      <p>汎用的なSkills（コードレビュー補助、テスト生成、ドキュメント自動化など）は組織固有の秘密情報を含まないケースが多く、オープンソース化することでコミュニティからのフィードバックや改善提案を受け取れる。また、<a href="skills-sharing-overview.html">Skills共有方法の概要</a>で触れたように、パブリックレジストリへの公開は最も広範なリーチを実現する配布戦略だ。</p>
+
+      <h2 id="license-selection">ライセンスの選択</h2>
+      <p>オープンソースSkillsを公開する際、最初に決めるべきは適切なライセンスだ。Skillsは主にMarkdownファイルで構成されるが、付随するスクリプト（postinstall.jsなど）も含めたライセンス管理が必要となる。</p>
+
+      <h3 id="license-types">主要ライセンスの比較</h3>
+      <p>以下の観点でライセンスを選択する：</p>
+      <ul>
+        <li><strong>MIT License</strong>: 最も制限が少なく、商用利用・改変・再配布をすべて許可。Skillsのような軽量ツールには最も一般的な選択肢。帰属表示（著作権表示の保持）のみを要求する。</li>
+        <li><strong>Apache License 2.0</strong>: MITに加えて特許権の明示的な許諾を含む。企業が公開するSkillsに適している。</li>
+        <li><strong>GPL v3</strong>: 派生物にも同じライセンスを強制するコピーレフト型。Skillsを組み込んだ商用製品の作成を制限したい場合に選択する。</li>
+        <li><strong>Creative Commons（CC BY）</strong>: ドキュメント・コンテンツ向け。Markdownのみで構成されるSkillsに使う場合もある。</li>
+      </ul>
+      <p>汎用SkillsにはMITまたはApache 2.0が推奨される。組織のブランドや特定のワークフロー知識を含むSkillsはプライベート配布（<a href="npm-github-packages.html">GitHub Packagesによる配布</a>参照）が適切だ。</p>
+
+      <h3 id="license-file">LICENSEファイルの配置</h3>
+      <pre><code>claude-skills-public/
+├── LICENSE          ← ライセンス全文
+├── README.md
+├── package.json     ← "license": "MIT" を明記
+└── commands/
+    ├── review-pr.md
+    └── generate-tests.md</code></pre>
+      <p>package.jsonに <code>"license": "MIT"</code> フィールドを追加し、LICENSEファイルをリポジトリルートに置くことがnpmの慣例だ。</p>
+
+      <h2 id="npm-publish-public">npmパブリックレジストリへの公開手順</h2>
+
+      <h3 id="npm-account">npmアカウントとスコープ</h3>
+      <p>パブリックnpmパッケージを公開するには、npmアカウントが必要だ。スコープ付きパッケージ（<code>@username/package-name</code>）はデフォルトでプライベートになるため、公開時に <code>--access public</code> フラグが必要となる。</p>
+      <pre><code># npmにログイン
+npm login
+
+# パッケージ名の例（スコープ付き・パブリック）
+# @yourusername/claude-skills-review</code></pre>
+
+      <h3 id="package-json-public">package.jsonの設定</h3>
+      <pre><code>{
+  "name": "@yourusername/claude-skills-review",
+  "version": "1.0.0",
+  "description": "Claude Code Skills for code review automation",
+  "license": "MIT",
+  "keywords": ["claude-code", "skills", "code-review", "ai"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/claude-skills-review"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "commands/",
+    "scripts/",
+    "LICENSE"
+  ]
+}</code></pre>
+
+      <h3 id="publish-steps">公開コマンド</h3>
+      <pre><code># 初回公開（スコープ付きパッケージをパブリックに）
+npm publish --access public
+
+# バージョンアップして再公開
+npm version minor
+npm publish</code></pre>
+      <p>公開後はnpmjsのページ（https://www.npmjs.com/package/@yourusername/claude-skills-review）でパッケージが確認できる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340">
+          <rect width="660" height="340" fill="#f8f9fa" rx="8"/>
+          <text x="330" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">パブリック vs プライベート配布フロー</text>
+
+          <!-- 分岐点 -->
+          <rect x="250" y="50" width="160" height="50" rx="6" fill="#e8f0fe" stroke="#3367d6" stroke-width="2"/>
+          <text x="330" y="72" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Claude Code Skills</text>
+          <text x="330" y="89" text-anchor="middle" font-size="10" fill="#3367d6">公開 or プライベート？</text>
+
+          <!-- 左: パブリック -->
+          <line x1="270" y1="100" x2="150" y2="140" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowPub)"/>
+          <text x="180" y="128" text-anchor="middle" font-size="10" fill="#2e7d32">汎用・秘密情報なし</text>
+
+          <rect x="50" y="140" width="180" height="50" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+          <text x="140" y="162" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">npmパブリックレジストリ</text>
+          <text x="140" y="178" text-anchor="middle" font-size="10" fill="#2e7d32">registry.npmjs.org</text>
+
+          <!-- 右: プライベート -->
+          <line x1="390" y1="100" x2="510" y2="140" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowPub)"/>
+          <text x="480" y="128" text-anchor="middle" font-size="10" fill="#c62828">組織固有・秘密情報あり</text>
+
+          <rect x="420" y="140" width="180" height="50" rx="6" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+          <text x="510" y="162" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">GitHub Packages</text>
+          <text x="510" y="178" text-anchor="middle" font-size="10" fill="#c62828">npm.pkg.github.com</text>
+
+          <!-- パブリック利用者 -->
+          <line x1="140" y1="190" x2="140" y2="230" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowPub)"/>
+          <rect x="30" y="230" width="220" height="45" rx="6" fill="#f1f8e9" stroke="#558b2f" stroke-width="1.5"/>
+          <text x="140" y="250" text-anchor="middle" font-size="11" font-weight="bold" fill="#33691e">世界中の開発者</text>
+          <text x="140" y="266" text-anchor="middle" font-size="10" fill="#558b2f">npm install @you/claude-skills</text>
+
+          <!-- プライベート利用者 -->
+          <line x1="510" y1="190" x2="510" y2="230" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arrowPub)"/>
+          <rect x="400" y="230" width="220" height="45" rx="6" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+          <text x="510" y="250" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">組織内開発者のみ</text>
+          <text x="510" y="266" text-anchor="middle" font-size="10" fill="#f57f17">PAT認証が必要</text>
+
+          <!-- Claude Code -->
+          <rect x="200" y="300" width="260" height="30" rx="6" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+          <text x="330" y="320" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">Claude Code で /skill 利用可能</text>
+
+          <line x1="140" y1="275" x2="270" y2="300" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowPub)"/>
+          <line x1="510" y1="275" x2="390" y2="300" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowPub)"/>
+
+          <defs>
+            <marker id="arrowPub" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: パブリック vs プライベート配布の判断フローと対応するレジストリ</div>
+      </div>
+
+      <h2 id="public-vs-private">パブリック vs プライベートの使い分け</h2>
+      <p>どちらの配布戦略を選ぶかは、Skillsの性質によって決まる。以下の判断基準を参考にする。</p>
+
+      <h3 id="when-public">パブリック公開が適切なケース</h3>
+      <ul>
+        <li>コードレビュー、テスト生成、ドキュメント作成など<strong>汎用的なワークフロー</strong>を実装したSkills</li>
+        <li>組織固有のシステム名、内部URL、APIキー、ドメイン知識を含まないSkills</li>
+        <li>コミュニティからのフィードバックや改善提案を期待するSkills</li>
+        <li>採用・ブランディングのためにエンジニア文化を外部発信したい組織が作成したSkills</li>
+      </ul>
+
+      <h3 id="when-private">プライベート配布が適切なケース</h3>
+      <ul>
+        <li>社内システムの操作手順、内部APIの呼び出し方法などを含むSkills</li>
+        <li>競合他社に知られたくない独自のビジネスロジックやワークフロー</li>
+        <li>機密情報へのアクセス手順が記述されたSkills</li>
+        <li>特定の顧客向けにカスタマイズされたSkills</li>
+      </ul>
+      <p>なお、<a href="central-repo-approach.html">セントラルリポジトリアプローチ</a>や<a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a>はどちらも組織内配布に特化した手法であり、パブリック公開には適していない。</p>
+
+      <h2 id="community-contribution">コミュニティへの貢献</h2>
+
+      <h3 id="readme-docs">READMEとドキュメントの整備</h3>
+      <p>パブリックパッケージには質の高いドキュメントが必要だ。最低限以下の要素を README.md に含める。</p>
+      <ul>
+        <li><strong>インストール方法</strong>: <code>npm install</code> コマンドと前提条件</li>
+        <li><strong>利用可能なSkills一覧</strong>: 各Skillの説明とトリガー条件</li>
+        <li><strong>使用例</strong>: Claude Code上での実際の動作例</li>
+        <li><strong>コントリビューションガイド</strong>: プルリクエストの受け付け方針</li>
+        <li><strong>ライセンス表記</strong></li>
+      </ul>
+
+      <h3 id="versioning-strategy">バージョニングとCHANGELOG</h3>
+      <p>パブリックパッケージはセマンティックバージョニングを厳格に適用し、CHANGELOGを管理する。利用者はCHANGELOGを参照して安全にアップグレードできる。</p>
+      <pre><code># CHANGELOG.md の例
+## [2.0.0] - 2026-03-31
+### Breaking Changes
+- /review-pr の出力フォーマットを変更
+
+## [1.1.0] - 2026-02-15
+### Added
+- /generate-tests スキルを追加</code></pre>
+
+      <h3 id="github-topics">GitHubリポジトリのトピック設定</h3>
+      <p>GitHubリポジトリに適切なトピック（タグ）を付与することで、同じようなSkillsを探している開発者に発見されやすくなる。推奨トピック: <code>claude-code</code>, <code>claude-skills</code>, <code>ai-tools</code>, <code>developer-tools</code></p>
+
+      <h2 id="management-after-publish">公開後の運用</h2>
+
+      <h3 id="issue-management">IssueとPRの管理</h3>
+      <p>オープンソースSkillsをパブリック公開した後は、GitHubのIssueやPull Requestを通じてコミュニティとのやり取りが発生する。以下の点を事前に整備する。</p>
+      <ul>
+        <li><strong>Issue テンプレート</strong>: バグ報告・機能要望のフォーマットを定義</li>
+        <li><strong>コントリビューションガイドライン</strong>（CONTRIBUTING.md）: コーディング規約、レビュープロセス</li>
+        <li><strong>行動規範</strong>（CODE_OF_CONDUCT.md）: コミュニティの健全性を保つルール</li>
+      </ul>
+
+      <h3 id="security-considerations">セキュリティの注意点</h3>
+      <p>公開前に以下を必ず確認する。</p>
+      <ul>
+        <li>Skillsファイル内にAPIキー、トークン、内部URLが含まれていないか</li>
+        <li><code>.npmignore</code> または <code>package.json</code> の <code>files</code> フィールドで公開ファイルを明示的に制限しているか</li>
+        <li><code>npm pack --dry-run</code> で実際に公開されるファイルを事前確認する</li>
+      </ul>
+      <p>また、<a href="setup-automation.html">セットアップ自動化スクリプト</a>をパッケージに含める場合、postinstall.js が外部からの入力を信頼しないよう注意する。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#license-selection">ライセンスの選択</a></li>
+          <li class="toc-h3"><a href="#license-types">主要ライセンスの比較</a></li>
+          <li class="toc-h3"><a href="#license-file">LICENSEファイルの配置</a></li>
+          <li><a href="#npm-publish-public">npmパブリックレジストリへの公開手順</a></li>
+          <li class="toc-h3"><a href="#npm-account">npmアカウントとスコープ</a></li>
+          <li class="toc-h3"><a href="#package-json-public">package.jsonの設定</a></li>
+          <li class="toc-h3"><a href="#publish-steps">公開コマンド</a></li>
+          <li><a href="#public-vs-private">パブリック vs プライベートの使い分け</a></li>
+          <li class="toc-h3"><a href="#when-public">パブリック公開が適切なケース</a></li>
+          <li class="toc-h3"><a href="#when-private">プライベート配布が適切なケース</a></li>
+          <li><a href="#community-contribution">コミュニティへの貢献</a></li>
+          <li class="toc-h3"><a href="#readme-docs">READMEとドキュメントの整備</a></li>
+          <li class="toc-h3"><a href="#versioning-strategy">バージョニングとCHANGELOG</a></li>
+          <li class="toc-h3"><a href="#github-topics">GitHubリポジトリのトピック設定</a></li>
+          <li><a href="#management-after-publish">公開後の運用</a></li>
+          <li class="toc-h3"><a href="#issue-management">IssueとPRの管理</a></li>
+          <li class="toc-h3"><a href="#security-considerations">セキュリティの注意点</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+          <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+          <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+          <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+          <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="npm-github-packages.html">npm / GitHub Packagesによるプライベートスキル配布</a></li>
+        <li><a href="skills-sharing-overview.html">Skills共有方法 概要</a></li>
+        <li><a href="central-repo-approach.html">セントラルリポジトリからのスキル配布</a></li>
+        <li><a href="git-submodule-approach.html">Gitサブモジュールアプローチ</a></li>
+        <li><a href="setup-automation.html">セットアップ自動化スクリプト</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
