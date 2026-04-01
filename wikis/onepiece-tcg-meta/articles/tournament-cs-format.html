@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS・大会フォーマット - ワンピースカードゲーム メタゲームWiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a> &gt;
+    CS・大会フォーマット
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">CS・大会フォーマット</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">ワンピースカードゲームにおけるCS（カードショップ主催大会）および公式大会フォーマットを解説。参加資格・デッキ登録ルール・大会形式から、競技シーンで採用される主要デッキ傾向まで体系的にまとめる。</div>
+
+      <p>
+        <b>CS・大会フォーマット</b>とは、ワンピースカードゲームの競技シーンにおいてカードショップ主催大会（CS）および公式公認大会で採用されるルールや運営形式の総称である。
+        プレイヤーはこれらのフォーマットを理解することで、大会への参加準備や戦略立案をより効果的に行うことができる。
+        <a href="current-meta-overview.html">現行メタゲーム概要</a>と合わせて把握することで、競技環境全体の見通しが得られる。
+      </p>
+
+      <h2 id="what-is-cs">CSとは（カードショップ主催大会の仕組み）</h2>
+      <p>
+        CS（カードショップ・チャンピオンシップ）とは、全国各地のカードショップが独自に主催・運営するワンピースカードゲームの公認大会である。
+        バンダイカードゲームスから店舗資格を取得した認定ショップが定期的に開催し、エントリー費用を支払うことで誰でも参加できる。
+      </p>
+      <p>
+        CSは競技スタートラインとして機能し、入賞者には賞品（プロモカードや特製グッズなど）が授与される。
+        一部の大型CSは「招待枠」を設けており、そこでの上位入賞者がグランプリ（GP）への優先参加権を得られる仕組みとなっている。
+        大会の規模はショップによって異なり、小規模なものは20〜30名程度、大型CSでは100名以上の参加者が集まることもある。
+      </p>
+
+      <h2 id="tournament-formats">大会フォーマットの種類</h2>
+      <p>
+        ワンピースカードゲームの大会では主に以下のフォーマットが採用される。
+      </p>
+      <ul>
+        <li><strong>シングルエリミネーション（トーナメント制）</strong>：1敗で即敗退となるノックアウト方式。決勝トーナメントで多用される。</li>
+        <li><strong>スイスドロー</strong>：参加者全員が同じ回数だけ試合を行い、勝ち点の合計で順位を決める方式。参加者が多い予選ラウンドでよく使われる。</li>
+        <li><strong>ダブルエリミネーション</strong>：2敗するまで脱落しないトーナメント方式。一部大型大会で採用されることがある。</li>
+      </ul>
+      <p>
+        多くのCSでは「スイスドロー予選＋シングルエリミネーション決勝トーナメント」の混合形式が一般的である。
+        予選ラウンド数は参加者数によって変動し、通常は3〜6ラウンド程度が設定される。
+      </p>
+
+      <!-- SVG: トーナメント構造図 -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="540" height="280" viewBox="0 0 540 280" style="display:block;margin:24px auto;font-family:sans-serif;">
+        <rect width="540" height="280" rx="8" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="270" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">大会フォーマット構造</text>
+
+        <!-- スイスドロー予選 -->
+        <rect x="30" y="50" width="160" height="44" rx="6" fill="#ffffff" stroke="#3366cc" stroke-width="1.5"/>
+        <text x="110" y="69" text-anchor="middle" font-size="12" fill="#3366cc" font-weight="bold">スイスドロー予選</text>
+        <text x="110" y="85" text-anchor="middle" font-size="10" fill="#202122">全員が均等ラウンド数を消化</text>
+
+        <!-- 上位カットライン -->
+        <rect x="30" y="120" width="160" height="44" rx="6" fill="#ffffff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="110" y="139" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">上位カット</text>
+        <text x="110" y="155" text-anchor="middle" font-size="10" fill="#202122">Top8 / Top16 選出</text>
+
+        <!-- 決勝トーナメント -->
+        <rect x="30" y="190" width="160" height="44" rx="6" fill="#3366cc" stroke="#3366cc" stroke-width="1.5"/>
+        <text x="110" y="209" text-anchor="middle" font-size="12" fill="#ffffff" font-weight="bold">決勝トーナメント</text>
+        <text x="110" y="225" text-anchor="middle" font-size="10" fill="#e8f0fe">シングルエリミネーション</text>
+
+        <!-- 矢印（縦） -->
+        <line x1="110" y1="94" x2="110" y2="120" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="110" y1="164" x2="110" y2="190" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- CS → GP 階層図 -->
+        <rect x="280" y="50" width="230" height="44" rx="6" fill="#ffffff" stroke="#3366cc" stroke-width="1.5"/>
+        <text x="395" y="69" text-anchor="middle" font-size="12" fill="#3366cc" font-weight="bold">CS（カードショップ大会）</text>
+        <text x="395" y="85" text-anchor="middle" font-size="10" fill="#202122">全国各地のショップで随時開催</text>
+
+        <rect x="330" y="120" width="130" height="44" rx="6" fill="#ffffff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="395" y="139" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">地区予選</text>
+        <text x="395" y="155" text-anchor="middle" font-size="10" fill="#202122">エリアブロック代表決定戦</text>
+
+        <rect x="330" y="190" width="130" height="44" rx="6" fill="#3366cc" stroke="#3366cc" stroke-width="1.5"/>
+        <text x="395" y="209" text-anchor="middle" font-size="12" fill="#ffffff" font-weight="bold">グランプリ（GP）</text>
+        <text x="395" y="225" text-anchor="middle" font-size="10" fill="#e8f0fe">全国規模・最高峰大会</text>
+
+        <line x1="395" y1="94" x2="395" y2="120" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="395" y1="164" x2="395" y2="190" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- ラベル -->
+        <text x="110" y="260" text-anchor="middle" font-size="10" fill="#666666">1大会内の流れ</text>
+        <text x="395" y="260" text-anchor="middle" font-size="10" fill="#666666">大会の階層構造</text>
+
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L0,8 L8,4 z" fill="#a2a9b1"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <h2 id="participation-rules">参加資格とデッキ登録ルール</h2>
+      <p>
+        CSへの参加にあたっては、基本的に年齢制限はなく、バンダイカードゲームスのカスタマーIDを持つ全プレイヤーが対象となる。
+        ただし未成年者は保護者の同意が必要なケースがあり、各ショップの規定に従う必要がある。
+      </p>
+      <p>
+        デッキ登録ルールの主な要点は以下のとおりである。
+      </p>
+      <ul>
+        <li><strong>デッキ枚数</strong>：リーダーカード1枚＋メインデッキ50枚の合計51枚構成。</li>
+        <li><strong>同名カード制限</strong>：同名カードはデッキ内に最大4枚まで採用可能（ただし<a href="ban-restriction-policy.html">禁止・制限カードリスト</a>による例外あり）。</li>
+        <li><strong>デッキリスト提出</strong>：公式大会やCS上位ラウンドではデッキリストを書面または専用アプリで提出し、記入内容と実デッキが一致していることを審判が確認する。</li>
+        <li><strong>スリーブ規定</strong>：不透明な均一スリーブの使用が義務付けられ、デッキ内の全カードが同種類のスリーブに入っている必要がある。</li>
+        <li><strong>使用言語</strong>：原則として日本語版公式カードのみ使用可。輸入版等の扱いは大会ごとに確認が必要。</li>
+      </ul>
+
+      <h2 id="grand-prix">グランプリと大型公式大会</h2>
+      <p>
+        グランプリ（GP）はバンダイカードゲームスが主催する最上位の公式大会であり、全国各地の地区予選を勝ち抜いたプレイヤーや、招待権を持つプレイヤーが集結する最高峰の舞台である。
+        GPでの上位入賞は選手のキャリアにとって大きな実績となり、限定プロモカードや賞金が授与されることもある。
+      </p>
+      <p>
+        大型公式大会の主な種類は以下のとおり。
+      </p>
+      <ul>
+        <li><strong>エリア予選</strong>：GPへの出場権を争う地域大会。参加者数百名規模になることも多い。</li>
+        <li><strong>国内GP</strong>：年数回開催される全国規模大会。最上位を目指すプレイヤーの集大成の場。</li>
+        <li><strong>ワールドチャンピオンシップ</strong>：各国代表が集う世界大会。国内GPでの成績により出場権が付与される。</li>
+      </ul>
+      <p>
+        GPレベルの大会では、使用デッキが大会後に公開・分析されることが多く、その結果が翌週以降のCSメタゲームに強く影響する。
+      </p>
+
+      <h2 id="deck-trends">大会で見られる主要デッキ傾向</h2>
+      <p>
+        競技大会では環境最上位のデッキが集中して使用される傾向がある。現在の大会シーンでは以下の傾向が観察されている。
+      </p>
+      <ul>
+        <li>
+          <strong><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></strong>：
+          現環境トップクラスの使用率を誇る。中速コントロール型で、序盤から後半にかけて安定した動きが可能。
+          CSにおけるシェアは30〜40%に達することもある。
+        </li>
+        <li>
+          <strong>緑系アグロデッキ</strong>：
+          素早い展開と大量展開による圧力が特徴。赤青エースへの対抗策として環境に浮上している。
+        </li>
+        <li>
+          <strong>青黒コントロール</strong>：
+          妨害カードと高バリューカードを組み合わせた長期戦型。赤青エースのミラーマッチを嫌うプレイヤーが選択することが多い。
+        </li>
+        <li>
+          <strong>ミラーマッチ対策型構築</strong>：
+          使用率が高い赤青エースを意識した細部調整が大会上位で増加。サイドボード（非採用の場合はメインデッキの配分）を工夫した構築が注目される。
+        </li>
+      </ul>
+      <p>
+        なお、<a href="ban-restriction-policy.html">禁止・制限カードリスト</a>の更新は大会メタを大きく揺るがすため、大会前には必ず最新リストを確認することが重要である。
+      </p>
+
+      <h2 id="preparation-tips">大会準備のアドバイス</h2>
+      <p>
+        CSや公式大会に向けた実践的な準備のポイントを以下にまとめる。
+      </p>
+      <ol>
+        <li>
+          <strong>メタゲームの把握</strong>：
+          直近のCS・GP結果を調べ、環境上位デッキの傾向を把握する。
+          <a href="current-meta-overview.html">現行メタゲーム概要</a>を定期的に確認し、Tier構造の変動を追う。
+        </li>
+        <li>
+          <strong>デッキの最終調整</strong>：
+          禁止・制限リストの最新版を確認し、使用予定デッキが適法であることを事前に確認する。
+          特に大会直前のリスト更新には細心の注意を払う。
+        </li>
+        <li>
+          <strong>練習と想定対戦</strong>：
+          環境トップの<a href="red-blue-ace-deck.html">赤青エース</a>を含む上位デッキと十分に練習し、プレイング精度を高める。
+          ミラーマッチの練習も重要。
+        </li>
+        <li>
+          <strong>デッキリストの正確な記入</strong>：
+          大会当日のデッキリスト提出でのミスはゲームロスやデッキ没収につながる可能性があるため、前日までに正確に記入・確認しておく。
+        </li>
+        <li>
+          <strong>精神的・体力的なコンディション管理</strong>：
+          長丁場となるCS・GPでは集中力の維持が勝敗を分ける。十分な睡眠と会場への余裕ある到着を心がける。
+        </li>
+      </ol>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#what-is-cs">1. CSとは</a></li>
+          <li><a href="#tournament-formats">2. 大会フォーマットの種類</a></li>
+          <li><a href="#participation-rules">3. 参加資格とデッキ登録ルール</a></li>
+          <li><a href="#grand-prix">4. グランプリと大型公式大会</a></li>
+          <li><a href="#deck-trends">5. 大会で見られる主要デッキ傾向</a></li>
+          <li><a href="#preparation-tips">6. 大会準備のアドバイス</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+          <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+          <li><a href="ban-restriction-policy.html">禁止・制限カードポリシー</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="ban-restriction-policy.html">禁止・制限カードポリシー</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

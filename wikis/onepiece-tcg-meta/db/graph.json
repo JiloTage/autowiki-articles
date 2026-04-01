@@ -1,0 +1,376 @@
+{
+  "nodes": [
+    {
+      "id": "throne-stage-lord",
+      "title": "トローン卿",
+      "url": "articles/throne-stage-lord.html",
+      "summary": "ワンピースカードゲームにおける最強クラスのステージカード。赤青エース（白髭）デッキの核として猛威を振るい、現行メタゲームを大きく塗り替えたキーカード。",
+      "is_root": false
+    },
+    {
+      "id": "red-blue-ace-deck",
+      "title": "赤青エース（白髭）デッキ",
+      "url": "articles/red-blue-ace-deck.html",
+      "summary": "赤青エース（白髭）デッキは、赤（炎属性）と青（海軍・技術属性）の2色を組み合わせた中速コントロール型の構築であり、トローン卿とエースのシナジーを軸に現行メタゲームのトップティアに君臨する。",
+      "is_root": false
+    },
+    {
+      "id": "ace-portgas-card",
+      "title": "ポートガス・D・エース",
+      "url": "articles/ace-portgas-card.html",
+      "summary": "ワンピースカードゲームにおける最重要アタッカーカード。トローン卿との強力なシナジーによって赤青エース（白髭）デッキの核を担い、炎の悪魔の実に由来する特殊効果で競技環境を席巻する。",
+      "is_root": false
+    },
+    {
+      "id": "current-meta-overview",
+      "title": "現行メタゲーム概要",
+      "url": "articles/current-meta-overview.html",
+      "summary": "ワンピースカードゲームの現行メタゲームを解説。Tier構造・主要デッキ・サイクルダイナミクスから大会シーンまで、競技環境の全体像を体系的にまとめる。",
+      "is_root": false
+    },
+    {
+      "id": "whitebeard-edward-newgate",
+      "title": "白髭（エドワード・ニューゲート）",
+      "url": "articles/whitebeard-edward-newgate.html",
+      "summary": "ワンピースカードゲームにおける圧倒的なパワーとユニークな効果を持つ最高レアリティのキャラクターカード。赤青エースデッキのフィニッシャーとして競技環境の頂点に君臨する。",
+      "is_root": false
+    },
+    {
+      "id": "control-deck-meta",
+      "title": "コントロールデッキのメタ",
+      "url": "articles/control-deck-meta.html",
+      "summary": "ワンピースカードゲームにおけるコントロールデッキのメタゲーム上の位置づけを解説。主要デッキ一覧・対アグロ戦略・ミラーマッチ・トローン卿採用構築の強みを体系的にまとめる。",
+      "is_root": false
+    },
+    {
+      "id": "ban-restriction-policy",
+      "title": "制限・禁止カード議論",
+      "url": "articles/ban-restriction-policy.html",
+      "summary": "ワンピースカードゲームにおける制限・禁止カード制度の概要と歴史を解説し、特にトローン卿をはじめとする規制議論の賛否両論・メタゲームへの影響を体系的にまとめる。",
+      "is_root": false
+    },
+    {
+      "id": "stage-removal-counter",
+      "title": "ステージ対策カード",
+      "url": "articles/stage-removal-counter.html",
+      "summary": "ステージカードへの有効な対策手段を体系的に解説する記事。各色が持つ除去・無効化手段の特徴と、競技環境における採用実態を網羅する。",
+      "is_root": false
+    },
+    {
+      "id": "aggro-deck-meta",
+      "title": "アグロデッキのメタ",
+      "url": "articles/aggro-deck-meta.html",
+      "summary": "ワンピースカードゲームにおけるアグロデッキのメタゲーム上の位置づけを解説。序盤の爆発力でライフを削りきる戦略と、コントロール・ミッドレンジへの対応方法を体系的にまとめる。",
+      "is_root": false
+    },
+    {
+      "id": "tournament-cs-format",
+      "title": "CS・大会フォーマット",
+      "url": "articles/tournament-cs-format.html",
+      "summary": "ワンピースカードゲームにおけるCS（カードショップ主催大会）および公式大会フォーマットを解説。参加資格・デッキ登録ルール・大会形式から競技シーンで採用される主要デッキ傾向まで体系的にまとめる。",
+      "is_root": false
+    },
+    {
+      "id": "card-color-system",
+      "title": "カードカラーシステム",
+      "url": "articles/card-color-system.html",
+      "summary": "ワンピースカードゲームにおける6色のカードカラーシステムを解説する。各色は独自の戦略的アイデンティティを持ち、デッキ構築の根幹を形成する。",
+      "is_root": false
+    },
+    {
+      "id": "leader-card-strategy",
+      "title": "リーダーカード戦略",
+      "url": "articles/leader-card-strategy.html",
+      "summary": "ワンピースカードゲームにおけるリーダーカード戦略の基礎から応用まで、デッキ構築の核となるリーダー選択の理論と実践を解説する。",
+      "is_root": false
+    },
+    {
+      "id": "whitebeard-pirate-crew",
+      "title": "白髭海賊団カード群",
+      "url": "articles/whitebeard-pirate-crew.html",
+      "summary": "ワンピースカードゲームにおける白髭海賊団関連カード群の総合解説。マルコ・エースをはじめとする主力幹部カードから船員サポート群まで、トローン卿・白髭とのシナジーネットワークを詳しく掘り下げる。",
+      "is_root": false
+    },
+    {
+      "id": "don-cost-management",
+      "title": "ドンコスト管理の基礎",
+      "url": "articles/don-cost-management.html",
+      "summary": "ワンピースカードゲームにおけるドンカードの基本ルールと運用理論を解説する。ドンコスト管理は勝敗を左右する最重要スキルであり、精密なリソース計算が求められる。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "throne-stage-lord",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "ace-portgas-card"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "whitebeard-edward-newgate"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "stage-removal-counter"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "ban-restriction-policy"
+    },
+    {
+      "source": "throne-stage-lord",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "ace-portgas-card"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "whitebeard-edward-newgate"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "aggro-deck-meta"
+    },
+    {
+      "source": "red-blue-ace-deck",
+      "target": "card-color-system"
+    },
+    {
+      "source": "ace-portgas-card",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "ace-portgas-card",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "ace-portgas-card",
+      "target": "whitebeard-edward-newgate"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "aggro-deck-meta"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "ban-restriction-policy"
+    },
+    {
+      "source": "current-meta-overview",
+      "target": "tournament-cs-format"
+    },
+    {
+      "source": "whitebeard-edward-newgate",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "whitebeard-edward-newgate",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "whitebeard-edward-newgate",
+      "target": "ace-portgas-card"
+    },
+    {
+      "source": "whitebeard-edward-newgate",
+      "target": "whitebeard-pirate-crew"
+    },
+    {
+      "source": "whitebeard-edward-newgate",
+      "target": "leader-card-strategy"
+    },
+    {
+      "source": "control-deck-meta",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "control-deck-meta",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "control-deck-meta",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "control-deck-meta",
+      "target": "aggro-deck-meta"
+    },
+    {
+      "source": "control-deck-meta",
+      "target": "stage-removal-counter"
+    },
+    {
+      "source": "ban-restriction-policy",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "ban-restriction-policy",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "ban-restriction-policy",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "ban-restriction-policy",
+      "target": "stage-removal-counter"
+    },
+    {
+      "source": "stage-removal-counter",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "stage-removal-counter",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "stage-removal-counter",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "stage-removal-counter",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "aggro-deck-meta",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "aggro-deck-meta",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "aggro-deck-meta",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "aggro-deck-meta",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "tournament-cs-format",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "tournament-cs-format",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "tournament-cs-format",
+      "target": "ban-restriction-policy"
+    },
+    {
+      "source": "card-color-system",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "card-color-system",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "card-color-system",
+      "target": "aggro-deck-meta"
+    },
+    {
+      "source": "card-color-system",
+      "target": "control-deck-meta"
+    },
+    {
+      "source": "card-color-system",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "leader-card-strategy",
+      "target": "whitebeard-edward-newgate"
+    },
+    {
+      "source": "leader-card-strategy",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "leader-card-strategy",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "leader-card-strategy",
+      "target": "card-color-system"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "whitebeard-edward-newgate"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "ace-portgas-card"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "current-meta-overview"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "ban-restriction-policy"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "aggro-deck-meta"
+    },
+    {
+      "source": "whitebeard-pirate-crew",
+      "target": "stage-removal-counter"
+    },
+    {
+      "source": "don-cost-management",
+      "target": "red-blue-ace-deck"
+    },
+    {
+      "source": "don-cost-management",
+      "target": "throne-stage-lord"
+    },
+    {
+      "source": "don-cost-management",
+      "target": "card-color-system"
+    }
+  ]
+}

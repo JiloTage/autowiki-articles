@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>現行メタゲーム概要 - ワンピースカードゲーム メタゲームWiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a> &gt;
+    現行メタゲーム概要
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">現行メタゲーム概要</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">ワンピースカードゲームの<b>現行メタゲーム概要</b>を解説する記事。Tier構造・主要デッキ・サイクルダイナミクスから大会シーンまで、競技環境の全体像を体系的にまとめる。</div>
+
+      <h2 id="meta-definition">メタゲームの定義とTier構造</h2>
+      <p>ワンピースカードゲームにおける<b>現行メタゲーム概要</b>を理解するには、まず「メタゲーム」の概念を整理する必要がある。メタゲームとは、公式の対戦ルールそのものではなく、「現在の競技環境においてどのデッキが強く、どのような戦略が有効か」を指す概念である。プレイヤーはこのメタゲームを読み、最適なデッキ選択・構築を行うことで大会での成果を最大化する。</p>
+      <p>競技シーンでは一般的にデッキをTierと呼ばれる階層で分類する。各Tierの定義は以下の通りである:</p>
+      <ul>
+        <li><strong>Tier1:</strong> 現環境でトップクラスの勝率・入賞率を誇るデッキ群。大会で最も多く見られ、メタゲームの中心を形成する。対策を取らなければ安定して勝てないデッキである</li>
+        <li><strong>Tier2:</strong> Tier1デッキに対して一定の対抗手段を持つか、特定のマッチアップで強力な成果を出せるデッキ群。安定性ではTier1に劣るが、使い手のスキルや大会環境次第で十分に優勝を狙える</li>
+        <li><strong>Tier3:</strong> 競技レベルでは使用頻度が低く、特定の局面でのみ強みを発揮する。ローカル大会や練習環境では活躍することもあるが、トップレベルの大会では安定した成果を出しにくい</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300" width="560" height="300">
+          <defs>
+            <marker id="arrow-meta" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="560" height="300" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="280" y="28" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#202122">Tierリスト構造図</text>
+          <!-- Tier1 -->
+          <rect x="60" y="50" width="440" height="60" fill="#36c" rx="6" opacity="0.85"/>
+          <text x="280" y="76" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#fff">Tier 1</text>
+          <text x="280" y="96" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#e8f0ff">赤青エース（白髭）/ 他トップデッキ — 入賞率・使用率最高</text>
+          <!-- Tier2 -->
+          <rect x="90" y="130" width="380" height="60" fill="#0288d1" rx="6" opacity="0.75"/>
+          <text x="280" y="156" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#fff">Tier 2</text>
+          <text x="280" y="176" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#e0f4ff">コントロール系 / カウンターアグロ — 環境次第で上位進出可</text>
+          <!-- Tier3 -->
+          <rect x="130" y="210" width="300" height="60" fill="#78909c" rx="6" opacity="0.7"/>
+          <text x="280" y="236" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#fff">Tier 3</text>
+          <text x="280" y="256" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#eee">ローカル特化 / ニッチ戦略 — 競技大会では限定的</text>
+          <!-- Side labels -->
+          <text x="30" y="90" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#555">強</text>
+          <text x="30" y="250" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#555">弱</text>
+          <line x1="30" y1="100" x2="30" y2="240" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow-meta)"/>
+        </svg>
+        <div class="diagram-caption">図1: 現行メタゲームのTier構造と各階層の特徴</div>
+      </div>
+
+      <h2 id="tier1-decks">Tier1デッキ一覧</h2>
+      <p>現行メタゲームにおけるTier1デッキは、複数のCSやグランプリで安定した入賞実績を持つデッキ群である。2026年序盤の競技シーンを代表するTier1デッキを以下に示す。</p>
+
+      <h3 id="red-blue-ace">赤青エース（白髭）デッキ</h3>
+      <p><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a>は、現環境で最も高い入賞率を誇るTier1筆頭デッキである。<a href="throne-stage-lord.html">トローン卿</a>というステージカードを核としたコスト軽減とライフ操作のシナジーが強力で、中速〜コントロール寄りのゲームプランを得意とする。アグロ対面でも安定性が高く、ミラーマッチにおける練度勝負も評価が高い。</p>
+      <ul>
+        <li><strong>強み:</strong> トローン卿によるロングゲーム優位、コスト軽減による高コストカードの早出し、安定したライフ管理</li>
+        <li><strong>弱み:</strong> ステージ除去を多く積んだデッキに弱く、超高速アグロには捌ききれない場合がある</li>
+        <li><strong>代表的採用カード:</strong> トローン卿×4、ポートガス・D・エース×4、白髭（エドワード・ニューゲート）×2〜3</li>
+      </ul>
+
+      <h3 id="other-top-decks">その他のトップデッキ</h3>
+      <p>赤青エース以外にも、以下のデッキがTier1〜Tier2上位として競技シーンに名を連ねている:</p>
+      <ul>
+        <li><strong>純コントロール系デッキ:</strong> <a href="control-deck-meta.html">コントロールデッキ</a>は赤青エースとのミラーにも対抗できるよう、豊富な妨害手段と大量ドローエンジンを搭載した構築が主流。手札管理の巧拙がそのまま勝敗につながる高技量デッキ</li>
+        <li><strong>高速アグロデッキ:</strong> <a href="aggro-deck-meta.html">アグロデッキ</a>はトローン卿着地前に勝負を決める戦略で一定の使用率を維持。Tier1対面に対してはベストハンドでの奇襲が有効</li>
+        <li><strong>ミッドレンジ系:</strong> 盤面展開と除去のバランスが取れたミッドレンジ構築。特定のカードプールにより一時的にTier1入りする場合がある</li>
+      </ul>
+
+      <h2 id="meta-cycle">メタゲームのサイクル</h2>
+      <p>ワンピースカードゲームのメタゲームは一定のサイクルに従って変動する。このサイクルを理解することで、次のメタ変化を予測し、大会に向けたデッキ選択をより精度高く行うことができる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280">
+          <defs>
+            <marker id="cycle-arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+              <path d="M0,0 L0,8 L10,4 z" fill="#36c"/>
+            </marker>
+          </defs>
+          <rect width="560" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="280" y="28" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#202122">メタゲームサイクル</text>
+          <!-- Step 1: Dominant Deck -->
+          <rect x="30" y="60" width="140" height="55" fill="#fff" stroke="#36c" stroke-width="2" rx="8"/>
+          <text x="100" y="83" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#36c">ドミナントデッキ</text>
+          <text x="100" y="100" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#202122">特定デッキが環境を支配</text>
+          <!-- Step 2: Counter -->
+          <rect x="210" y="60" width="140" height="55" fill="#fff" stroke="#e53935" stroke-width="2" rx="8"/>
+          <text x="280" y="83" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#e53935">カウンター台頭</text>
+          <text x="280" y="100" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#202122">対策デッキ・戦略が増加</text>
+          <!-- Step 3: New Card -->
+          <rect x="390" y="60" width="140" height="55" fill="#fff" stroke="#388e3c" stroke-width="2" rx="8"/>
+          <text x="460" y="83" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#388e3c">新カード導入</text>
+          <text x="460" y="100" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#202122">新弾・エラッタでシャッフル</text>
+          <!-- Step 4: Ban/Restriction -->
+          <rect x="210" y="175" width="140" height="55" fill="#fff" stroke="#f57c00" stroke-width="2" rx="8"/>
+          <text x="280" y="198" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#f57c00">制限・禁止検討</text>
+          <text x="280" y="215" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#202122">過支配カードへの規制判断</text>
+          <!-- Arrows -->
+          <line x1="170" y1="87" x2="208" y2="87" stroke="#36c" stroke-width="2" marker-end="url(#cycle-arrow)"/>
+          <line x1="350" y1="87" x2="388" y2="87" stroke="#36c" stroke-width="2" marker-end="url(#cycle-arrow)"/>
+          <line x1="460" y1="115" x2="460" y2="202" stroke="#36c" stroke-width="2"/>
+          <line x1="460" y1="202" x2="352" y2="202" stroke="#36c" stroke-width="2" marker-end="url(#cycle-arrow)"/>
+          <line x1="210" y1="202" x2="100" y2="202" stroke="#36c" stroke-width="2"/>
+          <line x1="100" y1="202" x2="100" y2="117" stroke="#36c" stroke-width="2" marker-end="url(#cycle-arrow)"/>
+        </svg>
+        <div class="diagram-caption">図2: ワンピースカードゲームにおけるメタゲームサイクルの模式図</div>
+      </div>
+
+      <p>上図のサイクルは以下の段階で進む:</p>
+      <ol>
+        <li><strong>ドミナントデッキの支配:</strong> 特定のデッキが高勝率を維持し、大会入賞率が突出して高い状態。現在の赤青エースデッキがこのフェーズに相当する</li>
+        <li><strong>カウンターデッキの台頭:</strong> ドミナントデッキへの対策が浸透し、それを意識した構築・デッキが増加する。コントロールやアグロがバランスを取りに来る段階</li>
+        <li><strong>新カード・新弾導入:</strong> 新しいカードセットのリリースや既存カードのエラッタによりパワーバランスが再編。新たなドミナントデッキが生まれる可能性がある</li>
+        <li><strong>制限・禁止の検討:</strong> 過剰な支配力を持つカードは<a href="ban-restriction-policy.html">制限・禁止カード議論</a>の対象となり、規制によってメタが強制的にリセットされることもある</li>
+      </ol>
+
+      <h2 id="throne-impact">トローン卿が与えたメタへの影響</h2>
+      <p><a href="throne-stage-lord.html">トローン卿</a>の登場は、現行メタゲームに構造的な変化をもたらした。その影響を以下の観点から整理する。</p>
+
+      <h3 id="speed-shift">メタスピードのシフト</h3>
+      <p>トローン卿導入以前のメタゲームは、低コストカードを連打する高速アグロデッキが優位だった。しかしトローン卿のライフ回復効果がアグロの速度を殺し、コスト軽減によって中速・コントロールデッキが早期展開できるようになったことで、メタゲーム全体のスピードが「中速〜コントロール寄り」にシフトした。</p>
+
+      <h3 id="deck-diversity-impact">デッキ多様性への影響</h3>
+      <p>トローン卿の支配的な力は、一時的にデッキの多様性を低下させた。多くのプレイヤーが赤青エースを選択したことで、ミラーマッチが増加。これに対応するためにステージ除去カードの採用が増え、カードプールの使われ方が偏るという現象が起きた。</p>
+
+      <h3 id="counter-rise">カウンター戦略の活発化</h3>
+      <p>トローン卿対策として以下の戦略が活発化している:</p>
+      <ul>
+        <li><strong>ステージ除去の積極採用:</strong> 多くのデッキがサイドボードまたはメインデッキにステージ除去を複数枚採用するようになった</li>
+        <li><strong>超高速アグロの復権:</strong> <a href="aggro-deck-meta.html">アグロデッキ</a>はトローン卿が着地する前に勝負を決めることを目指し、1〜2ターン目からの全力展開を追求</li>
+        <li><strong>コントロールの精密化:</strong> <a href="control-deck-meta.html">コントロールデッキ</a>はトローン卿に対する確実な回答を複数枚用意しつつ、手札アドバンテージで差をつける方向に進化</li>
+      </ul>
+
+      <h2 id="tournament-scene">大会シーン（CS・グランプリの重要性）</h2>
+      <p>競技ワンピースカードゲームにおける大会シーンは、メタゲームの形成と変化に直結している。<a href="tournament-cs-format.html">CS（チャンピオンシップ）・グランプリ</a>での入賞データは、Tier評価の最も信頼できる根拠となる。</p>
+
+      <h3 id="cs-format">CSの位置づけ</h3>
+      <p>CSは公認店舗や地域主催で行われる中規模大会であり、参加者数は数十人〜数百人規模。頻繁に開催されるため、最新のメタゲームを最も早く反映する場として競技プレイヤーに重宝される。CSの結果は:</p>
+      <ul>
+        <li>使用デッキの母数が多く、環境デッキの使用率を正確に把握できる</li>
+        <li>入賞デッキのリスト公開によりメタゲームの変化が可視化される</li>
+        <li>地域ごとのメタ差異（ローカルメタ）を発見できる</li>
+      </ul>
+
+      <h3 id="grand-prix">グランプリの影響力</h3>
+      <p>グランプリは全国規模の大型公認大会であり、数百〜千人超が参加する。グランプリでの結果は:</p>
+      <ul>
+        <li>デッキの真の競技力を測る最高精度のサンプルとなる</li>
+        <li>入賞デッキがそのままメタゲームの新しい基準になることが多い</li>
+        <li>プロ・トッププレイヤーの最新構築・戦略が公開されるため、メタゲームを大きく動かす</li>
+      </ul>
+      <p>現在の大会シーンでは、赤青エース（白髭）デッキの使用率・入賞率が突出して高く、グランプリ準決勝以上でも過半数を占める状況が続いている。</p>
+
+      <h2 id="future-meta">今後のメタ予測</h2>
+      <p>現行メタゲームの今後について、以下のシナリオが考えられる。</p>
+
+      <h3 id="scenario-regulation">規制シナリオ</h3>
+      <p><a href="ban-restriction-policy.html">制限・禁止カード</a>の改訂によってトローン卿が規制された場合、メタゲームは大幅にリセットされる。その場合、現在Tier2に甘んじているデッキが一気にTier1に浮上する可能性がある。特にコントロールデッキと中速ミッドレンジはその恩恵を最も受けやすい。</p>
+
+      <h3 id="scenario-new-set">新カードセットシナリオ</h3>
+      <p>次の弾リリースでトローン卿への汎用的な対策カードが追加される、あるいは新たなドミナントカードが登場することで、自然な形でメタゲームが移行する可能性がある。過去のTCGの歴史からも、強力なカウンターカードの登場はメタゲームを健全化させる最も自然な手段である。</p>
+
+      <h3 id="scenario-player-adaptation">プレイヤー適応シナリオ</h3>
+      <p>大会コミュニティが赤青エースへの対策を十分に洗練させ、<a href="control-deck-meta.html">コントロール</a>や<a href="aggro-deck-meta.html">アグロ</a>がTier1に割り込んでくるシナリオ。過去のメタゲームサイクルを見ると、プレイヤーの適応によりドミナントデッキが自然に下火になる例も多い。現在のメタにも同様の動きが見られており、今後の大会入賞データに注目が集まっている。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#meta-definition">メタゲームの定義とTier構造</a></li>
+          <li><a href="#tier1-decks">Tier1デッキ一覧</a></li>
+          <li class="toc-h3"><a href="#red-blue-ace">赤青エース（白髭）デッキ</a></li>
+          <li class="toc-h3"><a href="#other-top-decks">その他のトップデッキ</a></li>
+          <li><a href="#meta-cycle">メタゲームのサイクル</a></li>
+          <li><a href="#throne-impact">トローン卿が与えたメタへの影響</a></li>
+          <li class="toc-h3"><a href="#speed-shift">メタスピードのシフト</a></li>
+          <li class="toc-h3"><a href="#deck-diversity-impact">デッキ多様性への影響</a></li>
+          <li class="toc-h3"><a href="#counter-rise">カウンター戦略の活発化</a></li>
+          <li><a href="#tournament-scene">大会シーン（CS・グランプリの重要性）</a></li>
+          <li class="toc-h3"><a href="#cs-format">CSの位置づけ</a></li>
+          <li class="toc-h3"><a href="#grand-prix">グランプリの影響力</a></li>
+          <li><a href="#future-meta">今後のメタ予測</a></li>
+          <li class="toc-h3"><a href="#scenario-regulation">規制シナリオ</a></li>
+          <li class="toc-h3"><a href="#scenario-new-set">新カードセットシナリオ</a></li>
+          <li class="toc-h3"><a href="#scenario-player-adaptation">プレイヤー適応シナリオ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="throne-stage-lord.html">トローン卿</a></li>
+          <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+          <li><a href="control-deck-meta.html">コントロールデッキのメタ</a></li>
+          <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+          <li><a href="ban-restriction-policy.html">制限・禁止カード議論</a></li>
+          <li><a href="tournament-cs-format.html">CS・グランプリ大会形式</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="control-deck-meta.html">コントロールデッキのメタ</a></li>
+        <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+        <li><a href="ban-restriction-policy.html">制限・禁止カード議論</a></li>
+        <li><a href="tournament-cs-format.html">CS・グランプリ大会形式</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -530,6 +530,132 @@
       "color": "#1565c0",
       "is_root": false,
       "summary": "Claude Code の能力を拡張する二つの補完的レイヤー——Skillsマーケットプレイス（高レベル：手順・ワークフローの共有）とMCP統合（低レベル：外部システムへの標準接続）——の統合アーキテクチャを解析する。両者に共通する三層信頼構造とセキュリティ設計を論じ、Claude Codeがプラットフォームとして進化する戦略的方向性を示す。"
+    },
+    {
+      "id": "onepiece-tcg-meta:throne-stage-lord",
+      "wiki": "onepiece-tcg-meta",
+      "title": "トローン卿",
+      "url": "wikis/onepiece-tcg-meta/articles/throne-stage-lord.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける最強クラスのステージカード。赤青エース（白髭）デッキの核として猛威を振るい、現行メタゲームを大きく塗り替えたキーカード。"
+    },
+    {
+      "id": "onepiece-tcg-meta:red-blue-ace-deck",
+      "wiki": "onepiece-tcg-meta",
+      "title": "赤青エース（白髭）デッキ",
+      "url": "wikis/onepiece-tcg-meta/articles/red-blue-ace-deck.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "赤青エース（白髭）デッキは、赤（炎属性）と青（海軍・技術属性）の2色を組み合わせた中速コントロール型の構築であり、トローン卿とエースのシナジーを軸に現行メタゲームのトップティアに君臨する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:ace-portgas-card",
+      "wiki": "onepiece-tcg-meta",
+      "title": "ポートガス・D・エース",
+      "url": "wikis/onepiece-tcg-meta/articles/ace-portgas-card.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける最重要アタッカーカード。トローン卿との強力なシナジーによって赤青エース（白髭）デッキの核を担い、炎の悪魔の実に由来する特殊効果で競技環境を席巻する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:current-meta-overview",
+      "wiki": "onepiece-tcg-meta",
+      "title": "現行メタゲーム概要",
+      "url": "wikis/onepiece-tcg-meta/articles/current-meta-overview.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームの現行メタゲームを解説。Tier構造・主要デッキ・サイクルダイナミクスから大会シーンまで、競技環境の全体像を体系的にまとめる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "wiki": "onepiece-tcg-meta",
+      "title": "白髭（エドワード・ニューゲート）",
+      "url": "wikis/onepiece-tcg-meta/articles/whitebeard-edward-newgate.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける圧倒的なパワーとユニークな効果を持つ最高レアリティのキャラクターカード。赤青エースデッキのフィニッシャーとして競技環境の頂点に君臨する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:control-deck-meta",
+      "wiki": "onepiece-tcg-meta",
+      "title": "コントロールデッキのメタ",
+      "url": "wikis/onepiece-tcg-meta/articles/control-deck-meta.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおけるコントロールデッキのメタゲーム上の位置づけを解説。主要デッキ一覧・対アグロ戦略・ミラーマッチ・トローン卿採用構築の強みを体系的にまとめる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:ban-restriction-policy",
+      "wiki": "onepiece-tcg-meta",
+      "title": "制限・禁止カード議論",
+      "url": "wikis/onepiece-tcg-meta/articles/ban-restriction-policy.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける制限・禁止カード制度の概要と歴史を解説し、特にトローン卿をはじめとする規制議論の賛否両論・メタゲームへの影響を体系的にまとめる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:stage-removal-counter",
+      "wiki": "onepiece-tcg-meta",
+      "title": "ステージ対策カード",
+      "url": "wikis/onepiece-tcg-meta/articles/stage-removal-counter.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ステージカードへの有効な対策手段を体系的に解説する記事。各色が持つ除去・無効化手段の特徴と、競技環境における採用実態を網羅する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:aggro-deck-meta",
+      "wiki": "onepiece-tcg-meta",
+      "title": "アグロデッキのメタ",
+      "url": "wikis/onepiece-tcg-meta/articles/aggro-deck-meta.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおけるアグロデッキのメタゲーム上の位置づけを解説。序盤の爆発力でライフを削りきる戦略と、コントロール・ミッドレンジへの対応方法を体系的にまとめる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:tournament-cs-format",
+      "wiki": "onepiece-tcg-meta",
+      "title": "CS・大会フォーマット",
+      "url": "wikis/onepiece-tcg-meta/articles/tournament-cs-format.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおけるCS（カードショップ主催大会）および公式大会フォーマットを解説。参加資格・デッキ登録ルール・大会形式から競技シーンで採用される主要デッキ傾向まで体系的にまとめる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:card-color-system",
+      "wiki": "onepiece-tcg-meta",
+      "title": "カードカラーシステム",
+      "url": "wikis/onepiece-tcg-meta/articles/card-color-system.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける6色のカードカラーシステムを解説する。各色は独自の戦略的アイデンティティを持ち、デッキ構築の根幹を形成する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:leader-card-strategy",
+      "wiki": "onepiece-tcg-meta",
+      "title": "リーダーカード戦略",
+      "url": "wikis/onepiece-tcg-meta/articles/leader-card-strategy.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおけるリーダーカード戦略の基礎から応用まで、デッキ構築の核となるリーダー選択の理論と実践を解説する。"
+    },
+    {
+      "id": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "wiki": "onepiece-tcg-meta",
+      "title": "白髭海賊団カード群",
+      "url": "wikis/onepiece-tcg-meta/articles/whitebeard-pirate-crew.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおける白髭海賊団関連カード群の総合解説。マルコ・エースをはじめとする主力幹部カードから船員サポート群まで、トローン卿・白髭とのシナジーネットワークを詳しく掘り下げる。"
+    },
+    {
+      "id": "onepiece-tcg-meta:don-cost-management",
+      "wiki": "onepiece-tcg-meta",
+      "title": "ドンコスト管理の基礎",
+      "url": "wikis/onepiece-tcg-meta/articles/don-cost-management.html",
+      "color": "#e53935",
+      "is_root": false,
+      "summary": "ワンピースカードゲームにおけるドンカードの基本ルールと運用理論を解説する。ドンコスト管理は勝敗を左右する最重要スキルであり、精密なリソース計算が求められる。"
     }
   ],
   "links": [
@@ -2082,6 +2208,346 @@
       "source": "claude-code-analysis:skills-marketplace-mcp-synthesis",
       "target": "claude-code-skills-sharing:skills-discovery-and-catalog",
       "type": "cross"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:ace-portgas-card",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:stage-removal-counter",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:ban-restriction-policy",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:throne-stage-lord",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:ace-portgas-card",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:aggro-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:red-blue-ace-deck",
+      "target": "onepiece-tcg-meta:card-color-system",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ace-portgas-card",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ace-portgas-card",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ace-portgas-card",
+      "target": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:aggro-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:ban-restriction-policy",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:current-meta-overview",
+      "target": "onepiece-tcg-meta:tournament-cs-format",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "target": "onepiece-tcg-meta:ace-portgas-card",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "target": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "target": "onepiece-tcg-meta:leader-card-strategy",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:control-deck-meta",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:control-deck-meta",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:control-deck-meta",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:control-deck-meta",
+      "target": "onepiece-tcg-meta:aggro-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:control-deck-meta",
+      "target": "onepiece-tcg-meta:stage-removal-counter",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ban-restriction-policy",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ban-restriction-policy",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ban-restriction-policy",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:ban-restriction-policy",
+      "target": "onepiece-tcg-meta:stage-removal-counter",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:stage-removal-counter",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:stage-removal-counter",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:stage-removal-counter",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:stage-removal-counter",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:aggro-deck-meta",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:aggro-deck-meta",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:aggro-deck-meta",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:aggro-deck-meta",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:tournament-cs-format",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:tournament-cs-format",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:tournament-cs-format",
+      "target": "onepiece-tcg-meta:ban-restriction-policy",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:card-color-system",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:card-color-system",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:card-color-system",
+      "target": "onepiece-tcg-meta:aggro-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:card-color-system",
+      "target": "onepiece-tcg-meta:control-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:card-color-system",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:leader-card-strategy",
+      "target": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:leader-card-strategy",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:leader-card-strategy",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:leader-card-strategy",
+      "target": "onepiece-tcg-meta:card-color-system",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:whitebeard-edward-newgate",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:ace-portgas-card",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:current-meta-overview",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:ban-restriction-policy",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:aggro-deck-meta",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:whitebeard-pirate-crew",
+      "target": "onepiece-tcg-meta:stage-removal-counter",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:don-cost-management",
+      "target": "onepiece-tcg-meta:red-blue-ace-deck",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:don-cost-management",
+      "target": "onepiece-tcg-meta:throne-stage-lord",
+      "type": "internal"
+    },
+    {
+      "source": "onepiece-tcg-meta:don-cost-management",
+      "target": "onepiece-tcg-meta:card-color-system",
+      "type": "internal"
     },
     {
       "source": "hokuo-shinwa-yukari-machi:york-jorvík",

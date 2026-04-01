@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コントロールデッキのメタ - ワンピースカードゲーム メタゲームWiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a> &gt;
+    コントロールデッキのメタ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">コントロールデッキのメタ</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">ワンピースカードゲームにおける<b>コントロールデッキのメタ</b>とは、相手の動きを妨害・封殺しながらリソースアドバンテージを積み重ね、終盤に優位な盤面から勝利を目指すデッキタイプの競技環境上の位置づけと戦略を体系的に解説する。</div>
+
+      <p>
+        <b>コントロールデッキのメタ</b>とは、ワンピースカードゲームの競技環境（メタゲーム）において、
+        コントロール系デッキが占める役割・立ち位置・対処法を総合的に分析する概念である。
+        コントロールデッキはアグロやミッドレンジとともにメタゲームの三大柱の一つを形成し、
+        特に<a href="throne-stage-lord.html">トローン卿</a>登場以降は環境トップに食い込む存在となった。
+        <a href="current-meta-overview.html">現行メタゲーム概要</a>においても、
+        コントロールデッキは最上位Tierの一角を担い続けている。
+      </p>
+
+      <!-- コントロール vs アグロ vs ミッドレンジ 三つ巴図 -->
+      <figure style="margin: 24px 0; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="420" height="340" viewBox="0 0 420 340" role="img" aria-label="コントロール・アグロ・ミッドレンジの三つ巴関係図">
+          <rect width="420" height="340" fill="#f8f9fa" rx="8" ry="8" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="210" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">メタゲーム三角関係</text>
+
+          <!-- 三角形の頂点座標: コントロール(上), アグロ(左下), ミッドレンジ(右下) -->
+          <!-- コントロール: (210, 70), アグロ: (70, 270), ミッドレンジ: (350, 270) -->
+
+          <!-- 矢印定義 -->
+          <defs>
+            <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3366cc"/>
+            </marker>
+            <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#cc3333"/>
+            </marker>
+            <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#33aa55"/>
+            </marker>
+          </defs>
+
+          <!-- アグロ → コントロール（アグロが有利）-->
+          <line x1="95" y1="252" x2="188" y2="92" stroke="#cc3333" stroke-width="2.2" marker-end="url(#arrow-red)" stroke-dasharray="6,3"/>
+          <!-- コントロール → ミッドレンジ（コントロールが有利）-->
+          <line x1="232" y1="88" x2="328" y2="252" stroke="#3366cc" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+          <!-- ミッドレンジ → アグロ（ミッドレンジが有利）-->
+          <line x1="318" y1="274" x2="122" y2="274" stroke="#33aa55" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+
+          <!-- コントロールノード -->
+          <ellipse cx="210" cy="75" rx="68" ry="32" fill="#ddeeff" stroke="#3366cc" stroke-width="2"/>
+          <text x="210" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">コントロール</text>
+          <text x="210" y="87" text-anchor="middle" font-size="11" fill="#3366cc">妨害・リソース勝ち</text>
+
+          <!-- アグロノード -->
+          <ellipse cx="82" cy="278" rx="65" ry="32" fill="#ffeeee" stroke="#cc3333" stroke-width="2"/>
+          <text x="82" y="273" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">アグロ</text>
+          <text x="82" y="290" text-anchor="middle" font-size="11" fill="#cc3333">速攻・圧力</text>
+
+          <!-- ミッドレンジノード -->
+          <ellipse cx="338" cy="278" rx="65" ry="32" fill="#eeffee" stroke="#33aa55" stroke-width="2"/>
+          <text x="338" y="273" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">ミッドレンジ</text>
+          <text x="338" y="290" text-anchor="middle" font-size="11" fill="#33aa55">柔軟・適応</text>
+
+          <!-- 矢印ラベル -->
+          <text x="122" y="152" text-anchor="middle" font-size="10" fill="#cc3333" transform="rotate(-62,122,152)">速攻で崩す</text>
+          <text x="286" y="160" text-anchor="middle" font-size="10" fill="#3366cc" transform="rotate(62,286,160)">封殺・制圧</text>
+          <text x="210" y="268" text-anchor="middle" font-size="10" fill="#33aa55">テンポで押し切る</text>
+
+          <text x="210" y="326" text-anchor="middle" font-size="10" fill="#72777d">矢印の向き＝有利方向</text>
+        </svg>
+        <figcaption style="font-size:12px; color:#555; margin-top:6px;">図1: コントロール・アグロ・ミッドレンジの三つ巴関係。矢印の向きが有利方向を示す。</figcaption>
+      </figure>
+
+      <h2 id="what-is-control">コントロールデッキとは</h2>
+      <p>
+        コントロールデッキとは、相手の行動を妨害・無効化しながら自らのリソースを蓄積し、
+        中〜終盤に決定的なアドバンテージで勝利を目指すデッキタイプである。
+        ワンピースカードゲームにおいてはステージやイベントカードによる除去・バウンス、
+        ドロー操作、相手のアタッカーの無力化が主要な手段となる。
+      </p>
+      <p>
+        プレイスタイルとしては「受け身」が基本であり、相手の展開を1ターン単位で丁寧に対処しながら、
+        最終的にリソース差（手札枚数・ライフ差）を活かして勝利する。
+        高い判断力と経験が求められるため、上級者向けのアーキタイプとされることが多い。
+      </p>
+
+      <h2 id="major-control-decks">主要コントロールデッキ一覧</h2>
+      <p>現行メタゲームにおける代表的なコントロールデッキを以下に挙げる。</p>
+      <ul>
+        <li>
+          <b><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></b>:
+          現環境最強クラスのコントロールデッキ。
+          <a href="throne-stage-lord.html">トローン卿</a>を軸に、エースの除去効果と青カラーの妨害を組み合わせる。
+          速攻性とコントロール性能を両立した「コントロールミッドレンジ」として分類されることもある。
+        </li>
+        <li>
+          <b>青単海軍コントロール</b>:
+          海軍カードを主軸に据えた純正コントロール。
+          バウンスとデッキ操作を多用し、相手のキャラクターをフィールドに定着させない戦略を取る。
+          テンポは遅いが安定性が高い。
+        </li>
+        <li>
+          <b>紫コントロール</b>:
+          紫属性特有の「コスト踏み倒し」とバウンス効果を組み合わせたコントロールデッキ。
+          高コストフィニッシャーを早期に着地させる「ランプコントロール」的な戦略を持つ。
+        </li>
+        <li>
+          <b>黒単コントロール</b>:
+          トラッシュ利用と大型キャラクター蘇生を軸としたコントロール。
+          リソース回復能力が高く長期戦に強いが、速度に欠ける面もある。
+        </li>
+      </ul>
+
+      <h2 id="anti-aggro-strategy">対アグロ戦略</h2>
+      <p>
+        <a href="aggro-deck-meta.html">アグロデッキ</a>はコントロールの天敵であり、
+        序盤の爆発的な展開にコントロールが追い付けないケースが頻発する。
+        コントロールデッキが対アグロ戦を戦い抜くための主要な手段を以下に整理する。
+      </p>
+      <ul>
+        <li><b>ブロッカーの早期設置</b>: 低コストのブロッカーキャラクターを初手に配置し、相手のアタックを吸収する。</li>
+        <li><b>全体除去カードの採用</b>: ブロッカーを突破されても全体除去で盤面をリセットし、テンポを取り戻す。</li>
+        <li><b>ライフ管理の徹底</b>: あえてライフを受け手札を増やし、除去・カウンターの手数を確保する。</li>
+        <li><b>ステージによる速攻封じ</b>: <a href="stage-removal-counter.html">ステージ除去カウンター</a>を活用し、相手のアグロ展開の起点となるステージを潰す。</li>
+      </ul>
+      <p>
+        対アグロの鍵はいかに「ターン2〜4の爆発期」を乗り切るかにある。
+        コントロールデッキはこの時間帯を耐え切ることで、中盤以降に逆転の機会を掴む。
+      </p>
+
+      <h2 id="mirror-match-strategy">ミラーマッチの戦略</h2>
+      <p>
+        コントロール同士のミラーマッチは、リソースの消耗戦となりやすく、
+        一手のミスが致命的な差となる高難度な対戦形式である。
+        ミラーマッチで勝利するための主要な戦略を以下に示す。
+      </p>
+      <ul>
+        <li><b>先にリソースを使わせる</b>: 相手に除去やカウンターを先打ちさせ、後から上位の対応を行う「構えのゲーム」が基本。</li>
+        <li><b>フィニッシャーの質の差</b>: フィニッシャーカードの強さ・速度の差がそのまま勝負に直結するため、デッキ構築段階でのカード選択が重要。</li>
+        <li><b>ドン！マネジメント</b>: リソース生成カードを何ターン目に使うかの見極めがゲームプランを大きく左右する。</li>
+        <li><b>相手のデッキを読む</b>: 相手の行動パターンから伏せカードや手札を推測し、先読みのプレイングで差を付ける。</li>
+      </ul>
+
+      <h2 id="throne-stage-lord-control">トローン卿採用コントロールの強み</h2>
+      <p>
+        <a href="throne-stage-lord.html">トローン卿</a>はコントロールデッキにとって革命的なステージカードである。
+        このカードの採用によってコントロールデッキが得る強みは以下の通りである。
+      </p>
+      <ul>
+        <li><b>恒常的なリソース生成</b>: 毎ターン手札を補充する効果により、コントロールデッキが苦手とする「息切れ」を大幅に軽減する。</li>
+        <li><b>盤面制圧の強化</b>: トローン卿の効果でバウンスや除去が連鎖し、相手の展開を永続的に妨害できる。</li>
+        <li><b>速度の向上</b>: 従来の純正コントロールより早いテンポでゲームを終わらせられるため、長期戦のリスクを下げる。</li>
+        <li><b>対応の幅の拡大</b>: リソースに余裕が生まれることで、複数の脅威に同時対処できるプレイの柔軟性が向上する。</li>
+      </ul>
+      <p>
+        ただし<a href="stage-removal-counter.html">ステージ除去カウンター</a>によってトローン卿を早期に破壊されると
+        この強みが一気に失われるため、保護手段やバックアッププランの用意が不可欠である。
+      </p>
+
+      <h2 id="weakness-and-solutions">コントロールデッキの弱点と克服法</h2>
+      <p>コントロールデッキには明確な弱点が存在し、それを理解した上での対策がメタゲーム上の立ち位置を左右する。</p>
+      <ul>
+        <li>
+          <b>速攻への脆弱性</b>: 準備期間が必要なコントロールは、序盤の圧力に弱い。
+          克服法: ブロッカー・低コスト除去の枚数を増やし、「初動を固める」構築にする。
+        </li>
+        <li>
+          <b>ハンデス耐性の低さ</b>: 手札依存が高いため、手札破壊効果に弱い。
+          克服法: ドロー強化カードを厚めに採用し、手札枚数の回復速度を上げる。
+        </li>
+        <li>
+          <b>ステージ依存リスク</b>: トローン卿など特定のステージに依存する構築は、<a href="stage-removal-counter.html">ステージ除去</a>一枚で瓦解するリスクがある。
+          克服法: サブエンジンカードを採用し、ステージなしでも動けるプランBを用意する。
+        </li>
+        <li>
+          <b>長期戦でのデッキアウトリスク</b>: ドローを多用するためデッキ切れが起きやすい。
+          克服法: フィニッシャーの採用枚数を最適化し、不必要なドローを控える。
+        </li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#what-is-control">コントロールデッキとは</a></li>
+          <li><a href="#major-control-decks">主要コントロールデッキ一覧</a></li>
+          <li><a href="#anti-aggro-strategy">対アグロ戦略</a></li>
+          <li><a href="#mirror-match-strategy">ミラーマッチの戦略</a></li>
+          <li><a href="#throne-stage-lord-control">トローン卿採用コントロールの強み</a></li>
+          <li><a href="#weakness-and-solutions">コントロールデッキの弱点と克服法</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="throne-stage-lord.html">トローン卿</a></li>
+          <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+          <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+          <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+          <li><a href="stage-removal-counter.html">ステージ除去カウンター</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+        <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+        <li><a href="stage-removal-counter.html">ステージ除去カウンター</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

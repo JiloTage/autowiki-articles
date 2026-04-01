@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カードカラーシステム - ワンピースカードゲーム メタゲームWiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a> &gt;
+    カードカラーシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">カードカラーシステム</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">ワンピースカードゲームにおける6色のカードカラーシステムを解説する。各色は独自の戦略的アイデンティティを持ち、デッキ構築の根幹を形成する。</div>
+
+      <p><b>カードカラーシステム</b>は、ワンピースカードゲームのデッキ構築における最も基本的かつ重要な要素である。全カードは赤・青・緑・黄・黒・紫の6色のいずれかに属し、各色はそれぞれ固有の戦術的役割とキャラクター群を持つ。プレイヤーはリーダーカードの色に基づいてデッキを構築し、単色・2色・多色の選択がメタゲームにおける立ち位置を大きく左右する。</p>
+
+      <h2 id="color-overview">色の種類と特徴</h2>
+      <p>ワンピースカードゲームには6色のカードカラーが存在し、それぞれ異なるプレイスタイルとキャラクター・勢力と対応している。リーダーカードの色がデッキのメインカラーを規定し、同色または許容される組み合わせのカードのみをデッキに採用できる。</p>
+      <p>各色の基本的な役割は以下の通りである。</p>
+      <ul>
+        <li><strong>赤</strong> — 攻撃特化・炎属性・アグロ向き</li>
+        <li><strong>青</strong> — コントロール・海軍・テクニカル</li>
+        <li><strong>緑</strong> — ミッドレンジ・自然系・展開力</li>
+        <li><strong>黄</strong> — バランス型・海賊王系・汎用性</li>
+        <li><strong>黒</strong> — 防御・海賊系・持久力</li>
+        <li><strong>紫</strong> — トリック・悪魔の実・特殊効果</li>
+      </ul>
+
+      <!-- Radar chart: 6-color characteristics comparison -->
+      <figure style="text-align:center; margin: 1.5em 0;">
+        <svg viewBox="0 0 480 420" width="480" height="420" xmlns="http://www.w3.org/2000/svg" style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:6px; max-width:100%;">
+          <!-- Title -->
+          <text x="240" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">6色カード特性比較チャート</text>
+
+          <!-- Hexagon grid (3 layers) -->
+          <!-- Outer hex (100%) -->
+          <polygon points="240,55 340,110 340,220 240,275 140,220 140,110" fill="none" stroke="#a2a9b1" stroke-width="1"/>
+          <!-- Mid hex (66%) -->
+          <polygon points="240,88 306,124 306,193 240,228 174,193 174,124" fill="none" stroke="#a2a9b1" stroke-width="0.7" stroke-dasharray="4,3"/>
+          <!-- Inner hex (33%) -->
+          <polygon points="240,121 273,139 273,166 240,183 207,166 207,139" fill="none" stroke="#a2a9b1" stroke-width="0.7" stroke-dasharray="4,3"/>
+          <!-- Center -->
+          <circle cx="240" cy="165" r="3" fill="#a2a9b1"/>
+          <!-- Axes -->
+          <line x1="240" y1="55" x2="240" y2="275" stroke="#a2a9b1" stroke-width="0.7"/>
+          <line x1="340" y1="110" x2="140" y2="220" stroke="#a2a9b1" stroke-width="0.7"/>
+          <line x1="340" y1="220" x2="140" y2="110" stroke="#a2a9b1" stroke-width="0.7"/>
+
+          <!-- Color labels at hex vertices -->
+          <!-- Top: 赤 (Red) -->
+          <text x="240" y="46" text-anchor="middle" font-size="13" font-weight="bold" fill="#c0392b">赤</text>
+          <!-- Top-right: 青 (Blue) -->
+          <text x="352" y="107" text-anchor="start" font-size="13" font-weight="bold" fill="#2980b9">青</text>
+          <!-- Bottom-right: 緑 (Green) -->
+          <text x="352" y="228" text-anchor="start" font-size="13" font-weight="bold" fill="#27ae60">緑</text>
+          <!-- Bottom: 黄 (Yellow) -->
+          <text x="240" y="292" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4a017">黄</text>
+          <!-- Bottom-left: 黒 (Black) -->
+          <text x="128" y="228" text-anchor="end" font-size="13" font-weight="bold" fill="#202122">黒</text>
+          <!-- Top-left: 紫 (Purple) -->
+          <text x="128" y="107" text-anchor="end" font-size="13" font-weight="bold" fill="#8e44ad">紫</text>
+
+          <!-- Data polygons for each color characteristic -->
+          <!-- Attack (赤 axis top): Red=95, Blue=40, Green=65, Yellow=70, Black=55, Purple=60 -->
+          <!-- The polygon plots normalized values along each axis from center (240,165) -->
+          <!-- Axis vectors (unit): Top=(0,-110), TR=(86.6,-55), BR=(86.6,55), Bot=(0,110), BL=(-86.6,55), TL=(-86.6,-55) -->
+
+          <!-- Red characteristic: Attack=95%, Control=25%, Expand=50%, Balance=45%, Endure=30%, Trick=40% -->
+          <polygon
+            points="240,60.5 296.2,131.8 283.3,219.8 199.0,210.5 166.8,189.8 196.5,120.2"
+            fill="#c0392b" fill-opacity="0.18" stroke="#c0392b" stroke-width="2"/>
+
+          <!-- Blue characteristic: Attack=35%, Control=95%, Expand=45%, Balance=55%, Endure=65%, Trick=70% -->
+          <polygon
+            points="240,126.5 325.2,109.8 283.3,220.5 199.0,210.0 175.8,219.8 218.0,104.5"
+            fill="#2980b9" fill-opacity="0.18" stroke="#2980b9" stroke-width="2"/>
+
+          <!-- Green characteristic: Attack=60%, Control=50%, Expand=90%, Balance=60%, Endure=55%, Trick=50% -->
+          <polygon
+            points="240,99.0 307.0,124.5 323.9,219.3 208.0,220.5 173.2,190.3 196.5,120.2"
+            fill="#27ae60" fill-opacity="0.18" stroke="#27ae60" stroke-width="2"/>
+
+          <!-- Attribute labels inside chart -->
+          <text x="240" y="310" text-anchor="middle" font-size="10" fill="#202122">攻撃力</text>
+          <text x="358" y="168" text-anchor="start" font-size="10" fill="#202122">コントロール</text>
+          <text x="240" y="345" text-anchor="middle" font-size="10" fill="#202122">展開力</text>
+          <text x="112" y="168" text-anchor="end" font-size="10" fill="#202122">持久力</text>
+
+          <!-- Legend -->
+          <rect x="30" y="355" width="14" height="14" fill="#c0392b" fill-opacity="0.5" stroke="#c0392b"/>
+          <text x="50" y="366" font-size="11" fill="#202122">赤（攻撃特化）</text>
+          <rect x="140" y="355" width="14" height="14" fill="#2980b9" fill-opacity="0.5" stroke="#2980b9"/>
+          <text x="160" y="366" font-size="11" fill="#202122">青（コントロール）</text>
+          <rect x="270" y="355" width="14" height="14" fill="#27ae60" fill-opacity="0.5" stroke="#27ae60"/>
+          <text x="290" y="366" font-size="11" fill="#202122">緑（展開・ミッドレンジ）</text>
+
+          <rect x="30" y="378" width="14" height="14" fill="#d4a017" fill-opacity="0.5" stroke="#d4a017"/>
+          <text x="50" y="389" font-size="11" fill="#202122">黄（バランス）</text>
+          <rect x="140" y="378" width="14" height="14" fill="#555" fill-opacity="0.5" stroke="#555"/>
+          <text x="160" y="389" font-size="11" fill="#202122">黒（防御・持久）</text>
+          <rect x="270" y="378" width="14" height="14" fill="#8e44ad" fill-opacity="0.5" stroke="#8e44ad"/>
+          <text x="290" y="389" font-size="11" fill="#202122">紫（トリック）</text>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555; margin-top:0.5em;">図1: ワンピースカードゲーム 6色カード特性比較（概念図）</figcaption>
+      </figure>
+
+      <h2 id="red-characteristics">赤の特徴（パワー・炎属性・アグロ向き）</h2>
+      <p>赤はワンピースカードゲームにおける<strong>攻撃特化</strong>のカラーである。炎属性キャラクターを多く含み、特にポートガス・D・エースを中心とした炎の悪魔の実使い達が主力となる。パワー数値が高いキャラクターを低コストで展開できるため、序盤から相手のライフを積極的に削りにいく<strong>アグロ（速攻）戦略</strong>に最も適している。</p>
+      <p>赤の主な強みは以下の通りである。</p>
+      <ul>
+        <li>高パワーキャラクターの早期展開</li>
+        <li>バトル特化の効果（攻撃力上昇・複数アタック）</li>
+        <li>炎属性シナジーによる追加ダメージ</li>
+        <li>相手のブロッカーを突破する貫通効果</li>
+      </ul>
+      <p>一方で、コントロール能力や持久力に乏しく、序盤の勢いが止まると立て直しが難しいのが弱点である。<a href="aggro-deck-meta.html">アグロデッキのメタ</a>では赤単および赤主体の2色デッキが頻繁に上位に入賞している。</p>
+
+      <h2 id="blue-characteristics">青の特徴（コントロール・海軍・テクニカル）</h2>
+      <p>青は<strong>コントロール特化</strong>のカラーであり、海軍組織に所属するキャラクターを多く擁する。相手の行動を妨害・無効化する効果が豊富で、テクニカルなプレイングを得意とする。バトルでの直接打ち勝ちよりも、カウンターや効果による有利交換を積み重ねてゲームを制する戦略が基本となる。</p>
+      <p>青の主な強みは以下の通りである。</p>
+      <ul>
+        <li>相手キャラのバウンス（手札・デッキ戻し）</li>
+        <li>カードドロー・手札補充の充実</li>
+        <li>コスト軽減・テンポアドバンテージ</li>
+        <li>ステージカード・イベントとの高いシナジー</li>
+      </ul>
+      <p><a href="control-deck-meta.html">コントロールデッキのメタ</a>において青は中核的な役割を担い、<a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a>のように赤と組み合わせることで攻守のバランスが取れた強力な2色構築が成立する。</p>
+
+      <h2 id="two-color-multicolor">2色デッキと多色デッキの考え方</h2>
+      <p>ワンピースカードゲームでは、リーダーカードに複数色が設定されている場合や、特定の条件下で異なる色のカードを採用できる場合がある。<strong>2色デッキ</strong>は2つの色の長所を組み合わせ、単色デッキの弱点を補う構築方針である。</p>
+
+      <h3 id="two-color-merits">2色デッキのメリットとデメリット</h3>
+      <table style="border-collapse:collapse; width:100%; margin: 1em 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1; padding:6px 10px;">項目</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px;">メリット</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px;">デメリット</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">柔軟性</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">多様な状況への対応力が増す</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">手札事故リスクが上がる</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">カードプール</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">採用できるカードの幅が広がる</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">コスト管理が複雑になる</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">シナジー</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">色をまたいだ強力なシナジーが生まれる</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">単色シナジーが希薄になる場合がある</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>代表的な2色の組み合わせとしては、攻守バランスに優れた<strong>赤青</strong>、展開力と持久力を兼ね備えた<strong>緑黒</strong>、バランス型の<strong>黄緑</strong>などが競技環境で採用されている。</p>
+
+      <h2 id="synergy-matrix">各色のシナジーマトリクス</h2>
+      <p>各色の相性は一般的に以下のように評価されている。◎は高シナジー、○は相性良好、△は要検討、×は組み合わせ難を示す。</p>
+
+      <table style="border-collapse:collapse; width:100%; margin: 1em 0; text-align:center;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1; padding:6px;"></th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#c0392b;">赤</th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#2980b9;">青</th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#27ae60;">緑</th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#d4a017;">黄</th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#555;">黒</th>
+            <th style="border:1px solid #a2a9b1; padding:6px; color:#8e44ad;">紫</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#c0392b;">赤</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#2980b9;">青</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#27ae60;">緑</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#d4a017;">黄</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#555;">黒</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px; font-weight:bold; color:#8e44ad;">紫</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">△</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">○</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">◎</td>
+            <td style="border:1px solid #a2a9b1; padding:6px;">—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>現行メタゲームで特に注目されている赤青の組み合わせは◎評価であり、<a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a>がその代表例として<a href="throne-stage-lord.html">トローン卿</a>を軸に競技シーンを席巻している。</p>
+
+      <h2 id="strategic-usage">カラーシステムの戦略的活用法</h2>
+      <p>カラーシステムを戦略的に活用するためには、単に色を組み合わせるだけでなく、メタゲームの流れを読んだ色選択が求められる。</p>
+
+      <h3 id="meta-reading">メタ読みと色選択</h3>
+      <p>競技環境において特定のデッキタイプが台頭している場合、それに対して有利な色を選択することがデッキビルドの出発点となる。例えば、アグロ（赤）が環境を支配している局面では、コントロール（青・黒）の採用価値が上がる。<a href="aggro-deck-meta.html">アグロデッキのメタ</a>と<a href="control-deck-meta.html">コントロールデッキのメタ</a>はこの観点から密接に連動している。</p>
+
+      <h3 id="color-identity">カラーアイデンティティとデッキ一貫性</h3>
+      <p>強力な2色デッキを構築する際も、デッキ全体のコンセプトを一つの色の戦略軸に収束させることが重要である。色を増やすほど汎用性は上がるが、コンセプトの一貫性が薄れ、手札事故のリスクも増大する。多色デッキは上級者向けの構築アプローチとされている。</p>
+
+      <h3 id="future-expansion">環境変化への対応</h3>
+      <p>新弾リリースや制限改定によって各色の評価は変動する。カラーシステムの基本を理解していれば、環境変化に応じて迅速にデッキを調整できる。最新の環境情報については<a href="current-meta-overview.html">現行メタゲーム概要</a>を参照されたい。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#color-overview">1. 色の種類と特徴</a></li>
+          <li><a href="#red-characteristics">2. 赤の特徴</a></li>
+          <li><a href="#blue-characteristics">3. 青の特徴</a></li>
+          <li><a href="#two-color-multicolor">4. 2色デッキと多色デッキ</a>
+            <ul>
+              <li><a href="#two-color-merits">4.1 メリットとデメリット</a></li>
+            </ul>
+          </li>
+          <li><a href="#synergy-matrix">5. 各色のシナジーマトリクス</a></li>
+          <li><a href="#strategic-usage">6. カラーシステムの戦略的活用法</a>
+            <ul>
+              <li><a href="#meta-reading">6.1 メタ読みと色選択</a></li>
+              <li><a href="#color-identity">6.2 カラーアイデンティティ</a></li>
+              <li><a href="#future-expansion">6.3 環境変化への対応</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+          <li><a href="throne-stage-lord.html">トローン卿</a></li>
+          <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+          <li><a href="control-deck-meta.html">コントロールデッキのメタ</a></li>
+          <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="aggro-deck-meta.html">アグロデッキのメタ</a></li>
+        <li><a href="control-deck-meta.html">コントロールデッキのメタ</a></li>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

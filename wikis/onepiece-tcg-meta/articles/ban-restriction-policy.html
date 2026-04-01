@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>制限・禁止カード議論 - ワンピースカードゲーム メタゲームWiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">ワンピースカードゲーム メタゲームWiki</a> &gt;
+    制限・禁止カード議論
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">制限・禁止カード議論</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">ワンピースカードゲームにおける制限・禁止カード制度の概要と歴史を解説し、特にトローン卿をはじめとする規制議論の賛否両論・メタゲームへの影響・コミュニティの反応を体系的にまとめる記事。</div>
+
+      <p><b>制限・禁止カード議論</b>とは、ワンピースカードゲームの競技環境において特定のカードを制限または使用禁止とすることの是非をめぐる議論の総称である。バンダイカードゲーム公式は定期的に「制限カードリスト」を更新し、環境を過度に支配するカードや健全な競技性を損なうカードを制限・禁止の対象としている。現環境では<a href="throne-stage-lord.html">トローン卿</a>の圧倒的な支配力が問題視されており、規制対象候補として激しい議論が交わされている。</p>
+
+      <h2 id="regulation-system">制限・禁止カード制度とは</h2>
+      <p>制限・禁止カード制度は、競技フォーマットにおいてカードのデッキ採用枚数を制限する（制限：1〜2枚まで）か、完全に使用を禁じる（禁止：0枚）ルールの総称である。</p>
+      <ul>
+        <li><strong>制限カード（Restricted）</strong>: デッキへの採用枚数が1枚または2枚に制限されるカード。通常は4枚採用可能なところを抑制する。</li>
+        <li><strong>禁止カード（Banned）</strong>: 競技フォーマットでの使用が完全に禁じられるカード。フリー対戦では使用可能な場合がある。</li>
+        <li><strong>準制限カード（Semi-Restricted）</strong>: 採用枚数が2枚に限定される中間的な措置。</li>
+      </ul>
+      <h3>更新スケジュール</h3>
+      <p>公式の制限・禁止リストは概ね3〜4ヶ月ごと、大型エキスパンションのリリースと連動して更新される。大規模大会（チャンピオンシップシリーズ、CS）のデータ・入賞デッキ分布・カード採用率を分析した上で改定が行われる。緊急性が高い場合は「緊急改定」として随時発表されることもある。</p>
+
+      <!-- 規制プロセスのフロー図 -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 200" style="width:100%;max-width:680px;display:block;margin:1.5em auto;" aria-label="制限・禁止カード制度の規制プロセスフロー図">
+        <!-- 背景 -->
+        <rect width="680" height="200" fill="#f8f9fa" rx="8"/>
+        <!-- ステップ1: 大会データ収集 -->
+        <rect x="20" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="80" y="96" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">大会データ</text>
+        <text x="80" y="113" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">収集・分析</text>
+        <!-- 矢印1 -->
+        <line x1="140" y1="100" x2="168" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- ステップ2: 問題カード特定 -->
+        <rect x="168" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="228" y="96" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">問題カード</text>
+        <text x="228" y="113" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">特定</text>
+        <!-- 矢印2 -->
+        <line x1="288" y1="100" x2="316" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- ステップ3: 審議 -->
+        <rect x="316" y="70" width="120" height="60" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+        <text x="376" y="96" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">公式審議</text>
+        <text x="376" y="113" text-anchor="middle" font-size="11" fill="#3366cc" font-family="sans-serif">（制限/禁止判断）</text>
+        <!-- 矢印3 -->
+        <line x1="436" y1="100" x2="464" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- ステップ4: リスト更新・発表 -->
+        <rect x="464" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+        <text x="524" y="96" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">リスト更新</text>
+        <text x="524" y="113" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">・発表</text>
+        <!-- 矢印（循環）: 下部 -->
+        <path d="M584 130 Q600 160 340 160 Q80 160 96 130" fill="none" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="340" y="180" text-anchor="middle" font-size="10" fill="#72777d" font-family="sans-serif">次サイクルへ（約3〜4ヶ月後）</text>
+        <!-- 矢印マーカー定義 -->
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+          </marker>
+        </defs>
+        <!-- タイトル -->
+        <text x="340" y="28" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold" font-family="sans-serif">規制プロセスフロー</text>
+      </svg>
+
+      <h2 id="history">過去の制限・禁止カード事例</h2>
+      <p>ワンピースカードゲームは発売以来、環境を大きく歪めるカードの登場と規制の繰り返しによりメタゲームが変遷してきた。以下は主要な規制事例の概略である。</p>
+      <table style="width:100%;border-collapse:collapse;font-size:0.93em;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">対象カード</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">措置</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">改定時期</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">ドン・キホーテ・ドフラミンゴ</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">制限（2枚）</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">第1回改定</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">特定デッキ採用率80%超・先攻有利の固定化</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">シャンクス（初期版）</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">禁止</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">第2回改定</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">1ターン目のゲームエンドコンボ成立</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">マリンフォード砦</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">制限（1枚）</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">第3回改定</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">コントロールデッキの手札補充が過剰</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">カイドウ（水族館囚人版）</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">禁止</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">第4回改定</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">ターン3でのフィールド制圧・対話破壊</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;"><a href="throne-stage-lord.html">トローン卿</a></td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">規制議論中</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">現行（2026年）</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">環境支配・採用率異常値</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="throne-debate">トローン卿への規制議論</h2>
+      <p><a href="throne-stage-lord.html">トローン卿</a>は、現行の<a href="current-meta-overview.html">メタゲーム</a>において最も問題視されているカードの一つである。特に<a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a>における採用率はほぼ100%に達し、大会入賞デッキの6〜7割以上に搭載されているとされる。</p>
+      <h3>規制賛成派の意見</h3>
+      <ul>
+        <li><strong>環境の画一化</strong>: トローン卿を採用しないデッキでは上位入賞が事実上不可能とする意見が多く、デッキ多様性が著しく損なわれているとされる。</li>
+        <li><strong>対話性の欠如</strong>: トローン卿が場に出た時点でゲームの結論が決まるケースが多く、相手プレイヤーとの駆け引きが消滅するという批判がある。</li>
+        <li><strong>新規参入障壁</strong>: 高騰したトローン卿の市場価格が競技参入を妨げ、ゲームの裾野を狭めているとも指摘される。</li>
+        <li><strong>過去事例との整合性</strong>: シャンクス（初期版）やカイドウに対して禁止措置を行った際と比較し、トローン卿の支配力はそれらと同等以上だと主張する声がある。</li>
+      </ul>
+      <h3>規制反対派の意見</h3>
+      <ul>
+        <li><strong>対策カードの存在</strong>: トローン卿に対するカウンターカードは既に存在しており、メタゲームが自然に調整される余地があるという反論がある。詳細は<a href="stage-removal-counter.html">ステージ除去カウンター</a>を参照。</li>
+        <li><strong>プレイスキルの重要性</strong>: トローン卿を採用しても使い手のスキルによって勝率が変わるとするプロプレイヤーの意見も根強い。</li>
+        <li><strong>製品販売への影響</strong>: 禁止・制限によってカード価値が急落し、既存プレイヤーの資産が毀損されるというコレクター・投資家側の反対意見もある。</li>
+        <li><strong>環境の自然淘汰待ち</strong>: 次弾以降に強力なカウンターカードが登場し環境が自然解決されるべきという意見もある。</li>
+      </ul>
+
+      <h2 id="impact">制限・禁止の影響</h2>
+      <p>過去の改定事例から、制限・禁止措置がメタゲームに与える影響は多面的であることがわかっている。</p>
+      <h3>短期的影響</h3>
+      <p>制限・禁止が発表された直後は、規制カードに依存していたデッキの競技力が急落する。規制対象デッキのプレイヤーは代替構築を模索し、環境全体のデッキシェアが急激に変化する。また、規制されたカードの市場価格は発表後数日以内に50〜80%程度下落することが多い。</p>
+      <h3>長期的影響</h3>
+      <p>長期的には、特定デッキへの集中から多様なアーキタイプが台頭し、大会の勝率分布が平準化される傾向がある。ただし、制限によって力の真空が生まれた際に別の支配的カードが浮上する「スライド現象」も過去に観測されており、規制によって問題が解決されるとは限らない。<a href="current-meta-overview.html">現行メタゲーム概要</a>ではこうしたダイナミクスも詳述している。</p>
+
+      <h2 id="community-reaction">プレイヤー・コミュニティの反応</h2>
+      <p>トローン卿規制議論は、SNS・掲示板・公式フォーラムで活発に論じられている。主なコミュニティの声は以下のように分類される。</p>
+      <ul>
+        <li><strong>競技プレイヤー層</strong>: 大会成績を重視するため、環境の多様性を求めて規制賛成派が多い。CSやショップ大会でのトローン卿遭遇率の高さを問題視する声が多数を占める。</li>
+        <li><strong>カジュアルプレイヤー層</strong>: ストーリーやキャラクター愛着から特定カードへの思い入れが強く、禁止措置に感情的な反発を示すケースも見られる。</li>
+        <li><strong>コレクター・投資家層</strong>: 市場価値の保全を優先し、規制措置に反対する傾向が強い。</li>
+        <li><strong>配信者・コンテンツクリエイター</strong>: 環境の固定化は視聴者の飽きを招くとして規制賛成派が多い一方、人気カードの禁止は視聴数低下につながるという複雑な立場も存在する。</li>
+      </ul>
+      <p>公式が実施したアンケートでは、「トローン卿に何らかの規制をかけるべき」と回答したプレイヤーが回答者全体の約62%に達したとされる（非公式集計）。</p>
+
+      <h2 id="future-outlook">今後の予測と注目カード</h2>
+      <p>2026年の次回改定（第5回）に向け、複数のカードが規制候補として名前が挙がっている。</p>
+      <h3>高確率規制候補</h3>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a> — 制限（2枚）が最有力視されている。禁止まで踏み込む可能性も排除されていない。</li>
+        <li>ニャンコメモリー — ドロー効率が突出しており、制限（2枚）への引き下げ議論が浮上中。</li>
+      </ul>
+      <h3>規制解除（制限緩和）候補</h3>
+      <ul>
+        <li>マリンフォード砦 — 環境でのコントロール比率が低下しており、制限解除を求める声がある。</li>
+        <li>ドン・キホーテ・ドフラミンゴ — 対策カードの充実により2枚制限の維持が過剰との意見もある。</li>
+      </ul>
+      <p>いずれにせよ、次回改定の結果は<a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a>を筆頭とする現行メタゲームの在り方を根本から変える可能性があり、競技シーンとカード市場の双方で高い注目を集めている。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#regulation-system">1. 制限・禁止カード制度とは</a></li>
+          <li><a href="#history">2. 過去の制限・禁止カード事例</a></li>
+          <li><a href="#throne-debate">3. トローン卿への規制議論</a></li>
+          <li><a href="#impact">4. 制限・禁止の影響</a></li>
+          <li><a href="#community-reaction">5. プレイヤー・コミュニティの反応</a></li>
+          <li><a href="#future-outlook">6. 今後の予測と注目カード</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="throne-stage-lord.html">トローン卿</a></li>
+          <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+          <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+          <li><a href="stage-removal-counter.html">ステージ除去カウンター</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+        <li><a href="red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></li>
+        <li><a href="stage-removal-counter.html">ステージ除去カウンター</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="throne-stage-lord.html">トローン卿</a></li>
+        <li><a href="current-meta-overview.html">現行メタゲーム概要</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワンピースカードゲーム メタゲームWiki - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>ワンピースカードゲーム メタゲームWiki</h1>
+    <p>ワンピースカードゲームのトローン卿と赤青エース（白髭）デッキを中心としたメタゲーム総合解説Wiki。競技シーンで活躍するデッキ・カード・戦略を体系的にまとめています。</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">14</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">68</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/throne-stage-lord.html">トローン卿</a></td>
+          <td>ワンピースカードゲームにおける最強クラスのステージカード。赤青エース（白髭）デッキの核として猛威を振るい、現行メタゲームを大きく塗り替えたキーカード。</td>
+          <td>2026-04-01</td>
+          <td>18</td>
+        </tr>
+        <tr>
+          <td><a href="articles/red-blue-ace-deck.html">赤青エース（白髭）デッキ</a></td>
+          <td>赤（炎属性）と青（海軍・技術属性）の2色を組み合わせた中速コントロール型の構築であり、トローン卿とエースのシナジーを軸に現行メタゲームのトップティアに君臨する。</td>
+          <td>2026-04-01</td>
+          <td>20</td>
+        </tr>
+        <tr>
+          <td><a href="articles/ace-portgas-card.html">ポートガス・D・エース</a></td>
+          <td>ワンピースカードゲームにおける最重要アタッカーカード。トローン卿との強力なシナジーによって赤青エース（白髭）デッキの核を担い、炎の悪魔の実に由来する特殊効果で競技環境を席巻する。</td>
+          <td>2026-04-01</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/current-meta-overview.html">現行メタゲーム概要</a></td>
+          <td>ワンピースカードゲームの現行メタゲームを解説。Tier構造・主要デッキ・サイクルダイナミクスから大会シーンまで、競技環境の全体像を体系的にまとめる。</td>
+          <td>2026-04-01</td>
+          <td>16</td>
+        </tr>
+        <tr>
+          <td><a href="articles/whitebeard-edward-newgate.html">白髭（エドワード・ニューゲート）</a></td>
+          <td>ワンピースカードゲームにおける圧倒的なパワーとユニークな効果を持つ最高レアリティのキャラクターカード。赤青エースデッキのフィニッシャーとして競技環境の頂点に君臨する。</td>
+          <td>2026-04-01</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td><a href="articles/control-deck-meta.html">コントロールデッキのメタ</a></td>
+          <td>ワンピースカードゲームにおけるコントロールデッキのメタゲーム上の位置づけを解説。主要デッキ一覧・対アグロ戦略・ミラーマッチ・トローン卿採用構築の強みを体系的にまとめる。</td>
+          <td>2026-04-01</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td><a href="articles/ban-restriction-policy.html">制限・禁止カード議論</a></td>
+          <td>ワンピースカードゲームにおける制限・禁止カード制度の概要と歴史を解説し、特にトローン卿をはじめとする規制議論の賛否両論・メタゲームへの影響を体系的にまとめる。</td>
+          <td>2026-04-01</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td><a href="articles/stage-removal-counter.html">ステージ対策カード</a></td>
+          <td>ステージカードへの有効な対策手段を体系的に解説する記事。各色が持つ除去・無効化手段の特徴と、競技環境における採用実態を網羅する。</td>
+          <td>2026-04-01</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td><a href="articles/aggro-deck-meta.html">アグロデッキのメタ</a></td>
+          <td>ワンピースカードゲームにおけるアグロデッキのメタゲーム上の位置づけを解説。序盤の爆発力でライフを削りきる戦略と、コントロール・ミッドレンジへの対応方法を体系的にまとめる。</td>
+          <td>2026-04-01</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/tournament-cs-format.html">CS・大会フォーマット</a></td>
+          <td>ワンピースカードゲームにおけるCS（カードショップ主催大会）および公式大会フォーマットを解説。参加資格・デッキ登録ルール・大会形式から競技シーンで採用される主要デッキ傾向まで体系的にまとめる。</td>
+          <td>2026-04-01</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/card-color-system.html">カードカラーシステム</a></td>
+          <td>ワンピースカードゲームにおける6色のカードカラーシステムを解説する。各色は独自の戦略的アイデンティティを持ち、デッキ構築の根幹を形成する。</td>
+          <td>2026-04-01</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td><a href="articles/leader-card-strategy.html">リーダーカード戦略</a></td>
+          <td>ワンピースカードゲームにおけるリーダーカード戦略の基礎から応用まで、デッキ構築の核となるリーダー選択の理論と実践を解説する。</td>
+          <td>2026-04-01</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/whitebeard-pirate-crew.html">白髭海賊団カード群</a></td>
+          <td>ワンピースカードゲームにおける白髭海賊団関連カード群の総合解説。マルコ・エースをはじめとする主力幹部カードから船員サポート群まで、トローン卿・白髭とのシナジーネットワークを詳しく掘り下げる。</td>
+          <td>2026-04-01</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/don-cost-management.html">ドンコスト管理の基礎</a></td>
+          <td>ワンピースカードゲームにおけるドンカードの基本ルールと運用理論を解説する。ドンコスト管理は勝敗を左右する最重要スキルであり、精密なリソース計算が求められる。</td>
+          <td>2026-04-01</td>
+          <td>3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

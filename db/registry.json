@@ -39,6 +39,15 @@
       "article_count": 21,
       "color": "#1565c0",
       "status": "active"
+    },
+    "onepiece-tcg-meta": {
+      "id": "onepiece-tcg-meta",
+      "title": "ワンピースカードゲーム メタゲームWiki",
+      "root_topic": "ワンピースカードゲームのトローン卿とメタゲーム",
+      "created_at": "2026-04-01T01:41:44.443859+00:00",
+      "article_count": 14,
+      "color": "#e53935",
+      "status": "active"
     }
   }
 }
