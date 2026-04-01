@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Codeプラグインエコシステム - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    Claude Codeプラグインエコシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Codeプラグインエコシステム</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">Claude Codeプラグインエコシステムは、Anthropicが提供するAIコーディングアシスタントClaude Codeを中心に形成されたサードパーティ拡張機能の生態系であり、マーケットプレイス、公式SDK、サードパーティプラグイン、および競合AIツールとの相互運用基盤を包括する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>Claude Codeプラグインエコシステム</b>とは、AnthropicのAIコーディングアシスタントであるClaude Codeを拡張するプラグイン群、開発者向けインフラストラクチャ、および流通・配布プラットフォーム全体を指す包括的な概念である。2025年以降、Claude Codeが開発者コミュニティにおける主要なAIコーディング環境として広く採用されるに伴い、このエコシステムは急速に拡大している。
+      </p>
+      <p>
+        エコシステムは大きく三つの層から構成される。第一層は<a href="plugin-marketplace.html">プラグインマーケットプレイス</a>であり、エンドユーザーが既製プラグインを発見・インストールするための流通基盤を提供する。第二層はプラグインSDKと<a href="plugin-architecture.html">プラグインアーキテクチャ仕様</a>であり、サードパーティ開発者が準拠すべき技術標準を定義する。第三層は公式・非公式を問わず実際に配布されているプラグイン群そのものである。
+      </p>
+      <p>
+        特筆すべき点として、競合AI企業であるOpenAIが<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>を公式プラグインとしてリリースしたことが挙げられる。これはエコシステムが競合他社をも引き込む吸引力を持つほど成熟したことを示す象徴的な出来事となった。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320">
+          <rect width="640" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Claude Codeプラグインエコシステム全体像</text>
+
+          <!-- Core: Claude Code -->
+          <ellipse cx="320" cy="160" rx="70" ry="45" fill="#e8f0fe" stroke="#36c" stroke-width="2.5"/>
+          <text x="320" y="155" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Claude Code</text>
+          <text x="320" y="172" text-anchor="middle" font-size="10" fill="#36c">（コア）</text>
+
+          <!-- Marketplace -->
+          <rect x="30" y="60" width="140" height="55" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="1.8"/>
+          <text x="100" y="83" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">プラグイン</text>
+          <text x="100" y="98" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">マーケットプレイス</text>
+          <text x="100" y="111" text-anchor="middle" font-size="9" fill="#555">発見・配布基盤</text>
+
+          <!-- SDK -->
+          <rect x="30" y="195" width="140" height="55" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="1.8"/>
+          <text x="100" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">プラグインSDK</text>
+          <text x="100" y="234" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">/ アーキテクチャ</text>
+          <text x="100" y="247" text-anchor="middle" font-size="9" fill="#555">開発者向け標準仕様</text>
+
+          <!-- Official Plugins -->
+          <rect x="470" y="60" width="145" height="55" rx="8" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.8"/>
+          <text x="542" y="83" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">公式プラグイン</text>
+          <text x="542" y="98" text-anchor="middle" font-size="10" fill="#555">openai/codex-plugin-cc</text>
+          <text x="542" y="111" text-anchor="middle" font-size="9" fill="#555">等の競合統合</text>
+
+          <!-- 3rd Party -->
+          <rect x="470" y="195" width="145" height="55" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="1.8"/>
+          <text x="542" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">サードパーティ</text>
+          <text x="542" y="234" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">プラグイン</text>
+          <text x="542" y="247" text-anchor="middle" font-size="9" fill="#555">コミュニティ開発</text>
+
+          <!-- Interop -->
+          <rect x="230" y="270" width="180" height="38" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="1.8"/>
+          <text x="320" y="286" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">AI間相互運用性</text>
+          <text x="320" y="301" text-anchor="middle" font-size="9" fill="#555">競合AIツールとの連携標準</text>
+
+          <!-- Arrows -->
+          <defs>
+            <marker id="eco-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+          </defs>
+          <line x1="170" y1="100" x2="248" y2="140" stroke="#36c" stroke-width="1.5" marker-end="url(#eco-arr)"/>
+          <line x1="170" y1="222" x2="248" y2="178" stroke="#36c" stroke-width="1.5" marker-end="url(#eco-arr)"/>
+          <line x1="470" y1="100" x2="392" y2="140" stroke="#10a37f" stroke-width="1.5" marker-end="url(#eco-arr)"/>
+          <line x1="470" y1="222" x2="392" y2="178" stroke="#ff9800" stroke-width="1.5" marker-end="url(#eco-arr)"/>
+          <line x1="320" y1="205" x2="320" y2="270" stroke="#e91e63" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#eco-arr)"/>
+        </svg>
+        <div class="diagram-caption">図1: Claude Codeプラグインエコシステムの全体構造。マーケットプレイス、SDK、公式・サードパーティプラグイン、AI間相互運用性の4要素が中核のClaude Codeを支える。</div>
+      </div>
+
+      <h2 id="marketplace">プラグインマーケットプレイス</h2>
+      <p>
+        <a href="plugin-marketplace.html">Claude Codeプラグインマーケットプレイス</a>は、エンドユーザーがプラグインを発見・評価・インストールするための中央集権型流通基盤である。Anthropicが直接運営しており、品質審査（キュレーション）プロセスを通過したプラグインのみが掲載される。
+      </p>
+
+      <h3 id="marketplace-structure">マーケットプレイスの構造</h3>
+      <p>
+        マーケットプレイスはプラグインを以下のカテゴリに分類して提供する。
+      </p>
+      <ul>
+        <li><strong>AIモデル統合</strong>: 競合AIエンジンをClaude Code内から利用可能にするプラグイン群（openai/codex-plugin-ccはここに分類）</li>
+        <li><strong>IDE連携</strong>: VS Code、JetBrains等のエディタとの双方向統合を提供するプラグイン</li>
+        <li><strong>CI/CDインテグレーション</strong>: GitHub Actions、GitLab CI等のパイプラインへの自動組み込み</li>
+        <li><strong>言語・フレームワーク特化</strong>: 特定言語やフレームワークに最適化されたコード生成・補助ツール</li>
+        <li><strong>セキュリティ</strong>: コードの脆弱性スキャン・セキュリティレビューを自動化するプラグイン</li>
+      </ul>
+
+      <h3 id="marketplace-install">インストール基盤</h3>
+      <p>
+        マーケットプレイスからのインストールは、Claude Code内のスラッシュコマンドから直接実行できる。プラグインのバージョン管理・更新通知・依存関係解決もマーケットプレイスが一元管理する。インストール後はClaude Codeを再起動（<code>/reload-plugins</code>）することなく即時有効化される設計が標準とされている。
+      </p>
+
+      <h2 id="sdk">サードパーティ開発者向けSDK</h2>
+      <p>
+        Anthropicはプラグイン開発者向けに公式SDKを提供しており、これにより一貫した品質と互換性を持つプラグインが開発できるようになっている。SDKはJavaScript/TypeScriptおよびPythonの二言語で提供されている。
+      </p>
+
+      <h3 id="sdk-manifest">マニフェスト仕様</h3>
+      <p>
+        全プラグインは<a href="plugin-architecture.html">プラグインアーキテクチャ仕様</a>に準拠した<code>plugin.json</code>マニフェストを持つ必要がある。マニフェストには以下の情報が含まれる。
+      </p>
+      <ul>
+        <li><strong>メタデータ</strong>: プラグインID、バージョン、作者、ライセンス情報</li>
+        <li><strong>エントリポイント</strong>: スラッシュコマンドの定義と対応するハンドラ関数</li>
+        <li><strong>権限スコープ</strong>: ファイルシステムアクセス・ネットワークアクセスの要求範囲</li>
+        <li><strong>フック定義</strong>: Claude Codeのライフサイクルイベント（コミット前・コード生成後等）へのフック宣言</li>
+      </ul>
+
+      <h3 id="sdk-hooks">フックシステム</h3>
+      <p>
+        SDKが提供するフックシステムにより、プラグインはClaude Codeの内部ライフサイクルイベントをインターセプトできる。例えばコードレビュープラグインは「コード生成完了後」フックに登録し、生成されたコードを自動的にレビューパイプラインに送り込む実装が可能である。<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>はこのフックシステムを活用し、コミット前の自動レビューゲートを実現している。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 260" width="600" height="260">
+          <rect width="600" height="260" fill="#f8f9fa" rx="8"/>
+          <text x="300" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">プラグインSDKとフックシステム</text>
+
+          <!-- Lifecycle -->
+          <rect x="30" y="50" width="540" height="50" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="300" y="73" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Claude Code ライフサイクル</text>
+          <text x="300" y="90" text-anchor="middle" font-size="10" fill="#555">コード生成 → レビュー → コミット → デプロイ</text>
+
+          <!-- Hook Points -->
+          <rect x="30" y="130" width="115" height="45" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="87" y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">pre-generate</text>
+          <text x="87" y="166" text-anchor="middle" font-size="9" fill="#555">生成前フック</text>
+
+          <rect x="165" y="130" width="115" height="45" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="222" y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">post-generate</text>
+          <text x="222" y="166" text-anchor="middle" font-size="9" fill="#555">生成後フック</text>
+
+          <rect x="300" y="130" width="115" height="45" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="357" y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">pre-commit</text>
+          <text x="357" y="166" text-anchor="middle" font-size="9" fill="#555">コミット前フック</text>
+
+          <rect x="435" y="130" width="130" height="45" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="500" y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">post-review</text>
+          <text x="500" y="166" text-anchor="middle" font-size="9" fill="#555">レビュー完了後フック</text>
+
+          <!-- Plugin SDK -->
+          <rect x="160" y="210" width="280" height="36" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="300" y="226" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">プラグインSDK（JS/TS・Python）</text>
+          <text x="300" y="241" text-anchor="middle" font-size="9" fill="#555">フック登録・スラッシュコマンド定義・権限管理</text>
+
+          <!-- Arrows from lifecycle to hooks -->
+          <defs>
+            <marker id="sdk-arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#36c"/>
+            </marker>
+          </defs>
+          <line x1="87" y1="100" x2="87" y2="130" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#sdk-arr)"/>
+          <line x1="222" y1="100" x2="222" y2="130" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#sdk-arr)"/>
+          <line x1="357" y1="100" x2="357" y2="130" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#sdk-arr)"/>
+          <line x1="500" y1="100" x2="500" y2="130" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#sdk-arr)"/>
+          <line x1="300" y1="175" x2="300" y2="210" stroke="#ff9800" stroke-width="1.5" marker-end="url(#sdk-arr)"/>
+        </svg>
+        <div class="diagram-caption">図2: プラグインSDKのフックシステム。ライフサイクル各フェーズにプラグインが介入できる。</div>
+      </div>
+
+      <h2 id="official-plugins">公式プラグインと主要プラグイン</h2>
+      <p>
+        エコシステムには、Anthropicが自ら認定した公式プラグインと、コミュニティが開発したサードパーティプラグインの両方が存在する。
+      </p>
+
+      <h3 id="openai-plugin">openai/codex-plugin-cc</h3>
+      <p>
+        <a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>（Codex Plugin for Claude Code）は、エコシステムにおいて最も注目を集めた公式プラグインである。OpenAIが開発・リリースしたこのプラグインにより、Claude CodeユーザーはOpenAI Codexのコード解析機能、バックグラウンドタスク委譲、対抗的コードレビューを活用できる。GitHub上で4,200スターを獲得しており、エコシステム内で最も人気の高い競合統合プラグインとなっている。
+      </p>
+      <p>
+        このプラグインの存在は、エコシステムが競合AIベンダーをも取り込むほどの吸引力を持つことを示す証左であり、「協競（コーペティション）」と呼ばれる現象の典型的な例として市場から広く注目されている。
+      </p>
+
+      <h3 id="other-official">その他の主要公式プラグイン</h3>
+      <ul>
+        <li><strong>claude-github-actions</strong>: GitHub ActionsとのClaude Code統合。PRレビュー自動化に対応する</li>
+        <li><strong>claude-jira-sync</strong>: Jiraチケットとコードの双方向同期を提供する公式プラグイン</li>
+        <li><strong>claude-sonar</strong>: SonarQube連携による静的解析結果のClaude Code内インライン表示</li>
+      </ul>
+
+      <h2 id="interoperability">AI間相互運用性と競合ツールとの関係</h2>
+      <p>
+        Claude Codeプラグインエコシステムの形成は、AI開発ツール間の相互運用性という新たな課題と機会を生み出している。<a href="ai-tool-interoperability.html">AI間相互運用性</a>の観点では、各AIツールが独立したサイロとして存在するのではなく、最終的にはユーザーが選択したプライマリ環境（本エコシステムの場合はClaude Code）を起点として複数のAIが協調動作する形態が標準となりつつある。
+      </p>
+
+      <h3 id="competitive-dynamics">エコシステムの競争力学</h3>
+      <p>
+        競合AIツールとの関係は単純な競争ではなく、複層的な構造をなしている。OpenAIのcodex-plugin-ccに代表されるように、競合ベンダーがClaude Codeエコシステムへ公式参入することで、以下のダイナミクスが生じている。
+      </p>
+      <ul>
+        <li><strong>エコシステムの中立化</strong>: 複数競合のプラグインが存在することで、Claude Codeが特定ベンダーへの依存を強いない中立的プラットフォームとして位置づけられる</li>
+        <li><strong>ユーザーロック・インの緩和</strong>: ユーザーは他AIの機能をClaude Code上でそのまま利用できるため、ツール乗り換えのコストが低下する</li>
+        <li><strong>プラットフォーム効果の強化</strong>: 参入プラグインが増えるほどエコシステムの価値が増大し、新規ユーザー獲得が加速する</li>
+      </ul>
+
+      <h3 id="interop-standards">相互運用標準の形成</h3>
+      <p>
+        エコシステムの拡大に伴い、異なるAIツール間でのコンテキスト共有・タスク委譲・結果受け渡しの標準化が議論されている。Claude Code SDK仕様はこの分野における事実上の標準（デファクトスタンダード）としての地位を確立しつつあり、他のAIコーディング環境もこれに準拠したプラグイン形式を採用する動きが出ている。
+      </p>
+
+      <h2 id="growth">エコシステムの成長と展望</h2>
+      <p>
+        Claude Codeプラグインエコシステムは2025年以降、急激な成長を遂げている。マーケットプレイスへの登録プラグイン数は半年ごとに倍増を続けており、2026年初頭時点で公式カタログには数百のプラグインが掲載されている。
+      </p>
+
+      <h3 id="growth-drivers">成長要因</h3>
+      <ul>
+        <li><strong>Claude Codeの普及</strong>: 企業・個人開発者間でのClaude Code採用拡大がエコシステム需要を下支えしている</li>
+        <li><strong>SDK品質の向上</strong>: AnthropicによるSDKのドキュメント整備・サンプルコード充実がサードパーティ開発者の参入障壁を引き下げている</li>
+        <li><strong>収益化の仕組み</strong>: マーケットプレイスに有料プラグインの掲載が可能となり、開発者の経済的インセンティブが整備されつつある</li>
+        <li><strong>企業需要</strong>: 社内独自ツールをClaude Codeと統合するプライベートプラグインの需要が法人市場で増加している</li>
+      </ul>
+
+      <h3 id="challenges">課題と今後の展望</h3>
+      <p>
+        エコシステムの拡大は同時にいくつかの課題も顕在化させている。セキュリティ審査プロセスの拡充、プラグイン間の競合・干渉問題への対処、バージョンアップ時の後方互換性保証などが主要な技術的課題として挙げられる。また、プラットフォームとしての規模が大きくなるにつれ、Anthropic自身のClaude Code機能とサードパーティプラグインの役割分担をどう定義するかという戦略的課題も浮上している。
+      </p>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — 公式競合統合プラグインの詳細</a></li>
+        <li><a href="plugin-marketplace.html">Claude Codeプラグインマーケットプレイス</a></li>
+        <li><a href="plugin-architecture.html">プラグインアーキテクチャ仕様</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間相互運用性</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#marketplace">プラグインマーケットプレイス</a></li>
+          <li class="toc-h3"><a href="#marketplace-structure">マーケットプレイスの構造</a></li>
+          <li class="toc-h3"><a href="#marketplace-install">インストール基盤</a></li>
+          <li><a href="#sdk">サードパーティ開発者向けSDK</a></li>
+          <li class="toc-h3"><a href="#sdk-manifest">マニフェスト仕様</a></li>
+          <li class="toc-h3"><a href="#sdk-hooks">フックシステム</a></li>
+          <li><a href="#official-plugins">公式プラグインと主要プラグイン</a></li>
+          <li class="toc-h3"><a href="#openai-plugin">openai/codex-plugin-cc</a></li>
+          <li class="toc-h3"><a href="#other-official">その他の主要公式プラグイン</a></li>
+          <li><a href="#interoperability">AI間相互運用性と競合ツールとの関係</a></li>
+          <li class="toc-h3"><a href="#competitive-dynamics">エコシステムの競争力学</a></li>
+          <li class="toc-h3"><a href="#interop-standards">相互運用標準の形成</a></li>
+          <li><a href="#growth">エコシステムの成長と展望</a></li>
+          <li class="toc-h3"><a href="#growth-drivers">成長要因</a></li>
+          <li class="toc-h3"><a href="#challenges">課題と今後の展望</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+          <li><a href="plugin-architecture.html">プラグインアーキテクチャ</a></li>
+          <li><a href="ai-tool-interoperability.html">AIツール間相互運用性</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+        <li><a href="plugin-architecture.html">プラグインアーキテクチャ</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間相互運用性</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

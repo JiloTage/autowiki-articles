@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>openai/codex-plugin-cc - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    openai/codex-plugin-cc
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">openai/codex-plugin-cc</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary"><b>openai/codex-plugin-cc</b>（Codex Plugin for Claude Code）は、OpenAIが公式リリースしたClaude Code向けプラグインであり、AnthropicのAIコーディングアシスタントClaude Code上でOpenAI Codexの機能を直接呼び出せるようにするブリッジツールである。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>openai/codex-plugin-cc</b>は、OpenAIが開発・公式リリースしたClaude Code向けプラグインである。「cc」はClaude Codeの略称であり、プラグイン名はそのまま「Codex Plugin for Claude Code」を意味する。このプラグインにより、Claude Codeのユーザーは既存のワークフローを維持しながら、OpenAI Codexの高度なコード解析・タスク委譲機能を利用できる。
+      </p>
+      <p>
+        GitHub上で4,200スター・160フォークを獲得しており、Codexプラグインの中で最も人気の高い公式プラグインとなっている。ChatGPTの無料プランを含むサブスクリプション、またはOpenAI APIキーがあれば利用可能である。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" width="600" height="240">
+          <!-- Background -->
+          <rect width="600" height="240" fill="#f8f9fa" rx="8"/>
+          <!-- Claude Code Box -->
+          <rect x="30" y="80" width="160" height="80" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="110" y="115" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Claude Code</text>
+          <text x="110" y="135" text-anchor="middle" font-size="11" fill="#555">（Anthropic）</text>
+          <!-- Plugin Box -->
+          <rect x="220" y="80" width="160" height="80" rx="8" fill="#e8f5e9" stroke="#10a37f" stroke-width="2"/>
+          <text x="300" y="110" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">codex-plugin-cc</text>
+          <text x="300" y="128" text-anchor="middle" font-size="10" fill="#555">ブリッジプラグイン</text>
+          <text x="300" y="146" text-anchor="middle" font-size="10" fill="#555">（OpenAI公式）</text>
+          <!-- Codex Box -->
+          <rect x="410" y="80" width="160" height="80" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="490" y="115" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">OpenAI Codex</text>
+          <text x="490" y="135" text-anchor="middle" font-size="11" fill="#555">（OpenAI）</text>
+          <!-- Arrows -->
+          <line x1="190" y1="120" x2="220" y2="120" stroke="#36c" stroke-width="2" marker-end="url(#arr)"/>
+          <line x1="380" y1="120" x2="410" y2="120" stroke="#36c" stroke-width="2" marker-end="url(#arr)"/>
+          <!-- Arrow marker -->
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+          </defs>
+          <!-- Labels -->
+          <text x="300" y="40" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">openai/codex-plugin-cc アーキテクチャ</text>
+          <text x="205" y="178" text-anchor="middle" font-size="10" fill="#36c">コマンド発行</text>
+          <text x="395" y="178" text-anchor="middle" font-size="10" fill="#36c">タスク委譲</text>
+        </svg>
+        <div class="diagram-caption">図1: codex-plugin-ccのブリッジアーキテクチャ。Claude CodeとOpenAI Codexを接続する。</div>
+      </div>
+
+      <h2 id="features">主要機能</h2>
+      <p>
+        このプラグインはいくつかのスラッシュコマンドを提供しており、Claude Codeのワークフロー内でCodexの機能を呼び出すことができる。
+      </p>
+
+      <h3 id="slash-commands">スラッシュコマンド一覧</h3>
+      <ul>
+        <li><code>/codex:review</code> — 標準的なコードレビューを実行する</li>
+        <li><code>/codex:adversarial-review</code> — 選択した実装や設計決定に疑問を投げかける対抗的レビュー</li>
+        <li><code>/codex:rescue</code> — バグ調査・修正タスクをCodexに委譲する</li>
+        <li><code>/codex:status</code> — バックグラウンドジョブの進行状況を確認する</li>
+        <li><code>/codex:result</code> — 完了したジョブの結果を取得する</li>
+        <li><code>/codex:cancel</code> — 実行中のタスクをキャンセルする</li>
+        <li><code>/codex:setup</code> — インストールの設定と確認を行う</li>
+      </ul>
+
+      <h3 id="background-tasks">バックグラウンドタスク</h3>
+      <p>
+        <a href="codex-rescue.html">codex:rescue</a>コマンドにより、Codexへのタスク委譲がバックグラウンドで実行される。これにより、Claude Codeのユーザーはメインのコーディング作業を続けながら、Codexに別のバグ修正や調査タスクを並列実行させることができる。
+      </p>
+
+      <h2 id="installation">インストールと設定</h2>
+      <p>
+        このプラグインは<a href="plugin-marketplace.html">Claude Codeプラグインマーケットプレイス</a>経由でインストールできる。以下の要件が必要である。
+      </p>
+
+      <h3 id="requirements">動作要件</h3>
+      <ul>
+        <li>Node.js 18.18以降</li>
+        <li>ChatGPTサブスクリプション（無料プランを含む）またはOpenAI APIキー</li>
+        <li>ローカルにCodex CLIがインストール済みであること</li>
+      </ul>
+
+      <h3 id="install-steps">インストール手順</h3>
+      <p>Claude Codeのターミナルで以下のコマンドを順番に実行する：</p>
+      <pre><code>/plugin marketplace add openai/codex-plugin-cc
+/plugin install codex@openai-codex
+/reload-plugins
+/codex:setup</code></pre>
+
+      <h2 id="architecture">技術アーキテクチャ</h2>
+      <p>
+        <a href="plugin-architecture.html">プラグインのアーキテクチャ</a>は、Codexアプリサーバーをラップする形で実装されている。ローカルにインストール済みのCodex認証情報（<code>.codex/config.toml</code>）と設定ファイルをそのまま利用するため、追加の認証設定は不要である。
+      </p>
+      <p>
+        プラグインのマニフェストは<code>.codex-plugin/plugin.json</code>に格納されており、Claude Codeの標準プラグイン仕様に従っている。また、Claude Codeのフックシステムと統合しており、コードレビューゲートなどの自動化されたワークフローに組み込むことができる。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 300" width="580" height="300">
+          <rect width="580" height="300" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="290" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">プラグイン内部構造</text>
+          <!-- plugin.json -->
+          <rect x="30" y="55" width="150" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="105" y="78" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">.codex-plugin/</text>
+          <text x="105" y="95" text-anchor="middle" font-size="10" fill="#555">plugin.json（マニフェスト）</text>
+          <!-- Codex App Server -->
+          <rect x="215" y="55" width="155" height="50" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="292" y="78" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Codex App Server</text>
+          <text x="292" y="95" text-anchor="middle" font-size="10" fill="#555">（ローカルプロセス）</text>
+          <!-- config.toml -->
+          <rect x="400" y="55" width="155" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="477" y="78" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">.codex/config.toml</text>
+          <text x="477" y="95" text-anchor="middle" font-size="10" fill="#555">認証・設定ファイル</text>
+          <!-- Arrows top -->
+          <line x1="180" y1="80" x2="215" y2="80" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <line x1="370" y1="80" x2="400" y2="80" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <!-- Hook System -->
+          <rect x="30" y="155" width="150" height="50" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="105" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Claude Codeフック</text>
+          <text x="105" y="195" text-anchor="middle" font-size="10" fill="#555">自動レビューゲート</text>
+          <!-- OpenAI API -->
+          <rect x="215" y="155" width="155" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="292" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">OpenAI API</text>
+          <text x="292" y="195" text-anchor="middle" font-size="10" fill="#555">バックグラウンドジョブ</text>
+          <!-- Status Tracking -->
+          <rect x="400" y="155" width="155" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="477" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ステータス管理</text>
+          <text x="477" y="195" text-anchor="middle" font-size="10" fill="#555">status/result/cancel</text>
+          <!-- Vertical arrows -->
+          <line x1="105" y1="105" x2="105" y2="155" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="292" y1="105" x2="292" y2="155" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="477" y1="105" x2="477" y2="155" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <defs>
+            <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#36c"/>
+            </marker>
+          </defs>
+          <text x="290" y="270" text-anchor="middle" font-size="10" fill="#888">図2: プラグイン内部の構成要素と連携</text>
+        </svg>
+        <div class="diagram-caption">図2: codex-plugin-ccの内部コンポーネント構成</div>
+      </div>
+
+      <h2 id="use-cases">ユースケース</h2>
+      <p>
+        openai/codex-plugin-ccは、以下のようなユースケースで特に効果を発揮する。
+      </p>
+      <ul>
+        <li><strong>デュアルエージェント開発</strong>: Claude Codeで設計・実装を行いながら、Codexで並列にコードレビューを実行する</li>
+        <li><strong>バグ調査の委譲</strong>: 複雑なバグ修正をCodexに委譲し、メインの開発フローを妨げない</li>
+        <li><strong>対抗的コードレビュー</strong>: <code>/codex:adversarial-review</code>により、設計上の盲点を発見する</li>
+        <li><strong>CI/CDパイプライン統合</strong>: Claude Codeのフックシステムと組み合わせ、コミット前の自動レビューゲートを設置する</li>
+      </ul>
+
+      <h2 id="competitive-context">競争的背景</h2>
+      <p>
+        このプラグインのリリースは、AI開発ツール市場における興味深い競争の動きを示している。OpenAIが競合他社であるAnthropicのツール（Claude Code）向けのプラグインを公式リリースするという戦略は、市場シェアを持つプラットフォームへの統合を優先する実用主義的なアプローチを反映している。
+      </p>
+      <p>
+        Claude Codeは<a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a>を急速に拡大しており、競合他社もそのエコシステムへの参入を余儀なくされている。これは、現代のAI開発ツール間の協調と競争が共存する複雑な市場環境を示している。
+      </p>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="codex-rescue.html">codex:rescue — タスク委譲機能の詳細</a></li>
+        <li><a href="plugin-marketplace.html">Claude Codeプラグインマーケットプレイス</a></li>
+        <li><a href="plugin-architecture.html">プラグインアーキテクチャ仕様</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー手法</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#features">主要機能</a></li>
+          <li class="toc-h3"><a href="#slash-commands">スラッシュコマンド一覧</a></li>
+          <li class="toc-h3"><a href="#background-tasks">バックグラウンドタスク</a></li>
+          <li><a href="#installation">インストールと設定</a></li>
+          <li class="toc-h3"><a href="#requirements">動作要件</a></li>
+          <li class="toc-h3"><a href="#install-steps">インストール手順</a></li>
+          <li><a href="#architecture">技術アーキテクチャ</a></li>
+          <li><a href="#use-cases">ユースケース</a></li>
+          <li><a href="#competitive-context">競争的背景</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="codex-rescue.html">codex:rescue</a></li>
+          <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+          <li><a href="plugin-architecture.html">プラグインアーキテクチャ</a></li>
+          <li><a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a></li>
+          <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="codex-rescue.html">codex:rescue</a></li>
+        <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+        <li><a href="plugin-architecture.html">プラグインアーキテクチャ</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

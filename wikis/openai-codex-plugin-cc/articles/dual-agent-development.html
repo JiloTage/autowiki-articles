@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デュアルエージェント開発パターン - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    デュアルエージェント開発パターン
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">デュアルエージェント開発パターン</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">デュアルエージェント開発パターンとは、Claude CodeとOpenAI Codexを同時並列活用することで、タスク分割・委譲・並列実行を実現する統合開発手法であり、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>が提供するインフラを通じてエージェント間コンテキスト共有と相互補完的な品質保証を体系的に達成する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>デュアルエージェント開発パターン</b>（Dual-Agent Development Pattern）とは、Anthropic製のClaude CodeとOpenAI製のCodexという異なるベンダーの2つのAIエージェントを同一開発ワークフロー内で同時並列稼働させ、それぞれの強みを最大限に活かしながら協調してソフトウェア開発タスクを遂行するアーキテクチャパターンである。
+      </p>
+      <p>
+        従来のAI支援開発では、1つのAIエージェントが順次タスクを処理するシングルエージェントモデルが主流であった。これに対してデュアルエージェント開発パターンは、複数のAIエージェントが異なる役割を担いながら並列実行・相互補完することで、開発速度と品質の同時向上を目指す。
+      </p>
+      <p>
+        このパターンを実現する中心的インフラが<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインであり、<a href="codex-rescue.html">codex:rescue</a>・<a href="codex-status-result.html">codex:status / codex:result</a>・<a href="codex-hook-integration.html">codex-hook-integration</a>といった機能群が組み合わさることで、実用的なデュアルエージェント環境が構築される。詳細な相互運用性の背景については<a href="ai-tool-interoperability.html">AIツール間の相互運用性</a>を参照されたい。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+          <rect width="700" height="380" fill="#f8f9fa" rx="8"/>
+          <text x="350" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">デュアルエージェント開発パターン：全体構成</text>
+
+          <!-- Developer -->
+          <rect x="290" y="50" width="120" height="48" rx="8" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="350" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">開発者</text>
+          <text x="350" y="87" text-anchor="middle" font-size="10" fill="#36c">指示・レビュー</text>
+
+          <!-- Arrows from Developer -->
+          <defs>
+            <marker id="arr-b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#10a37f"/>
+            </marker>
+            <marker id="arr-o" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <line x1="290" y1="74" x2="195" y2="138" stroke="#36c" stroke-width="2" marker-end="url(#arr-b)"/>
+          <line x1="410" y1="74" x2="505" y2="138" stroke="#10a37f" stroke-width="2" marker-end="url(#arr-g)"/>
+
+          <!-- Claude Code Agent -->
+          <rect x="60" y="145" width="180" height="80" rx="8" fill="#e8f0fe" stroke="#36c" stroke-width="2.5"/>
+          <text x="150" y="170" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Claude Code</text>
+          <text x="150" y="188" text-anchor="middle" font-size="10" fill="#202122">プライマリエージェント</text>
+          <text x="150" y="204" text-anchor="middle" font-size="9" fill="#36c">設計・実装・統合判断</text>
+
+          <!-- OpenAI Codex Agent -->
+          <rect x="460" y="145" width="180" height="80" rx="8" fill="#e8f5e9" stroke="#10a37f" stroke-width="2.5"/>
+          <text x="550" y="170" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">OpenAI Codex</text>
+          <text x="550" y="188" text-anchor="middle" font-size="10" fill="#202122">セカンダリエージェント</text>
+          <text x="550" y="204" text-anchor="middle" font-size="9" fill="#10a37f">レビュー・デバッグ・並列解析</text>
+
+          <!-- codex-plugin-cc bridge -->
+          <rect x="230" y="155" width="240" height="60" rx="8" fill="#fff3e0" stroke="#a2a9b1" stroke-width="1.8" stroke-dasharray="6,3"/>
+          <text x="350" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">openai/codex-plugin-cc</text>
+          <text x="350" y="196" text-anchor="middle" font-size="9" fill="#555">コンテキスト変換・タスク委譲ブリッジ</text>
+          <text x="350" y="210" text-anchor="middle" font-size="9" fill="#a2a9b1">/codex:rescue  /codex:review  /codex:adversarial-review</text>
+
+          <!-- Arrows between agents -->
+          <line x1="240" y1="185" x2="230" y2="185" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr-o)"/>
+          <line x1="470" y1="185" x2="460" y2="185" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr-o)"/>
+
+          <!-- Shared Context -->
+          <rect x="180" y="280" width="340" height="60" rx="8" fill="#f8f9fa" stroke="#36c" stroke-width="1.8"/>
+          <text x="350" y="303" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">共有コンテキスト層</text>
+          <text x="350" y="320" text-anchor="middle" font-size="10" fill="#555">プロジェクト構造 / コード断片 / 会話履歴 / job_id管理</text>
+          <text x="350" y="334" text-anchor="middle" font-size="9" fill="#36c">エージェント間の共通認識を維持</text>
+
+          <!-- Arrows to shared context -->
+          <line x1="150" y1="225" x2="250" y2="280" stroke="#36c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-b)"/>
+          <line x1="550" y1="225" x2="450" y2="280" stroke="#10a37f" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-g)"/>
+        </svg>
+        <div class="diagram-caption">図1: デュアルエージェント開発パターンの全体構成。Claude Codeをプライマリ、OpenAI Codexをセカンダリとして、codex-plugin-ccブリッジを通じて協調動作し、共有コンテキスト層を介してエージェント間の一貫性を保つ。</div>
+      </div>
+
+      <h2 id="roles">役割分担と責務</h2>
+      <p>
+        デュアルエージェント開発パターンにおける各エージェントの役割は、それぞれのモデルの特性と強みを考慮して設計される。適切な役割分担が、パターン全体の効果を最大化する鍵となる。
+      </p>
+
+      <h3 id="roles-primary">プライマリエージェント（Claude Code）</h3>
+      <p>
+        Claude Codeはデュアルエージェント構成におけるプライマリエージェントとして機能する。その主な責務は以下の通りである。
+      </p>
+      <ul>
+        <li><strong>全体設計と実装</strong>: アーキテクチャ設計、コーディング、リファクタリングなど主要な実装作業をClaude Codeが担当する</li>
+        <li><strong>タスクオーケストレーション</strong>: どのサブタスクをCodexに委譲するかを判断し、委譲と回収のライフサイクルを管理する</li>
+        <li><strong>コンテキスト管理</strong>: プロジェクト全体のコンテキストを保持し、Codexへ転送するコンテキストを適切に選択・整形する</li>
+        <li><strong>結果統合</strong>: Codexから返却された分析・レビュー結果を評価し、最終的な実装判断に組み込む</li>
+      </ul>
+
+      <h3 id="roles-secondary">セカンダリエージェント（OpenAI Codex）</h3>
+      <p>
+        OpenAI CodexはClaude Codeから委譲されたサブタスクを処理するセカンダリエージェントとして機能する。その主な責務は次の通りである。
+      </p>
+      <ul>
+        <li><strong>独立コードレビュー</strong>: Claude Codeが生成したコードを異なるモデルの観点から評価し、独立したフィードバックを提供する</li>
+        <li><strong>バックグラウンドデバッグ</strong>: <a href="codex-rescue.html">codex:rescue</a>を通じて委譲されたデバッグタスクをバックグラウンドで非同期処理する</li>
+        <li><strong>対抗的検証</strong>: 設計決定や実装選択に対して批判的・対抗的な観点から疑問を提示し、見落とされがちな問題を発見する</li>
+        <li><strong>特化分析</strong>: セキュリティ脆弱性、パフォーマンスボトルネック、コーディング規約違反など特定領域への深い分析を担う</li>
+      </ul>
+
+      <h2 id="task-delegation">タスク分割と委譲戦略</h2>
+      <p>
+        デュアルエージェント開発パターンの実効性は、タスクを適切に分割してセカンダリエージェントへ委譲する戦略に依存する。効果的な委譲を実現するためのいくつかのアプローチが確立されている。
+      </p>
+
+      <h3 id="task-classification">委譲適性によるタスク分類</h3>
+      <p>
+        すべてのタスクが委譲に適しているわけではない。以下の分類に基づいてタスクの委譲判断を行うことが推奨される。
+      </p>
+      <ul>
+        <li><strong>高委譲適性</strong>: バグの原因調査、セキュリティ監査、パフォーマンスプロファイリング、テストカバレッジ分析。これらは独立した視点での評価が価値を生む</li>
+        <li><strong>中委譲適性</strong>: コードレビュー、リファクタリング提案、ドキュメント生成。コンテキスト転送コストと独立評価の価値のバランスが重要</li>
+        <li><strong>低委譲適性</strong>: インタラクティブなコーディング補助、即時フィードバックが必要な作業、高度なプロジェクト固有コンテキストを要する判断</li>
+      </ul>
+
+      <h3 id="task-async">非同期委譲パターン</h3>
+      <p>
+        <a href="codex-rescue.html">codex:rescue</a>が採用する非同期委譲パターンは、デュアルエージェント開発の中核的設計原則を体現している。ユーザーがClaude Codeとのメインの開発作業を継続しながら、バックグラウンドでCodexがサブタスクを並列処理する構造により、待機時間ゼロの並列開発が実現される。
+      </p>
+      <p>
+        非同期委譲フローは以下の手順で進行する。
+      </p>
+      <ol>
+        <li>Claude Codeが委譲タスクを特定し、<code>/codex:rescue</code>コマンドで委譲を実行する</li>
+        <li>プラグインがjob_idを発行し、タスクをCodex APIにバックグラウンド送信する</li>
+        <li>ユーザーはClaude Codeとのメイン開発を継続する（ブロッキングなし）</li>
+        <li><a href="codex-status-result.html">codex:status</a>で委譲タスクの進捗を確認できる</li>
+        <li>処理完了後、<a href="codex-status-result.html">codex:result</a>で結果を回収し、Claude Codeの判断に統合する</li>
+      </ol>
+
+      <h2 id="context-sharing">エージェント間コンテキスト共有</h2>
+      <p>
+        デュアルエージェント開発において最も重要な技術的課題の一つが、異なるモデル間でのコンテキスト共有である。Claude CodeとOpenAI Codexはそれぞれ異なるプロンプト形式・システムプロンプト構造・ツール仕様を持つため、単純なコンテキスト転送は機能しない。
+      </p>
+
+      <h3 id="context-bridge">コンテキストブリッジの実装</h3>
+      <p>
+        <a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>は、この課題を解決するコンテキストブリッジ層を内蔵している。ブリッジ層が担う変換処理は主に次の3段階からなる。
+      </p>
+      <ol>
+        <li><strong>コンテキスト抽出</strong>: Claude Codeの現在状態（開いているファイル、会話履歴、最近の変更）から委譲タスクに関連する情報を抽出する</li>
+        <li><strong>形式変換</strong>: 抽出したコンテキストをCodex APIが解釈可能な形式（OpenAIのchat completions形式）に変換する。モデル固有のプロンプトエンジニアリングがここで適用される</li>
+        <li><strong>応答統合</strong>: Codexからの応答をClaude Codeのレスポンス形式に変換し、一貫したUIでユーザーに提示する</li>
+      </ol>
+
+      <h3 id="context-limits">コンテキスト転送の制約と最適化</h3>
+      <p>
+        コンテキストウィンドウの制限や転送コストにより、全コンテキストをそのまま転送することは非効率または不可能な場合がある。実用的なデュアルエージェント開発では以下の最適化が推奨される。
+      </p>
+      <ul>
+        <li><strong>関連コンテキストの選択的転送</strong>: 委譲タスクに直接関連するファイルや会話のみを転送し、コンテキストウィンドウを節約する</li>
+        <li><strong>要約層の挿入</strong>: 長大な会話履歴は要約してからCodexへ転送することで情報密度を高める</li>
+        <li><strong>コード差分の活用</strong>: ファイル全体ではなく変更差分（diff）のみを転送するパターンで転送量を削減する</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 320" width="680" height="320">
+          <rect width="680" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">コンテキスト共有フローと非同期委譲</text>
+
+          <!-- Phase labels -->
+          <text x="40" y="58" font-size="10" fill="#a2a9b1" font-weight="bold">STEP 1</text>
+          <text x="40" y="130" font-size="10" fill="#a2a9b1" font-weight="bold">STEP 2</text>
+          <text x="40" y="200" font-size="10" fill="#a2a9b1" font-weight="bold">STEP 3</text>
+          <text x="40" y="272" font-size="10" fill="#a2a9b1" font-weight="bold">STEP 4</text>
+
+          <!-- Step 1: Task identification -->
+          <rect x="80" y="44" width="200" height="44" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="180" y="63" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">タスク特定</text>
+          <text x="180" y="79" text-anchor="middle" font-size="9" fill="#555">Claude Codeが委譲候補を検出</text>
+
+          <rect x="330" y="44" width="310" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="485" y="63" text-anchor="middle" font-size="11" fill="#202122">コンテキスト抽出・整形</text>
+          <text x="485" y="79" text-anchor="middle" font-size="9" fill="#555">関連ファイル・会話履歴をフィルタリング → Codex形式に変換</text>
+
+          <line x1="280" y1="66" x2="328" y2="66" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+
+          <!-- Step 2: Dispatch -->
+          <rect x="80" y="116" width="200" height="44" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="180" y="135" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">/codex:rescue 実行</text>
+          <text x="180" y="151" text-anchor="middle" font-size="9" fill="#555">job_id 発行、非同期ディスパッチ</text>
+
+          <rect x="330" y="116" width="310" height="44" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="485" y="135" text-anchor="middle" font-size="11" fill="#202122">Codex バックグラウンド処理</text>
+          <text x="485" y="151" text-anchor="middle" font-size="9" fill="#10a37f">Claude Codeはブロックせず開発継続</text>
+
+          <line x1="280" y1="138" x2="328" y2="138" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+
+          <!-- Step 3: Status check -->
+          <rect x="80" y="186" width="200" height="44" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="180" y="205" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">/codex:status 確認</text>
+          <text x="180" y="221" text-anchor="middle" font-size="9" fill="#555">進捗ポーリング（任意タイミング）</text>
+
+          <rect x="330" y="186" width="310" height="44" rx="6" fill="#fff3e0" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="485" y="205" text-anchor="middle" font-size="11" fill="#202122">ジョブ状態: pending / running / done</text>
+          <text x="485" y="221" text-anchor="middle" font-size="9" fill="#555">job_id で追跡、複数ジョブ並列管理可能</text>
+
+          <line x1="280" y1="208" x2="328" y2="208" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+
+          <!-- Step 4: Retrieve and integrate -->
+          <rect x="80" y="258" width="200" height="44" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="180" y="277" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">/codex:result 回収</text>
+          <text x="180" y="293" text-anchor="middle" font-size="9" fill="#555">結果をClaude Codeの判断に統合</text>
+
+          <rect x="330" y="258" width="310" height="44" rx="6" fill="#fce4ec" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="485" y="277" text-anchor="middle" font-size="11" fill="#202122">デュアルエージェント成果物の統合</text>
+          <text x="485" y="293" text-anchor="middle" font-size="9" fill="#555">両エージェントの知見を最終実装に反映</text>
+
+          <line x1="280" y1="280" x2="328" y2="280" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+
+          <!-- Vertical flow arrows -->
+          <line x1="180" y1="88" x2="180" y2="114" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+          <line x1="180" y1="160" x2="180" y2="184" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+          <line x1="180" y1="230" x2="180" y2="256" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-b)"/>
+        </svg>
+        <div class="diagram-caption">図2: 非同期タスク委譲フロー。4ステップを通じてClaude CodeとOpenAI Codexの協調が進む。STEP 2でCodexがバックグラウンド処理を開始した後、Claude Codeはブロッキングなく開発を継続できる。</div>
+      </div>
+
+      <h2 id="parallel-execution">並列実行戦略</h2>
+      <p>
+        デュアルエージェント開発の最大の価値の一つは、従来は順次実行せざるを得なかったタスクを並列化できる点にある。適切な並列実行戦略を選択することで、開発サイクル全体のスループットを大幅に向上させることができる。
+      </p>
+
+      <h3 id="parallel-patterns">主要な並列実行パターン</h3>
+      <p>
+        実践的なデュアルエージェント開発で有効性が確認されている並列実行パターンを以下に示す。
+      </p>
+      <ul>
+        <li><strong>実装とレビューの同時進行</strong>: Claude Codeが機能Aの実装を続けながら、Codexが機能Bのレビューを並列実施するパターン。ボトルネックの解消に効果的</li>
+        <li><strong>マルチバグ並列調査</strong>: 複数の独立したバグに対してそれぞれ<code>/codex:rescue</code>ジョブを発行し、Codexが同時並列でデバッグを進めるパターン</li>
+        <li><strong>セキュリティ監査オーバーレイ</strong>: 通常の機能開発をClaude Codeが担いつつ、Codexが常時バックグラウンドでセキュリティ観点からのコードスキャンを実施するパターン</li>
+        <li><strong>A/Bアーキテクチャ比較</strong>: 同一要件に対して2つのアーキテクチャ案をClaude CodeとCodexがそれぞれ独立に検討し、両者の提案を開発者が比較評価するパターン</li>
+      </ul>
+
+      <h3 id="parallel-hooks">フック統合による自動並列化</h3>
+      <p>
+        <a href="codex-hook-integration.html">Claude Codeフックシステムとプラグイン統合</a>を活用することで、並列実行を自動化することができる。たとえばPostToolUseフックに<code>/codex:review</code>呼び出しを登録しておくと、Claude Codeがファイルを保存するたびに自動的にCodexによるレビューがバックグラウンドで起動される。これにより開発者が明示的に委譲を指示しなくても、常時デュアルエージェント体制が維持される。
+      </p>
+
+      <h2 id="best-practices">ベストプラクティス</h2>
+      <p>
+        デュアルエージェント開発パターンを実際のプロジェクトに導入し、その効果を最大化するためのベストプラクティスを以下に整理する。
+      </p>
+
+      <h3 id="bp-task-selection">委譲タスクの選択基準</h3>
+      <ul>
+        <li><strong>独立性を重視する</strong>: Codexへ委譲するタスクは、できる限りプライマリ開発フローから独立して処理できるものを選ぶ。依存関係が複雑なタスクを委譲すると、コンテキスト不一致によるエラーが増える</li>
+        <li><strong>確認可能な成果物</strong>: Codexからの出力を客観的に評価・採否判断できるタスクを委譲する。「良い答え」の基準が曖昧なタスクは委譲効果が低い</li>
+        <li><strong>バッチ化による効率向上</strong>: 小さな委譲タスクは個別に発行せず、まとめてバッチ委譲することでAPI呼び出しオーバーヘッドを削減できる</li>
+      </ul>
+
+      <h3 id="bp-context-hygiene">コンテキスト衛生</h3>
+      <ul>
+        <li><strong>最小権限コンテキスト原則</strong>: タスクに必要な最小限のコンテキストのみを転送する。余分なコンテキストはモデルの焦点を散漫にし、品質を低下させる</li>
+        <li><strong>機密情報のフィルタリング</strong>: APIキー、パスワード、内部認証情報が含まれるコンテキストはCodexへ転送する前に必ずマスクまたは除去する</li>
+        <li><strong>コンテキストの鮮度管理</strong>: 長期間のデュアルエージェントセッションでは、古くなったコンテキストが両エージェント間で乖離しないよう定期的に同期を取る</li>
+      </ul>
+
+      <h3 id="bp-result-integration">結果統合のガイドライン</h3>
+      <ul>
+        <li><strong>批判的評価の維持</strong>: Codexの出力を無批判に採用せず、Claude Codeおよびユーザーが主体的に評価・選択する姿勢を維持する</li>
+        <li><strong>競合提案の扱い</strong>: Claude CodeとCodexが相反する提案をした場合は、双方の根拠を比較した上でより文脈に適した解を選択する</li>
+        <li><strong>学習ループの構築</strong>: どのタスク委譲が効果的だったかをプロジェクトごとに振り返り、委譲戦略を継続的に洗練させる</li>
+      </ul>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — デュアルエージェント実現の基盤プラグイン</a></li>
+        <li><a href="codex-rescue.html">codex:rescue — タスク委譲機能</a></li>
+        <li><a href="codex-status-result.html">codex:status / codex:result — ジョブ管理コマンド</a></li>
+        <li><a href="codex-hook-integration.html">Claude Codeフックシステムとプラグイン統合</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#roles">役割分担と責務</a></li>
+          <li class="toc-h3"><a href="#roles-primary">プライマリエージェント（Claude Code）</a></li>
+          <li class="toc-h3"><a href="#roles-secondary">セカンダリエージェント（OpenAI Codex）</a></li>
+          <li><a href="#task-delegation">タスク分割と委譲戦略</a></li>
+          <li class="toc-h3"><a href="#task-classification">委譲適性によるタスク分類</a></li>
+          <li class="toc-h3"><a href="#task-async">非同期委譲パターン</a></li>
+          <li><a href="#context-sharing">エージェント間コンテキスト共有</a></li>
+          <li class="toc-h3"><a href="#context-bridge">コンテキストブリッジの実装</a></li>
+          <li class="toc-h3"><a href="#context-limits">コンテキスト転送の制約と最適化</a></li>
+          <li><a href="#parallel-execution">並列実行戦略</a></li>
+          <li class="toc-h3"><a href="#parallel-patterns">主要な並列実行パターン</a></li>
+          <li class="toc-h3"><a href="#parallel-hooks">フック統合による自動並列化</a></li>
+          <li><a href="#best-practices">ベストプラクティス</a></li>
+          <li class="toc-h3"><a href="#bp-task-selection">委譲タスクの選択基準</a></li>
+          <li class="toc-h3"><a href="#bp-context-hygiene">コンテキスト衛生</a></li>
+          <li class="toc-h3"><a href="#bp-result-integration">結果統合のガイドライン</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="codex-rescue.html">codex:rescue — タスク委譲機能</a></li>
+          <li><a href="codex-status-result.html">codex:status / codex:result</a></li>
+          <li><a href="codex-hook-integration.html">フックシステムとプラグイン統合</a></li>
+          <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="codex-rescue.html">codex:rescue — タスク委譲機能</a></li>
+        <li><a href="codex-status-result.html">codex:status / codex:result — ジョブ管理コマンド</a></li>
+        <li><a href="codex-hook-integration.html">Claude Codeフックシステムとプラグイン統合</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

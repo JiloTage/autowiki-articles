@@ -1,0 +1,37 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "ai-tool-interoperability",
+      "proposed_title": "AIツール間の相互運用性",
+      "source_id": "claude-code-plugin-ecosystem",
+      "rationale": "競合他社製AIツール（OpenAI Codex × Anthropic Claude Code）間の統合事例。AI開発ツール市場における協調と競争の共存について。",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "codex-hook-integration",
+      "proposed_title": "Claude Codeフックシステムとプラグイン統合",
+      "source_id": "plugin-architecture",
+      "rationale": "Claude Codeのフックシステムを利用したcodex-plugin-ccの自動コードレビューゲート設置。CI/CDパイプラインへの組み込み方法の解説。",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "codex-status-result",
+      "proposed_title": "codex:status / codex:result — ジョブ管理コマンド",
+      "source_id": "codex-rescue",
+      "rationale": "バックグラウンドジョブの進行確認と結果取得コマンドの詳細解説。codex-rescueと組み合わせた非同期ワークフロー管理の実践的ガイド。",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "dual-agent-development",
+      "proposed_title": "デュアルエージェント開発パターン",
+      "source_id": "ai-tool-interoperability",
+      "rationale": "複数のAIエージェント（Claude CodeとCodex）を同時並列に活用する開発パターン。タスクの分割と委譲、並列実行の戦略、エージェント間のコンテキスト共有方法を体系化したガイド。",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    }
+  ]
+}

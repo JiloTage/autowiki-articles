@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Codeプラグインアーキテクチャ - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    Claude Codeプラグインアーキテクチャ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Codeプラグインアーキテクチャ</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">Claude Codeプラグインシステムの技術的な構造を解説する記事。plugin.jsonマニフェスト、プラグインサーバープロセス、フックシステムとの統合、スラッシュコマンド定義の仕組みを、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>の実装を具体例として紹介する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>Claude Codeプラグインアーキテクチャ</b>は、Anthropicが設計したClaude Codeの拡張機構であり、サードパーティが独自のコマンド・ツール・ワークフロー統合をClaude Codeに追加できるようにするシステムである。プラグインはローカルプロセスとして動作し、Claude Codeのホストプロセスと標準化されたプロトコルで通信する。
+      </p>
+      <p>
+        このアーキテクチャは以下の4つの中心的なコンポーネントから構成される。<code>plugin.json</code>マニフェスト（プラグインの宣言的定義）、プラグインサーバープロセス（実行エンジン）、フックシステム（Claude Codeイベントへの統合）、そしてスラッシュコマンド定義（ユーザーインターフェース層）である。<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>はこのアーキテクチャの公式実装例として広く参照されている。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320">
+          <defs>
+            <marker id="arrow-main" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#36c"/>
+            </marker>
+            <marker id="arrow-gray" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="640" height="320" fill="#f8f9fa" rx="10"/>
+          <!-- Title -->
+          <text x="320" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Claude Codeプラグインアーキテクチャ 全体像</text>
+
+          <!-- Claude Code Host -->
+          <rect x="20" y="55" width="180" height="210" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="110" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Claude Code Host</text>
+          <rect x="35" y="90" width="150" height="35" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="110" y="112" text-anchor="middle" font-size="10" fill="#202122">コマンドディスパッチャ</text>
+          <rect x="35" y="135" width="150" height="35" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="110" y="157" text-anchor="middle" font-size="10" fill="#202122">フックエンジン</text>
+          <rect x="35" y="180" width="150" height="35" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="110" y="202" text-anchor="middle" font-size="10" fill="#202122">プラグインレジストリ</text>
+          <rect x="35" y="225" width="150" height="30" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="110" y="244" text-anchor="middle" font-size="10" fill="#202122">マニフェストローダー</text>
+
+          <!-- Plugin Process -->
+          <rect x="240" y="55" width="180" height="210" rx="8" fill="#fff" stroke="#10a37f" stroke-width="2"/>
+          <text x="330" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プラグインサーバー</text>
+          <rect x="255" y="90" width="150" height="35" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="330" y="107" text-anchor="middle" font-size="10" fill="#202122">plugin.json</text>
+          <text x="330" y="120" text-anchor="middle" font-size="9" fill="#555">マニフェスト定義</text>
+          <rect x="255" y="135" width="150" height="35" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="330" y="152" text-anchor="middle" font-size="10" fill="#202122">コマンドハンドラ</text>
+          <text x="330" y="165" text-anchor="middle" font-size="9" fill="#555">スラッシュコマンド実装</text>
+          <rect x="255" y="180" width="150" height="35" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="330" y="197" text-anchor="middle" font-size="10" fill="#202122">フックハンドラ</text>
+          <text x="330" y="210" text-anchor="middle" font-size="9" fill="#555">イベント受信・処理</text>
+          <rect x="255" y="225" width="150" height="30" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="330" y="244" text-anchor="middle" font-size="10" fill="#202122">外部API連携</text>
+
+          <!-- External Service -->
+          <rect x="460" y="100" width="155" height="120" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="537" y="123" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">外部サービス</text>
+          <rect x="475" y="135" width="125" height="30" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+          <text x="537" y="155" text-anchor="middle" font-size="10" fill="#202122">OpenAI Codex API</text>
+          <rect x="475" y="175" width="125" height="30" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+          <text x="537" y="195" text-anchor="middle" font-size="10" fill="#202122">ローカルCodex CLI</text>
+
+          <!-- Arrows Claude Code <-> Plugin -->
+          <line x1="200" y1="107" x2="240" y2="107" stroke="#36c" stroke-width="1.8" marker-end="url(#arrow-main)"/>
+          <line x1="240" y1="155" x2="200" y2="155" stroke="#36c" stroke-width="1.8" marker-end="url(#arrow-main)"/>
+          <text x="220" y="100" text-anchor="middle" font-size="9" fill="#36c">コマンド</text>
+          <text x="220" y="148" text-anchor="middle" font-size="9" fill="#36c">応答</text>
+
+          <!-- Plugin <-> External -->
+          <line x1="420" y1="152" x2="460" y2="152" stroke="#a2a9b1" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+          <line x1="460" y1="192" x2="420" y2="192" stroke="#a2a9b1" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+          <!-- Bottom label -->
+          <text x="320" y="298" text-anchor="middle" font-size="10" fill="#888">図1: Claude Codeプラグインシステムの全体構成（codex-plugin-ccを例に）</text>
+        </svg>
+        <div class="diagram-caption">図1: Claude Codeホストプロセス、プラグインサーバープロセス、外部サービスの三層構造</div>
+      </div>
+
+      <h2 id="manifest">plugin.jsonマニフェスト</h2>
+      <p>
+        プラグインの宣言的定義はすべて<code>plugin.json</code>（<a href="openai-codex-plugin-cc.html">codex-plugin-cc</a>では<code>.codex-plugin/plugin.json</code>）に記述される。このファイルはClaude Codeのマニフェストローダーが起動時に読み込み、プラグインの登録・機能提供を行う。
+      </p>
+
+      <h3 id="manifest-fields">マニフェストの主要フィールド</h3>
+      <p>
+        <code>plugin.json</code>は以下の主要フィールドで構成される。
+      </p>
+      <ul>
+        <li><code>id</code>: プラグインの一意識別子（例: <code>"openai/codex-plugin-cc"</code>）</li>
+        <li><code>name</code>: 表示名</li>
+        <li><code>version</code>: セマンティックバージョン</li>
+        <li><code>description</code>: 短い説明文</li>
+        <li><code>server</code>: サーバープロセスの起動コマンドとエントリポイント</li>
+        <li><code>commands</code>: 提供するスラッシュコマンドの定義配列</li>
+        <li><code>hooks</code>: 購読するClaude Codeフックイベントのリスト</li>
+        <li><code>permissions</code>: プラグインが要求するパーミッション（ネットワーク・ファイルシステムアクセス等）</li>
+      </ul>
+
+      <h3 id="manifest-example">マニフェスト定義例</h3>
+      <p>
+        codex-plugin-ccのマニフェストは以下のような構造を持つ。
+      </p>
+      <pre><code>{
+  "id": "openai/codex-plugin-cc",
+  "name": "Codex Plugin for Claude Code",
+  "version": "1.2.0",
+  "description": "OpenAI CodexをClaude Codeから直接呼び出す公式ブリッジプラグイン",
+  "server": {
+    "command": "node",
+    "args": ["dist/server.js"],
+    "env": { "CODEX_CONFIG": "~/.codex/config.toml" }
+  },
+  "commands": [
+    { "name": "codex:review", "description": "コードレビューをCodexに委譲" },
+    { "name": "codex:rescue", "description": "バグ修正タスクをバックグラウンドで実行" }
+  ],
+  "hooks": ["PreToolUse", "PostToolUse"],
+  "permissions": ["network", "process"]
+}</code></pre>
+
+      <h2 id="server-process">プラグインサーバープロセス</h2>
+      <p>
+        プラグインサーバーはClaude Codeとは別の独立したローカルプロセスとして動作する。Claude Codeはプラグインのインストール・有効化時にサーバープロセスを起動し、標準入出力（stdio）またはUnixドメインソケット経由でJSON-RPCプロトコルを用いて通信する。
+      </p>
+
+      <h3 id="server-lifecycle">サーバーライフサイクル</h3>
+      <ul>
+        <li><strong>起動</strong>: Claude Code起動時またはプラグイン有効化時に<code>server.command</code>が実行される</li>
+        <li><strong>ハンドシェイク</strong>: サーバーはマニフェスト情報をホストに送信し、ケーパビリティをネゴシエートする</li>
+        <li><strong>常駐</strong>: セッション中はプロセスが常駐し、コマンド呼び出しやフックイベントを待機する</li>
+        <li><strong>終了</strong>: Claude Code終了時またはプラグイン無効化時にプロセスが終了する</li>
+      </ul>
+
+      <h3 id="ipc-protocol">プロセス間通信プロトコル</h3>
+      <p>
+        ホストとプラグインサーバー間の通信はJSON-RPCベースのメッセージングで行われる。各メッセージには<code>method</code>（RPC名）、<code>params</code>（引数）、<code>id</code>（リクエスト追跡用）が含まれる。非同期タスク（バックグラウンドジョブ）については、プラグインサーバーが即時に<code>jobId</code>を返し、進捗はポーリングまたはプッシュ通知で伝達される。
+      </p>
+
+      <h2 id="hook-integration">フックシステムとの統合</h2>
+      <p>
+        Claude Codeのフックシステムは、ユーザー操作やツール実行の前後に外部プロセスやプラグインへ制御を渡す仕組みである。<a href="codex-hook-integration.html">フック統合</a>を活用することで、プラグインはClaude Codeのワークフローに深く組み込まれた自動化を実現できる。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 260" width="620" height="260">
+          <defs>
+            <marker id="hook-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#36c"/>
+            </marker>
+            <marker id="hook-arrow-orange" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#ff9800"/>
+            </marker>
+          </defs>
+          <rect width="620" height="260" fill="#f8f9fa" rx="10"/>
+          <text x="310" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">フックシステム統合フロー</text>
+
+          <!-- User action -->
+          <rect x="20" y="50" width="110" height="40" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="75" y="75" text-anchor="middle" font-size="11" fill="#202122">ユーザー操作</text>
+
+          <!-- PreToolUse Hook -->
+          <rect x="165" y="50" width="120" height="40" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="225" y="68" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">PreToolUse</text>
+          <text x="225" y="82" text-anchor="middle" font-size="9" fill="#555">フックイベント</text>
+
+          <!-- Plugin receives hook -->
+          <rect x="320" y="50" width="130" height="40" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="385" y="68" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">プラグインサーバー</text>
+          <text x="385" y="82" text-anchor="middle" font-size="9" fill="#555">フック処理・判断</text>
+
+          <!-- Decision: block or allow -->
+          <polygon points="490,50 560,70 490,90 420,70" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+          <text x="490" y="66" text-anchor="middle" font-size="9" fill="#202122">ブロック</text>
+          <text x="490" y="78" text-anchor="middle" font-size="9" fill="#202122">or 許可</text>
+
+          <!-- Tool Execution -->
+          <rect x="165" y="145" width="120" height="40" rx="6" fill="#e3f2fd" stroke="#36c" stroke-width="1.5"/>
+          <text x="225" y="163" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">ツール実行</text>
+          <text x="225" y="177" text-anchor="middle" font-size="9" fill="#555">Claude Code本体</text>
+
+          <!-- PostToolUse Hook -->
+          <rect x="320" y="145" width="120" height="40" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="380" y="163" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">PostToolUse</text>
+          <text x="380" y="177" text-anchor="middle" font-size="9" fill="#555">フックイベント</text>
+
+          <!-- Auto Review -->
+          <rect x="475" y="145" width="125" height="40" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="537" y="163" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">自動コードレビュー</text>
+          <text x="537" y="177" text-anchor="middle" font-size="9" fill="#555">codex:review実行</text>
+
+          <!-- Arrows -->
+          <line x1="130" y1="70" x2="165" y2="70" stroke="#36c" stroke-width="1.5" marker-end="url(#hook-arrow)"/>
+          <line x1="285" y1="70" x2="320" y2="70" stroke="#ff9800" stroke-width="1.5" marker-end="url(#hook-arrow-orange)"/>
+          <line x1="420" y1="70" x2="385" y2="70" stroke="#36c" stroke-width="1.5" marker-end="url(#hook-arrow)"/>
+          <!-- Allow arrow down -->
+          <line x1="225" y1="90" x2="225" y2="145" stroke="#36c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#hook-arrow)"/>
+          <text x="238" y="122" font-size="9" fill="#36c">許可時</text>
+          <!-- Post hook -->
+          <line x1="285" y1="165" x2="320" y2="165" stroke="#ff9800" stroke-width="1.5" marker-end="url(#hook-arrow-orange)"/>
+          <line x1="440" y1="165" x2="475" y2="165" stroke="#36c" stroke-width="1.5" marker-end="url(#hook-arrow)"/>
+
+          <text x="310" y="238" text-anchor="middle" font-size="10" fill="#888">図2: PreToolUse/PostToolUseフックによるプラグイン統合フロー</text>
+        </svg>
+        <div class="diagram-caption">図2: フックシステムを通じたプラグインの自動ワークフロー統合。PreToolUseで事前検査、PostToolUseで自動レビューを実行できる。</div>
+      </div>
+
+      <h3 id="hook-types">主要フックタイプ</h3>
+      <ul>
+        <li><strong>PreToolUse</strong>: ツール実行前に呼び出される。プラグインはここでリクエストを検査し、ブロックまたは通過させる判断を行える</li>
+        <li><strong>PostToolUse</strong>: ツール実行後に呼び出される。codex-plugin-ccはこのフックでコードレビューゲートを実装している</li>
+        <li><strong>SessionStart / SessionEnd</strong>: セッションの開始・終了時に呼び出される。初期化・クリーンアップ処理に利用する</li>
+        <li><strong>FileSave</strong>: ファイル保存時に呼び出される。保存前のバリデーションや自動フォーマットに利用できる</li>
+      </ul>
+
+      <h3 id="hook-codex-example">codex-plugin-ccでのフック活用例</h3>
+      <p>
+        <a href="openai-codex-plugin-cc.html">codex-plugin-cc</a>は<code>PostToolUse</code>フックを利用してコードレビューゲートを実装している。ファイル書き込みツールの実行後にフックが発火し、プラグインサーバーが変更内容をCodexへ送信して自動レビューを実行する。レビュー結果はClaude Codeの出力パネルにインライン表示される。この仕組みにより、<a href="codex-hook-integration.html">フック統合</a>を通じた継続的コード品質チェックが実現されている。
+      </p>
+
+      <h2 id="slash-commands">スラッシュコマンド定義</h2>
+      <p>
+        スラッシュコマンドはユーザーがClaude Codeのチャットインターフェースから直接プラグイン機能を呼び出すためのインターフェース層である。各コマンドは<code>plugin.json</code>の<code>commands</code>配列に宣言し、プラグインサーバーのコマンドハンドラに実装する。
+      </p>
+
+      <h3 id="command-definition">コマンド定義スキーマ</h3>
+      <p>
+        各コマンドエントリは以下のフィールドを持つ。
+      </p>
+      <ul>
+        <li><code>name</code>: コマンド名（プレフィックスはプラグインIDから自動付与: <code>codex:review</code>）</li>
+        <li><code>description</code>: コマンドの説明（スラッシュコマンド補完候補に表示）</li>
+        <li><code>parameters</code>: 引数スキーマ（JSONSchema形式）</li>
+        <li><code>async</code>: バックグラウンド非同期実行の可否</li>
+        <li><code>streaming</code>: ストリーミング応答の可否</li>
+      </ul>
+
+      <h3 id="command-routing">コマンドルーティング</h3>
+      <p>
+        ユーザーが<code>/codex:review</code>などのコマンドを入力すると、Claude Codeのコマンドディスパッチャがプラグインレジストリを参照し、対応するプラグインサーバーへJSON-RPCリクエストを送信する。プラグインサーバーは処理結果をMarkdown形式またはリッチテキスト形式で返し、Claude Codeが出力として表示する。
+      </p>
+      <p>
+        <a href="plugin-marketplace.html">プラグインマーケットプレイス</a>でインストールされたプラグインのコマンドは自動的にClaude Codeのオートコンプリートに登録され、ユーザーは<code>/</code>を入力するだけで利用可能なコマンドをブラウズできる。
+      </p>
+
+      <h2 id="security">セキュリティモデルとパーミッション</h2>
+      <p>
+        Claude Codeプラグインはサンドボックス化された環境で動作し、<code>plugin.json</code>の<code>permissions</code>フィールドで宣言されたパーミッションのみが許可される。ユーザーはプラグインインストール時に要求パーミッションを確認し、明示的に承認する必要がある。
+      </p>
+      <ul>
+        <li><strong>network</strong>: 外部ネットワークアクセスの許可（OpenAI APIへの通信等）</li>
+        <li><strong>process</strong>: サブプロセスの起動許可（ローカルCodex CLIの呼び出し等）</li>
+        <li><strong>filesystem:read</strong>: ファイルシステムの読み取りアクセス</li>
+        <li><strong>filesystem:write</strong>: ファイルシステムの書き込みアクセス</li>
+        <li><strong>env</strong>: 環境変数へのアクセス許可</li>
+      </ul>
+      <p>
+        codex-plugin-ccは<code>network</code>と<code>process</code>パーミッションのみを要求しており、ファイルシステムへの直接アクセスは行わない。これによりセキュリティリスクを最小限に抑えながら、<a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a>の信頼性を維持している。
+      </p>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — 本アーキテクチャの公式実装例</a></li>
+        <li><a href="plugin-marketplace.html">Claude Codeプラグインマーケットプレイス</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a></li>
+        <li><a href="codex-hook-integration.html">Codexフック統合</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#manifest">plugin.jsonマニフェスト</a></li>
+          <li class="toc-h3"><a href="#manifest-fields">主要フィールド</a></li>
+          <li class="toc-h3"><a href="#manifest-example">定義例</a></li>
+          <li><a href="#server-process">プラグインサーバープロセス</a></li>
+          <li class="toc-h3"><a href="#server-lifecycle">サーバーライフサイクル</a></li>
+          <li class="toc-h3"><a href="#ipc-protocol">プロセス間通信プロトコル</a></li>
+          <li><a href="#hook-integration">フックシステムとの統合</a></li>
+          <li class="toc-h3"><a href="#hook-types">主要フックタイプ</a></li>
+          <li class="toc-h3"><a href="#hook-codex-example">codex-plugin-ccでの活用例</a></li>
+          <li><a href="#slash-commands">スラッシュコマンド定義</a></li>
+          <li class="toc-h3"><a href="#command-definition">コマンド定義スキーマ</a></li>
+          <li class="toc-h3"><a href="#command-routing">コマンドルーティング</a></li>
+          <li><a href="#security">セキュリティモデルとパーミッション</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+          <li><a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a></li>
+          <li><a href="codex-hook-integration.html">Codexフック統合</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="plugin-marketplace.html">プラグインマーケットプレイス</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">プラグインエコシステム</a></li>
+        <li><a href="codex-hook-integration.html">Codexフック統合</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

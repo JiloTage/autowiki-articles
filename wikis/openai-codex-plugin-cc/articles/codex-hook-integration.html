@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Codeフックシステムとプラグイン統合 - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    Claude Codeフックシステムとプラグイン統合
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Claude Codeフックシステムとプラグイン統合</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">Claude Codeのフックシステム（PreToolUse、PostToolUseなど）を活用してcodex-plugin-ccが実現する自動コードレビューゲートの設置方法を解説する。フックの種類・設定・CI/CDパイプラインへの組み込みパターンを包括的に説明する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>Claude Codeフックシステムとプラグイン統合</b>は、Claude Codeが提供するフックメカニズムを通じて、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインがClaude Codeのワークフローに深く組み込まれる方法を指す。フックとはClaude Code内部のライフサイクルイベントに対応して外部プロセス（プラグインサーバーを含む）を呼び出す仕組みであり、ツール実行の前後・ファイル保存・セッション管理など複数のタイミングで発火する。
+      </p>
+      <p>
+        <a href="plugin-architecture.html">プラグインアーキテクチャ</a>においてフックは最も強力な統合ポイントの一つである。codex-plugin-ccはこのフックシステムを活用し、開発者が明示的にコマンドを実行しなくても自動的にコードレビューゲートが設置される仕組みを実現している。本記事ではフックの種類・設定方法・CI/CDパイプラインへの組み込みパターンを詳説する。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <defs>
+            <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#36c"/>
+            </marker>
+            <marker id="arr-gray" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arr-red" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#c00"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="680" height="340" fill="#f8f9fa" rx="10"/>
+          <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Claude Codeフックシステム — codex-plugin-cc統合全体図</text>
+
+          <!-- Claude Code Host box -->
+          <rect x="15" y="45" width="200" height="240" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="115" y="65" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Claude Code Host</text>
+          <rect x="28" y="74" width="174" height="28" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="115" y="93" text-anchor="middle" font-size="10" fill="#202122">フックエンジン</text>
+          <rect x="28" y="110" width="174" height="28" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="115" y="129" text-anchor="middle" font-size="10" fill="#202122">コマンドディスパッチャ</text>
+          <rect x="28" y="146" width="174" height="28" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="115" y="165" text-anchor="middle" font-size="10" fill="#202122">ツール実行エンジン</text>
+          <rect x="28" y="182" width="174" height="28" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="115" y="201" text-anchor="middle" font-size="10" fill="#202122">セッションマネージャ</text>
+          <rect x="28" y="218" width="174" height="28" rx="5" fill="#e3f2fd" stroke="#36c" stroke-width="1"/>
+          <text x="115" y="237" text-anchor="middle" font-size="10" fill="#202122">マニフェストローダー</text>
+
+          <!-- Hook events (center column) -->
+          <rect x="250" y="45" width="175" height="240" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="337" y="65" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">フックイベント</text>
+          <rect x="263" y="74" width="149" height="24" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+          <text x="337" y="91" text-anchor="middle" font-size="10" fill="#202122">PreToolUse</text>
+          <rect x="263" y="105" width="149" height="24" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+          <text x="337" y="122" text-anchor="middle" font-size="10" fill="#202122">PostToolUse</text>
+          <rect x="263" y="136" width="149" height="24" rx="4" fill="#fce4ec" stroke="#c00" stroke-width="1"/>
+          <text x="337" y="153" text-anchor="middle" font-size="10" fill="#202122">PreCommit</text>
+          <rect x="263" y="167" width="149" height="24" rx="4" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+          <text x="337" y="184" text-anchor="middle" font-size="10" fill="#202122">FileSave</text>
+          <rect x="263" y="198" width="149" height="24" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+          <text x="337" y="215" text-anchor="middle" font-size="10" fill="#202122">SessionStart</text>
+          <rect x="263" y="229" width="149" height="24" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+          <text x="337" y="246" text-anchor="middle" font-size="10" fill="#202122">SessionEnd</text>
+
+          <!-- Plugin server box -->
+          <rect x="460" y="45" width="200" height="240" rx="8" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="560" y="65" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">codex-plugin-cc サーバー</text>
+          <rect x="473" y="74" width="174" height="28" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="560" y="89" text-anchor="middle" font-size="10" fill="#202122">PreToolUseハンドラ</text>
+          <text x="560" y="100" text-anchor="middle" font-size="8" fill="#555">コード変更前バリデーション</text>
+          <rect x="473" y="110" width="174" height="28" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="560" y="125" text-anchor="middle" font-size="10" fill="#202122">PostToolUseハンドラ</text>
+          <text x="560" y="136" text-anchor="middle" font-size="8" fill="#555">自動コードレビューゲート</text>
+          <rect x="473" y="146" width="174" height="28" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="560" y="161" text-anchor="middle" font-size="10" fill="#202122">PreCommitハンドラ</text>
+          <text x="560" y="172" text-anchor="middle" font-size="8" fill="#555">コミット前最終チェック</text>
+          <rect x="473" y="182" width="174" height="28" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="560" y="201" text-anchor="middle" font-size="10" fill="#202122">FileSaveハンドラ</text>
+          <rect x="473" y="218" width="174" height="28" rx="5" fill="#e8f5e9" stroke="#10a37f" stroke-width="1"/>
+          <text x="560" y="237" text-anchor="middle" font-size="10" fill="#202122">セッションハンドラ</text>
+
+          <!-- Arrows from host to hook events -->
+          <line x1="215" y1="88" x2="263" y2="88" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="215" y1="118" x2="263" y2="118" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="215" y1="148" x2="263" y2="148" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="215" y1="178" x2="263" y2="178" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="215" y1="208" x2="263" y2="210" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="215" y1="240" x2="263" y2="241" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+          <!-- Arrows from hook events to plugin -->
+          <line x1="412" y1="88" x2="460" y2="88" stroke="#e65100" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="412" y1="118" x2="460" y2="124" stroke="#e65100" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="412" y1="148" x2="460" y2="158" stroke="#c00" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="412" y1="179" x2="460" y2="195" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="412" y1="210" x2="460" y2="231" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+          <!-- Bottom label -->
+          <text x="340" y="310" text-anchor="middle" font-size="10" fill="#888">図1: Claude Codeホストがフックイベントを発火し、codex-plugin-ccサーバーの各ハンドラへ伝達する全体像</text>
+        </svg>
+        <div class="diagram-caption">図1: Claude Codeフックシステムとcodex-plugin-ccサーバーの統合全体図。各フックイベントは対応するプラグインハンドラへルーティングされる。</div>
+      </div>
+
+      <h2 id="hook-types">フックの種類と用途</h2>
+      <p>
+        Claude Codeが提供するフックは大きく「ツール系フック」「ファイル系フック」「セッション系フック」「コミット系フック」の4カテゴリに分類される。<a href="plugin-architecture.html">プラグインアーキテクチャ</a>の<code>plugin.json</code>の<code>hooks</code>フィールドに購読するフック名を列挙することで、プラグインサーバーが各イベントを受信できるようになる。
+      </p>
+
+      <h3 id="tool-hooks">ツール系フック</h3>
+      <p>
+        ツール系フックはClaude Codeがファイル操作・コード実行・検索などのツールを呼び出す前後に発火する最も重要なフックである。
+      </p>
+      <ul>
+        <li><strong>PreToolUse</strong>: ツール実行前に呼び出される。プラグインはペイロード（ツール名・引数・対象ファイルパスなど）を受信し、<code>allow</code>または<code>block</code>を返してツール実行の可否を制御できる。codex-plugin-ccはここで書き込み対象ファイルの事前バリデーション（禁止パターン検出、テスト未実装チェックなど）を行う。</li>
+        <li><strong>PostToolUse</strong>: ツール実行後に呼び出される。実行結果・変更差分・出力内容がペイロードに含まれる。codex-plugin-ccはこのフックで自動コードレビューゲートを実装しており、ファイル書き込みツール実行後に差分をCodexへ送信してレビューを取得する。</li>
+      </ul>
+
+      <h3 id="file-hooks">ファイル系フック</h3>
+      <ul>
+        <li><strong>FileSave</strong>: ユーザーがファイルを明示的に保存したとき発火する。自動フォーマット・Lintチェック・ドキュメント自動更新などに利用できる。codex-plugin-ccではオプション機能として、保存時に軽量なスタイルチェックをCodex CLIへ送信する。</li>
+      </ul>
+
+      <h3 id="commit-hooks">コミット系フック</h3>
+      <ul>
+        <li><strong>PreCommit</strong>: Gitコミット実行直前に発火する。プラグインがブロックを返すとコミットは中断される。codex-plugin-ccの最重要ゲートであり、コミット対象の全差分をCodexへ送信し、重大な問題（セキュリティ脆弱性・未処理のTODO・壊れたインポートなど）が検出された場合にコミットを阻止する。詳細は<a href="adversarial-code-review.html">対抗的コードレビュー</a>を参照。</li>
+      </ul>
+
+      <h3 id="session-hooks">セッション系フック</h3>
+      <ul>
+        <li><strong>SessionStart</strong>: Claude Codeセッション開始時に発火する。プラグインの初期化・キャッシュウォームアップ・プロジェクト設定の読み込みなどに利用する。codex-plugin-ccはここでCodex APIの疎通確認とプロジェクト固有のレビューポリシーファイル（<code>.codex-review-policy.yaml</code>）の読み込みを行う。</li>
+        <li><strong>SessionEnd</strong>: セッション終了時に発火する。ログ送信・一時ファイルクリーンアップ・セッションサマリーの生成などに利用する。</li>
+      </ul>
+
+      <h2 id="configuration">フックの設定方法</h2>
+      <p>
+        codex-plugin-ccでフックを有効化するには、<code>plugin.json</code>マニフェストへの宣言とプラグインサーバー側のハンドラ実装の両方が必要である。以下にそれぞれの設定方法を示す。
+      </p>
+
+      <h3 id="manifest-hooks">plugin.jsonでのフック宣言</h3>
+      <p>
+        <code>plugin.json</code>の<code>hooks</code>配列に購読するフック名を列挙する。フックごとにフィルター条件（対象ツール名・ファイルパターンなど）を指定できる。
+      </p>
+      <pre><code>{
+  "id": "openai/codex-plugin-cc",
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "filter": { "tools": ["write_file", "patch_file", "apply_diff"] }
+    },
+    {
+      "event": "PostToolUse",
+      "filter": {
+        "tools": ["write_file", "patch_file", "apply_diff"],
+        "file_patterns": ["**/*.ts", "**/*.py", "**/*.go", "**/*.rs"]
+      }
+    },
+    {
+      "event": "PreCommit",
+      "timeout_ms": 30000
+    },
+    {
+      "event": "FileSave",
+      "filter": { "file_patterns": ["**/*.ts", "**/*.py"] },
+      "optional": true
+    },
+    {
+      "event": "SessionStart"
+    },
+    {
+      "event": "SessionEnd"
+    }
+  ]
+}</code></pre>
+      <p>
+        <code>filter</code>フィールドを使うことで、すべてのツール実行でフックが発火するのではなく、コード変更を伴うツールのみを対象にできる。<code>optional: true</code>を指定したフックは、タイムアウトや失敗時にClaude Codeのメイン処理をブロックしない。<code>timeout_ms</code>はフック応答の最大待ち時間であり、PreCommitのようにCodex APIを呼ぶ場合は余裕を持った値を設定する。
+      </p>
+
+      <h3 id="handler-impl">プラグインサーバー側のハンドラ実装</h3>
+      <p>
+        プラグインサーバーはJSON-RPCメソッド <code>hook/{EventName}</code> を実装する。各ハンドラは受け取ったペイロードを処理し、<code>action</code>フィールドを含むJSON応答を返す。
+      </p>
+      <pre><code>// PostToolUse ハンドラ（TypeScript擬似コード）
+async function handlePostToolUse(params: PostToolUseParams): Promise&lt;HookResponse&gt; {
+  const { tool_name, result, diff, file_path } = params;
+
+  // ファイル変更を伴うツールのみレビュー対象
+  if (!diff || diff.length === 0) return { action: "continue" };
+
+  // Codex APIへ差分を送信してレビュー取得
+  const review = await codexClient.review({
+    diff,
+    file_path,
+    policy: projectPolicy.postToolUse,
+  });
+
+  if (review.severity === "critical") {
+    return {
+      action: "warn",
+      message: `[codex-plugin-cc] 重大な問題を検出:\n${review.summary}`,
+    };
+  }
+
+  return {
+    action: "continue",
+    annotation: review.summary,  // 軽微な指摘はインラインアノテーションとして表示
+  };
+}</code></pre>
+
+      <h3 id="review-policy">レビューポリシーファイル</h3>
+      <p>
+        codex-plugin-ccはプロジェクトルートに置かれる<code>.codex-review-policy.yaml</code>を読み込み、フックごとの動作をカスタマイズできる。
+      </p>
+      <pre><code>preToolUse:
+  enabled: true
+  block_patterns:
+    - "eval("
+    - "exec("
+    - "__import__("
+  warn_patterns:
+    - "TODO:"
+    - "FIXME:"
+
+postToolUse:
+  enabled: true
+  severity_threshold: warning   # critical / warning / info
+  show_inline_annotations: true
+
+preCommit:
+  enabled: true
+  block_on: critical            # critical のみブロック
+  require_clean_review: false   # true にすると指摘ゼロでないとコミット不可
+  excluded_paths:
+    - "docs/**"
+    - "*.md"</code></pre>
+
+      <h2 id="review-gate">自動コードレビューゲートの仕組み</h2>
+      <p>
+        codex-plugin-ccが実装する自動コードレビューゲートは、<code>PostToolUse</code>フックと<code>PreCommit</code>フックの二段階で構成される。このアーキテクチャにより、コード変更直後の軽量チェックとコミット前の厳密な最終チェックを使い分けられる。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+          <defs>
+            <marker id="gate-arr" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#36c"/>
+            </marker>
+            <marker id="gate-arr-red" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#c00"/>
+            </marker>
+            <marker id="gate-arr-green" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L0,7 L9,3.5 z" fill="#2e7d32"/>
+            </marker>
+          </defs>
+          <rect width="700" height="380" fill="#f8f9fa" rx="10"/>
+          <text x="350" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">二段階コードレビューゲート（PostToolUse + PreCommit）</text>
+
+          <!-- Step 1: Tool execution -->
+          <rect x="20" y="50" width="130" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="69" text-anchor="middle" font-size="11" fill="#202122">ツール実行</text>
+          <text x="85" y="84" text-anchor="middle" font-size="9" fill="#555">write_file など</text>
+
+          <!-- PostToolUse gate -->
+          <rect x="180" y="50" width="155" height="44" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.8"/>
+          <text x="257" y="69" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">PostToolUse Gate</text>
+          <text x="257" y="84" text-anchor="middle" font-size="9" fill="#555">軽量レビュー（差分単位）</text>
+
+          <!-- Codex API -->
+          <rect x="365" y="50" width="140" height="44" rx="6" fill="#e3f2fd" stroke="#36c" stroke-width="1.5"/>
+          <text x="435" y="69" text-anchor="middle" font-size="11" fill="#202122">Codex API</text>
+          <text x="435" y="84" text-anchor="middle" font-size="9" fill="#555">差分レビュー実行</text>
+
+          <!-- Review result -->
+          <rect x="530" y="50" width="150" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="605" y="69" text-anchor="middle" font-size="11" fill="#202122">レビュー結果</text>
+          <text x="605" y="84" text-anchor="middle" font-size="9" fill="#555">インラインアノテーション</text>
+
+          <!-- Arrows row 1 -->
+          <line x1="150" y1="72" x2="180" y2="72" stroke="#36c" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+          <line x1="335" y1="72" x2="365" y2="72" stroke="#e65100" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+          <line x1="505" y1="72" x2="530" y2="72" stroke="#36c" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+
+          <!-- Warning path (down from PostToolUse) -->
+          <line x1="257" y1="94" x2="257" y2="135" stroke="#c00" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gate-arr-red)"/>
+          <rect x="180" y="135" width="155" height="36" rx="5" fill="#ffebee" stroke="#c00" stroke-width="1.5"/>
+          <text x="257" y="153" text-anchor="middle" font-size="10" font-weight="bold" fill="#c00">重大問題: 警告表示</text>
+          <text x="257" y="165" text-anchor="middle" font-size="9" fill="#555">開発者が確認・修正</text>
+
+          <!-- Continue path arrow -->
+          <line x1="605" y1="94" x2="605" y2="200" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <line x1="605" y1="200" x2="85" y2="200" stroke="#2e7d32" stroke-width="1.5"/>
+          <line x1="85" y1="200" x2="85" y2="220" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#gate-arr-green)"/>
+          <text x="350" y="195" text-anchor="middle" font-size="9" fill="#2e7d32">問題なし → 開発継続</text>
+
+          <!-- Step 2: git commit -->
+          <rect x="20" y="220" width="130" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="239" text-anchor="middle" font-size="11" fill="#202122">git commit</text>
+          <text x="85" y="254" text-anchor="middle" font-size="9" fill="#555">コミット試行</text>
+
+          <!-- PreCommit gate -->
+          <rect x="180" y="220" width="155" height="44" rx="6" fill="#fce4ec" stroke="#c00" stroke-width="1.8"/>
+          <text x="257" y="239" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">PreCommit Gate</text>
+          <text x="257" y="254" text-anchor="middle" font-size="9" fill="#555">厳密レビュー（全差分）</text>
+
+          <!-- Codex API for PreCommit -->
+          <rect x="365" y="220" width="140" height="44" rx="6" fill="#e3f2fd" stroke="#36c" stroke-width="1.5"/>
+          <text x="435" y="239" text-anchor="middle" font-size="11" fill="#202122">Codex API</text>
+          <text x="435" y="254" text-anchor="middle" font-size="9" fill="#555">全差分レビュー実行</text>
+
+          <!-- Decision diamond -->
+          <polygon points="590,242 650,262 590,282 530,262" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+          <text x="590" y="258" text-anchor="middle" font-size="9" fill="#202122">問題あり?</text>
+
+          <!-- Arrows row 2 -->
+          <line x1="150" y1="242" x2="180" y2="242" stroke="#36c" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+          <line x1="335" y1="242" x2="365" y2="242" stroke="#c00" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+          <line x1="505" y1="242" x2="530" y2="262" stroke="#36c" stroke-width="1.5" marker-end="url(#gate-arr)"/>
+
+          <!-- Block commit -->
+          <line x1="590" y1="282" x2="590" y2="320" stroke="#c00" stroke-width="1.5" marker-end="url(#gate-arr-red)"/>
+          <rect x="510" y="320" width="160" height="36" rx="5" fill="#ffebee" stroke="#c00" stroke-width="1.5"/>
+          <text x="590" y="339" text-anchor="middle" font-size="10" font-weight="bold" fill="#c00">コミットブロック</text>
+          <text x="590" y="351" text-anchor="middle" font-size="9" fill="#555">問題内容をコンソール表示</text>
+          <text x="415" y="312" font-size="9" fill="#c00">Yes</text>
+
+          <!-- Allow commit -->
+          <line x1="650" y1="262" x2="695" y2="262" stroke="#2e7d32" stroke-width="1.5"/>
+          <line x1="695" y1="262" x2="695" y2="340" stroke="#2e7d32" stroke-width="1.5"/>
+          <rect x="540" y="330" width="0" height="0"/>
+          <text x="672" y="258" font-size="9" fill="#2e7d32">No</text>
+          <text x="672" y="310" font-size="9" fill="#2e7d32" transform="rotate(90,672,310)">コミット成功</text>
+
+          <text x="350" y="368" text-anchor="middle" font-size="10" fill="#888">図2: PostToolUse（軽量）とPreCommit（厳密）の二段階ゲートアーキテクチャ</text>
+        </svg>
+        <div class="diagram-caption">図2: PostToolUseで差分単位の軽量レビューを、PreCommitでコミット全体の厳密レビューを実施する二段階ゲート。</div>
+      </div>
+
+      <h3 id="gate-postool">PostToolUseゲートの動作</h3>
+      <p>
+        PostToolUseゲートはファイル変更ツールが実行されるたびに発火し、変更差分をCodex APIへ送信する。APIの応答に重大な問題（<code>severity: critical</code>）が含まれる場合は警告をClaude Codeのチャット欄に表示する。問題がない場合や軽微な場合は処理を中断せず、インラインアノテーションとして指摘内容を添付する。このゲートは開発者のフロー状態を尊重しつつリアルタイムフィードバックを提供する設計になっている。
+      </p>
+
+      <h3 id="gate-precommit">PreCommitゲートの動作</h3>
+      <p>
+        PreCommitゲートはGitコミット実行直前に発火し、コミット対象の全差分をCodex APIへ送信する。PostToolUseと異なり、このゲートは重大な問題が1件でも存在すればコミットをブロックする。ブロック時はClaude Codeのコンソールに問題一覧と修正提案が表示される。<a href="adversarial-code-review.html">対抗的コードレビュー</a>の考え方に基づき、セキュリティ脆弱性・壊れたテスト・未解決のTODOなどを積極的に検出する設定になっている。
+      </p>
+
+      <h2 id="cicd-integration">CI/CDパイプラインへの組み込み</h2>
+      <p>
+        codex-plugin-ccのフックシステムはローカル開発環境での利用を前提としているが、CI/CDパイプラインへ統合することで組織全体のコード品質ゲートとして機能させることができる。
+      </p>
+
+      <h3 id="github-actions">GitHub Actionsへの組み込み</h3>
+      <p>
+        GitHub ActionsでClaude Codeをヘッドレス実行しcodex-plugin-ccを有効化することで、PRマージ前に自動コードレビューゲートを設置できる。<a href="dual-agent-development.html">デュアルエージェント開発</a>パターンと組み合わせると、AIが生成したコードをCIレベルで自動審査する体制が整う。
+      </p>
+      <pre><code>name: Codex Review Gate
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  codex-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全差分取得のため
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic/claude-code
+
+      - name: Configure codex-plugin-cc
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          claude-code plugin install openai/codex-plugin-cc
+          cat > .codex-review-policy.yaml &lt;&lt;'EOF'
+          preCommit:
+            enabled: true
+            block_on: critical
+            require_clean_review: true
+          EOF
+
+      - name: Run Codex Review Gate (headless)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD &gt; /tmp/pr.diff
+          claude-code --headless \
+            --plugin openai/codex-plugin-cc \
+            --hook PreCommit \
+            --diff /tmp/pr.diff</code></pre>
+
+      <h3 id="pre-commit-hook">gitフック（.git/hooks）との連携</h3>
+      <p>
+        Claude Codeプラグインのフックシステムはgitネイティブのpre-commitフックとも連携できる。<code>install-hooks</code>サブコマンドを実行すると、codex-plugin-ccがプロジェクトのgit hooksディレクトリにシェルスクリプトを自動配置する。
+      </p>
+      <pre><code># codex-plugin-cc が .git/hooks/pre-commit を自動生成
+claude-code plugin run openai/codex-plugin-cc install-hooks
+
+# 生成される .git/hooks/pre-commit の内容（抜粋）
+#!/bin/sh
+claude-code --headless --plugin openai/codex-plugin-cc --hook PreCommit --staged-only
+exit $?</code></pre>
+      <p>
+        <code>--staged-only</code>オプションを指定することで、ステージング済みの差分のみを対象にレビューが実行される。これにより作業中の未完成コードがゲートの対象外となり、誤検知を減らせる。
+      </p>
+
+      <h3 id="policy-as-code">ポリシー・アズ・コード運用</h3>
+      <p>
+        <code>.codex-review-policy.yaml</code>をリポジトリにコミットしてバージョン管理することで、チーム全体で一貫したコードレビューポリシーを適用できる。ポリシーファイルはプロジェクト特性に応じて言語・フレームワーク・セキュリティ要件ごとに設定を変えられる。<a href="plugin-architecture.html">プラグインアーキテクチャ</a>のパーミッションモデルと組み合わせることで、組織のセキュリティポリシーをコードレベルで強制する体制が実現する。
+      </p>
+
+      <h2 id="troubleshooting">トラブルシューティングとベストプラクティス</h2>
+
+      <h3 id="timeout-tuning">タイムアウト調整</h3>
+      <p>
+        Codex APIの呼び出しはネットワーク環境によりレイテンシが変動するため、<code>plugin.json</code>の<code>timeout_ms</code>は余裕を持って設定する。PreCommitフックでは30秒以上を推奨する。タイムアウト発生時の動作は<code>on_timeout</code>フィールドで制御でき、<code>"allow"</code>（タイムアウト時は通過させる）または<code>"block"</code>（タイムアウト時もブロック）を選択できる。
+      </p>
+
+      <h3 id="selective-hooks">選択的フック有効化</h3>
+      <p>
+        すべてのフックを常に有効にすると開発フローが遅くなる場合がある。PostToolUseは<code>optional: true</code>にして遅延なく開発を継続できるようにし、重要なゲートはPreCommitのみに集約するパターンが実用的である。また、<code>filter.file_patterns</code>でテストファイルや生成ファイルを除外することで不要なAPI呼び出しを削減できる。
+      </p>
+
+      <h3 id="debugging">デバッグ方法</h3>
+      <p>
+        フックの動作確認には<code>CODEX_PLUGIN_DEBUG=1</code>環境変数を設定する。これによりプラグインサーバーが受信したフックペイロードと送信した応答をコンソールに出力する。フックが期待通りに発火しない場合は<code>uv run awiki session get</code>でセッション状態を確認し、プラグインが正しく登録されているか検証する。
+      </p>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="plugin-architecture.html">Claude Codeプラグインアーキテクチャ — フックシステムの基盤となる技術構造</a></li>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — 本記事で解説するフック統合の実装プラグイン</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー — PreCommitゲートで使用されるレビュー手法</a></li>
+        <li><a href="dual-agent-development.html">デュアルエージェント開発 — フック統合との組み合わせパターン</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#hook-types">フックの種類と用途</a></li>
+          <li class="toc-h3"><a href="#tool-hooks">ツール系フック</a></li>
+          <li class="toc-h3"><a href="#file-hooks">ファイル系フック</a></li>
+          <li class="toc-h3"><a href="#commit-hooks">コミット系フック</a></li>
+          <li class="toc-h3"><a href="#session-hooks">セッション系フック</a></li>
+          <li><a href="#configuration">フックの設定方法</a></li>
+          <li class="toc-h3"><a href="#manifest-hooks">plugin.jsonでのフック宣言</a></li>
+          <li class="toc-h3"><a href="#handler-impl">ハンドラ実装</a></li>
+          <li class="toc-h3"><a href="#review-policy">レビューポリシーファイル</a></li>
+          <li><a href="#review-gate">自動コードレビューゲートの仕組み</a></li>
+          <li class="toc-h3"><a href="#gate-postool">PostToolUseゲート</a></li>
+          <li class="toc-h3"><a href="#gate-precommit">PreCommitゲート</a></li>
+          <li><a href="#cicd-integration">CI/CDパイプラインへの組み込み</a></li>
+          <li class="toc-h3"><a href="#github-actions">GitHub Actions</a></li>
+          <li class="toc-h3"><a href="#pre-commit-hook">gitフックとの連携</a></li>
+          <li class="toc-h3"><a href="#policy-as-code">ポリシー・アズ・コード</a></li>
+          <li><a href="#troubleshooting">トラブルシューティング</a></li>
+          <li class="toc-h3"><a href="#timeout-tuning">タイムアウト調整</a></li>
+          <li class="toc-h3"><a href="#selective-hooks">選択的フック有効化</a></li>
+          <li class="toc-h3"><a href="#debugging">デバッグ方法</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="plugin-architecture.html">プラグインアーキテクチャ</a></li>
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+          <li><a href="dual-agent-development.html">デュアルエージェント開発</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="plugin-architecture.html">Claude Codeプラグインアーキテクチャ</a></li>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+        <li><a href="dual-agent-development.html">デュアルエージェント開発</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

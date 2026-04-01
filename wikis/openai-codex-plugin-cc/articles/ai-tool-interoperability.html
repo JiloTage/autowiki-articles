@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIツール間の相互運用性 - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    AIツール間の相互運用性
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">AIツール間の相互運用性</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">AIツール間の相互運用性とは、異なるベンダーが開発したAIコーディング環境が技術的な橋渡しを通じて協調動作する能力を指し、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>はその具体的な実装例として、競合するAI開発ツール市場における協調と競争の共存モデルを体現している。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>AIツール間の相互運用性</b>（AI Tool Interoperability）とは、OpenAI・Anthropic・Google DeepMindなど複数のベンダーが提供するAIコーディング支援ツールが、単一ベンダーのエコシステムに閉じることなく相互に連携・協調動作できる技術的能力および標準化の取り組みを指す概念である。
+      </p>
+      <p>
+        従来のソフトウェア開発ツールでは、ベンダー間の相互運用性はAPIやファイルフォーマット標準を通じて比較的早期に実現されてきた。しかしAIコーディングアシスタントの領域では、各モデルが異なるプロンプト形式・コンテキスト管理・ツール呼び出し仕様を持つため、相互運用の実現は技術的により複雑な課題となっている。
+      </p>
+      <p>
+        この課題に対する実践的な解答として注目を集めているのが、<a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a>を基盤とするプラグイン型統合アプローチである。特に<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>の登場は、競合ベンダーであるOpenAIとAnthropicのツールが実際の開発現場で協調動作できることを実証した画期的な事例として広く論じられている。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <rect width="680" height="340" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">AIツール間の相互運用性：全体像</text>
+
+          <!-- Claude Code (center) -->
+          <ellipse cx="340" cy="170" rx="80" ry="52" fill="#e8f0fe" stroke="#36c" stroke-width="2.5"/>
+          <text x="340" y="163" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Claude Code</text>
+          <text x="340" y="180" text-anchor="middle" font-size="10" fill="#36c">プライマリ環境</text>
+
+          <!-- OpenAI Codex -->
+          <rect x="30" y="55" width="155" height="58" rx="8" fill="#fff" stroke="#10a37f" stroke-width="2"/>
+          <text x="107" y="79" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">OpenAI Codex</text>
+          <text x="107" y="96" text-anchor="middle" font-size="10" fill="#555">コード生成・解析</text>
+          <text x="107" y="109" text-anchor="middle" font-size="9" fill="#10a37f">codex-plugin-cc 経由</text>
+
+          <!-- Dual Agent -->
+          <rect x="30" y="225" width="155" height="58" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="107" y="249" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">デュアルエージェント</text>
+          <text x="107" y="266" text-anchor="middle" font-size="10" fill="#555">並列AI開発環境</text>
+          <text x="107" y="279" text-anchor="middle" font-size="9" fill="#555">dual-agent-development</text>
+
+          <!-- Adversarial Review -->
+          <rect x="495" y="55" width="155" height="58" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="572" y="79" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">対抗的レビュー</text>
+          <text x="572" y="96" text-anchor="middle" font-size="10" fill="#555">品質保証メカニズム</text>
+          <text x="572" y="109" text-anchor="middle" font-size="9" fill="#555">adversarial-code-review</text>
+
+          <!-- Plugin Bridge -->
+          <rect x="495" y="225" width="155" height="58" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+          <text x="572" y="249" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プラグインSDK</text>
+          <text x="572" y="266" text-anchor="middle" font-size="10" fill="#555">統合インターフェース</text>
+          <text x="572" y="279" text-anchor="middle" font-size="9" fill="#ff9800">標準化ブリッジ層</text>
+
+          <!-- Interop label (bottom center) -->
+          <rect x="230" y="290" width="220" height="36" rx="8" fill="#fce4ec" stroke="#e91e63" stroke-width="1.8"/>
+          <text x="340" y="308" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">相互運用プロトコル層</text>
+          <text x="340" y="321" text-anchor="middle" font-size="9" fill="#555">コンテキスト共有 / タスク委譲 / 結果統合</text>
+
+          <!-- Arrows -->
+          <defs>
+            <marker id="ioarr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="ioarr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#10a37f"/>
+            </marker>
+            <marker id="ioarr-o" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#ff9800"/>
+            </marker>
+          </defs>
+          <line x1="185" y1="90" x2="258" y2="145" stroke="#10a37f" stroke-width="2" marker-end="url(#ioarr-g)"/>
+          <line x1="185" y1="254" x2="258" y2="200" stroke="#36c" stroke-width="2" marker-end="url(#ioarr)"/>
+          <line x1="495" y1="90" x2="422" y2="145" stroke="#36c" stroke-width="2" marker-end="url(#ioarr)"/>
+          <line x1="495" y1="254" x2="422" y2="200" stroke="#ff9800" stroke-width="2" marker-end="url(#ioarr-o)"/>
+          <line x1="340" y1="222" x2="340" y2="290" stroke="#e91e63" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ioarr)"/>
+        </svg>
+        <div class="diagram-caption">図1: AIツール間相互運用性の全体像。Claude Codeをプライマリ環境として、OpenAI Codex・デュアルエージェント開発・対抗的レビュー・プラグインSDKが相互運用プロトコル層を介して連携する。</div>
+      </div>
+
+      <h2 id="background">背景と市場環境</h2>
+      <p>
+        2024年から2025年にかけて、AIコーディングアシスタント市場は急速な拡大と再編を経験した。OpenAI Codex・Anthropic Claude Code・GitHub Copilot・Google Gemini Code Assistなど複数の有力ツールが競合する状況となり、開発者は複数ツールを使い分けるか、あるいは特定のエコシステムに集中するかという選択を迫られるようになった。
+      </p>
+
+      <h3 id="background-problem">サイロ化の問題</h3>
+      <p>
+        各AIコーディングツールが独立したサイロとして機能する状況では、以下のような問題が開発現場で顕在化した。
+      </p>
+      <ul>
+        <li><strong>コンテキストの断絶</strong>: あるAIで蓄積したプロジェクトコンテキストを別のAIと共有できず、ツール切り替えのたびにコンテキストを再構築する必要があった</li>
+        <li><strong>ワークフローの分断</strong>: コード生成・レビュー・テスト生成・ドキュメント作成などのフェーズごとに異なるAIへ手動でコンテキストを渡す煩雑さが生じた</li>
+        <li><strong>品質の一元管理困難</strong>: 複数AIの出力を統合・比較するための共通インターフェースが存在せず、品質保証プロセスの自動化が難しかった</li>
+      </ul>
+
+      <h3 id="background-coopetition">協競（コーペティション）の台頭</h3>
+      <p>
+        こうした課題の解決策として注目を集めたのが、競合AIツール間での協調動作、すなわち「協競（コーペティション、Co-opetition）」モデルである。競合他社の強みをユーザーが相互に活用できる仕組みを整備することで、エコシステム全体の価値が向上し、最終的には各プラットフォームのユーザー獲得競争にも好影響をもたらすという考え方である。
+      </p>
+      <p>
+        <a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>はこの協競モデルを体現する最も象徴的な事例であり、競合ベンダーであるOpenAIが公式に Claude Code エコシステムへのプラグインを提供したことは、業界における相互運用性の機運を大きく高めた。
+      </p>
+
+      <h2 id="technical-approach">技術的アプローチ</h2>
+      <p>
+        AIツール間の相互運用を実現するための技術的手法は、現時点では主に三つのアプローチに整理できる。それぞれ異なる層で統合を実現し、用途や深度が異なる。
+      </p>
+
+      <h3 id="approach-plugin">プラグイン型統合</h3>
+      <p>
+        最も普及しているアプローチである。既存のAIコーディング環境がプラグインシステムを提供し、他社AIツールのAPIをそのプラグイン経由で呼び出す方式である。<a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a>はこの方式を採用しており、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>はスラッシュコマンド（<code>/codex:review</code>・<code>/codex:rescue</code>・<code>/codex:adversarial-review</code>）を通じてOpenAI Codexの機能をClaude Code内から直接呼び出せるようにしている。
+      </p>
+      <p>
+        プラグイン型統合の利点は、プライマリ環境のUXを損なわずに外部AIの機能を取り込める点にある。ユーザーはClaude Codeの操作感のままで、Codexの分析能力やレビュー機能を利用できる。
+      </p>
+
+      <h3 id="approach-dual">デュアルエージェント開発</h3>
+      <p>
+        より深い統合を目指すアプローチとして、<a href="dual-agent-development.html">デュアルエージェント開発</a>モデルが提唱されている。これは複数のAIエージェントが同一の開発タスクを並列・協調して処理する形態であり、プラグイン型統合よりもAI間の連携が密になる。
+      </p>
+      <p>
+        デュアルエージェント開発では、たとえばClaude Codeが全体設計と実装を担いつつ、OpenAI Codexがバックグラウンドで同一コードに対する独立したレビューを並行実施するといったワークフローが実現される。各AIの特性（推論の傾向・強み・弱み）が異なることを利用し、相互補完的な品質保証機構として機能させる点が特徴的である。
+      </p>
+
+      <h3 id="approach-protocol">プロトコル層標準化</h3>
+      <p>
+        長期的視点では、AIツール間の相互運用を担保するプロトコル・共通仕様の標準化が不可欠とされている。現在の議論では以下の要素が標準化の主要対象として挙げられている。
+      </p>
+      <ul>
+        <li><strong>コンテキスト転送フォーマット</strong>: プロジェクト構造・会話履歴・コードスニペットを異なるAI間で伝達するための共通データ形式</li>
+        <li><strong>タスク委譲プロトコル</strong>: あるAIが別のAIへサブタスクを委譲し、結果を受け取るための非同期通信仕様（<code>/codex:rescue</code>のjob_id方式がその先行実装例）</li>
+        <li><strong>信頼スコアと帰属管理</strong>: 複数AIが関与した成果物において、各AIの貢献範囲・信頼度を追跡するメタデータ標準</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 270" width="660" height="270">
+          <rect width="660" height="270" fill="#f8f9fa" rx="8"/>
+          <text x="330" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">3層の統合アプローチ比較</text>
+
+          <!-- Layer 1: Plugin -->
+          <rect x="30" y="50" width="185" height="175" rx="8" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="122" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プラグイン型統合</text>
+          <line x1="50" y1="82" x2="195" y2="82" stroke="#36c" stroke-width="1"/>
+          <text x="122" y="104" text-anchor="middle" font-size="10" fill="#202122">即時実装可能</text>
+          <text x="122" y="122" text-anchor="middle" font-size="10" fill="#202122">UXの継続性を保持</text>
+          <text x="122" y="140" text-anchor="middle" font-size="10" fill="#202122">スラッシュコマンド方式</text>
+          <text x="122" y="165" text-anchor="middle" font-size="9" fill="#36c">例: openai/codex-plugin-cc</text>
+          <text x="122" y="180" text-anchor="middle" font-size="9" fill="#36c">/codex:review</text>
+          <text x="122" y="195" text-anchor="middle" font-size="9" fill="#36c">/codex:rescue</text>
+          <text x="122" y="210" text-anchor="middle" font-size="9" fill="#36c">/codex:adversarial-review</text>
+
+          <!-- Layer 2: Dual Agent -->
+          <rect x="237" y="50" width="185" height="175" rx="8" fill="#e8f5e9" stroke="#10a37f" stroke-width="2"/>
+          <text x="329" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">デュアルエージェント</text>
+          <line x1="257" y1="82" x2="402" y2="82" stroke="#10a37f" stroke-width="1"/>
+          <text x="329" y="104" text-anchor="middle" font-size="10" fill="#202122">並列処理による高品質化</text>
+          <text x="329" y="122" text-anchor="middle" font-size="10" fill="#202122">AI間の相互補完</text>
+          <text x="329" y="140" text-anchor="middle" font-size="10" fill="#202122">非同期タスク委譲</text>
+          <text x="329" y="165" text-anchor="middle" font-size="9" fill="#10a37f">例: デュアルエージェント開発</text>
+          <text x="329" y="180" text-anchor="middle" font-size="9" fill="#10a37f">Claude Code（設計・実装）</text>
+          <text x="329" y="195" text-anchor="middle" font-size="9" fill="#10a37f">+ Codex（並列レビュー）</text>
+          <text x="329" y="210" text-anchor="middle" font-size="9" fill="#10a37f">同時並行動作</text>
+
+          <!-- Layer 3: Protocol -->
+          <rect x="444" y="50" width="185" height="175" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+          <text x="536" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プロトコル標準化</text>
+          <line x1="464" y1="82" x2="609" y2="82" stroke="#ff9800" stroke-width="1"/>
+          <text x="536" y="104" text-anchor="middle" font-size="10" fill="#202122">長期的互換性の保証</text>
+          <text x="536" y="122" text-anchor="middle" font-size="10" fill="#202122">ベンダー中立な仕様</text>
+          <text x="536" y="140" text-anchor="middle" font-size="10" fill="#202122">業界標準としての確立</text>
+          <text x="536" y="165" text-anchor="middle" font-size="9" fill="#ff9800">例: コンテキスト転送</text>
+          <text x="536" y="180" text-anchor="middle" font-size="9" fill="#ff9800">タスク委譲プロトコル</text>
+          <text x="536" y="195" text-anchor="middle" font-size="9" fill="#ff9800">信頼スコア管理</text>
+          <text x="536" y="210" text-anchor="middle" font-size="9" fill="#ff9800">（標準化進行中）</text>
+
+          <!-- Maturity axis -->
+          <line x1="30" y1="240" x2="629" y2="240" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="30" y="257" font-size="9" fill="#555">即時実装可能 ←</text>
+          <text x="480" y="257" font-size="9" fill="#555">→ 長期・深度の高い統合</text>
+        </svg>
+        <div class="diagram-caption">図2: 相互運用アプローチの3層比較。左から右へ、実装の即時性から長期的な深度へと統合の性質が変化する。</div>
+      </div>
+
+      <h2 id="codex-plugin-as-case">codex-plugin-ccが示す実装モデル</h2>
+      <p>
+        <a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>は、AIツール間相互運用性の具体的な実装例として詳細に分析する価値を持つ。このプラグインは単なる機能統合にとどまらず、競合AI開発ツール間の協働がいかなる形で商用実装されうるかを示すリファレンス実装となっている。
+      </p>
+
+      <h3 id="codex-interop-features">相互運用機能の実装詳細</h3>
+      <p>
+        codex-plugin-ccが提供する相互運用機能は、以下の三つのスラッシュコマンドに集約されている。
+      </p>
+      <ul>
+        <li><strong><code>/codex:review</code></strong>: Claude Codeが生成したコードをOpenAI Codexエンジンで独立評価する機能。異なるモデルによる二重レビューにより、単一モデルでは見逃しやすいバグや設計上の問題を検出できる</li>
+        <li><strong><code>/codex:rescue</code></strong>: Claude Codeが行き詰まったデバッグ・調査タスクをOpenAI Codexにバックグラウンド委譲する機能。job_idで管理される非同期実行により、メイン開発を継続しながら並行してCodexが問題解析を行う</li>
+        <li><strong><code>/codex:adversarial-review</code></strong>: <a href="adversarial-code-review.html">対抗的コードレビュー</a>として、設計決定や実装選択に積極的に疑問を投げかける批判的評価を実施する。同一チームメンバーが行う通常のコードレビューとは異なる観点から品質問題を発見する</li>
+      </ul>
+
+      <h3 id="codex-context-bridge">コンテキストブリッジの仕組み</h3>
+      <p>
+        claude-code-plugin-ccが技術的に解決した最大の課題は、Claude CodeとOpenAI Codex間でのコンテキスト転送である。両モデルは異なるプロンプト形式・システムプロンプト構造・ツール仕様を持つが、プラグインのブリッジ層がこれらの差異を吸収する変換ロジックを担う。
+      </p>
+      <p>
+        具体的には、Claude Codeの現在のプロジェクトコンテキスト（開いているファイル・会話履歴・直前の操作）をCodexが解釈可能な形式に変換し、Codex APIへ送信する。Codexからの応答はClaude Codeのレスポンス形式に変換されてユーザーに提示される。この双方向変換がシームレスに動作することで、ユーザーは異なるAIを使用していることを意識せずに済む設計となっている。
+      </p>
+
+      <h2 id="competitive-landscape">競争と協調の共存：市場力学</h2>
+      <p>
+        AIツール間の相互運用性は純粋な技術的課題であると同時に、市場競争の文脈においても重要な戦略的含意を持つ。OpenAIがClaude Code向けプラグインを公式提供した背景には、競合エコシステムへの参入という表面上の矛盾を超えた合理的判断が存在する。
+      </p>
+
+      <h3 id="landscape-platform-effects">プラットフォーム効果と相互便益</h3>
+      <p>
+        Claude Codeエコシステムへの公式参入によって、OpenAIは以下の便益を享受できる。
+      </p>
+      <ul>
+        <li><strong>ユーザーベースへのリーチ拡大</strong>: Claude Codeを主な開発環境として使用する開発者に対し、Codexの機能を体験させる機会を獲得できる</li>
+        <li><strong>製品フィードバックの収集</strong>: 多様な開発文脈での実際の使用データをフィードバックとして得られる</li>
+        <li><strong>ブランド認知の向上</strong>: 競合プラットフォームの利用者にもCodexブランドを浸透させられる</li>
+      </ul>
+      <p>
+        一方でAnthropicおよびClaude Codeエコシステムにとっても、競合ベンダーの公式参入はプラットフォームとしての中立性・成熟度を示す指標となり、新規ユーザーの獲得およびエンタープライズへの訴求において強力なシグナルとなっている。
+      </p>
+
+      <h3 id="landscape-neutral-platform">中立プラットフォームとしての位置づけ</h3>
+      <p>
+        複数の競合AIプラグインが共存する<a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a>は、開発者にとって「AI選択の自由」を担保する中立プラットフォームとして機能しうる。ユーザーはClaude Code内から複数のAIモデルを選択・比較しながら使用できるため、特定ベンダーへの強いロックインが回避される。
+      </p>
+      <p>
+        この構造はVS CodeがさまざまなLSP（Language Server Protocol）実装と共存する状況に類似しており、エコシステムの開放性がプラットフォームの価値を高めるネットワーク効果と同様のメカニズムが働いている。
+      </p>
+
+      <h2 id="challenges-prospects">課題と今後の展望</h2>
+      <p>
+        AIツール間の相互運用性は急速に進展しているものの、いくつかの技術的・制度的課題が残存している。
+      </p>
+
+      <h3 id="challenges-technical">技術的課題</h3>
+      <ul>
+        <li><strong>コンテキストウィンドウの不一致</strong>: 各モデルが扱えるコンテキスト長が異なるため、コンテキスト転送時に情報の切り捨てや圧縮が必要になる場面がある</li>
+        <li><strong>レイテンシの増加</strong>: 外部AIへのAPI呼び出しが加わることで、ローカル処理と比較して応答時間が増大する。リアルタイムのコーディング補助には許容しにくいレイテンシが生じる可能性がある</li>
+        <li><strong>バージョン互換性管理</strong>: 各AIモデルのAPIバージョンアップに伴うプラグインの追従・テスト負担が恒常的に発生する</li>
+        <li><strong>セキュリティ・プライバシー境界</strong>: 社内機密コードを外部AIのAPIに送信することへの企業側のリスク管理ポリシーと相互運用機能の利便性のトレードオフ</li>
+      </ul>
+
+      <h3 id="challenges-standardization">標準化の展望</h3>
+      <p>
+        中長期的には、AIツール間の相互運用を担保する業界標準の策定が不可欠となる。現在いくつかの方向性で標準化の議論が進んでいる。
+      </p>
+      <p>
+        Claude Code SDKは事実上のデファクトスタンダードとしての地位を築きつつあるが、真の相互運用性の実現には特定ベンダーの仕様に依拠しない中立的な標準が必要との見方も強い。W3CがHTML標準を策定したように、AIツール相互運用に特化した業界団体や標準化組織の主導による仕様策定が今後の焦点となる可能性がある。
+      </p>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — 相互運用性の実装例</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー（Adversarial Code Review）</a></li>
+        <li><a href="dual-agent-development.html">デュアルエージェント開発</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#background">背景と市場環境</a></li>
+          <li class="toc-h3"><a href="#background-problem">サイロ化の問題</a></li>
+          <li class="toc-h3"><a href="#background-coopetition">協競（コーペティション）の台頭</a></li>
+          <li><a href="#technical-approach">技術的アプローチ</a></li>
+          <li class="toc-h3"><a href="#approach-plugin">プラグイン型統合</a></li>
+          <li class="toc-h3"><a href="#approach-dual">デュアルエージェント開発</a></li>
+          <li class="toc-h3"><a href="#approach-protocol">プロトコル層標準化</a></li>
+          <li><a href="#codex-plugin-as-case">codex-plugin-ccが示す実装モデル</a></li>
+          <li class="toc-h3"><a href="#codex-interop-features">相互運用機能の実装詳細</a></li>
+          <li class="toc-h3"><a href="#codex-context-bridge">コンテキストブリッジの仕組み</a></li>
+          <li><a href="#competitive-landscape">競争と協調の共存：市場力学</a></li>
+          <li class="toc-h3"><a href="#landscape-platform-effects">プラットフォーム効果と相互便益</a></li>
+          <li class="toc-h3"><a href="#landscape-neutral-platform">中立プラットフォームとしての位置づけ</a></li>
+          <li><a href="#challenges-prospects">課題と今後の展望</a></li>
+          <li class="toc-h3"><a href="#challenges-technical">技術的課題</a></li>
+          <li class="toc-h3"><a href="#challenges-standardization">標準化の展望</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a></li>
+          <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+          <li><a href="dual-agent-development.html">デュアルエージェント開発</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="claude-code-plugin-ecosystem.html">Claude Codeプラグインエコシステム</a></li>
+        <li><a href="adversarial-code-review.html">対抗的コードレビュー</a></li>
+        <li><a href="dual-agent-development.html">デュアルエージェント開発</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

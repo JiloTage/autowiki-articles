@@ -1,0 +1,232 @@
+{
+  "nodes": [
+    {
+      "id": "openai-codex-plugin-cc",
+      "title": "openai/codex-plugin-cc",
+      "url": "articles/openai-codex-plugin-cc.html",
+      "summary": "OpenAIが公式リリースしたClaude Code向けプラグイン。Codexの機能をClaude Code内から直接呼び出せるブリッジツールで、コードレビュー・タスク委譲・バックグラウンド実行などのスラッシュコマンドを提供する。",
+      "is_root": false
+    },
+    {
+      "id": "codex-rescue",
+      "title": "codex:rescue — タスク委譲機能",
+      "url": "articles/codex-rescue.html",
+      "summary": "Claude CodeからOpenAI Codexにバグ修正・調査タスクをバックグラウンドで委譲するスラッシュコマンド。job_idで管理される非同期実行により、ユーザーはメインの開発作業を継続しながら並列でデバッグタスクを処理できる。",
+      "is_root": false
+    },
+    {
+      "id": "plugin-marketplace",
+      "title": "Claude Codeプラグインマーケットプレイス",
+      "url": "articles/plugin-marketplace.html",
+      "summary": "Claude Codeプラグインマーケットプレイスは、/plugin marketplaceコマンドを通じてサードパーティ・公式プラグインを検索・インストール・管理できる統合配布基盤であり、openai/codex-plugin-ccをはじめとする多数のプラグインがここから配布される。",
+      "is_root": false
+    },
+    {
+      "id": "plugin-architecture",
+      "title": "Claude Codeプラグインアーキテクチャ",
+      "url": "articles/plugin-architecture.html",
+      "summary": "Claude Codeプラグインシステムの技術的構造を解説する記事。plugin.jsonマニフェスト、プラグインサーバープロセス、フックシステム統合、スラッシュコマンド定義の仕組みをopenai/codex-plugin-ccの実装を例に紹介する。",
+      "is_root": false
+    },
+    {
+      "id": "adversarial-code-review",
+      "title": "対抗的コードレビュー（Adversarial Code Review）",
+      "url": "articles/adversarial-code-review.html",
+      "summary": "対抗的コードレビュー（Adversarial Code Review）は、openai/codex-plugin-ccプラグインの /codex:adversarial-review コマンドが実装するレビュー手法であり、選択した実装や設計決定に積極的に疑問を投げかけることでソフトウェアの品質と堅牢性を高める技法である。",
+      "is_root": false
+    },
+    {
+      "id": "claude-code-plugin-ecosystem",
+      "title": "Claude Codeプラグインエコシステム",
+      "url": "articles/claude-code-plugin-ecosystem.html",
+      "summary": "Claude Codeプラグインエコシステムは、AnthropicのAIコーディングアシスタントClaude Codeを中心に形成されたサードパーティ拡張機能の生態系であり、マーケットプレイス、公式SDK、サードパーティプラグイン、および競合AIツールとの相互運用基盤を包括する。",
+      "is_root": false
+    },
+    {
+      "id": "ai-tool-interoperability",
+      "title": "AIツール間の相互運用性",
+      "url": "articles/ai-tool-interoperability.html",
+      "summary": "AIツール間の相互運用性とは、異なるベンダーが開発したAIコーディング環境が技術的な橋渡しを通じて協調動作する能力を指し、openai/codex-plugin-ccはその具体的な実装例として、競合するAI開発ツール市場における協調と競争の共存モデルを体現している。",
+      "is_root": false
+    },
+    {
+      "id": "codex-status-result",
+      "title": "codex:status / codex:result — ジョブ管理コマンド",
+      "url": "articles/codex-status-result.html",
+      "summary": "codex:status および codex:result は openai/codex-plugin-cc が提供するバックグラウンドジョブの進行状況監視・結果取得・キャンセル操作を担うコマンドペアであり、codex:rescue などが生成した非同期ジョブを追跡管理するデュアルエージェント開発ワークフローの中核をなす。",
+      "is_root": false
+    },
+    {
+      "id": "codex-hook-integration",
+      "title": "Claude Codeフックシステムとプラグイン統合",
+      "url": "articles/codex-hook-integration.html",
+      "summary": "Claude Codeのフックシステム（PreToolUse、PostToolUseなど）を活用してcodex-plugin-ccが実現する自動コードレビューゲートの設置方法を解説する。フックの種類・設定・CI/CDパイプラインへの組み込みパターンを包括的に説明する。",
+      "is_root": false
+    },
+    {
+      "id": "dual-agent-development",
+      "title": "デュアルエージェント開発パターン",
+      "url": "articles/dual-agent-development.html",
+      "summary": "デュアルエージェント開発パターンとは、Claude CodeとOpenAI Codexを同時並列活用することで、タスク分割・委譲・並列実行を実現する統合開発手法であり、openai/codex-plugin-ccが提供するインフラを通じてエージェント間コンテキスト共有と相互補完的な品質保証を体系的に達成する。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "openai-codex-plugin-cc",
+      "target": "codex-rescue"
+    },
+    {
+      "source": "openai-codex-plugin-cc",
+      "target": "plugin-marketplace"
+    },
+    {
+      "source": "openai-codex-plugin-cc",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "openai-codex-plugin-cc",
+      "target": "claude-code-plugin-ecosystem"
+    },
+    {
+      "source": "openai-codex-plugin-cc",
+      "target": "adversarial-code-review"
+    },
+    {
+      "source": "codex-rescue",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "codex-rescue",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "codex-rescue",
+      "target": "codex-status-result"
+    },
+    {
+      "source": "plugin-marketplace",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "plugin-marketplace",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "plugin-marketplace",
+      "target": "claude-code-plugin-ecosystem"
+    },
+    {
+      "source": "plugin-architecture",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "plugin-architecture",
+      "target": "plugin-marketplace"
+    },
+    {
+      "source": "plugin-architecture",
+      "target": "claude-code-plugin-ecosystem"
+    },
+    {
+      "source": "plugin-architecture",
+      "target": "codex-hook-integration"
+    },
+    {
+      "source": "adversarial-code-review",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "adversarial-code-review",
+      "target": "codex-rescue"
+    },
+    {
+      "source": "adversarial-code-review",
+      "target": "ai-tool-interoperability"
+    },
+    {
+      "source": "claude-code-plugin-ecosystem",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "claude-code-plugin-ecosystem",
+      "target": "plugin-marketplace"
+    },
+    {
+      "source": "claude-code-plugin-ecosystem",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "claude-code-plugin-ecosystem",
+      "target": "ai-tool-interoperability"
+    },
+    {
+      "source": "ai-tool-interoperability",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "ai-tool-interoperability",
+      "target": "claude-code-plugin-ecosystem"
+    },
+    {
+      "source": "ai-tool-interoperability",
+      "target": "adversarial-code-review"
+    },
+    {
+      "source": "ai-tool-interoperability",
+      "target": "dual-agent-development"
+    },
+    {
+      "source": "codex-status-result",
+      "target": "codex-rescue"
+    },
+    {
+      "source": "codex-status-result",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "codex-status-result",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "codex-status-result",
+      "target": "dual-agent-development"
+    },
+    {
+      "source": "codex-hook-integration",
+      "target": "plugin-architecture"
+    },
+    {
+      "source": "codex-hook-integration",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "codex-hook-integration",
+      "target": "adversarial-code-review"
+    },
+    {
+      "source": "codex-hook-integration",
+      "target": "dual-agent-development"
+    },
+    {
+      "source": "dual-agent-development",
+      "target": "openai-codex-plugin-cc"
+    },
+    {
+      "source": "dual-agent-development",
+      "target": "codex-rescue"
+    },
+    {
+      "source": "dual-agent-development",
+      "target": "codex-status-result"
+    },
+    {
+      "source": "dual-agent-development",
+      "target": "codex-hook-integration"
+    },
+    {
+      "source": "dual-agent-development",
+      "target": "ai-tool-interoperability"
+    }
+  ]
+}

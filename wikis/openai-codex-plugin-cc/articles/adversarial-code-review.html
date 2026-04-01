@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>対抗的コードレビュー（Adversarial Code Review） - openai/codex-plugin-cc Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">openai/codex-plugin-cc Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">openai/codex-plugin-cc Wiki</a> &gt;
+    対抗的コードレビュー（Adversarial Code Review）
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">対抗的コードレビュー（Adversarial Code Review）</h1>
+      <div class="article-meta">最終更新: 2026-04-01</div>
+      <div class="article-summary">対抗的コードレビュー（Adversarial Code Review）は、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインの <code>/codex:adversarial-review</code> コマンドが実装するコードレビュー手法であり、選択した実装や設計決定に積極的に疑問を投げかけることでソフトウェアの品質と堅牢性を高める技法である。</div>
+
+      <h2 id="overview">概要</h2>
+      <p>
+        <b>対抗的コードレビュー</b>（Adversarial Code Review）とは、コードレビュアーが意図的に批判的・懐疑的な立場を取り、実装者の判断や設計決定に対して積極的に異議を唱えることで、潜在的な欠陥や改善余地を顕在化させるレビュー技法である。通常のコードレビューが変更点の正確性や規約準拠を確認する作業であるのに対し、対抗的コードレビューは「なぜこの設計を選んだのか」「別のアプローチの方が優れていないか」「この前提は常に成立するか」といった根本的な問いを投げかける点で本質的に異なる。
+      </p>
+      <p>
+        <a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインにおいては、<code>/codex:adversarial-review</code>コマンドとして実装されており、OpenAI Codexの推論能力を活用して自動化された対抗的分析を行う。このコマンドはClaude Code上で動作し、選択されたコードスニペットまたはファイル全体を対象として、Codexが「設計上の敵」として振る舞い、実装の弱点を列挙する。
+      </p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280">
+          <rect width="640" height="280" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="320" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">対抗的コードレビューの概念図</text>
+
+          <!-- Developer box -->
+          <rect x="40" y="70" width="140" height="70" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="110" y="101" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">開発者</text>
+          <text x="110" y="119" text-anchor="middle" font-size="10" fill="#555">実装・設計決定</text>
+
+          <!-- Code box -->
+          <rect x="250" y="70" width="140" height="70" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="320" y="96" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">コード / 設計</text>
+          <text x="320" y="114" text-anchor="middle" font-size="10" fill="#555">/codex:adversarial-review</text>
+          <text x="320" y="128" text-anchor="middle" font-size="10" fill="#555">で選択</text>
+
+          <!-- Codex adversary box -->
+          <rect x="460" y="55" width="150" height="100" rx="8" fill="#fce8e8" stroke="#c0392b" stroke-width="2"/>
+          <text x="535" y="83" text-anchor="middle" font-size="12" font-weight="bold" fill="#c0392b">Codex（対抗役）</text>
+          <text x="535" y="101" text-anchor="middle" font-size="10" fill="#555">・設計を批判</text>
+          <text x="535" y="116" text-anchor="middle" font-size="10" fill="#555">・前提に疑問</text>
+          <text x="535" y="131" text-anchor="middle" font-size="10" fill="#555">・代替案を提示</text>
+
+          <!-- Arrows -->
+          <defs>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr3r" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto">
+              <path d="M8,0 L8,6 L0,3 z" fill="#c0392b"/>
+            </marker>
+          </defs>
+          <line x1="180" y1="105" x2="250" y2="105" stroke="#36c" stroke-width="2" marker-end="url(#arr3)"/>
+          <line x1="390" y1="100" x2="460" y2="100" stroke="#36c" stroke-width="2" marker-end="url(#arr3)"/>
+
+          <!-- Feedback arrow (bottom, returning) -->
+          <path d="M535,155 Q535,210 320,210 Q105,210 110,155" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arr3r)"/>
+          <text x="320" y="230" text-anchor="middle" font-size="10" fill="#c0392b">批判的フィードバック（疑問・指摘・代替案）</text>
+
+          <!-- Result box -->
+          <rect x="200" y="248" width="240" height="26" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="320" y="265" text-anchor="middle" font-size="11" fill="#202122">品質・堅牢性の向上</text>
+        </svg>
+        <div class="diagram-caption">図1: 対抗的コードレビューのフロー。Codexが「設計上の敵」として批判的フィードバックを返す。</div>
+      </div>
+
+      <h2 id="background">背景と理論的根拠</h2>
+      <p>
+        対抗的コードレビューの考え方は、セキュリティ分野における「レッドチーミング」（Red Teaming）の概念を一般的なソフトウェア開発に応用したものである。レッドチームは組織内で攻撃者の視点を持つ役割を担い、防御側が気づかない脆弱性を発見する。これと同様に、対抗的コードレビューはコードの「攻撃者」として振る舞い、実装者自身が見落としがちな問題を発見することを目的とする。
+      </p>
+      <p>
+        従来のコードレビューでは、レビュアーが実装者と同じ文脈・前提を共有しているため、共通の思い込みによる盲点が生まれやすい。対抗的アプローチはこの問題を意図的に回避するために、「現状の設計に対して最も有力な反論は何か」という問いから出発する。
+      </p>
+
+      <h3 id="redteaming">レッドチーミングとの関係</h3>
+      <p>
+        セキュリティエンジニアリングにおけるレッドチームは、組織のシステムに対して敵対的な攻撃シナリオを実施し、防御の弱点を発見する役割を持つ。対抗的コードレビューはこれをコードレベルに適用し、以下の問いを系統立てて行う：
+      </p>
+      <ul>
+        <li>このAPIは悪意あるインプットに対して堅牢か</li>
+        <li>エラーハンドリングは全ての失敗パターンを網羅しているか</li>
+        <li>スケーラビリティの前提は現実的か</li>
+        <li>この抽象化は将来の変更要求に耐えられるか</li>
+      </ul>
+
+      <h3 id="cognitive-bias">認知バイアスへの対処</h3>
+      <p>
+        実装者はしばしば確証バイアス（Confirmation Bias）に陥り、自分の設計を裏付ける情報を優先的に収集する傾向がある。対抗的コードレビューは、AI（Codex）を利用することでこの人間的バイアスを排除し、設計に対する中立的かつ包括的な批判を自動生成することを可能にする。
+      </p>
+
+      <h2 id="command">コマンドの使い方</h2>
+      <p>
+        <code>/codex:adversarial-review</code>コマンドは<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインのインストール後、Claude Code上で利用可能になる。コマンドはファイル全体またはエディタで選択した範囲を対象として実行できる。
+      </p>
+
+      <h3 id="usage-modes">動作モード</h3>
+      <p>コマンドはいくつかのオプションを受け付ける：</p>
+      <ul>
+        <li><code>/codex:adversarial-review</code> — 現在開いているファイル全体を対象に実行</li>
+        <li><code>/codex:adversarial-review --focus security</code> — セキュリティ観点に絞った対抗的レビュー</li>
+        <li><code>/codex:adversarial-review --focus performance</code> — パフォーマンス観点に絞った対抗的レビュー</li>
+        <li><code>/codex:adversarial-review --focus design</code> — 設計・アーキテクチャ観点に絞った対抗的レビュー</li>
+        <li><code>/codex:adversarial-review --depth deep</code> — より詳細な分析（処理時間は長くなる）</li>
+      </ul>
+
+      <h3 id="output-format">出力形式</h3>
+      <p>
+        コマンドの出力は構造化されたMarkdown形式で、以下のセクションから構成される：
+      </p>
+      <ul>
+        <li><strong>設計上の疑問点</strong>: 現在の設計が抱える根本的な問題提起</li>
+        <li><strong>潜在的リスク</strong>: 実装が失敗しうる具体的なシナリオ</li>
+        <li><strong>代替アプローチ</strong>: 問題を解決しうる別の実装方針</li>
+        <li><strong>改善提案</strong>: 現在の実装を維持しながら堅牢性を高める具体的な変更案</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 320" width="620" height="320">
+          <rect width="620" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="310" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">/codex:adversarial-review 出力構造</text>
+
+          <!-- Output sections -->
+          <!-- Section 1 -->
+          <rect x="30" y="50" width="260" height="80" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="160" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">設計上の疑問点</text>
+          <text x="160" y="93" text-anchor="middle" font-size="10" fill="#555">「なぜこの設計を選んだのか？」</text>
+          <text x="160" y="108" text-anchor="middle" font-size="10" fill="#555">根本的な設計判断への問いかけ</text>
+          <text x="160" y="121" text-anchor="middle" font-size="10" fill="#555">前提条件の妥当性検証</text>
+
+          <!-- Section 2 -->
+          <rect x="330" y="50" width="260" height="80" rx="6" fill="#fce8e8" stroke="#c0392b" stroke-width="1.5"/>
+          <text x="460" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">潜在的リスク</text>
+          <text x="460" y="93" text-anchor="middle" font-size="10" fill="#555">エッジケースでの失敗シナリオ</text>
+          <text x="460" y="108" text-anchor="middle" font-size="10" fill="#555">スケーラビリティ上の限界</text>
+          <text x="460" y="121" text-anchor="middle" font-size="10" fill="#555">セキュリティ上の脆弱性</text>
+
+          <!-- Section 3 -->
+          <rect x="30" y="170" width="260" height="80" rx="6" fill="#e8f5e9" stroke="#10a37f" stroke-width="1.5"/>
+          <text x="160" y="195" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">代替アプローチ</text>
+          <text x="160" y="213" text-anchor="middle" font-size="10" fill="#555">別の実装パターンの提案</text>
+          <text x="160" y="228" text-anchor="middle" font-size="10" fill="#555">既存ライブラリ・フレームワーク活用案</text>
+          <text x="160" y="243" text-anchor="middle" font-size="10" fill="#555">アーキテクチャレベルの再考案</text>
+
+          <!-- Section 4 -->
+          <rect x="330" y="170" width="260" height="80" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="460" y="195" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">改善提案</text>
+          <text x="460" y="213" text-anchor="middle" font-size="10" fill="#555">現実装を維持した堅牢化策</text>
+          <text x="460" y="228" text-anchor="middle" font-size="10" fill="#555">テスト追加・エラーハンドリング強化</text>
+          <text x="460" y="243" text-anchor="middle" font-size="10" fill="#555">コード品質メトリクスの改善点</text>
+
+          <!-- Bottom summary -->
+          <rect x="120" y="280" width="380" height="28" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="310" y="298" text-anchor="middle" font-size="11" fill="#202122">Markdown形式で構造化出力 → Claude Codeエディタに表示</text>
+        </svg>
+        <div class="diagram-caption">図2: /codex:adversarial-review コマンドの出力構造。4つのセクションで体系的な批判的分析を提供する。</div>
+      </div>
+
+      <h2 id="comparison">通常レビューとの比較</h2>
+      <p>
+        <code>/codex:review</code>（標準レビュー）と<code>/codex:adversarial-review</code>（対抗的レビュー）は、同じ<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>プラグインが提供するコマンドだが、その目的と振る舞いは根本的に異なる。
+      </p>
+
+      <h3 id="standard-vs-adversarial">標準レビューと対抗的レビューの違い</h3>
+      <ul>
+        <li><strong>標準レビュー (<code>/codex:review</code>)</strong>: コードの正確性・規約準拠・バグの有無を確認する。実装者の意図を尊重し、その意図が正しく実現されているかを検証する。</li>
+        <li><strong>対抗的レビュー (<code>/codex:adversarial-review</code>)</strong>: 実装者の意図そのものに疑問を投げかける。「その意図は本当に正しいのか」「その設計判断は最善か」を問う。</li>
+      </ul>
+      <p>
+        実際の開発ワークフローでは、まず<code>/codex:review</code>で基本的な品質チェックを行い、重要な機能や大きな設計変更には<code>/codex:adversarial-review</code>を追加で実施するという使い分けが推奨される。
+      </p>
+
+      <h3 id="when-to-use">対抗的レビューの適切な使用場面</h3>
+      <p>以下の場面では対抗的レビューが特に有効である：</p>
+      <ul>
+        <li>新しいアーキテクチャパターンの導入時</li>
+        <li>パフォーマンスに影響する大きな実装変更時</li>
+        <li>セキュリティ要件の高い機能の実装時</li>
+        <li>長期的なメンテナンスが必要なコアコンポーネントの修正時</li>
+        <li>チームのコンセンサスが十分に形成されていない設計決定の実装時</li>
+      </ul>
+
+      <h2 id="integration">他機能との連携</h2>
+      <p>
+        対抗的コードレビューは、<a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a>の他のコマンドと組み合わせて使用することで、より強力なコード品質向上ワークフローを構築できる。
+      </p>
+
+      <h3 id="with-rescue">codex:rescue との連携</h3>
+      <p>
+        <a href="codex-rescue.html">codex:rescue</a>コマンドと連携することで、対抗的レビューで発見された問題をそのままCodexにバックグラウンドで修正させることができる。具体的なワークフローは以下の通りである：
+      </p>
+      <ol>
+        <li><code>/codex:adversarial-review</code>を実行し、設計上の問題点を一覧化する</li>
+        <li>対処すべき問題を選択し、<a href="codex-rescue.html">codex:rescue</a>にタスクとして委譲する</li>
+        <li><code>/codex:status</code>でバックグラウンド修正の進行を確認する</li>
+        <li><code>/codex:result</code>で修正内容を取得し、レビューする</li>
+      </ol>
+
+      <h3 id="with-ai-tools">AIツール間の相互運用性</h3>
+      <p>
+        <code>/codex:adversarial-review</code>が生成した批判的フィードバックは、<a href="ai-tool-interoperability.html">AIツール間の相互運用性</a>の観点から、Claude Code自身のコード修正機能と組み合わせることも可能である。Codexが発見した問題に対してClaude Codeが修正案を生成し、その修正案を再度Codexが対抗的に評価するという、ダブルチェックループを形成できる。
+      </p>
+
+      <h2 id="limitations">制限事項と注意点</h2>
+      <p>
+        対抗的コードレビューには固有の制限事項が存在する。以下の点を理解した上で適切に使用することが重要である。
+      </p>
+      <ul>
+        <li><strong>批判の過剰生成</strong>: 対抗的なスタンスを取るため、実際には問題のないコードに対しても批判を生成することがある。すべての指摘を無条件に受け入れるのではなく、実装者が文脈を考慮して判断する必要がある。</li>
+        <li><strong>コンテキストの欠如</strong>: Codexはプロジェクト全体の背景を把握していない場合があり、ビジネス要件や技術的制約に基づいた意図的な設計判断を「問題」として指摘することがある。</li>
+        <li><strong>処理時間</strong>: 標準レビューと比較して深い分析を行うため、特に<code>--depth deep</code>オプション使用時は処理時間が長くなる。大規模なファイルへの適用には注意が必要である。</li>
+        <li><strong>費用</strong>: OpenAI APIキーを使用する場合、対抗的レビューは標準レビューよりも多くのトークンを消費するため、APIコストが増加する可能性がある。</li>
+      </ul>
+
+      <h2 id="references">関連項目</h2>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc — プラグイン概要</a></li>
+        <li><a href="codex-rescue.html">codex:rescue — タスク委譲機能の詳細</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#background">背景と理論的根拠</a></li>
+          <li class="toc-h3"><a href="#redteaming">レッドチーミングとの関係</a></li>
+          <li class="toc-h3"><a href="#cognitive-bias">認知バイアスへの対処</a></li>
+          <li><a href="#command">コマンドの使い方</a></li>
+          <li class="toc-h3"><a href="#usage-modes">動作モード</a></li>
+          <li class="toc-h3"><a href="#output-format">出力形式</a></li>
+          <li><a href="#comparison">通常レビューとの比較</a></li>
+          <li class="toc-h3"><a href="#standard-vs-adversarial">標準レビューと対抗的レビューの違い</a></li>
+          <li class="toc-h3"><a href="#when-to-use">対抗的レビューの適切な使用場面</a></li>
+          <li><a href="#integration">他機能との連携</a></li>
+          <li class="toc-h3"><a href="#with-rescue">codex:rescue との連携</a></li>
+          <li class="toc-h3"><a href="#with-ai-tools">AIツール間の相互運用性</a></li>
+          <li><a href="#limitations">制限事項と注意点</a></li>
+          <li><a href="#references">関連項目</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+          <li><a href="codex-rescue.html">codex:rescue</a></li>
+          <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openai-codex-plugin-cc.html">openai/codex-plugin-cc</a></li>
+        <li><a href="codex-rescue.html">codex:rescue</a></li>
+        <li><a href="ai-tool-interoperability.html">AIツール間の相互運用性</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
