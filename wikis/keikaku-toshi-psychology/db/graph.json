@@ -1,0 +1,154 @@
+{
+  "nodes": [
+    {
+      "id": "tsukuba-keikaku-toshi",
+      "title": "つくば市：日本の計画都市",
+      "url": "articles/tsukuba-keikaku-toshi.html",
+      "summary": "茨城県に位置するつくば市は、1960〜70年代に国家プロジェクトとして建設された日本屈指の計画都市。その徹底した計画性が住民に特有の心理的不快感をもたらすとの指摘がある。",
+      "is_root": false
+    },
+    {
+      "id": "keikaku-toshi-no-shinri",
+      "title": "計画都市が引き起こす心理的不快感",
+      "url": "articles/keikaku-toshi-no-shinri.html",
+      "summary": "計画都市では都市設計者の意図が随所に刻み込まれており、住民はエージェンシーの侵食感を覚える。アフォーダンス理論や自己決定理論から、計画都市特有の心理的不快感のメカニズムを解説する。",
+      "is_root": false
+    },
+    {
+      "id": "toshi-sekkei-to-jiritsusei",
+      "title": "都市設計と自律性感覚",
+      "url": "articles/toshi-sekkei-to-jiritsusei.html",
+      "summary": "都市設計は人間の行動を方向付け、自律性の感覚を制約する。ナッジ理論、選択の建築学、他律性のストレスという観点から、建造環境が心理的自律性に与える影響を考察する。",
+      "is_root": false
+    },
+    {
+      "id": "kankyou-to-seishin-kenkou",
+      "title": "環境と精神健康",
+      "url": "articles/kankyou-to-seishin-kenkou.html",
+      "summary": "物理的な生活環境は精神健康に深い影響を与える。環境心理学の知見から、計画都市における自然接触の人工性・用途分離・ウォーカビリティ欠如などのリスク因子と保護因子を解説する。",
+      "is_root": false
+    },
+    {
+      "id": "sekai-no-keikaku-toshi",
+      "title": "世界の主要な計画都市",
+      "url": "articles/sekai-no-keikaku-toshi.html",
+      "summary": "ブラジリア・キャンベラ・チャンディーガルなど世界の計画都市の事例を概観し、つくば市との比較を通じて、計画都市が共通して抱える疎外感・コミュニティ欠如・画一性の問題を考察する。",
+      "is_root": false
+    },
+    {
+      "id": "toshi-to-jiko-doitsusei",
+      "title": "都市と自己同一性",
+      "url": "articles/toshi-to-jiko-doitsusei.html",
+      "summary": "人間は居住する場所と深い心理的結びつき（場所への愛着）を形成するが、計画都市では均一な景観・歴史の欠如・住民の流動性により、この愛着形成が困難になりがちである。",
+      "is_root": false
+    },
+    {
+      "id": "jane-jacobs-toshi-hihan",
+      "title": "ジェーン・ジェイコブスの都市批判",
+      "url": "articles/jane-jacobs-toshi-hihan.html",
+      "summary": "ジェーン・ジェイコブスは『アメリカ大都市の死と生』（1961）で近代主義的都市計画を批判し、用途混合・短い街区・建物年齢多様性・高密度という四条件と「歩道の目」概念を提唱した。",
+      "is_root": false
+    },
+    {
+      "id": "tsukuba-kenkyu-community",
+      "title": "つくばの研究者コミュニティ",
+      "url": "articles/tsukuba-kenkyu-community.html",
+      "summary": "200以上の研究機関が集積するつくばの研究者コミュニティは、計画都市の孤立化傾向を部分的に補償するが、高い流動性・仮住まい意識・機関内外の断絶という独自の課題も生む。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-no-shinri"
+    },
+    {
+      "source": "tsukuba-keikaku-toshi",
+      "target": "toshi-sekkei-to-jiritsusei"
+    },
+    {
+      "source": "tsukuba-keikaku-toshi",
+      "target": "kankyou-to-seishin-kenkou"
+    },
+    {
+      "source": "tsukuba-keikaku-toshi",
+      "target": "sekai-no-keikaku-toshi"
+    },
+    {
+      "source": "tsukuba-keikaku-toshi",
+      "target": "toshi-to-jiko-doitsusei"
+    },
+    {
+      "source": "keikaku-toshi-no-shinri",
+      "target": "toshi-sekkei-to-jiritsusei"
+    },
+    {
+      "source": "keikaku-toshi-no-shinri",
+      "target": "kankyou-to-seishin-kenkou"
+    },
+    {
+      "source": "keikaku-toshi-no-shinri",
+      "target": "toshi-to-jiko-doitsusei"
+    },
+    {
+      "source": "toshi-sekkei-to-jiritsusei",
+      "target": "keikaku-toshi-no-shinri"
+    },
+    {
+      "source": "toshi-sekkei-to-jiritsusei",
+      "target": "kankyou-to-seishin-kenkou"
+    },
+    {
+      "source": "toshi-sekkei-to-jiritsusei",
+      "target": "toshi-to-jiko-doitsusei"
+    },
+    {
+      "source": "kankyou-to-seishin-kenkou",
+      "target": "toshi-to-jiko-doitsusei"
+    },
+    {
+      "source": "kankyou-to-seishin-kenkou",
+      "target": "tsukuba-keikaku-toshi"
+    },
+    {
+      "source": "kankyou-to-seishin-kenkou",
+      "target": "keikaku-toshi-no-shinri"
+    },
+    {
+      "source": "sekai-no-keikaku-toshi",
+      "target": "tsukuba-keikaku-toshi"
+    },
+    {
+      "source": "sekai-no-keikaku-toshi",
+      "target": "keikaku-toshi-no-shinri"
+    },
+    {
+      "source": "sekai-no-keikaku-toshi",
+      "target": "toshi-sekkei-to-jiritsusei"
+    },
+    {
+      "source": "toshi-to-jiko-doitsusei",
+      "target": "tsukuba-keikaku-toshi"
+    },
+    {
+      "source": "toshi-to-jiko-doitsusei",
+      "target": "kankyou-to-seishin-kenkou"
+    },
+    {
+      "source": "jane-jacobs-toshi-hihan",
+      "target": "toshi-sekkei-to-jiritsusei"
+    },
+    {
+      "source": "jane-jacobs-toshi-hihan",
+      "target": "keikaku-toshi-no-shinri"
+    },
+    {
+      "source": "tsukuba-kenkyu-community",
+      "target": "toshi-to-jiko-doitsusei"
+    },
+    {
+      "source": "tsukuba-kenkyu-community",
+      "target": "kankyou-to-seishin-kenkou"
+    }
+  ]
+}

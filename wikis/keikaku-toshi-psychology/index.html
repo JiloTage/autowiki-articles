@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>計画都市と人間の心理 - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>計画都市と人間の心理</h1>
+    <p>つくば市など計画都市特有の不自然さが引き起こす精神的ストレスと、都市設計が人間の心理に与える影響</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">8</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">23</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/tsukuba-keikaku-toshi.html">つくば市：日本の計画都市</a></td>
+          <td>茨城県に位置するつくば市は、1960〜70年代に国家プロジェクトとして建設された日本屈指の計画都市。</td>
+          <td>2026-04-05</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/keikaku-toshi-no-shinri.html">計画都市が引き起こす心理的不快感</a></td>
+          <td>計画都市では都市設計者の意図が随所に刻み込まれており、住民はエージェンシーの侵食感を覚える。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="articles/toshi-sekkei-to-jiritsusei.html">都市設計と自律性感覚</a></td>
+          <td>都市設計は人間の行動を方向付け、自律性の感覚を制約する。ナッジ理論、選択の建築学から考察。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="articles/kankyou-to-seishin-kenkou.html">環境と精神健康</a></td>
+          <td>物理的な生活環境は精神健康に深い影響を与える。環境心理学の知見から計画都市のリスクを解説。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="articles/sekai-no-keikaku-toshi.html">世界の主要な計画都市</a></td>
+          <td>ブラジリア・キャンベラ・チャンディーガルなど世界の計画都市の事例を概観し、つくばと比較する。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="articles/toshi-to-jiko-doitsusei.html">都市と自己同一性</a></td>
+          <td>場所への愛着（place attachment）と計画都市における愛着形成の困難を考察する。</td>
+          <td>2026-04-05</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td><a href="articles/jane-jacobs-toshi-hihan.html">ジェーン・ジェイコブスの都市批判</a></td>
+          <td>『アメリカ大都市の死と生』（1961）での近代主義的都市計画への批判と、多様性の四条件を解説。</td>
+          <td>2026-04-05</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td><a href="articles/tsukuba-kenkyu-community.html">つくばの研究者コミュニティ</a></td>
+          <td>200以上の研究機関が集積するつくばの研究者コミュニティの特性と心理的課題を考察する。</td>
+          <td>2026-04-05</td>
+          <td>2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

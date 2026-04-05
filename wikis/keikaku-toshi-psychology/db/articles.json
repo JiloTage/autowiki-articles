@@ -1,0 +1,162 @@
+{
+  "articles": {
+    "tsukuba-keikaku-toshi": {
+      "id": "tsukuba-keikaku-toshi",
+      "title": "つくば市：日本の計画都市",
+      "filename": "tsukuba-keikaku-toshi.html",
+      "created_at": "2026-04-05T09:54:49.989748+00:00",
+      "updated_at": "2026-04-05T09:54:49.989748+00:00",
+      "links_to": [
+        "keikaku-toshi-no-shinri",
+        "toshi-sekkei-to-jiritsusei",
+        "kankyou-to-seishin-kenkou",
+        "sekai-no-keikaku-toshi",
+        "toshi-to-jiko-doitsusei"
+      ],
+      "linked_from": [
+        "kankyou-to-seishin-kenkou",
+        "sekai-no-keikaku-toshi",
+        "toshi-to-jiko-doitsusei"
+      ],
+      "summary": "茨城県に位置するつくば市は、1960〜70年代に国家プロジェクトとして建設された日本屈指の計画都市。その徹底した計画性が住民に特有の心理的不快感をもたらすとの指摘がある。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "keikaku-toshi-no-shinri": {
+      "id": "keikaku-toshi-no-shinri",
+      "title": "計画都市が引き起こす心理的不快感",
+      "filename": "keikaku-toshi-no-shinri.html",
+      "created_at": "2026-04-05T09:55:01.359283+00:00",
+      "updated_at": "2026-04-05T09:55:01.359283+00:00",
+      "links_to": [
+        "toshi-sekkei-to-jiritsusei",
+        "kankyou-to-seishin-kenkou",
+        "toshi-to-jiko-doitsusei"
+      ],
+      "linked_from": [
+        "tsukuba-keikaku-toshi",
+        "toshi-sekkei-to-jiritsusei",
+        "kankyou-to-seishin-kenkou",
+        "sekai-no-keikaku-toshi",
+        "jane-jacobs-toshi-hihan"
+      ],
+      "summary": "計画都市では都市設計者の意図が随所に刻み込まれており、住民はエージェンシーの侵食感を覚える。アフォーダンス理論や自己決定理論から、計画都市特有の心理的不快感のメカニズムを解説する。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "toshi-sekkei-to-jiritsusei": {
+      "id": "toshi-sekkei-to-jiritsusei",
+      "title": "都市設計と自律性感覚",
+      "filename": "toshi-sekkei-to-jiritsusei.html",
+      "created_at": "2026-04-05T09:55:01.417006+00:00",
+      "updated_at": "2026-04-05T09:55:01.417006+00:00",
+      "links_to": [
+        "keikaku-toshi-no-shinri",
+        "kankyou-to-seishin-kenkou",
+        "toshi-to-jiko-doitsusei"
+      ],
+      "linked_from": [
+        "tsukuba-keikaku-toshi",
+        "keikaku-toshi-no-shinri",
+        "sekai-no-keikaku-toshi",
+        "jane-jacobs-toshi-hihan"
+      ],
+      "summary": "都市設計は人間の行動を方向付け、自律性の感覚を制約する。ナッジ理論、選択の建築学、他律性のストレスという観点から、建造環境が心理的自律性に与える影響を考察する。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "kankyou-to-seishin-kenkou": {
+      "id": "kankyou-to-seishin-kenkou",
+      "title": "環境と精神健康",
+      "filename": "kankyou-to-seishin-kenkou.html",
+      "created_at": "2026-04-05T09:55:01.474150+00:00",
+      "updated_at": "2026-04-05T09:55:01.474150+00:00",
+      "links_to": [
+        "toshi-to-jiko-doitsusei",
+        "tsukuba-keikaku-toshi",
+        "keikaku-toshi-no-shinri"
+      ],
+      "linked_from": [
+        "tsukuba-keikaku-toshi",
+        "keikaku-toshi-no-shinri",
+        "toshi-sekkei-to-jiritsusei",
+        "toshi-to-jiko-doitsusei",
+        "tsukuba-kenkyu-community"
+      ],
+      "summary": "物理的な生活環境は精神健康に深い影響を与える。環境心理学の知見から、計画都市における自然接触の人工性・用途分離・ウォーカビリティ欠如などのリスク因子と保護因子を解説する。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "sekai-no-keikaku-toshi": {
+      "id": "sekai-no-keikaku-toshi",
+      "title": "世界の主要な計画都市",
+      "filename": "sekai-no-keikaku-toshi.html",
+      "created_at": "2026-04-05T09:55:16.862787+00:00",
+      "updated_at": "2026-04-05T09:55:16.862787+00:00",
+      "links_to": [
+        "tsukuba-keikaku-toshi",
+        "keikaku-toshi-no-shinri",
+        "toshi-sekkei-to-jiritsusei"
+      ],
+      "linked_from": [
+        "tsukuba-keikaku-toshi"
+      ],
+      "summary": "ブラジリア・キャンベラ・チャンディーガルなど世界の計画都市の事例を概観し、つくば市との比較を通じて、計画都市が共通して抱える疎外感・コミュニティ欠如・画一性の問題を考察する。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "toshi-to-jiko-doitsusei": {
+      "id": "toshi-to-jiko-doitsusei",
+      "title": "都市と自己同一性",
+      "filename": "toshi-to-jiko-doitsusei.html",
+      "created_at": "2026-04-05T09:55:16.920891+00:00",
+      "updated_at": "2026-04-05T09:55:16.920891+00:00",
+      "links_to": [
+        "tsukuba-keikaku-toshi",
+        "kankyou-to-seishin-kenkou"
+      ],
+      "linked_from": [
+        "tsukuba-keikaku-toshi",
+        "keikaku-toshi-no-shinri",
+        "toshi-sekkei-to-jiritsusei",
+        "kankyou-to-seishin-kenkou",
+        "tsukuba-kenkyu-community"
+      ],
+      "summary": "人間は居住する場所と深い心理的結びつき（場所への愛着）を形成するが、計画都市では均一な景観・歴史の欠如・住民の流動性により、この愛着形成が困難になりがちである。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "jane-jacobs-toshi-hihan": {
+      "id": "jane-jacobs-toshi-hihan",
+      "title": "ジェーン・ジェイコブスの都市批判",
+      "filename": "jane-jacobs-toshi-hihan.html",
+      "created_at": "2026-04-05T09:55:16.981206+00:00",
+      "updated_at": "2026-04-05T09:55:16.981206+00:00",
+      "links_to": [
+        "toshi-sekkei-to-jiritsusei",
+        "keikaku-toshi-no-shinri"
+      ],
+      "linked_from": [],
+      "summary": "ジェーン・ジェイコブスは『アメリカ大都市の死と生』（1961）で近代主義的都市計画を批判し、用途混合・短い街区・建物年齢多様性・高密度という四条件と「歩道の目」概念を提唱した。",
+      "expansion_status": "pending",
+      "origin": "root"
+    },
+    "tsukuba-kenkyu-community": {
+      "id": "tsukuba-kenkyu-community",
+      "title": "つくばの研究者コミュニティ",
+      "filename": "tsukuba-kenkyu-community.html",
+      "created_at": "2026-04-05T09:55:17.039572+00:00",
+      "updated_at": "2026-04-05T09:55:17.039572+00:00",
+      "links_to": [
+        "toshi-to-jiko-doitsusei",
+        "kankyou-to-seishin-kenkou"
+      ],
+      "linked_from": [],
+      "summary": "200以上の研究機関が集積するつくばの研究者コミュニティは、計画都市の孤立化傾向を部分的に補償するが、高い流動性・仮住まい意識・機関内外の断絶という独自の課題も生む。",
+      "expansion_status": "pending",
+      "origin": "root"
+    }
+  },
+  "root_id": null,
+  "total_count": 8
+}

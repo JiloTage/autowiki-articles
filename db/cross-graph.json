@@ -748,94 +748,76 @@
       "summary": "デュアルエージェント開発パターンとは、Claude CodeとOpenAI Codexを同時並列活用することで、タスク分割・委譲・並列実行を実現する統合開発手法であり、openai/codex-plugin-ccが提供するインフラを通じてエージェント間コンテキスト共有と相互補完的な品質保証を体系的に達成する。"
     },
     {
-      "id": "quickwit:quickwit",
-      "wiki": "quickwit",
-      "title": "Quickwit",
-      "url": "wikis/quickwit/articles/quickwit.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "つくば市：日本の計画都市",
+      "url": "wikis/keikaku-toshi-psychology/articles/tsukuba-keikaku-toshi.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "Quickwitは、Rustで実装されたクラウドネイティブな分散型検索・分析エンジンであり、大規模なログ管理や観測性（オブザーバビリティ）ワークフロー向けに設計されたオープンソースプロジェクトです。"
+      "summary": "茨城県に位置するつくば市は、1960〜70年代に国家プロジェクトとして建設された日本屈指の計画都市。その徹底した計画性が住民に特有の心理的不快感をもたらすとの指摘がある。"
     },
     {
-      "id": "quickwit:apache-tantivy",
-      "wiki": "quickwit",
-      "title": "Apache Tantivy",
-      "url": "wikis/quickwit/articles/apache-tantivy.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "計画都市が引き起こす心理的不快感",
+      "url": "wikis/keikaku-toshi-psychology/articles/keikaku-toshi-no-shinri.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "Apache TantivyはRustで実装された高性能な全文検索エンジンライブラリであり、Apache LuceneをインスパイアしたAPIを持ちながら、Rustの安全性とゼロコスト抽象化によって優れた検索パフォーマンスを実現します。Quickwitのコア検索エンジンとして採用されています。"
+      "summary": "計画都市では都市設計者の意図が随所に刻み込まれており、住民はエージェンシーの侵食感を覚える。アフォーダンス理論や自己決定理論から、計画都市特有の心理的不快感のメカニズムを解説する。"
     },
     {
-      "id": "quickwit:observability",
-      "wiki": "quickwit",
-      "title": "オブザーバビリティ（可観測性）",
-      "url": "wikis/quickwit/articles/observability.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "都市設計と自律性感覚",
+      "url": "wikis/keikaku-toshi-psychology/articles/toshi-sekkei-to-jiritsusei.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "オブザーバビリティ（可観測性）とは、システムの外部出力からその内部状態を推測・理解できる能力であり、ログ・メトリクス・トレースの三本柱を基盤とする。Quickwitはその中でログと分散トレースの検索基盤として機能し、OpenTelemetryとのネイティブ統合やGrafana・Jaeger連携を通じてオブザーバビリティスタックを支える。"
+      "summary": "都市設計は人間の行動を方向付け、自律性の感覚を制約する。ナッジ理論、選択の建築学、他律性のストレスという観点から、建造環境が心理的自律性に与える影響を考察する。"
     },
     {
-      "id": "quickwit:distributed-tracing",
-      "wiki": "quickwit",
-      "title": "分散トレーシング",
-      "url": "wikis/quickwit/articles/distributed-tracing.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "環境と精神健康",
+      "url": "wikis/keikaku-toshi-psychology/articles/kankyou-to-seishin-kenkou.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "分散トレーシングは、マイクロサービスアーキテクチャにおいてリクエストの経路を追跡し、各サービスでの処理時間やエラーを可視化する観測性技術である。トレース・スパン・コンテキスト伝播の三要素により、複雑な分散システムのデバッグとパフォーマンス分析を可能にする。"
+      "summary": "物理的な生活環境は精神健康に深い影響を与える。環境心理学の知見から、計画都市における自然接触の人工性・用途分離・ウォーカビリティ欠如などのリスク因子と保護因子を解説する。"
     },
     {
-      "id": "quickwit:quickwit-ingest",
-      "wiki": "quickwit",
-      "title": "Quickwitのデータ取り込みソース",
-      "url": "wikis/quickwit/articles/quickwit-ingest.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:sekai-no-keikaku-toshi",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "世界の主要な計画都市",
+      "url": "wikis/keikaku-toshi-psychology/articles/sekai-no-keikaku-toshi.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "QuickwitはKafka、Apache Pulsar、S3/ファイル、REST APIなど複数のデータソースからドキュメントを取り込む柔軟な取り込みパイプラインを提供します。各ソースにはそれぞれ固有の設定・最適化オプションがあり、ユースケースに応じて選択できます。"
+      "summary": "ブラジリア・キャンベラ・チャンディーガルなど世界の計画都市の事例を概観し、つくば市との比較を通じて、計画都市が共通して抱える疎外感・コミュニティ欠如・画一性の問題を考察する。"
     },
     {
-      "id": "quickwit:opentelemetry-integration",
-      "wiki": "quickwit",
-      "title": "OpenTelemetry統合",
-      "url": "wikis/quickwit/articles/opentelemetry-integration.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "都市と自己同一性",
+      "url": "wikis/keikaku-toshi-psychology/articles/toshi-to-jiko-doitsusei.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "QuickwitはCNCFプロジェクトであるOpenTelemetryとのネイティブ統合を提供し、OTLPプロトコルを通じてログ・トレース・メトリクスを直接受信・保存・検索できるオブザーバビリティバックエンドとして機能します。"
+      "summary": "人間は居住する場所と深い心理的結びつき（場所への愛着）を形成するが、計画都市では均一な景観・歴史の欠如・住民の流動性により、この愛着形成が困難になりがちである。"
     },
     {
-      "id": "quickwit:object-storage-search",
-      "wiki": "quickwit",
-      "title": "オブジェクトストレージ上の検索",
-      "url": "wikis/quickwit/articles/object-storage-search.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:jane-jacobs-toshi-hihan",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "ジェーン・ジェイコブスの都市批判",
+      "url": "wikis/keikaku-toshi-psychology/articles/jane-jacobs-toshi-hihan.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "オブジェクトストレージ上の検索とは、Amazon S3・Google Cloud Storage・Azure Blob Storageなどのクラウドオブジェクトストレージを一次検索インデックスの保存先として活用するアーキテクチャであり、ストレージとコンピュートを分離することで大規模データに対するコスト効率の高い全文検索を実現する技術的アプローチである。"
+      "summary": "ジェーン・ジェイコブスは『アメリカ大都市の死と生』（1961）で近代主義的都市計画を批判し、用途混合・短い街区・建物年齢多様性・高密度という四条件と「歩道の目」概念を提唱した。"
     },
     {
-      "id": "quickwit:quickwit-query-language",
-      "wiki": "quickwit",
-      "title": "Quickwitクエリ言語",
-      "url": "wikis/quickwit/articles/quickwit-query-language.html",
-      "color": "#f4a261",
+      "id": "keikaku-toshi-psychology:tsukuba-kenkyu-community",
+      "wiki": "keikaku-toshi-psychology",
+      "title": "つくばの研究者コミュニティ",
+      "url": "wikis/keikaku-toshi-psychology/articles/tsukuba-kenkyu-community.html",
+      "color": "#6b7c93",
       "is_root": false,
-      "summary": "QuickwitクエリはElasticsearch Query DSLと高い互換性を持ちながら、クラウドネイティブな分散検索エンジン向けに最適化されたクエリ言語・APIである。全文検索・フィルター・集計・スクロールなど多彩な機能を提供し、既存のElasticsearchエコシステムとの親和性を保ちつつQuickwit固有のパフォーマンス特性を活かす設計となっている。"
-    },
-    {
-      "id": "quickwit:elasticsearch-comparison",
-      "wiki": "quickwit",
-      "title": "ElasticsearchとQuickwitの比較",
-      "url": "wikis/quickwit/articles/elasticsearch-comparison.html",
-      "color": "#f4a261",
-      "is_root": false,
-      "summary": "ElasticsearchとQuickwitは、どちらも大規模なテキスト・ログデータの検索・分析を目的としたエンジンだが、設計哲学・アーキテクチャ・コスト特性において根本的な違いを持つ。アーキテクチャ、コスト、検索性能、取り込み特性、移行しやすさ、ユースケース別推奨の観点から詳解する。"
-    },
-    {
-      "id": "quickwit:quickwit-licensing",
-      "wiki": "quickwit",
-      "title": "Quickwitのライセンスモデル",
-      "url": "wikis/quickwit/articles/quickwit-licensing.html",
-      "color": "#f4a261",
-      "is_root": false,
-      "summary": "Quickwitのライセンスモデルは、Apache 2.0ライセンスから始まりオープンコア（コアOSS＋エンタープライズ商用機能）へと進化してきた経緯と、クラウドプロバイダーによる無償利用問題、Elasticsearch・Redis・MongoDBなど他OSSのライセンス変更との比較、フォークとOSS持続可能性の議論を解説する。"
+      "summary": "200以上の研究機関が集積するつくばの研究者コミュニティは、計画都市の孤立化傾向を部分的に補償するが、高い流動性・仮住まい意識・機関内外の断絶という独自の課題も生む。"
     }
   ],
   "links": [
@@ -2925,228 +2907,118 @@
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:apache-tantivy",
+      "source": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:object-storage-search",
+      "source": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:observability",
+      "source": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:opentelemetry-integration",
+      "source": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:sekai-no-keikaku-toshi",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:elasticsearch-comparison",
+      "source": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:quickwit-query-language",
+      "source": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
+      "target": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:distributed-tracing",
+      "source": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
+      "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:quickwit-ingest",
+      "source": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
+      "target": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit",
-      "target": "quickwit:quickwit-licensing",
+      "source": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
+      "target": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
       "type": "internal"
     },
     {
-      "source": "quickwit:apache-tantivy",
-      "target": "quickwit:quickwit",
+      "source": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
+      "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
       "type": "internal"
     },
     {
-      "source": "quickwit:apache-tantivy",
-      "target": "quickwit:object-storage-search",
+      "source": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
+      "target": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:apache-tantivy",
-      "target": "quickwit:elasticsearch-comparison",
+      "source": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "target": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:observability",
-      "target": "quickwit:quickwit",
+      "source": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "target": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
       "type": "internal"
     },
     {
-      "source": "quickwit:observability",
-      "target": "quickwit:distributed-tracing",
+      "source": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "target": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
       "type": "internal"
     },
     {
-      "source": "quickwit:observability",
-      "target": "quickwit:opentelemetry-integration",
+      "source": "keikaku-toshi-psychology:sekai-no-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
       "type": "internal"
     },
     {
-      "source": "quickwit:distributed-tracing",
-      "target": "quickwit:quickwit",
+      "source": "keikaku-toshi-psychology:sekai-no-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
       "type": "internal"
     },
     {
-      "source": "quickwit:distributed-tracing",
-      "target": "quickwit:observability",
+      "source": "keikaku-toshi-psychology:sekai-no-keikaku-toshi",
+      "target": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:distributed-tracing",
-      "target": "quickwit:opentelemetry-integration",
+      "source": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
+      "target": "keikaku-toshi-psychology:tsukuba-keikaku-toshi",
       "type": "internal"
     },
     {
-      "source": "quickwit:distributed-tracing",
-      "target": "quickwit:object-storage-search",
+      "source": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
+      "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit-ingest",
-      "target": "quickwit:quickwit",
+      "source": "keikaku-toshi-psychology:jane-jacobs-toshi-hihan",
+      "target": "keikaku-toshi-psychology:toshi-sekkei-to-jiritsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit-ingest",
-      "target": "quickwit:elasticsearch-comparison",
+      "source": "keikaku-toshi-psychology:jane-jacobs-toshi-hihan",
+      "target": "keikaku-toshi-psychology:keikaku-toshi-no-shinri",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit-ingest",
-      "target": "quickwit:observability",
+      "source": "keikaku-toshi-psychology:tsukuba-kenkyu-community",
+      "target": "keikaku-toshi-psychology:toshi-to-jiko-doitsusei",
       "type": "internal"
     },
     {
-      "source": "quickwit:quickwit-ingest",
-      "target": "quickwit:opentelemetry-integration",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:opentelemetry-integration",
-      "target": "quickwit:quickwit",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:opentelemetry-integration",
-      "target": "quickwit:observability",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:opentelemetry-integration",
-      "target": "quickwit:distributed-tracing",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:opentelemetry-integration",
-      "target": "quickwit:quickwit-ingest",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:object-storage-search",
-      "target": "quickwit:quickwit",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:object-storage-search",
-      "target": "quickwit:apache-tantivy",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:object-storage-search",
-      "target": "quickwit:elasticsearch-comparison",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:object-storage-search",
-      "target": "quickwit:observability",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:quickwit",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:apache-tantivy",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:elasticsearch-comparison",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:object-storage-search",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:quickwit-ingest",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:opentelemetry-integration",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-query-language",
-      "target": "quickwit:observability",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:elasticsearch-comparison",
-      "target": "quickwit:quickwit",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:elasticsearch-comparison",
-      "target": "quickwit:apache-tantivy",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:elasticsearch-comparison",
-      "target": "quickwit:object-storage-search",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:elasticsearch-comparison",
-      "target": "quickwit:observability",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-licensing",
-      "target": "quickwit:quickwit",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-licensing",
-      "target": "quickwit:elasticsearch-comparison",
-      "type": "internal"
-    },
-    {
-      "source": "quickwit:quickwit-licensing",
-      "target": "quickwit:observability",
+      "source": "keikaku-toshi-psychology:tsukuba-kenkyu-community",
+      "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
       "type": "internal"
     },
     {
