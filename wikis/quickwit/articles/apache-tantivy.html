@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apache Tantivy - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    Apache Tantivy
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Apache Tantivy</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">Apache TantivyはRustで実装された高性能な全文検索エンジンライブラリであり、Apache LuceneをインスパイアしたAPIを持ちながら、Rustの安全性とゼロコスト抽象化によって優れた検索パフォーマンスを実現します。<a href="quickwit.html">Quickwit</a>のコア検索エンジンとして採用されています。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Apache Tantivy</b>は、Rustで実装されたオープンソースの全文検索エンジンライブラリである。Javaベースの<a href="lucene-architecture.html">Apache Lucene</a>からインスパイアを受けて設計されており、転置インデックスを中心とする検索エンジンの基礎機能をRustのエコシステムに提供する。</p>
+      <p>TantivyはLuceneと同様に、スタンドアロンの検索サーバーではなくライブラリとして提供される。開発者はTantivyをアプリケーションに組み込み、インデックスの構築・管理・検索処理を直接制御できる。<a href="quickwit.html">Quickwit</a>はこのTantivyを検索コアとして採用し、その上に分散レイヤーとクラウドネイティブな機能を実装している。</p>
+      <p>プロジェクトは当初「tantivy」として公開されていたが、Apache Software Foundationへの寄贈プロセスを経て「Apache Tantivy」となった。ライセンスはMITからApache 2.0へ変更されている。</p>
+
+      <h2 id="inverted-index">転置インデックスとデータ構造</h2>
+      <p>Tantivyの中核はテキスト検索に特化した転置インデックス（Inverted Index）である。転置インデックスは各用語（トークン）からその用語が出現するドキュメントIDのリスト（ポスティングリスト）へのマッピングを保持する。</p>
+
+      <h3 id="postings">ポスティングリストと圧縮</h3>
+      <p>TantivyはポスティングリストをBitpacking（ビットパッキング）とVByte圧縮を組み合わせたアルゴリズムで圧縮する。大量のドキュメントIDを効率的にエンコードすることでディスクI/Oを削減し、クエリ実行速度を向上させる。</p>
+      <p>位置情報（フレーズ検索向けにトークンの出現位置）も格納でき、フレーズクエリや近接クエリに対応する。位置情報の格納はオプションであり、不要な場合は省略することでインデックスサイズを削減できる。</p>
+
+      <h3 id="columnar">列指向ストレージ（Fast Fields）</h3>
+      <p>Tantivyでは数値・日時・IPアドレスなどの構造化フィールドを「Fast Fields」として列指向形式で格納できる。これはApache Parquetなどの<a href="columnar-storage.html">列指向ストレージ</a>に類似した仕組みであり、ファセット集計や範囲フィルタリングを高速化する。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 380" width="660" height="380">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="660" height="380" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="330" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Apache Tantivy インデックス構造</text>
+
+          <!-- Documents Input -->
+          <rect x="20" y="50" width="130" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">ドキュメント入力</text>
+          <text x="85" y="92" text-anchor="middle" font-size="10" fill="#555">テキスト / 数値 / 日時</text>
+          <text x="85" y="106" text-anchor="middle" font-size="10" fill="#555">JSON / IPアドレス</text>
+
+          <!-- Analyzer -->
+          <rect x="200" y="50" width="130" height="60" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="265" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">アナライザー</text>
+          <text x="265" y="92" text-anchor="middle" font-size="10" fill="#555">トークナイズ / 正規化</text>
+          <text x="265" y="106" text-anchor="middle" font-size="10" fill="#555">ステミング / フィルタ</text>
+
+          <!-- Arrow: Docs -> Analyzer -->
+          <line x1="150" y1="80" x2="196" y2="80" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Segment -->
+          <rect x="380" y="40" width="260" height="290" rx="8" fill="#fff" stroke="#3366cc" stroke-width="2"/>
+          <text x="510" y="62" text-anchor="middle" font-size="13" font-weight="bold" fill="#3366cc">セグメント (Segment)</text>
+
+          <!-- Inverted Index inside Segment -->
+          <rect x="395" y="75" width="230" height="70" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2"/>
+          <text x="510" y="96" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">転置インデックス</text>
+          <text x="510" y="114" text-anchor="middle" font-size="10" fill="#555">用語 -&gt; ポスティングリスト</text>
+          <text x="510" y="129" text-anchor="middle" font-size="10" fill="#555">（DocID + 頻度 + 位置情報）</text>
+
+          <!-- Fast Fields inside Segment -->
+          <rect x="395" y="158" width="230" height="60" rx="5" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2"/>
+          <text x="510" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Fast Fields（列指向）</text>
+          <text x="510" y="196" text-anchor="middle" font-size="10" fill="#555">数値・日時・IPなど高速集計用</text>
+          <text x="510" y="211" text-anchor="middle" font-size="10" fill="#555">BitpackedU64 / MonotonicallyMappableToU64</text>
+
+          <!-- Store inside Segment -->
+          <rect x="395" y="232" width="230" height="50" rx="5" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.2"/>
+          <text x="510" y="252" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ドキュメントストア</text>
+          <text x="510" y="270" text-anchor="middle" font-size="10" fill="#555">元フィールド値（LZ4圧縮）</text>
+
+          <!-- Arrow: Analyzer -> Segment -->
+          <line x1="330" y1="80" x2="376" y2="80" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Merge Policy -->
+          <rect x="200" y="190" width="130" height="55" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="265" y="213" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">マージポリシー</text>
+          <text x="265" y="231" text-anchor="middle" font-size="10" fill="#555">セグメント統合で</text>
+          <text x="265" y="245" text-anchor="middle" font-size="10" fill="#555">読み取り性能向上</text>
+
+          <!-- Arrow: Merge -> Segment (horizontal, lower) -->
+          <line x1="330" y1="218" x2="376" y2="218" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+          <!-- BM25 Label -->
+          <rect x="20" y="195" width="130" height="55" rx="6" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+          <text x="85" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">BM25スコアリング</text>
+          <text x="85" y="236" text-anchor="middle" font-size="10" fill="#555">TF-IDF拡張モデル</text>
+          <text x="85" y="250" text-anchor="middle" font-size="10" fill="#555">クエリ関連度ランキング</text>
+
+          <!-- Query Engine at bottom -->
+          <rect x="200" y="300" width="130" height="55" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="265" y="322" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">クエリエンジン</text>
+          <text x="265" y="340" text-anchor="middle" font-size="10" fill="#555">Boolean / Phrase</text>
+          <text x="265" y="354" text-anchor="middle" font-size="10" fill="#555">Fuzzy / Range / Facet</text>
+
+          <!-- Arrow: QueryEngine -> Segment (down-right) -->
+          <path d="M330 327 L510 327 L510 334" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+        </svg>
+        <div class="diagram-caption">図1: Apache Tantivyのインデックス構造。ドキュメントはアナライザーを経てセグメントに書き込まれ、転置インデックス・Fast Fields・ドキュメントストアの3層で管理される。</div>
+      </div>
+
+      <h2 id="scoring">BM25スコアリング</h2>
+      <p>Tantivyはデフォルトのスコアリングモデルとして<b>BM25（Best Match 25）</b>を採用している。BM25はTF-IDF（Term Frequency - Inverse Document Frequency）を拡張した確率的情報検索モデルであり、現代の全文検索エンジンで広く使われている。</p>
+      <p>BM25のスコア計算式は以下の要素に基づく:</p>
+      <ul>
+        <li><b>TF（Term Frequency）</b>: ドキュメント内でのクエリ用語の出現頻度（飽和関数付き）</li>
+        <li><b>IDF（Inverse Document Frequency）</b>: コーパス全体での用語の希少性</li>
+        <li><b>文書長正規化</b>: 長いドキュメントへのペナルティ（k1・bパラメータで調整可能）</li>
+      </ul>
+      <p>Tantivyではこれらのパラメータをスキーマ定義時にカスタマイズできる。<a href="lucene-architecture.html">Apache Lucene</a>のBM25実装と互換性のある計算が行われるため、LuceneベースのシステムからTantivyへの移行時もスコアの傾向が変わりにくい。</p>
+
+      <h2 id="segment-management">セグメント管理とマージポリシー</h2>
+      <p>Tantivyはインデックスを複数の<b>セグメント（Segment）</b>に分割して管理する。セグメントはイミュータブルなインデックス単位であり、書き込みが完了すると変更されない。新しいドキュメントは新しいセグメントに書き込まれる。</p>
+
+      <h3 id="merge-policy">マージポリシー</h3>
+      <p>セグメントが増加すると検索時に複数セグメントを走査するオーバーヘッドが増大するため、バックグラウンドで小さなセグメントを大きなセグメントに統合する<b>マージ（Merge）</b>処理が行われる。Tantivyのマージポリシーは設定可能であり、次の2種類が主に使われる:</p>
+      <ul>
+        <li><b>LogMergePolicy</b>: セグメントサイズの対数に基づいてマージ対象を決定するデフォルトポリシー。LuceneのTieredMergePolicyに相当する</li>
+        <li><b>NoMergePolicy</b>: 自動マージを無効化。<a href="quickwit.html">Quickwit</a>のように外部でスプリット管理を行う場合に使用される</li>
+      </ul>
+      <p>Quickwitはオブジェクトストレージ上でイミュータブルなスプリット（セグメントの集合）を管理するため、Tantivyのマージポリシーを無効化し、独自のスプリットマージ戦略を実装している。</p>
+
+      <h2 id="query-types">クエリタイプとファセット検索</h2>
+      <p>Tantivyは多様なクエリタイプをサポートする:</p>
+
+      <h3 id="basic-queries">基本クエリ</h3>
+      <ul>
+        <li><b>TermQuery</b>: 特定の用語に完全一致するドキュメントを検索</li>
+        <li><b>PhraseQuery</b>: 複数の用語が連続して出現するドキュメントを検索</li>
+        <li><b>BooleanQuery</b>: must / should / must_not を組み合わせた複合クエリ</li>
+        <li><b>RangeQuery</b>: 数値・日時の範囲に基づいた検索</li>
+        <li><b>FuzzyTermQuery</b>: 編集距離を使ったあいまい検索</li>
+        <li><b>RegexQuery</b>: 正規表現パターンによる検索</li>
+      </ul>
+
+      <h3 id="facet-search">ファセット検索</h3>
+      <p>Tantivyは階層的なファセット（Facet）フィールドをサポートしており、カテゴリ分類された集計検索が可能である。例えば「カテゴリ/サブカテゴリ」のような階層構造を持つデータに対して、カテゴリごとのドキュメント件数を高速に取得できる。<a href="quickwit.html">Quickwit</a>はこのファセット機能を活用して、ログの属性（サービス名・ログレベルなど）による集計を実装している。</p>
+
+      <h2 id="performance">パフォーマンスとベンチマーク</h2>
+      <p>TantivyはRustの特性を活かし、<a href="lucene-architecture.html">Apache Lucene</a>と比較しても遜色ない、あるいは上回るインデックス構築・検索速度を実現している。</p>
+
+      <h3 id="benchmark">公式ベンチマーク</h3>
+      <p>Tantivyの公式ベンチマーク（<b>tantivy-benchmark</b>）はWikipedia英語版データセット（約500万ドキュメント）を用いて測定されており、以下の特性が確認されている:</p>
+      <ul>
+        <li><b>インデックス構築速度</b>: Luceneと同等〜1.5倍程度の速度。マルチスレッドインデックス構築に対応</li>
+        <li><b>クエリレイテンシ</b>: 単純なTermQueryで数ミリ秒以下、複雑なBooleanQueryでも数十ミリ秒以内</li>
+        <li><b>メモリ効率</b>: GCのないRustのメモリモデルにより、GCポーズがなく一貫したレイテンシを維持</li>
+        <li><b>インデックスサイズ</b>: Luceneとほぼ同等の圧縮効率</li>
+      </ul>
+      <p>特にGCポーズがないことはレイテンシの安定性において大きな優位点であり、リアルタイム検索応用での予測可能なパフォーマンスを可能にする。</p>
+
+      <h3 id="tantivy-vs-lucene">TantivyとLuceneの比較</h3>
+      <p>TantivyとLuceneの主な違いを以下に示す:</p>
+      <ul>
+        <li><b>実装言語</b>: Lucene はJava（JVM）、Tantivy はRust（ネイティブバイナリ）</li>
+        <li><b>GCの影響</b>: LuceneはJVM GCの影響を受けるがTantivyは受けない</li>
+        <li><b>エコシステム成熟度</b>: Luceneは20年以上の歴史を持ち、Elasticsearch/OpenSearchなど多くのシステムで実証済み。Tantivyは比較的新しい</li>
+        <li><b>プラグイン機能</b>: LuceneはCodecやSimilarity等のプラグインシステムが充実。TantivyはRustの型システムで拡張を提供</li>
+        <li><b>言語バインディング</b>: TantivyはPython（tantivy-py）、Node.js（tantivy-node）向けバインディングを提供</li>
+      </ul>
+
+      <h2 id="tools">関連ツールとエコシステム</h2>
+      <p>Tantivyを中心としたエコシステムには以下のツール・ライブラリが存在する:</p>
+
+      <h3 id="tantivy-cli">tantivy-cli</h3>
+      <p><b>tantivy-cli</b>はTantivyのコマンドラインインターフェースであり、インデックスの作成・ドキュメントの追加・検索の実行をコマンドラインから行える。開発・デバッグ・小規模な検索要件に適している。</p>
+
+      <h3 id="language-bindings">言語バインディング</h3>
+      <ul>
+        <li><b>tantivy-py</b>: PythonバインディングであるPyO3を使って実装されており、データサイエンスやプロトタイピングでの活用が可能</li>
+        <li><b>tantivy-node</b>: Node.jsバインディング。JavaScriptアプリケーションへの組み込みに対応</li>
+      </ul>
+
+      <h3 id="quickwit-integration">Quickwitとの統合</h3>
+      <p><a href="quickwit.html">Quickwit</a>はTantivyを直接依存として使用し、各スプリット（イミュータブルなインデックスチャンク）内部にTantivyインデックスを格納する。Quickwitは以下のTantivy機能を活用している:</p>
+      <ul>
+        <li>転置インデックスによる全文検索</li>
+        <li>Fast Fieldsによる数値・日時の高速フィルタリングと集計</li>
+        <li>ファセット検索によるカテゴリ集計</li>
+        <li>マルチセグメントの並列クエリ実行</li>
+      </ul>
+      <p><a href="columnar-storage.html">列指向ストレージ</a>の活用により、Quickwitは大量のログデータに対する集計クエリを効率的に処理できる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#inverted-index">転置インデックスとデータ構造</a></li>
+          <li class="toc-h3"><a href="#postings">ポスティングリストと圧縮</a></li>
+          <li class="toc-h3"><a href="#columnar">列指向ストレージ（Fast Fields）</a></li>
+          <li><a href="#scoring">BM25スコアリング</a></li>
+          <li><a href="#segment-management">セグメント管理とマージポリシー</a></li>
+          <li class="toc-h3"><a href="#merge-policy">マージポリシー</a></li>
+          <li><a href="#query-types">クエリタイプとファセット検索</a></li>
+          <li class="toc-h3"><a href="#basic-queries">基本クエリ</a></li>
+          <li class="toc-h3"><a href="#facet-search">ファセット検索</a></li>
+          <li><a href="#performance">パフォーマンスとベンチマーク</a></li>
+          <li class="toc-h3"><a href="#benchmark">公式ベンチマーク</a></li>
+          <li class="toc-h3"><a href="#tantivy-vs-lucene">TantivyとLuceneの比較</a></li>
+          <li><a href="#tools">関連ツールとエコシステム</a></li>
+          <li class="toc-h3"><a href="#tantivy-cli">tantivy-cli</a></li>
+          <li class="toc-h3"><a href="#language-bindings">言語バインディング</a></li>
+          <li class="toc-h3"><a href="#quickwit-integration">Quickwitとの統合</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="lucene-architecture.html">Apache Luceneアーキテクチャ</a></li>
+          <li><a href="columnar-storage.html">列指向ストレージ</a></li>
+          <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="lucene-architecture.html">Apache Luceneアーキテクチャ</a></li>
+        <li><a href="columnar-storage.html">列指向ストレージ</a></li>
+        <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

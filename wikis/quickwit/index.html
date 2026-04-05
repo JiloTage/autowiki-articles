@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickwit Wiki - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Quickwit Wiki</h1>
+    <p>Quickwitについて</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">10</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">47</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/quickwit.html">Quickwit</a></td>
+          <td>Quickwitは、Rustで実装されたクラウドネイティブな分散型検索・分析エンジンであり、大規模なログ管理や観測性（オブザーバビリティ）ワークフロー向けに設計されたオープンソースプロジェクトです。</td>
+          <td>2026-04-05</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td><a href="articles/apache-tantivy.html">Apache Tantivy</a></td>
+          <td>Apache TantivyはRustで実装された高性能な全文検索エンジンライブラリであり、Apache LuceneをインスパイアしたAPIを持ちながら、Rustの安全性とゼロコスト抽象化によって優れた検索パフォーマンスを実現します。</td>
+          <td>2026-04-05</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/object-storage-search.html">オブジェクトストレージ上の検索</a></td>
+          <td>オブジェクトストレージ上の検索とは、Amazon S3・Google Cloud Storage・Azure Blob Storageなどのクラウドオブジェクトストレージを一次検索インデックスの保存先として活用するアーキテクチャであり、ストレージとコンピュートを分離することで大規模データに対するコスト効率の高い全文検索を実現する技術的アプローチである。</td>
+          <td>2026-04-05</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/observability.html">オブザーバビリティ（可観測性）</a></td>
+          <td>オブザーバビリティ（可観測性）とは、システムの外部出力からその内部状態を推測・理解できる能力であり、ログ・メトリクス・トレースの三本柱を基盤とする。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td><a href="articles/opentelemetry-integration.html">OpenTelemetry統合</a></td>
+          <td>QuickwitはCNCFプロジェクトであるOpenTelemetryとのネイティブ統合を提供し、OTLPプロトコルを通じてログ・トレース・メトリクスを直接受信・保存・検索できるオブザーバビリティバックエンドとして機能します。</td>
+          <td>2026-04-05</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/elasticsearch-comparison.html">ElasticsearchとQuickwitの比較</a></td>
+          <td>ElasticsearchとQuickwitは、どちらも大規模なテキスト・ログデータの検索・分析を目的としたエンジンだが、設計哲学・アーキテクチャ・コスト特性において根本的な違いを持つ。</td>
+          <td>2026-04-05</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/distributed-tracing.html">分散トレーシング</a></td>
+          <td>分散トレーシングは、マイクロサービスアーキテクチャにおいてリクエストの経路を追跡し、各サービスでの処理時間やエラーを可視化する観測性技術である。</td>
+          <td>2026-04-05</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/quickwit-ingest.html">Quickwitのデータ取り込みソース</a></td>
+          <td>QuickwitはKafka、Apache Pulsar、S3/ファイル、REST APIなど複数のデータソースからドキュメントを取り込む柔軟な取り込みパイプラインを提供します。</td>
+          <td>2026-04-05</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td><a href="articles/quickwit-query-language.html">Quickwitクエリ言語</a></td>
+          <td>QuickwitクエリはElasticsearch Query DSLと高い互換性を持ちながら、クラウドネイティブな分散検索エンジン向けに最適化されたクエリ言語・APIである。</td>
+          <td>2026-04-05</td>
+          <td>7</td>
+        </tr>
+        <tr>
+          <td><a href="articles/quickwit-licensing.html">Quickwitのライセンスモデル</a></td>
+          <td>Quickwitのライセンスモデルは、Apache 2.0ライセンスから始まりオープンコア（コアOSS＋エンタープライズ商用機能）へと進化してきた経緯と、OSS持続可能性の議論を解説する。</td>
+          <td>2026-04-05</td>
+          <td>3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

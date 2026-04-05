@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenTelemetry統合 - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    OpenTelemetry統合
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">OpenTelemetry統合</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">QuickwitはCNCFプロジェクトであるOpenTelemetryとのネイティブ統合を提供し、OTLPプロトコルを通じてログ・トレース・メトリクスを直接受信・保存・検索できるオブザーバビリティバックエンドとして機能します。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>OpenTelemetry統合</b>は、<a href="quickwit.html">Quickwit</a>のオブザーバビリティバックエンドとしての中核機能である。OpenTelemetry（OTel）はCloud Native Computing Foundation（CNCF）が管理するオープンスタンダードで、テレメトリデータ（ログ・トレース・メトリクス）の収集・変換・エクスポートを統一するフレームワークを提供する。</p>
+      <p>Quickwitは<a href="observability.html">オブザーバビリティ</a>ユースケースに特化した設計を持ち、OTLP（OpenTelemetry Protocol）をネイティブサポートすることで、OpenTelemetry CollectorやSDKからのデータを直接受け入れる。これにより、従来のElasticsearch/Jaegerスタックをより低コストのQuickwitで代替することが可能になる。</p>
+
+      <h2 id="otlp-protocol">OTLPプロトコルとネイティブサポート</h2>
+      <p>OTLPはOpenTelemetryが定義するテレメトリデータの転送プロトコルである。gRPCおよびHTTP/JSON形式をサポートし、Quickwitは両方のトランスポートに対応している。</p>
+
+      <h3 id="otlp-endpoints">OTLPエンドポイント</h3>
+      <p>Quickwitが提供するOTLPエンドポイントは以下の通りである:</p>
+      <ul>
+        <li><b>トレース（gRPC）</b>: <code>http://&lt;quickwit-host&gt;:7281/otlp/v1/traces</code></li>
+        <li><b>ログ（gRPC）</b>: <code>http://&lt;quickwit-host&gt;:7281/otlp/v1/logs</code></li>
+        <li><b>トレース（HTTP）</b>: <code>http://&lt;quickwit-host&gt;:7280/api/v1/otel-traces-v0_7/ingest</code></li>
+        <li><b>ログ（HTTP）</b>: <code>http://&lt;quickwit-host&gt;:7280/api/v1/otel-logs-v0_7/ingest</code></li>
+      </ul>
+      <p>QuickwitはOTLPデータを受信すると、専用のビルトインインデックス（<code>otel-traces-v0_7</code>、<code>otel-logs-v0_7</code>）に自動的に格納する。これらのインデックスはOpenTelemetryのデータモデルに最適化されたスキーマを持ち、<code>trace_id</code>・<code>span_id</code>・<code>service_name</code>などの標準フィールドに対して効率的な検索が可能である。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 380" width="680" height="380">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arrowhead-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#3366cc"/>
+            </marker>
+          </defs>
+
+          <!-- Background -->
+          <rect width="680" height="380" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">OTLPパイプライン: アプリケーション → Quickwit</text>
+
+          <!-- Application Layer -->
+          <rect x="20" y="50" width="140" height="100" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="90" y="73" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">アプリケーション</text>
+          <text x="90" y="92" text-anchor="middle" font-size="10" fill="#555">OTel SDK</text>
+          <rect x="34" y="102" width="112" height="18" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+          <text x="90" y="115" text-anchor="middle" font-size="10" fill="#202122">Logs / Traces / Metrics</text>
+          <text x="90" y="140" text-anchor="middle" font-size="10" fill="#888">Java / Python / Go</text>
+
+          <!-- Arrow: App -> Collector -->
+          <line x1="160" y1="100" x2="224" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <text x="192" y="92" text-anchor="middle" font-size="9" fill="#555">OTLP</text>
+
+          <!-- OTel Collector -->
+          <rect x="224" y="50" width="160" height="210" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="304" y="73" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">OTel Collector</text>
+          <rect x="238" y="85" width="132" height="24" rx="3" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="304" y="101" text-anchor="middle" font-size="10" fill="#202122">Receivers</text>
+          <text x="304" y="120" text-anchor="middle" font-size="9" fill="#888">(OTLP / Jaeger / Zipkin)</text>
+
+          <rect x="238" y="135" width="132" height="24" rx="3" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="304" y="151" text-anchor="middle" font-size="10" fill="#202122">Processors</text>
+          <text x="304" y="170" text-anchor="middle" font-size="9" fill="#888">(batch / filter / transform)</text>
+
+          <rect x="238" y="185" width="132" height="24" rx="3" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="304" y="201" text-anchor="middle" font-size="10" fill="#202122">Exporters</text>
+          <text x="304" y="220" text-anchor="middle" font-size="9" fill="#888">(otlp / otlphttp)</text>
+
+          <!-- Arrow: Collector -> Quickwit -->
+          <line x1="384" y1="155" x2="448" y2="155" stroke="#3366cc" stroke-width="2" marker-end="url(#arrowhead-blue)"/>
+          <text x="416" y="146" text-anchor="middle" font-size="9" fill="#3366cc" font-weight="bold">OTLP gRPC</text>
+          <text x="416" y="168" text-anchor="middle" font-size="9" fill="#3366cc">/ HTTP</text>
+
+          <!-- Quickwit -->
+          <rect x="448" y="50" width="210" height="210" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="553" y="73" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Quickwit</text>
+
+          <rect x="462" y="85" width="182" height="28" rx="3" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="553" y="103" text-anchor="middle" font-size="10" fill="#202122">OTLP gRPC/HTTP Receiver</text>
+
+          <rect x="462" y="125" width="182" height="28" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+          <text x="553" y="143" text-anchor="middle" font-size="10" fill="#202122">otel-traces-v0_7 インデックス</text>
+
+          <rect x="462" y="165" width="182" height="28" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+          <text x="553" y="183" text-anchor="middle" font-size="10" fill="#202122">otel-logs-v0_7 インデックス</text>
+
+          <rect x="462" y="205" width="182" height="28" rx="3" fill="#fce7f3" stroke="#ec4899" stroke-width="1"/>
+          <text x="553" y="223" text-anchor="middle" font-size="10" fill="#202122">Object Storage (S3/GCS)</text>
+
+          <!-- Query Tools -->
+          <rect x="224" y="300" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="284" y="322" text-anchor="middle" font-size="11" fill="#202122">Jaeger UI</text>
+          <text x="284" y="338" text-anchor="middle" font-size="9" fill="#888">Jaeger互換API</text>
+
+          <rect x="364" y="300" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="424" y="322" text-anchor="middle" font-size="11" fill="#202122">Grafana</text>
+          <text x="424" y="338" text-anchor="middle" font-size="9" fill="#888">データソースプラグイン</text>
+
+          <!-- Arrows: Query tools -> Quickwit -->
+          <path d="M344 322 L448 200" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="4"/>
+          <path d="M484 322 L520 260" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="4"/>
+        </svg>
+        <div class="diagram-caption">図1: OTLPパイプライン全体図。アプリケーションのOTel SDKからOpenTelemetry Collector経由でQuickwitにデータが流れ、JaegerやGrafanaから検索・可視化される。</div>
+      </div>
+
+      <h2 id="collector-config">OpenTelemetry Collectorの設定</h2>
+      <p>OpenTelemetry CollectorをQuickwitと連携させる場合、Collectorの設定ファイルにQuickwitへのOTLPエクスポーターを追加する。以下は代表的な設定例である。</p>
+
+      <h3 id="collector-traces">トレースの転送設定</h3>
+      <p>以下のYAML設定は、OTLPレシーバーでトレースを受信し、QuickwitのgRPCエンドポイントへ転送する構成である:</p>
+      <pre><code>receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+
+exporters:
+  otlp/quickwit:
+    endpoint: &lt;quickwit-host&gt;:7281
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/quickwit]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/quickwit]</code></pre>
+
+      <h3 id="collector-logs">ログのフィルタリングと変換</h3>
+      <p>ログパイプラインではProcessorを使用して、不要なフィールドの削除や属性の追加・変換が可能である。<code>filter</code>プロセッサを使用することで特定のサービスやログレベルのみを転送するフィルタリングもできる。バッチプロセッサ（<code>batch</code>）はスループット向上のために推奨される設定であり、Quickwit側のインデックス効率を高める。</p>
+
+      <h2 id="signal-types">ログ・トレース・メトリクスの取り込みフロー</h2>
+      <p>OpenTelemetryは三種類のテレメトリシグナルを定義している。Quickwitはそれぞれに対して異なる対応状況を持つ。</p>
+
+      <h3 id="logs-ingestion">ログの取り込み</h3>
+      <p>ログはOTLP経由で<code>otel-logs-v0_7</code>インデックスに格納される。このインデックスはOpenTelemetryログデータモデルに準拠したスキーマを持ち、以下のフィールドが標準的に保存される:</p>
+      <ul>
+        <li><b>timestamp</b>: ログ発生時刻（ナノ秒精度）</li>
+        <li><b>severity_text / severity_number</b>: ログレベル（INFO, WARN, ERROR等）</li>
+        <li><b>body</b>: ログメッセージ本文（全文検索対象）</li>
+        <li><b>service.name</b>: サービス識別子（Resource Attributeより）</li>
+        <li><b>trace_id / span_id</b>: ログとトレースの相関に使用</li>
+        <li><b>attributes</b>: カスタム属性（JSON形式でフラット化）</li>
+      </ul>
+
+      <h3 id="traces-ingestion">トレースの取り込み</h3>
+      <p><a href="distributed-tracing.html">分散トレーシング</a>データは<code>otel-traces-v0_7</code>インデックスに格納される。スパン単位でドキュメント化され、<code>trace_id</code>による検索で一つのトレースに属するすべてのスパンを取得できる。Quickwitのトレースインデックスはスパンの開始・終了時刻、<code>parent_span_id</code>、ステータス、タグなどを保存し、<a href="distributed-tracing.html">分散トレーシング</a>の根本原因分析に活用できる。</p>
+
+      <h3 id="metrics-ingestion">メトリクスの現状</h3>
+      <p>メトリクスシグナルについては、Quickwitは現時点でネイティブなOTLPメトリクス取り込みをサポートしていない。メトリクスはPrometheus等の専用ツールで管理し、Quickwitはログとトレースのバックエンドとして機能させるアーキテクチャが推奨される。Grafanaを活用することで、Quickwit（ログ・トレース）とPrometheus（メトリクス）を統合した統一<a href="observability.html">オブザーバビリティ</a>ダッシュボードを構築できる。</p>
+
+      <h2 id="jaeger-api">Jaeger互換APIとの関係</h2>
+      <p>Quickwitは<a href="distributed-tracing.html">分散トレーシング</a>のフロントエンドとしてJaeger UIをサポートするため、Jaeger互換のクエリAPIを実装している。これにより、既存のJaegerインフラを持つ組織はUIを変更せずにバックエンドをQuickwitに移行できる。</p>
+
+      <h3 id="jaeger-endpoints">Jaeger APIエンドポイント</h3>
+      <p>Quickwitが提供するJaeger互換エンドポイントは以下の通りである:</p>
+      <ul>
+        <li><b>サービス一覧</b>: <code>GET /api/v1/jaeger/api/services</code></li>
+        <li><b>トレース検索</b>: <code>GET /api/v1/jaeger/api/traces?service=&lt;name&gt;</code></li>
+        <li><b>トレース詳細</b>: <code>GET /api/v1/jaeger/api/traces/&lt;trace_id&gt;</code></li>
+      </ul>
+      <p>Jaeger UIの設定でQuickwitのAPIエンドポイントを指定することで、既存のJaegerダッシュボードをそのまま流用できる。OpenTelemetry CollectorにJaegerレシーバーを設定している場合、CollectorがデータをOTLP形式に変換してQuickwitへ転送するパターンも可能である。</p>
+
+      <h2 id="grafana-zipkin">GrafanaおよびZipkinとの統合パターン</h2>
+      <p>Quickwitはエコシステムの主要ツールとの統合を提供しており、既存のオブザーバビリティスタックへのドロップイン置換として機能する。</p>
+
+      <h3 id="grafana-integration">Grafanaとの統合</h3>
+      <p>Quickwit公式のGrafanaデータソースプラグインを使用することで、Grafanaダッシュボードからログ・トレースのクエリと可視化が可能になる。設定手順は以下の通りである:</p>
+      <ul>
+        <li>GrafanaにQuickwitプラグインをインストールする（<code>grafana-cli plugins install quickwit-quickwit-datasource</code>）</li>
+        <li>Grafana UIからデータソースを追加し、QuickwitのURLを設定する</li>
+        <li>インデックス名（<code>otel-logs-v0_7</code>など）を指定してクエリを作成する</li>
+      </ul>
+      <p>Grafana Explore機能を使用すれば、ログとトレースをリンクして相関分析ができる。<code>trace_id</code>フィールドを活用したログ→トレースのジャンプ機能により、障害発生時の根本原因分析が効率化される。</p>
+
+      <h3 id="zipkin-integration">Zipkinとの統合</h3>
+      <p>Zipkin形式のトレースデータはOpenTelemetry CollectorのZipkinレシーバーを経由してQuickwitに取り込むことができる。CollectorがZipkin形式からOTLP形式への変換を担うため、Quickwit側の設定変更は不要である。Zipkin UIを引き続き使用したい場合は、CollectorがQuickwitとZipkinバックエンドの両方にエクスポートするファンアウト構成が可能である。</p>
+
+      <h2 id="sdk-instrumentation">SDKでのインストルメンテーション</h2>
+      <p>アプリケーションにOpenTelemetry SDKを組み込むことで、トレース・ログをQuickwitに直接送信できる。OpenTelemetry SDKはJava・Python・Go・Node.js・.NETなど主要言語に対応している。</p>
+
+      <h3 id="sdk-config">SDKエクスポーター設定</h3>
+      <p>SDKの設定でOTLPエクスポーターのエンドポイントをQuickwit（またはOpenTelemetry Collector）に向けることでテレメトリデータが送信される。環境変数による設定が最も汎用的な方法である:</p>
+      <pre><code># OTLPエクスポーターエンドポイント（Collectorを経由する場合）
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+
+# または直接Quickwitに送信する場合
+OTEL_EXPORTER_OTLP_ENDPOINT=http://quickwit-host:7280
+
+# サービス名の設定
+OTEL_SERVICE_NAME=my-application
+OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production</code></pre>
+
+      <h3 id="auto-instrumentation">自動インストルメンテーション</h3>
+      <p>多くのOpenTelemetry SDKは自動インストルメンテーション機能を提供しており、コード変更なしにHTTPリクエスト・データベースクエリ・メッセージングなどのトレースを自動収集できる。JavaエージェントやPythonの<code>opentelemetry-instrument</code>コマンドを使用することで、既存アプリケーションへの最小限の変更でQuickwitへのテレメトリ送信を開始できる。より詳細なデータ収集には、<a href="quickwit-ingest.html">データ取り込みソース</a>の設定と組み合わせることが推奨される。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#otlp-protocol">OTLPプロトコルとネイティブサポート</a></li>
+          <li class="toc-h3"><a href="#otlp-endpoints">OTLPエンドポイント</a></li>
+          <li><a href="#collector-config">OpenTelemetry Collectorの設定</a></li>
+          <li class="toc-h3"><a href="#collector-traces">トレースの転送設定</a></li>
+          <li class="toc-h3"><a href="#collector-logs">ログのフィルタリングと変換</a></li>
+          <li><a href="#signal-types">ログ・トレース・メトリクスの取り込みフロー</a></li>
+          <li class="toc-h3"><a href="#logs-ingestion">ログの取り込み</a></li>
+          <li class="toc-h3"><a href="#traces-ingestion">トレースの取り込み</a></li>
+          <li class="toc-h3"><a href="#metrics-ingestion">メトリクスの現状</a></li>
+          <li><a href="#jaeger-api">Jaeger互換APIとの関係</a></li>
+          <li class="toc-h3"><a href="#jaeger-endpoints">Jaeger APIエンドポイント</a></li>
+          <li><a href="#grafana-zipkin">GrafanaおよびZipkinとの統合パターン</a></li>
+          <li class="toc-h3"><a href="#grafana-integration">Grafanaとの統合</a></li>
+          <li class="toc-h3"><a href="#zipkin-integration">Zipkinとの統合</a></li>
+          <li><a href="#sdk-instrumentation">SDKでのインストルメンテーション</a></li>
+          <li class="toc-h3"><a href="#sdk-config">SDKエクスポーター設定</a></li>
+          <li class="toc-h3"><a href="#auto-instrumentation">自動インストルメンテーション</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="distributed-tracing.html">分散トレーシング</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+          <li><a href="quickwit-ingest.html">データ取り込みソース</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+        <li><a href="distributed-tracing.html">分散トレーシング</a></li>
+        <li><a href="quickwit-ingest.html">データ取り込みソース</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

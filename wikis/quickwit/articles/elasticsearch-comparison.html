@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElasticsearchとQuickwitの比較 - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    ElasticsearchとQuickwitの比較
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ElasticsearchとQuickwitの比較</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">ElasticsearchとQuickwitは、どちらも大規模なテキスト・ログデータの検索・分析を目的としたエンジンだが、設計哲学・アーキテクチャ・コスト特性において根本的な違いを持つ。本記事ではその差異をアーキテクチャ、コスト、検索性能、取り込み特性、移行しやすさ、ユースケース別推奨の観点から詳解する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>ElasticsearchとQuickwitの比較</b>は、ログ管理・オブザーバビリティ基盤を選定する際に最も頻繁に論じられるトピックのひとつである。Elasticsearchは2010年代初頭に登場し、業界標準の全文検索・分析プラットフォームとして広く採用された。一方、<a href="quickwit.html">Quickwit</a>は2021年以降にクラウドネイティブ環境向けの代替として台頭し、特にコスト効率と運用シンプルさを重視するチームから注目を集めている。</p>
+      <p>両者の最大の設計上の差異は「ストレージをどこに置くか」という一点に集約される。Elasticsearchはローカルまたはネットワーク接続ディスク（SSD）を前提とするのに対し、Quickwitはオブジェクトストレージ（S3/GCS/Azure Blob）をプライマリストレージとして設計されている。この違いがコスト、スケーリング特性、レイテンシのトレードオフを大きく規定する。</p>
+
+      <h2 id="architecture">アーキテクチャの違い</h2>
+
+      <h3 id="elasticsearch-arch">Elasticsearchのアーキテクチャ</h3>
+      <p>Elasticsearchは<b>JVM（Java Virtual Machine）</b>上で動作し、Apache Luceneを検索エンジンコアとして使用する。データはシャード単位で各ノードのローカルディスクに分散保存される。シャードはプライマリとレプリカのペアで冗長性を確保し、ノード間で自動的にリバランスされる。</p>
+      <ul>
+        <li><b>ランタイム</b>: JVM（Java / Kotlin）</li>
+        <li><b>検索コア</b>: Apache Lucene</li>
+        <li><b>ストレージ</b>: ローカルSSD / NVMe（各ノードに物理的に配置）</li>
+        <li><b>冗長性</b>: シャードレプリカ（デフォルトで1レプリカ）</li>
+        <li><b>スケーリング</b>: ストレージとコンピュートが結合（スケールアウト時に両方を増やす必要あり）</li>
+      </ul>
+
+      <h3 id="quickwit-arch">Quickwitのアーキテクチャ</h3>
+      <p>Quickwitは<b>Rust</b>で実装され、<a href="apache-tantivy.html">Apache Tantivy</a>を検索コアとして使用する。インデックスはイミュータブルなスプリット（Split）として<a href="object-storage-search.html">オブジェクトストレージ</a>に保存され、コンピュートノード（インデクサー・サーチャー）は必要に応じてスプリットをダウンロード・キャッシュして検索を実行する。</p>
+      <ul>
+        <li><b>ランタイム</b>: Rust（GCなし、低メモリフットプリント）</li>
+        <li><b>検索コア</b>: Apache Tantivy</li>
+        <li><b>ストレージ</b>: S3 / GCS / Azure Blob Storage（オブジェクトストレージ）</li>
+        <li><b>冗長性</b>: オブジェクトストレージ側で担保（追加レプリカ不要）</li>
+        <li><b>スケーリング</b>: ストレージとコンピュートを独立してスケール可能</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" width="700" height="320">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="700" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="350" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">アーキテクチャ比較: Elasticsearch vs Quickwit</text>
+
+          <!-- Elasticsearch side -->
+          <text x="175" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#3366cc">Elasticsearch</text>
+          <rect x="20" y="62" width="310" height="230" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- ES: Client -->
+          <rect x="115" y="78" width="120" height="34" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="175" y="100" text-anchor="middle" font-size="11" fill="#202122">クライアント / Kibana</text>
+
+          <!-- ES: Node cluster -->
+          <rect x="40" y="136" width="270" height="120" rx="5" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="175" y="155" text-anchor="middle" font-size="11" fill="#555">Elasticsearchクラスタ</text>
+
+          <!-- ES: Nodes with local disks -->
+          <rect x="55" y="165" width="70" height="50" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="90" y="183" text-anchor="middle" font-size="10" fill="#202122">Node 1</text>
+          <text x="90" y="196" text-anchor="middle" font-size="9" fill="#555">SSD Shard</text>
+          <text x="90" y="208" text-anchor="middle" font-size="9" fill="#555">A,B (primary)</text>
+
+          <rect x="140" y="165" width="70" height="50" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="175" y="183" text-anchor="middle" font-size="10" fill="#202122">Node 2</text>
+          <text x="175" y="196" text-anchor="middle" font-size="9" fill="#555">SSD Shard</text>
+          <text x="175" y="208" text-anchor="middle" font-size="9" fill="#555">C,A (replica)</text>
+
+          <rect x="225" y="165" width="70" height="50" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="260" y="183" text-anchor="middle" font-size="10" fill="#202122">Node 3</text>
+          <text x="260" y="196" text-anchor="middle" font-size="9" fill="#555">SSD Shard</text>
+          <text x="260" y="208" text-anchor="middle" font-size="9" fill="#555">B,C (replica)</text>
+
+          <!-- ES coupling label -->
+          <text x="175" y="270" text-anchor="middle" font-size="10" fill="#dc2626">ストレージ ＋ コンピュート結合</text>
+
+          <!-- Arrow client -> cluster -->
+          <line x1="175" y1="112" x2="175" y2="132" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Quickwit side -->
+          <text x="525" y="52" text-anchor="middle" font-size="13" font-weight="bold" fill="#3366cc">Quickwit</text>
+          <rect x="370" y="62" width="310" height="230" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- QW: Client -->
+          <rect x="465" y="78" width="120" height="34" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="525" y="100" text-anchor="middle" font-size="11" fill="#202122">クライアント / Grafana</text>
+
+          <!-- QW: Searcher nodes -->
+          <rect x="390" y="132" width="130" height="60" rx="5" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="455" y="150" text-anchor="middle" font-size="11" fill="#202122">Searcherノード</text>
+          <text x="455" y="165" text-anchor="middle" font-size="9" fill="#555">(独立スケール)</text>
+          <text x="455" y="178" text-anchor="middle" font-size="9" fill="#555">キャッシュ: SSD</text>
+
+          <!-- QW: Object Storage -->
+          <rect x="390" y="218" width="270" height="55" rx="5" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="525" y="240" text-anchor="middle" font-size="11" fill="#202122">オブジェクトストレージ（S3 / GCS）</text>
+          <text x="525" y="256" text-anchor="middle" font-size="9" fill="#555">Splits（イミュータブル）— 冗長性はストレージ側で担保</text>
+          <text x="525" y="268" text-anchor="middle" font-size="9" fill="#22c55e">ストレージ ＋ コンピュート分離</text>
+
+          <!-- QW: Indexer nodes -->
+          <rect x="540" y="132" width="120" height="60" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="600" y="150" text-anchor="middle" font-size="11" fill="#202122">Indexerノード</text>
+          <text x="600" y="165" text-anchor="middle" font-size="9" fill="#555">(独立スケール)</text>
+          <text x="600" y="178" text-anchor="middle" font-size="9" fill="#555">データ取り込み</text>
+
+          <!-- Arrows QW -->
+          <line x1="525" y1="112" x2="480" y2="128" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="455" y1="192" x2="455" y2="214" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="600" y1="192" x2="580" y2="214" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+        </svg>
+        <div class="diagram-caption">図1: アーキテクチャ比較。Elasticsearchはストレージとコンピュートが各ノードに結合するのに対し、Quickwitはオブジェクトストレージを共有バックエンドとしてコンピュートを分離する。</div>
+      </div>
+
+      <h2 id="cost">コスト比較</h2>
+
+      <h3 id="storage-cost">ストレージコスト</h3>
+      <p>Elasticsearchにおいてデータ冗長性を確保するにはシャードレプリカが必要であり、デフォルト設定（1レプリカ）ではデータ量の2倍のSSDストレージが必要になる。SSDはオブジェクトストレージと比べて単価が大幅に高い。</p>
+      <p>Quickwitはオブジェクトストレージを利用するため、Amazon S3の標準ストレージクラスでは1GBあたり約$0.023/月（東京リージョン）となる。これはNVMe SSDのクラウドコスト（$0.1〜$0.2/GB/月）と比較すると、<b>5〜10倍のコスト差</b>がある。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 260" width="600" height="260">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <rect width="600" height="260" fill="#f8f9fa" rx="8"/>
+          <text x="300" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">ストレージコスト比較（1TB/月 あたり）</text>
+
+          <!-- Y axis label -->
+          <text x="14" y="140" text-anchor="middle" font-size="10" fill="#555" transform="rotate(-90,14,140)">コスト（USD/月）</text>
+
+          <!-- Axes -->
+          <line x1="80" y1="50" x2="80" y2="210" stroke="#202122" stroke-width="1.5"/>
+          <line x1="80" y1="210" x2="560" y2="210" stroke="#202122" stroke-width="1.5"/>
+
+          <!-- Y axis ticks -->
+          <line x1="76" y1="210" x2="80" y2="210" stroke="#202122" stroke-width="1"/>
+          <text x="72" y="214" text-anchor="end" font-size="10" fill="#555">$0</text>
+          <line x1="76" y1="170" x2="80" y2="170" stroke="#202122" stroke-width="1"/>
+          <text x="72" y="174" text-anchor="end" font-size="10" fill="#555">$40</text>
+          <line x1="76" y1="130" x2="80" y2="130" stroke="#202122" stroke-width="1"/>
+          <text x="72" y="134" text-anchor="end" font-size="10" fill="#555">$80</text>
+          <line x1="76" y1="90" x2="80" y2="90" stroke="#202122" stroke-width="1"/>
+          <text x="72" y="94" text-anchor="end" font-size="10" fill="#555">$120</text>
+          <line x1="76" y1="50" x2="80" y2="50" stroke="#202122" stroke-width="1"/>
+          <text x="72" y="54" text-anchor="end" font-size="10" fill="#555">$160</text>
+
+          <!-- Grid lines -->
+          <line x1="80" y1="170" x2="560" y2="170" stroke="#e5e7eb" stroke-width="1"/>
+          <line x1="80" y1="130" x2="560" y2="130" stroke="#e5e7eb" stroke-width="1"/>
+          <line x1="80" y1="90" x2="560" y2="90" stroke="#e5e7eb" stroke-width="1"/>
+          <line x1="80" y1="50" x2="560" y2="50" stroke="#e5e7eb" stroke-width="1"/>
+
+          <!-- Bar: Elasticsearch (SSD x2 replicas ~$150) -->
+          <!-- $150 -> y = 210 - (150/160)*160 = 210 - 150 = 60 -->
+          <rect x="130" y="60" width="80" height="150" fill="#ef4444" rx="4"/>
+          <text x="170" y="56" text-anchor="middle" font-size="11" font-weight="bold" fill="#ef4444">$150</text>
+          <text x="170" y="225" text-anchor="middle" font-size="11" fill="#202122">Elasticsearch</text>
+          <text x="170" y="238" text-anchor="middle" font-size="9" fill="#555">SSD x2レプリカ</text>
+
+          <!-- Bar: OpenSearch (similar ~$140) -->
+          <!-- $140 -> y = 210 - (140/160)*160 = 210 - 140 = 70 -->
+          <rect x="250" y="70" width="80" height="140" fill="#f97316" rx="4"/>
+          <text x="290" y="66" text-anchor="middle" font-size="11" font-weight="bold" fill="#f97316">$140</text>
+          <text x="290" y="225" text-anchor="middle" font-size="11" fill="#202122">OpenSearch</text>
+          <text x="290" y="238" text-anchor="middle" font-size="9" fill="#555">SSD x2レプリカ</text>
+
+          <!-- Bar: Quickwit hot ($15 compute + $23 S3 = ~$38) -->
+          <!-- $38 -> y = 210 - (38/160)*160 = 210 - 38 = 172 -->
+          <rect x="370" y="172" width="80" height="38" fill="#3366cc" rx="4"/>
+          <text x="410" y="167" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">$38</text>
+          <text x="410" y="225" text-anchor="middle" font-size="11" fill="#202122">Quickwit</text>
+          <text x="410" y="238" text-anchor="middle" font-size="9" fill="#555">S3 + コンピュート</text>
+
+          <!-- Bar: Quickwit cold ($23 S3 only) -->
+          <!-- $23 -> y = 210 - (23/160)*160 = 210 - 23 = 187 -->
+          <rect x="480" y="187" width="80" height="23" fill="#22c55e" rx="4"/>
+          <text x="520" y="182" text-anchor="middle" font-size="11" font-weight="bold" fill="#22c55e">$23</text>
+          <text x="520" y="225" text-anchor="middle" font-size="11" fill="#202122">Quickwit Cold</text>
+          <text x="520" y="238" text-anchor="middle" font-size="9" fill="#555">S3のみ（長期保存）</text>
+        </svg>
+        <div class="diagram-caption">図2: 1TB/月あたりのストレージコスト概算比較。Quickwitはオブジェクトストレージを活用することでElasticsearchの1/4〜1/6のコストを実現できる。</div>
+      </div>
+
+      <h3 id="operational-cost">運用コスト</h3>
+      <p>Elasticsearchはシャードリバランス、ノード追加時のデータ移動、ヒープメモリ管理（JVM GC）など、運用上の複雑さが高い。特にクラスタが大規模になるとシャード数が増加し、メタデータ管理のオーバーヘッドが問題になることがある（「シャード爆発」問題）。</p>
+      <p>Quickwitはステートレスなコンピュートノードを採用するため、ノード追加・削除が容易でデータ移動が不要である。ただし、オブジェクトストレージへのAPIコール料金やデータ転送コストが追加で発生する点は考慮が必要である。</p>
+
+      <h2 id="latency">検索レイテンシ比較</h2>
+
+      <h3 id="hot-data">ホットデータの検索</h3>
+      <p>Elasticsearchはデータをローカルディスクに保持するため、直近のデータ（ホットデータ）に対しては<b>数ミリ秒〜数十ミリ秒</b>のレイテンシで応答できる。これはリアルタイムモニタリングやインタラクティブなダッシュボードに適している。</p>
+      <p>Quickwitはサーチャーノードにローカルキャッシュ（SSD）を持つが、キャッシュミス時にはオブジェクトストレージからスプリットをダウンロードする必要がある。キャッシュがウォームアップされた状態では<b>数十ミリ秒〜数百ミリ秒</b>程度のレイテンシを達成できる。</p>
+
+      <h3 id="cold-data">コールドデータの検索</h3>
+      <p>数週間〜数ヶ月前の古いデータ（コールドデータ）の検索では、Elasticsearchでも「コールドノード」（HDD使用）への移行でコスト削減を図ることが多いが、クラスタ設計が複雑になる。</p>
+      <p>Quickwitはコールドデータに対してもオブジェクトストレージから直接検索が可能で、キャッシュがない場合でも<b>数秒</b>程度でレスポンスが返る。ログ検索や分析ユースケースではこのレイテンシは十分許容できることが多い。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 200" width="620" height="200">
+          <rect width="620" height="200" fill="#f8f9fa" rx="8"/>
+          <text x="310" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">検索レイテンシ比較（概算）</text>
+
+          <!-- Header row -->
+          <rect x="20" y="38" width="180" height="28" fill="#e5e7eb" rx="3"/>
+          <text x="110" y="57" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ケース</text>
+          <rect x="202" y="38" width="190" height="28" fill="#e5e7eb" rx="3"/>
+          <text x="297" y="57" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Elasticsearch</text>
+          <rect x="394" y="38" width="206" height="28" fill="#e5e7eb" rx="3"/>
+          <text x="497" y="57" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Quickwit</text>
+
+          <!-- Row 1 -->
+          <rect x="20" y="68" width="180" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="110" y="88" text-anchor="middle" font-size="10" fill="#202122">ホットデータ（キャッシュ済み）</text>
+          <rect x="202" y="68" width="190" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="297" y="88" text-anchor="middle" font-size="10" fill="#22c55e">5〜50ms（高速）</text>
+          <rect x="394" y="68" width="206" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="497" y="88" text-anchor="middle" font-size="10" fill="#3366cc">50〜300ms（良好）</text>
+
+          <!-- Row 2 -->
+          <rect x="20" y="100" width="180" height="30" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="110" y="120" text-anchor="middle" font-size="10" fill="#202122">ホットデータ（キャッシュなし）</text>
+          <rect x="202" y="100" width="190" height="30" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="297" y="120" text-anchor="middle" font-size="10" fill="#22c55e">10〜100ms（高速）</text>
+          <rect x="394" y="100" width="206" height="30" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="497" y="120" text-anchor="middle" font-size="10" fill="#f97316">500ms〜3s（中程度）</text>
+
+          <!-- Row 3 -->
+          <rect x="20" y="132" width="180" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="110" y="152" text-anchor="middle" font-size="10" fill="#202122">コールドデータ（数週間前）</text>
+          <rect x="202" y="132" width="190" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="297" y="152" text-anchor="middle" font-size="10" fill="#f97316">コールドノード: 100ms〜1s</text>
+          <rect x="394" y="132" width="206" height="30" fill="#fff" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="497" y="152" text-anchor="middle" font-size="10" fill="#3366cc">1〜5s（許容範囲）</text>
+
+          <!-- Row 4 -->
+          <rect x="20" y="164" width="180" height="28" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="110" y="182" text-anchor="middle" font-size="10" fill="#202122">大規模集計（数十億件）</text>
+          <rect x="202" y="164" width="190" height="28" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="297" y="182" text-anchor="middle" font-size="10" fill="#3366cc">数秒〜数十秒</text>
+          <rect x="394" y="164" width="206" height="28" fill="#f9fafb" stroke="#a2a9b1" stroke-width="0.5"/>
+          <text x="497" y="182" text-anchor="middle" font-size="10" fill="#3366cc">数秒〜数十秒</text>
+        </svg>
+        <div class="diagram-caption">図3: 検索レイテンシ比較表。Elasticsearchはリアルタイム性に優れ、Quickwitはコールドデータの長期保存・検索のコスト効率に優れる。</div>
+      </div>
+
+      <h2 id="ingest-latency">取り込みレイテンシの違い</h2>
+      <p>取り込みレイテンシは両者の最も顕著な差異のひとつである。</p>
+      <p>Elasticsearchはドキュメントを取り込んだ後、デフォルトで<b>1秒ごとにセグメントをリフレッシュ</b>し、検索可能な状態にする。リフレッシュ間隔を短縮することでリアルタイムに近い取り込みも可能だが、インデックスのマージ負荷が上昇する。</p>
+      <p>Quickwitはスプリット単位でバッファリングを行い、オブジェクトストレージにコミットしてから検索可能になる。デフォルト設定では<b>数秒〜数十秒</b>の取り込みレイテンシが存在する。Elasticsearch互換の Ingest API を使用した場合でも、ほぼリアルタイムの検索可能性はサポートされない。</p>
+      <p>この特性から、<b>秒以下のリアルタイム検索が必要なユースケース</b>（例: ライブモニタリング、不正検知）ではElasticsearchが優位であり、<b>数秒〜数分の遅延が許容されるユースケース</b>（例: ログ分析、バッチ型SIEM）ではQuickwitが適している。</p>
+
+      <h2 id="compatibility">Elasticsearch互換APIと移行のしやすさ</h2>
+
+      <h3 id="es-compat-api">Elasticsearch互換API</h3>
+      <p>Quickwitは<b>Elasticsearch Query DSL互換のREST API</b>を提供しており、ElasticsearchクライアントライブラリやGrafanaのElasticsearchデータソースプラグインをそのまま使用できる。これにより、Fluentd、Vector、Logstashなどのログ転送エージェントからQuickwitへの切り替えは設定変更だけで完了するケースが多い。</p>
+      <p>ただし、すべてのElasticsearch APIが実装されているわけではなく、特にインデックステンプレート、エイリアス管理、Pipeline Ingestなど高度な管理機能には制限がある。移行前に利用中のAPIの互換性を確認することが推奨される。</p>
+
+      <h3 id="opensearch">OpenSearchとの関係</h3>
+      <p>AWSが主導するOpenSearchはElasticsearchのオープンソースフォークであり、APIレベルではElasticsearchと高い互換性を持つ。QuickwitはElasticsearch / OpenSearch双方の移行元として機能できる。AWSのOpenSearch Serverlessもオブジェクトストレージベースのアーキテクチャを採用しているが、マネージドサービスであるのに対しQuickwitはセルフホストが可能な点が異なる。</p>
+
+      <h2 id="use-cases">ユースケース別推奨</h2>
+
+      <h3 id="realtime">リアルタイム検索が必要な場合（Elasticsearch推奨）</h3>
+      <ul>
+        <li>EC・メディアサイトの全文検索（ユーザー向け検索ボックス）</li>
+        <li>ライブモニタリングダッシュボード（1秒以下の反映が必要）</li>
+        <li>オートコンプリートや類似検索（低レイテンシが必須）</li>
+        <li>頻繁なドキュメント更新（Elasticsearchはミュータブルドキュメントをサポート）</li>
+      </ul>
+
+      <h3 id="log-analytics">ログ分析・長期保存の場合（Quickwit推奨）</h3>
+      <ul>
+        <li>大規模ログ管理（数TB〜ペタバイト規模）でコスト最適化が優先される場合</li>
+        <li><a href="observability.html">オブザーバビリティ</a>基盤（ログ・トレース・メトリクス）のバックエンド</li>
+        <li>コールドデータを長期間保存しながら必要に応じてアドホック検索を行うSIEM</li>
+        <li>クラウドネイティブ環境でのマルチテナント型ログ基盤</li>
+        <li>Elasticsearchのシャード爆発問題やコスト課題を解決したい場合</li>
+      </ul>
+
+      <h2 id="scaling">スケーリング特性の違い</h2>
+      <p>Elasticsearchは<b>スケールアウト時にストレージとコンピュートが連動</b>する。データ量が増えるとノードを追加してストレージとCPU両方を増強する必要があり、新しいノードへのシャード再配置でI/Oが発生する。</p>
+      <p>Quickwitは<b>ストレージとコンピュートを独立してスケール</b>できる。ログの流量が増えた場合はインデクサーノードを追加し、クエリ負荷が増えた場合はサーチャーノードを増やすだけでよい。オブジェクトストレージ側はほぼ無制限にスケールするため、ストレージ容量の上限を意識しなくてよい。</p>
+      <p>この特性はクラウド環境における<b>スポットインスタンス</b>や<b>オートスケーリング</b>との相性が良く、負荷変動の大きいワークロードでのコスト最適化に有効である。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#architecture">アーキテクチャの違い</a></li>
+          <li class="toc-h3"><a href="#elasticsearch-arch">Elasticsearch</a></li>
+          <li class="toc-h3"><a href="#quickwit-arch">Quickwit</a></li>
+          <li><a href="#cost">コスト比較</a></li>
+          <li class="toc-h3"><a href="#storage-cost">ストレージコスト</a></li>
+          <li class="toc-h3"><a href="#operational-cost">運用コスト</a></li>
+          <li><a href="#latency">検索レイテンシ比較</a></li>
+          <li class="toc-h3"><a href="#hot-data">ホットデータ</a></li>
+          <li class="toc-h3"><a href="#cold-data">コールドデータ</a></li>
+          <li><a href="#ingest-latency">取り込みレイテンシの違い</a></li>
+          <li><a href="#compatibility">互換APIと移行しやすさ</a></li>
+          <li class="toc-h3"><a href="#es-compat-api">Elasticsearch互換API</a></li>
+          <li class="toc-h3"><a href="#opensearch">OpenSearchとの関係</a></li>
+          <li><a href="#use-cases">ユースケース別推奨</a></li>
+          <li class="toc-h3"><a href="#realtime">リアルタイム検索</a></li>
+          <li class="toc-h3"><a href="#log-analytics">ログ分析・長期保存</a></li>
+          <li><a href="#scaling">スケーリング特性の違い</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+          <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+        <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

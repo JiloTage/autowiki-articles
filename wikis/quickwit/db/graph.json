@@ -1,0 +1,256 @@
+{
+  "nodes": [
+    {
+      "id": "quickwit",
+      "title": "Quickwit",
+      "url": "articles/quickwit.html",
+      "summary": "Quickwitは、Rustで実装されたクラウドネイティブな分散型検索・分析エンジンであり、大規模なログ管理や観測性（オブザーバビリティ）ワークフロー向けに設計されたオープンソースプロジェクトです。",
+      "is_root": false
+    },
+    {
+      "id": "apache-tantivy",
+      "title": "Apache Tantivy",
+      "url": "articles/apache-tantivy.html",
+      "summary": "Apache TantivyはRustで実装された高性能な全文検索エンジンライブラリであり、Apache LuceneをインスパイアしたAPIを持ちながら、Rustの安全性とゼロコスト抽象化によって優れた検索パフォーマンスを実現します。Quickwitのコア検索エンジンとして採用されています。",
+      "is_root": false
+    },
+    {
+      "id": "observability",
+      "title": "オブザーバビリティ（可観測性）",
+      "url": "articles/observability.html",
+      "summary": "オブザーバビリティ（可観測性）とは、システムの外部出力からその内部状態を推測・理解できる能力であり、ログ・メトリクス・トレースの三本柱を基盤とする。Quickwitはその中でログと分散トレースの検索基盤として機能し、OpenTelemetryとのネイティブ統合やGrafana・Jaeger連携を通じてオブザーバビリティスタックを支える。",
+      "is_root": false
+    },
+    {
+      "id": "distributed-tracing",
+      "title": "分散トレーシング",
+      "url": "articles/distributed-tracing.html",
+      "summary": "分散トレーシングは、マイクロサービスアーキテクチャにおいてリクエストの経路を追跡し、各サービスでの処理時間やエラーを可視化する観測性技術である。トレース・スパン・コンテキスト伝播の三要素により、複雑な分散システムのデバッグとパフォーマンス分析を可能にする。",
+      "is_root": false
+    },
+    {
+      "id": "quickwit-ingest",
+      "title": "Quickwitのデータ取り込みソース",
+      "url": "articles/quickwit-ingest.html",
+      "summary": "QuickwitはKafka、Apache Pulsar、S3/ファイル、REST APIなど複数のデータソースからドキュメントを取り込む柔軟な取り込みパイプラインを提供します。各ソースにはそれぞれ固有の設定・最適化オプションがあり、ユースケースに応じて選択できます。",
+      "is_root": false
+    },
+    {
+      "id": "opentelemetry-integration",
+      "title": "OpenTelemetry統合",
+      "url": "articles/opentelemetry-integration.html",
+      "summary": "QuickwitはCNCFプロジェクトであるOpenTelemetryとのネイティブ統合を提供し、OTLPプロトコルを通じてログ・トレース・メトリクスを直接受信・保存・検索できるオブザーバビリティバックエンドとして機能します。",
+      "is_root": false
+    },
+    {
+      "id": "object-storage-search",
+      "title": "オブジェクトストレージ上の検索",
+      "url": "articles/object-storage-search.html",
+      "summary": "オブジェクトストレージ上の検索とは、Amazon S3・Google Cloud Storage・Azure Blob Storageなどのクラウドオブジェクトストレージを一次検索インデックスの保存先として活用するアーキテクチャであり、ストレージとコンピュートを分離することで大規模データに対するコスト効率の高い全文検索を実現する技術的アプローチである。",
+      "is_root": false
+    },
+    {
+      "id": "quickwit-query-language",
+      "title": "Quickwitクエリ言語",
+      "url": "articles/quickwit-query-language.html",
+      "summary": "QuickwitクエリはElasticsearch Query DSLと高い互換性を持ちながら、クラウドネイティブな分散検索エンジン向けに最適化されたクエリ言語・APIである。全文検索・フィルター・集計・スクロールなど多彩な機能を提供し、既存のElasticsearchエコシステムとの親和性を保ちつつQuickwit固有のパフォーマンス特性を活かす設計となっている。",
+      "is_root": false
+    },
+    {
+      "id": "elasticsearch-comparison",
+      "title": "ElasticsearchとQuickwitの比較",
+      "url": "articles/elasticsearch-comparison.html",
+      "summary": "ElasticsearchとQuickwitは、どちらも大規模なテキスト・ログデータの検索・分析を目的としたエンジンだが、設計哲学・アーキテクチャ・コスト特性において根本的な違いを持つ。アーキテクチャ、コスト、検索性能、取り込み特性、移行しやすさ、ユースケース別推奨の観点から詳解する。",
+      "is_root": false
+    },
+    {
+      "id": "quickwit-licensing",
+      "title": "Quickwitのライセンスモデル",
+      "url": "articles/quickwit-licensing.html",
+      "summary": "Quickwitのライセンスモデルは、Apache 2.0ライセンスから始まりオープンコア（コアOSS＋エンタープライズ商用機能）へと進化してきた経緯と、クラウドプロバイダーによる無償利用問題、Elasticsearch・Redis・MongoDBなど他OSSのライセンス変更との比較、フォークとOSS持続可能性の議論を解説する。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "quickwit",
+      "target": "apache-tantivy"
+    },
+    {
+      "source": "quickwit",
+      "target": "object-storage-search"
+    },
+    {
+      "source": "quickwit",
+      "target": "observability"
+    },
+    {
+      "source": "quickwit",
+      "target": "opentelemetry-integration"
+    },
+    {
+      "source": "quickwit",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "quickwit",
+      "target": "quickwit-query-language"
+    },
+    {
+      "source": "quickwit",
+      "target": "distributed-tracing"
+    },
+    {
+      "source": "quickwit",
+      "target": "quickwit-ingest"
+    },
+    {
+      "source": "quickwit",
+      "target": "quickwit-licensing"
+    },
+    {
+      "source": "apache-tantivy",
+      "target": "quickwit"
+    },
+    {
+      "source": "apache-tantivy",
+      "target": "object-storage-search"
+    },
+    {
+      "source": "apache-tantivy",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "observability",
+      "target": "quickwit"
+    },
+    {
+      "source": "observability",
+      "target": "distributed-tracing"
+    },
+    {
+      "source": "observability",
+      "target": "opentelemetry-integration"
+    },
+    {
+      "source": "distributed-tracing",
+      "target": "quickwit"
+    },
+    {
+      "source": "distributed-tracing",
+      "target": "observability"
+    },
+    {
+      "source": "distributed-tracing",
+      "target": "opentelemetry-integration"
+    },
+    {
+      "source": "distributed-tracing",
+      "target": "object-storage-search"
+    },
+    {
+      "source": "quickwit-ingest",
+      "target": "quickwit"
+    },
+    {
+      "source": "quickwit-ingest",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "quickwit-ingest",
+      "target": "observability"
+    },
+    {
+      "source": "quickwit-ingest",
+      "target": "opentelemetry-integration"
+    },
+    {
+      "source": "opentelemetry-integration",
+      "target": "quickwit"
+    },
+    {
+      "source": "opentelemetry-integration",
+      "target": "observability"
+    },
+    {
+      "source": "opentelemetry-integration",
+      "target": "distributed-tracing"
+    },
+    {
+      "source": "opentelemetry-integration",
+      "target": "quickwit-ingest"
+    },
+    {
+      "source": "object-storage-search",
+      "target": "quickwit"
+    },
+    {
+      "source": "object-storage-search",
+      "target": "apache-tantivy"
+    },
+    {
+      "source": "object-storage-search",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "object-storage-search",
+      "target": "observability"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "quickwit"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "apache-tantivy"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "object-storage-search"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "quickwit-ingest"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "opentelemetry-integration"
+    },
+    {
+      "source": "quickwit-query-language",
+      "target": "observability"
+    },
+    {
+      "source": "elasticsearch-comparison",
+      "target": "quickwit"
+    },
+    {
+      "source": "elasticsearch-comparison",
+      "target": "apache-tantivy"
+    },
+    {
+      "source": "elasticsearch-comparison",
+      "target": "object-storage-search"
+    },
+    {
+      "source": "elasticsearch-comparison",
+      "target": "observability"
+    },
+    {
+      "source": "quickwit-licensing",
+      "target": "quickwit"
+    },
+    {
+      "source": "quickwit-licensing",
+      "target": "elasticsearch-comparison"
+    },
+    {
+      "source": "quickwit-licensing",
+      "target": "observability"
+    }
+  ]
+}

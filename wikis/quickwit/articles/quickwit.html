@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickwit - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    Quickwit
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Quickwit</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">Quickwitは、Rustで実装されたクラウドネイティブな分散型検索・分析エンジンであり、大規模なログ管理や観測性（オブザーバビリティ）ワークフロー向けに設計されたオープンソースプロジェクトです。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Quickwit</b>は、オープンソースのクラウドネイティブ検索・分析エンジンである。Rustで実装されており、S3などのオブジェクトストレージ上に検索インデックスを構築・管理することで、ペタバイト規模のデータに対してもサブ秒以内の検索を実現する。主にログ管理、分散トレーシング、セキュリティ分析（SIEM）などの<a href="observability.html">オブザーバビリティ</a>ユースケースを対象としている。</p>
+      <p>Quickwitは従来のElasticsearch/OpenSearchが抱えるコスト課題（ローカルSSD依存、スケーリングの複雑さ）を解決するために設計された。<a href="object-storage-search.html">オブジェクトストレージ上の検索</a>を基本アーキテクチャとすることで、ストレージとコンピュートを分離し、大幅なコスト削減と運用簡素化を実現している。</p>
+
+      <h2 id="architecture">アーキテクチャ</h2>
+      <p>Quickwitのアーキテクチャは、ストレージとコンピュートの明確な分離を特徴とする。</p>
+
+      <h3 id="storage-layer">ストレージレイヤー</h3>
+      <p>検索インデックスはすべてAmazon S3、Google Cloud Storage、Azure Blob Storageなどの<a href="object-storage-search.html">オブジェクトストレージ</a>に保存される。ローカルディスクはキャッシュのみに使用されるため、ノード障害時のデータロストリスクが排除される。インデックスはイミュータブルな「スプリット（Split）」単位で管理され、各スプリットはApache Tantivy上に構築された転置インデックスと列指向ストレージを含む。</p>
+
+      <h3 id="tantivy">Apache Tantivy</h3>
+      <p>Quickwitの検索エンジンコアは<a href="apache-tantivy.html">Apache Tantivy</a>である。TantivyはRustで実装された全文検索エンジンライブラリで、Apache LuceneをインスパイアしたAPIを提供しながら、Rustの安全性とパフォーマンスを活かしている。Quickwitはこの上に分散レイヤー、インデックス管理、クエリプランナーを構築している。</p>
+
+      <h3 id="distributed">分散アーキテクチャ</h3>
+      <p>Quickwitクラスタは複数のロールを持つノードで構成される:</p>
+      <ul>
+        <li><b>インデクサー（Indexer）</b>: データソースからドキュメントを取得し、スプリットを生成してオブジェクトストレージにアップロードする</li>
+        <li><b>サーチャー（Searcher）</b>: スプリットをダウンロード（またはキャッシュ参照）してクエリを実行する</li>
+        <li><b>コントロールプレーン</b>: クラスタのメタデータ管理とスケジューリングを担当する</li>
+      </ul>
+      <p>ノード間の調整にはメタストアが使用され、PostgreSQLまたはファイルシステムが選択できる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340">
+          <!-- Background -->
+          <rect width="640" height="340" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="320" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Quickwit アーキテクチャ概要</text>
+
+          <!-- Data Sources -->
+          <rect x="20" y="60" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="86" text-anchor="middle" font-size="12" fill="#202122">データソース</text>
+          <text x="80" y="100" text-anchor="middle" font-size="10" fill="#555">(Kafka / S3 / etc.)</text>
+
+          <!-- Indexer -->
+          <rect x="200" y="60" width="120" height="44" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="260" y="82" text-anchor="middle" font-size="12" fill="#202122">インデクサー</text>
+          <text x="260" y="97" text-anchor="middle" font-size="10" fill="#555">(Indexer Nodes)</text>
+
+          <!-- Arrow: DataSrc -> Indexer -->
+          <line x1="140" y1="82" x2="196" y2="82" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Object Storage -->
+          <rect x="360" y="50" width="140" height="64" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="430" y="76" text-anchor="middle" font-size="12" fill="#202122">オブジェクトストレージ</text>
+          <text x="430" y="92" text-anchor="middle" font-size="10" fill="#555">S3 / GCS / Azure Blob</text>
+          <text x="430" y="106" text-anchor="middle" font-size="10" fill="#555">(Splits ＝ インデックス)</text>
+
+          <!-- Arrow: Indexer -> ObjStorage -->
+          <line x1="320" y1="82" x2="356" y2="82" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Searcher -->
+          <rect x="200" y="170" width="120" height="44" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="260" y="192" text-anchor="middle" font-size="12" fill="#202122">サーチャー</text>
+          <text x="260" y="207" text-anchor="middle" font-size="10" fill="#555">(Searcher Nodes)</text>
+
+          <!-- Arrow: ObjStorage -> Searcher (down-left) -->
+          <path d="M430 114 L430 192 L324 192" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+          <!-- Control Plane -->
+          <rect x="360" y="170" width="140" height="44" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="430" y="192" text-anchor="middle" font-size="12" fill="#202122">コントロールプレーン</text>
+          <text x="430" y="207" text-anchor="middle" font-size="10" fill="#555">(Metastore / Scheduler)</text>
+
+          <!-- Arrow: Searcher <-> ControlPlane -->
+          <line x1="320" y1="192" x2="356" y2="192" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="356" y1="198" x2="320" y2="198" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow2)"/>
+
+          <!-- API Layer -->
+          <rect x="20" y="170" width="120" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="80" y="192" text-anchor="middle" font-size="12" fill="#202122">REST API</text>
+          <text x="80" y="207" text-anchor="middle" font-size="10" fill="#555">(ES互換 / ネイティブ)</text>
+
+          <!-- Arrow: API -> Searcher -->
+          <line x1="140" y1="192" x2="196" y2="192" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Cache note -->
+          <rect x="200" y="260" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4"/>
+          <text x="260" y="282" text-anchor="middle" font-size="11" fill="#555">ローカルキャッシュ</text>
+          <text x="260" y="297" text-anchor="middle" font-size="10" fill="#aaa">(SSD / RAM)</text>
+          <!-- Arrow: Searcher -> Cache -->
+          <line x1="260" y1="214" x2="260" y2="256" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3" marker-end="url(#arrow)"/>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Quickwitのシステムアーキテクチャ。インデクサー・サーチャー・コントロールプレーンが協調し、オブジェクトストレージを共有バックエンドとして使用する。</div>
+      </div>
+
+      <h2 id="features">主な機能</h2>
+      <h3 id="full-text-search">全文検索とフィルタリング</h3>
+      <p>Quickwitは全文検索、ファジーマッチ、フレーズ検索、範囲クエリ、ブール演算などをサポートする。フィールドタイプとして、テキスト・数値・日時・IPアドレス・JSONオブジェクトなどを扱える。<a href="quickwit-query-language.html">Quickwitクエリ言語</a>はElasticsearch Query DSLと互換性があるため、既存のツールチェーンをそのまま活用できる。</p>
+
+      <h3 id="aggregations">集計（アグリゲーション）</h3>
+      <p>ログ分析では集計クエリが不可欠である。Quickwitはヒストグラム、タームアグリゲーション、メトリクス集計（min/max/avg/sum）などElasticsearch互換の集計APIを提供する。</p>
+
+      <h3 id="ingest">データ取り込み</h3>
+      <p>データ取り込みは<a href="quickwit-ingest.html">複数のソース</a>に対応している:</p>
+      <ul>
+        <li><b>Kafka</b>: ストリーミング取り込みに最適化されたKafkaソース</li>
+        <li><b>Pulsar</b>: Apache Pulsarからのストリーミング取り込み</li>
+        <li><b>File / S3</b>: バッチ取り込み向けのファイルソース</li>
+        <li><b>Ingest API</b>: REST経由のリアルタイム取り込み</li>
+      </ul>
+
+      <h2 id="use-cases">ユースケース</h2>
+      <p>Quickwitは特に次のユースケースに強みを持つ:</p>
+
+      <h3 id="log-management">ログ管理</h3>
+      <p>大量のアプリケーションログ・システムログを低コストで保存・検索する。Elasticsearch互換APIにより、<a href="opentelemetry-integration.html">OpenTelemetry</a>やGrafanaなどの既存可観測性ツールとの統合がシームレスである。</p>
+
+      <h3 id="distributed-tracing">分散トレーシング</h3>
+      <p>OpenTelemetryのOTLPプロトコルをネイティブサポートし、<a href="distributed-tracing.html">分散トレーシング</a>データを効率的に格納・検索できる。Jaeger互換のUIからQuickwitをバックエンドとして利用することも可能である。</p>
+
+      <h3 id="siem">セキュリティ分析（SIEM）</h3>
+      <p>大量のセキュリティイベントログを長期保存しながら、高速な検索・集計でセキュリティインシデントを調査できる。コスト効率の高いオブジェクトストレージを活用することで、ホットデータとコールドデータの階層管理も容易になる。</p>
+
+      <h2 id="comparison">他ツールとの比較</h2>
+      <p>Quickwitは特に<a href="elasticsearch-comparison.html">Elasticsearchとの比較</a>で言及されることが多い。主な違いは以下の通りである:</p>
+      <ul>
+        <li><b>ストレージコスト</b>: オブジェクトストレージ利用によりElasticsearchの1/10程度のコスト</li>
+        <li><b>取り込みレイテンシ</b>: Quickwitは数秒〜数十秒のレイテンシ（Elasticsearchはほぼリアルタイム）</li>
+        <li><b>クエリレイテンシ</b>: コールドデータはElasticsearchより遅い場合があるが、キャッシュ効果でホットデータは競争力あり</li>
+        <li><b>スケーリング</b>: コンピュートとストレージの独立スケーリングが可能</li>
+      </ul>
+
+      <h2 id="ecosystem">エコシステムと統合</h2>
+      <p>Quickwitは多様なツールとの統合を提供する:</p>
+      <ul>
+        <li><b>Grafana</b>: Quickwit専用のGrafanaデータソースプラグインが提供されている</li>
+        <li><b>OpenTelemetry Collector</b>: OTLPエクスポーターを通じてトレース・ログを直接送信できる</li>
+        <li><b>Jaeger</b>: Jaeger互換APIにより既存のJaeger UIを流用可能</li>
+        <li><b>Vector / Fluent Bit</b>: ログ転送エージェントからElasticsearch互換APIで取り込み可能</li>
+      </ul>
+
+      <h2 id="license">ライセンスとコミュニティ</h2>
+      <p>Quickwitは当初Apache 2.0ライセンスで公開されていたが、<a href="quickwit-licensing.html">ライセンスモデル</a>はバージョンによって変遷がある。コアエンジンはオープンソースとして維持されており、GitHubでコミュニティが活発に開発を続けている。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#architecture">アーキテクチャ</a></li>
+          <li class="toc-h3"><a href="#storage-layer">ストレージレイヤー</a></li>
+          <li class="toc-h3"><a href="#tantivy">Apache Tantivy</a></li>
+          <li class="toc-h3"><a href="#distributed">分散アーキテクチャ</a></li>
+          <li><a href="#features">主な機能</a></li>
+          <li class="toc-h3"><a href="#full-text-search">全文検索とフィルタリング</a></li>
+          <li class="toc-h3"><a href="#aggregations">集計</a></li>
+          <li class="toc-h3"><a href="#ingest">データ取り込み</a></li>
+          <li><a href="#use-cases">ユースケース</a></li>
+          <li class="toc-h3"><a href="#log-management">ログ管理</a></li>
+          <li class="toc-h3"><a href="#distributed-tracing">分散トレーシング</a></li>
+          <li class="toc-h3"><a href="#siem">セキュリティ分析</a></li>
+          <li><a href="#comparison">他ツールとの比較</a></li>
+          <li><a href="#ecosystem">エコシステムと統合</a></li>
+          <li><a href="#license">ライセンスとコミュニティ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+          <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+          <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+        <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+        <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        <li><a href="quickwit-query-language.html">Quickwitクエリ言語</a></li>
+        <li><a href="distributed-tracing.html">分散トレーシング</a></li>
+        <li><a href="quickwit-ingest.html">データ取り込みソース</a></li>
+        <li><a href="quickwit-licensing.html">Quickwitライセンス</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

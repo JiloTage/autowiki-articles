@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オブザーバビリティ（可観測性） - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    オブザーバビリティ（可観測性）
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">オブザーバビリティ（可観測性）</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">オブザーバビリティ（可観測性）とは、システムの外部出力からその内部状態を推測・理解できる能力のことであり、現代のクラウドネイティブシステム運用において不可欠な概念である。ログ・メトリクス・トレースの三本柱を基盤とし、<a href="quickwit.html">Quickwit</a>はその中核インフラとして機能する。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>オブザーバビリティ（可観測性）</b>とは、制御理論に由来する概念で、システムの外部から観測可能な出力情報のみを用いて、内部状態を正確に推定できる度合いを指す。ソフトウェアエンジニアリングの文脈では、分散システムやマイクロサービスアーキテクチャにおいて「何が起きているか」だけでなく「なぜそれが起きているか」を理解するための実践的な能力として定義される。</p>
+      <p>マイクロサービスが増殖し、コンテナやサーバーレス関数が組み合わさった現代のシステムでは、従来の監視（モニタリング）手法だけでは障害の根本原因を特定することが困難になった。オブザーバビリティはこの課題に応えるアプローチとして、2010年代後半から広く普及した。<a href="quickwit.html">Quickwit</a>はオブザーバビリティのデータ基盤として、大規模なログや<a href="distributed-tracing.html">分散トレース</a>データをコスト効率よく保存・検索する機能を提供する。</p>
+
+      <h2 id="three-pillars">三本柱：ログ・メトリクス・トレース</h2>
+      <p>オブザーバビリティは一般に「三本柱（Three Pillars）」と呼ばれる3種類のテレメトリデータによって支えられる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 320" width="660" height="320">
+          <defs>
+            <marker id="obs-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="660" height="320" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="330" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">オブザーバビリティの三本柱</text>
+
+          <!-- System box -->
+          <rect x="240" y="50" width="180" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="330" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">分散システム</text>
+          <text x="330" y="89" text-anchor="middle" font-size="10" fill="#555">(マイクロサービス / コンテナ)</text>
+
+          <!-- Logs pillar -->
+          <rect x="40" y="165" width="160" height="100" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="120" y="192" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">ログ (Logs)</text>
+          <text x="120" y="212" text-anchor="middle" font-size="10" fill="#555">イベントの時系列記録</text>
+          <text x="120" y="228" text-anchor="middle" font-size="10" fill="#555">構造化 / 非構造化</text>
+          <text x="120" y="244" text-anchor="middle" font-size="10" fill="#555">デバッグ・監査に有効</text>
+
+          <!-- Metrics pillar -->
+          <rect x="250" y="165" width="160" height="100" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="330" y="192" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">メトリクス (Metrics)</text>
+          <text x="330" y="212" text-anchor="middle" font-size="10" fill="#555">数値の時系列データ</text>
+          <text x="330" y="228" text-anchor="middle" font-size="10" fill="#555">CPU / メモリ / レイテンシ</text>
+          <text x="330" y="244" text-anchor="middle" font-size="10" fill="#555">アラートに有効</text>
+
+          <!-- Traces pillar -->
+          <rect x="460" y="165" width="160" height="100" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="540" y="192" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">トレース (Traces)</text>
+          <text x="540" y="212" text-anchor="middle" font-size="10" fill="#555">リクエストの伝播経路</text>
+          <text x="540" y="228" text-anchor="middle" font-size="10" fill="#555">スパン / 分散コンテキスト</text>
+          <text x="540" y="244" text-anchor="middle" font-size="10" fill="#555">ボトルネック特定に有効</text>
+
+          <!-- Arrows from system to pillars -->
+          <path d="M280 100 L120 162" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#obs-arrow)"/>
+          <line x1="330" y1="100" x2="330" y2="162" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#obs-arrow)"/>
+          <path d="M380 100 L540 162" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#obs-arrow)"/>
+
+          <!-- Quickwit label at bottom -->
+          <rect x="170" y="280" width="320" height="28" rx="5" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+          <text x="330" y="299" text-anchor="middle" font-size="11" fill="#202122">Quickwit: ログ・トレースデータの検索基盤として機能</text>
+        </svg>
+        <div class="diagram-caption">図1: オブザーバビリティの三本柱。システムからログ・メトリクス・トレースが生成され、それぞれ異なる観点でシステムの内部状態を可視化する。</div>
+      </div>
+
+      <h3 id="logs">ログ（Logs）</h3>
+      <p>ログはシステム内で発生した個別イベントのタイムスタンプ付き記録である。アプリケーションログ、アクセスログ、エラーログなどが含まれ、非構造化テキストと構造化JSON形式の両方が使われる。ログは最も古典的なデバッグ手段であり、特定の時刻に何が起きたかを詳細に記録する。<a href="quickwit.html">Quickwit</a>はその転置インデックスと列指向ストレージを活かし、ペタバイト規模のログデータに対して高速な全文検索とフィルタリングを提供する。</p>
+
+      <h3 id="metrics">メトリクス（Metrics）</h3>
+      <p>メトリクスは数値の時系列データであり、システムのパフォーマンス指標（CPU使用率、メモリ消費量、レスポンスタイム、エラーレートなど）を表す。低コストで高頻度収集が可能なため、アラートや容量計画に適している。Prometheus形式のメトリクス収集が広く普及しており、Grafanaと組み合わせたダッシュボード可視化が標準的なスタックとなっている。Quickwitはログ・トレースに特化しており、メトリクスはPrometheusと役割分担する形が一般的である。</p>
+
+      <h3 id="traces">トレース（Traces）</h3>
+      <p>トレースはマイクロサービス間を横断するリクエストの伝播経路を記録する。単一のリクエストが複数のサービスを経由する際、各処理ステップ（スパン）の開始・終了時刻と関連メタデータが記録され、全体のレイテンシ内訳やボトルネックを可視化できる。<a href="distributed-tracing.html">分散トレーシング</a>はQuickwitの主要ユースケースの一つであり、OpenTelemetryのOTLPプロトコルでトレースデータを受信してJaeger互換APIで検索を提供する。</p>
+
+      <h2 id="vs-monitoring">オブザーバビリティとモニタリングの違い</h2>
+      <p>オブザーバビリティとモニタリングは混同されることが多いが、本質的に異なる概念である。</p>
+      <p><b>モニタリング（監視）</b>は、あらかじめ「何が問題になるか」を想定し、その特定の指標をしきい値と比較して異常を検知するアプローチである。既知の障害パターンには有効だが、想定外の障害（「未知の未知」）には対応が難しい。</p>
+      <p><b>オブザーバビリティ</b>は、システムの内部状態についての事前仮定を最小限にし、豊富なデータを収集しておくことで「任意の問い」に答えられるようにするアプローチである。新しい障害モードが発生しても、収集済みのテレメトリデータを多角的に探索して根本原因を特定できる。</p>
+      <p>現代の実践では両者は補完的であり、メトリクスアラートで素早く異常を検知し（モニタリング）、ログとトレースで根本原因を掘り下げる（オブザーバビリティ）という組み合わせが主流である。</p>
+
+      <h2 id="opentelemetry">OpenTelemetryとの関係</h2>
+      <p><a href="opentelemetry-integration.html">OpenTelemetry（OTel）</a>は、ログ・メトリクス・トレースの収集・変換・エクスポートを標準化するCNCFのオープンソースプロジェクトである。ベンダー中立のAPIとSDKを提供し、アプリケーションが特定の観測基盤に依存しない実装を可能にする。</p>
+      <p>Quickwitは<a href="opentelemetry-integration.html">OpenTelemetryとのネイティブ統合</a>を備えており、OpenTelemetry CollectorからOTLP（OpenTelemetry Protocol）でログおよびトレースデータを直接受信できる。これにより、アプリケーション側はOpenTelemetry SDKでインストルメンテーションするだけで、バックエンドをQuickwitに向けるだけで運用できる。</p>
+
+      <h2 id="sli-slo-sla">SLI・SLO・SLA</h2>
+      <p>オブザーバビリティの文脈では、サービスの信頼性目標を定義するための指標フレームワークが重要である。</p>
+      <ul>
+        <li><b>SLI（Service Level Indicator）</b>: サービス品質を測定する具体的な指標。可用性、レイテンシのパーセンタイル（p99）、エラーレートなどが代表例である。</li>
+        <li><b>SLO（Service Level Objective）</b>: SLIに対して設定する目標値。「99.9%の可用性」「p99レイテンシ200ms以下」などと定義する。</li>
+        <li><b>SLA（Service Level Agreement）</b>: SLOをベースにした顧客との合意・契約。SLOを下回った場合のペナルティ条項を含む場合がある。</li>
+      </ul>
+      <p>Quickwitのログ・トレースデータはSLI計算の基礎となる。ログからエラーレートを集計し、トレースからレイテンシ分布を取得することで、リアルタイムのSLO遵守状況を把握できる。</p>
+
+      <h2 id="deployment-patterns">デプロイメントパターンとの関係</h2>
+      <p>オブザーバビリティはカナリーデプロイやブルーグリーンデプロイなどの安全なリリース戦略と密接に連携する。</p>
+
+      <h3 id="canary-deploy">カナリーデプロイ</h3>
+      <p>カナリーデプロイでは、新バージョンを全トラフィックの一部（例：5%）にのみ適用し、既存バージョンとのパフォーマンス・エラーレートを比較する。この比較判断にはオブザーバビリティデータが不可欠であり、Quickwitのリアルタイムログ検索とトレース分析が活躍する。新バージョンのエラーレートが上昇していれば即座に検知でき、ロールバックの判断を迅速化できる。</p>
+
+      <h3 id="blue-green-deploy">ブルーグリーンデプロイ</h3>
+      <p>ブルーグリーンデプロイでは、旧バージョン（ブルー）と新バージョン（グリーン）を並行稼働させ、トラフィックを一括切替する。切替後のオブザーバビリティデータをリアルタイムで監視し、問題があれば即座にブルー環境に戻す判断が求められる。ログとトレースの比較分析がその判断を支援する。</p>
+
+      <h2 id="quickwit-role">Quickwitが果たす役割</h2>
+      <p><a href="quickwit.html">Quickwit</a>はオブザーバビリティスタックにおいて、特にログとトレースのストレージ・検索バックエンドとして位置づけられる。その主な強みは以下の通りである。</p>
+      <ul>
+        <li><b>コスト効率</b>: オブジェクトストレージ（S3等）上にインデックスを構築することで、従来のElasticsearchと比較して大幅にストレージコストを削減できる。長期保存が必要なオブザーバビリティデータに適している。</li>
+        <li><b>スケーラビリティ</b>: コンピュートとストレージを独立にスケールでき、大量のテレメトリデータにも対応できる。</li>
+        <li><b>OpenTelemetryネイティブ</b>: OTLPプロトコルをネイティブサポートし、<a href="opentelemetry-integration.html">OpenTelemetry</a>エコシステムとシームレスに統合できる。</li>
+        <li><b>Grafana統合</b>: Grafanaデータソースプラグインを通じて、ログとトレースデータをGrafanaダッシュボードで可視化できる。</li>
+        <li><b>Jaeger互換</b>: Jaeger互換APIにより、既存のJaeger UIからQuickwitをトレースバックエンドとして利用できる。</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#three-pillars">三本柱：ログ・メトリクス・トレース</a></li>
+          <li class="toc-h3"><a href="#logs">ログ</a></li>
+          <li class="toc-h3"><a href="#metrics">メトリクス</a></li>
+          <li class="toc-h3"><a href="#traces">トレース</a></li>
+          <li><a href="#vs-monitoring">オブザーバビリティとモニタリングの違い</a></li>
+          <li><a href="#opentelemetry">OpenTelemetryとの関係</a></li>
+          <li><a href="#sli-slo-sla">SLI・SLO・SLA</a></li>
+          <li><a href="#deployment-patterns">デプロイメントパターンとの関係</a></li>
+          <li class="toc-h3"><a href="#canary-deploy">カナリーデプロイ</a></li>
+          <li class="toc-h3"><a href="#blue-green-deploy">ブルーグリーンデプロイ</a></li>
+          <li><a href="#quickwit-role">Quickwitが果たす役割</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="distributed-tracing.html">分散トレーシング</a></li>
+          <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="distributed-tracing.html">分散トレーシング</a></li>
+        <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

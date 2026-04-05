@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オブジェクトストレージ上の検索 - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    オブジェクトストレージ上の検索
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">オブジェクトストレージ上の検索</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">オブジェクトストレージ上の検索とは、Amazon S3・Google Cloud Storage・Azure Blob Storageなどのクラウドオブジェクトストレージを一次検索インデックスの保存先として活用するアーキテクチャであり、ストレージとコンピュートを分離することで大規模データに対するコスト効率の高い全文検索を実現する技術的アプローチである。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>オブジェクトストレージ上の検索</b>（Object Storage-based Search）は、従来のローカルSSD依存型検索エンジンに代わり、クラウドオブジェクトストレージを検索インデックスの永続化レイヤーとして採用するアーキテクチャパターンである。<a href="quickwit.html">Quickwit</a>はこのアーキテクチャを中心に設計されており、S3などの安価で耐久性の高いストレージ上にイミュータブルなインデックスセグメントを蓄積することで、ペタバイト規模のデータに対して経済的な検索を実現する。</p>
+      <p>このアーキテクチャは、Snowflake・Databricks・Apache Icebergなどのデータレイク系プラットフォームが採用するストレージ・コンピュート分離モデルと思想を共有しており、クラウドネイティブな検索の主流アプローチとして急速に普及しつつある。</p>
+
+      <h2 id="storage-compute-separation">ストレージとコンピュートの分離</h2>
+      <p>従来の検索エンジン（Elasticsearchなど）はインデックスをノードのローカルディスクに保存するため、ストレージとコンピュートが密結合している。これに対してオブジェクトストレージ上の検索では、両者を明確に分離する。</p>
+
+      <h3 id="traditional-model">従来モデルの課題</h3>
+      <p>ローカルSSD依存のアーキテクチャでは、次の課題が生じる:</p>
+      <ul>
+        <li><b>過剰プロビジョニング</b>: ストレージ要件に合わせてコンピュートも過剰に確保する必要がある</li>
+        <li><b>スケーリングの非対称性</b>: 書き込み負荷とクエリ負荷が時間帯によって大きく異なるが、どちらかに合わせると他方が非効率になる</li>
+        <li><b>ノード障害リスク</b>: ローカルディスク故障時のデータ復旧コストが高い</li>
+        <li><b>レプリケーションコスト</b>: 可用性確保のためにデータの複製が必要となり、実効ストレージコストが増大する</li>
+      </ul>
+
+      <h3 id="new-model">分離モデルの利点</h3>
+      <p>ストレージとコンピュートを分離することで、次のメリットが得られる:</p>
+      <ul>
+        <li><b>独立スケーリング</b>: 取り込み負荷増大時はインデクサーだけ、クエリ負荷増大時はサーチャーだけをスケールアウトできる</li>
+        <li><b>ゼロダウンタイム拡張</b>: 新しい検索ノードはオブジェクトストレージに接続するだけで即時稼働する</li>
+        <li><b>サーバーレス親和性</b>: クエリノードをスポットインスタンスやFaaS基盤で運用できる</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 320" width="660" height="320">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="660" height="320" fill="#f8f9fa" rx="8"/>
+          <text x="330" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">ストレージ・コンピュート分離アーキテクチャ</text>
+
+          <!-- Compute Layer -->
+          <rect x="30" y="50" width="280" height="200" rx="8" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5" stroke-dasharray="6"/>
+          <text x="170" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">コンピュートレイヤー（弾力的スケーリング）</text>
+
+          <!-- Indexer nodes -->
+          <rect x="50" y="90" width="100" height="40" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="100" y="114" text-anchor="middle" font-size="11" fill="#202122">インデクサー × N</text>
+
+          <!-- Searcher nodes -->
+          <rect x="50" y="170" width="100" height="40" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="100" y="194" text-anchor="middle" font-size="11" fill="#202122">サーチャー × M</text>
+
+          <!-- Cache -->
+          <rect x="170" y="170" width="120" height="40" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4"/>
+          <text x="230" y="187" text-anchor="middle" font-size="10" fill="#555">ローカルキャッシュ</text>
+          <text x="230" y="202" text-anchor="middle" font-size="10" fill="#999">SSD / RAM</text>
+          <line x1="150" y1="190" x2="167" y2="190" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3" marker-end="url(#arr)"/>
+
+          <!-- Storage Layer -->
+          <rect x="360" y="50" width="270" height="200" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="6"/>
+          <text x="495" y="72" text-anchor="middle" font-size="11" font-weight="bold" fill="#ca8a04">ストレージレイヤー（永続・耐久）</text>
+
+          <!-- S3 / GCS / Azure -->
+          <rect x="380" y="90" width="230" height="44" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="495" y="112" text-anchor="middle" font-size="11" fill="#202122">オブジェクトストレージ</text>
+          <text x="495" y="127" text-anchor="middle" font-size="10" fill="#555">S3 / GCS / Azure Blob</text>
+
+          <!-- Splits -->
+          <rect x="380" y="160" width="100" height="70" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="430" y="182" text-anchor="middle" font-size="10" fill="#202122">Split A</text>
+          <text x="430" y="197" text-anchor="middle" font-size="9" fill="#999">転置インデックス</text>
+          <text x="430" y="210" text-anchor="middle" font-size="9" fill="#999">列指向ストレージ</text>
+          <text x="430" y="223" text-anchor="middle" font-size="9" fill="#999">（イミュータブル）</text>
+
+          <rect x="490" y="160" width="100" height="70" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="540" y="182" text-anchor="middle" font-size="10" fill="#202122">Split B</text>
+          <text x="540" y="197" text-anchor="middle" font-size="9" fill="#999">転置インデックス</text>
+          <text x="540" y="210" text-anchor="middle" font-size="9" fill="#999">列指向ストレージ</text>
+          <text x="540" y="223" text-anchor="middle" font-size="9" fill="#999">（イミュータブル）</text>
+
+          <!-- Arrows -->
+          <line x1="100" y1="130" x2="100" y2="167" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="108" y="152" font-size="9" fill="#555">書き込み</text>
+
+          <!-- Indexer -> Storage -->
+          <line x1="155" y1="110" x2="376" y2="110" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="265" y="104" text-anchor="middle" font-size="9" fill="#3366cc">スプリット書き込み</text>
+
+          <!-- Storage -> Searcher -->
+          <path d="M376 145 L340 145 L340 190 L154 190" stroke="#ca8a04" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+          <text x="265" y="159" text-anchor="middle" font-size="9" fill="#ca8a04">スプリット読み込み（非同期）</text>
+
+          <!-- Legend -->
+          <text x="30" y="296" font-size="10" fill="#555">N, M は独立してスケーリング可能。ストレージはクラウドマネージドで99.999...%の耐久性を持つ。</text>
+        </svg>
+        <div class="diagram-caption">図1: ストレージとコンピュートの分離。インデクサー（N台）とサーチャー（M台）は独立してスケールでき、どちらもオブジェクトストレージのスプリットを参照する。</div>
+      </div>
+
+      <h2 id="immutable-splits">イミュータブルインデックスセグメント（Split）</h2>
+      <p>オブジェクトストレージ上の検索アーキテクチャの核心は、インデックスを<b>イミュータブルなセグメント（Splitと呼ぶ）</b>として管理する点にある。一度書き込まれたスプリットは変更されず、不要になれば削除される。</p>
+
+      <h3 id="split-structure">スプリットの内部構造</h3>
+      <p>各スプリットは自己完結したアーカイブ（通常.splitまたは.zstd圧縮ファイル）であり、以下を含む:</p>
+      <ul>
+        <li><b>転置インデックス</b>: 全文検索用の用語→文書IDマッピング（<a href="apache-tantivy.html">Apache Tantivy</a>形式）</li>
+        <li><b>列指向ストレージ</b>: 集計・フィルタリング最適化されたカラムデータ（Arrow/Parquet類似形式）</li>
+        <li><b>メタデータ</b>: タイムレンジ、フィールドスキーマ、統計情報（クエリのプルーニングに使用）</li>
+      </ul>
+      <p>イミュータブル設計により、オブジェクトストレージの「一度書いたら変えない」という特性と完全に一致する。並行書き込みの競合が発生せず、ガベージコレクション（古いスプリットの削除）も単純なオブジェクト削除で済む。</p>
+
+      <h3 id="split-lifecycle">スプリットのライフサイクル</h3>
+      <p>スプリットは次のライフサイクルを経る: <b>Staged（一時領域への書き込み）</b> → <b>Published（メタストアへの登録）</b> → <b>MarkedForDeletion（削除候補）</b> → <b>Deleted（オブジェクトストレージから削除）</b>。マージ操作では複数の小さなスプリットが1つの大きなスプリットに統合され、検索効率が向上する。</p>
+
+      <h2 id="cache-strategy">キャッシュ戦略：ホットデータとコールドデータ</h2>
+      <p>オブジェクトストレージはローカルSSDより読み取りレイテンシが高いため、効果的なキャッシュ戦略が性能の鍵を握る。</p>
+
+      <h3 id="hot-cold-tiering">データ階層化（ホット / コールド）</h3>
+      <p>検索エンジンのワークロードでは、直近のデータへのアクセスが大半を占める（いわゆる<b>ホットデータ</b>）。古いデータ（コールドデータ）は低頻度でアクセスされる。この特性を活かし:</p>
+      <ul>
+        <li><b>ホットデータ</b>（直近数時間〜数日）: サーチャーのローカルSSDにキャッシュし、ほぼオンメモリに近い速度で応答</li>
+        <li><b>コールドデータ</b>（数週間〜数年前）: オブジェクトストレージからオンデマンドで読み込み（レイテンシは高めだが頻度も低い）</li>
+      </ul>
+
+      <h3 id="cache-eviction">キャッシュ退避とウォームアップ</h3>
+      <p>LRU（Least Recently Used）ベースのキャッシュ退避により、サーチャーのディスク容量を超えたスプリットは自動的に削除される。クラスタ再起動後や新ノード追加時のキャッシュウォームアップは性能に影響するため、スプリットのプリフェッチやレプリカ配置の最適化が実装されている。</p>
+
+      <h2 id="formats-comparison">ParquetおよびArrow形式との関係</h2>
+      <p>オブジェクトストレージ上の検索において、<b>列指向フォーマット</b>の選択は重要な設計決定である。</p>
+
+      <h3 id="parquet">Apache Parquet</h3>
+      <p>Apache ParquetはHive/Spark由来の列指向ストレージフォーマットで、オブジェクトストレージへの効率的なデータ保存が強みである。スノーフレーク型のデータウェアハウスやDatabricksのDelta Lakeなど、多くのデータレイク基盤がParquetを採用している。全文検索用の転置インデックスを含まないため、ログ検索よりもOLAP集計ワークロードに向いている。</p>
+
+      <h3 id="arrow">Apache Arrow</h3>
+      <p>Apache Arrowはメモリ上の列指向フォーマット（IPC形式）であり、異なるシステム間でのゼロコピーデータ交換を実現する。<a href="quickwit.html">Quickwit</a>の内部では、スプリット内の列指向ストレージにArrow類似の形式が採用されており、集計クエリを高速化する。Parquetファイルを直接クエリする機能も追加されつつあり、オブジェクトストレージ上のデータレイクとシームレスに統合できる。</p>
+
+      <h3 id="tantivy-vs-parquet">転置インデックス vs. 純粋な列指向</h3>
+      <p>Quickwit（および<a href="apache-tantivy.html">Apache Tantivy</a>ベースのスプリット）は転置インデックスと列指向ストレージを組み合わせており、Parquet単体では難しい全文検索を実現しつつ、集計にも対応する。これはElasticsearch / OpenSearchのアーキテクチャと同様の思想だが、永続化先がオブジェクトストレージである点が決定的な差異である。</p>
+
+      <h2 id="similar-architectures">類似アーキテクチャとの比較</h2>
+      <p>オブジェクトストレージ上の検索は、他の著名なデータプラットフォームとも思想を共有する。</p>
+
+      <h3 id="snowflake-databricks">Snowflake / Databricks</h3>
+      <p>Snowflakeはストレージとコンピュートを分離した先駆的なデータウェアハウスである。クエリエンジン（仮想ウェアハウス）は独立してスケールし、S3上のParquetファイルを読み込む。Databricks（Delta Lake）も同様のアーキテクチャを採用しており、ACID トランザクションをオブジェクトストレージ上で実現する。これらはOLAP集計に特化しており、全文検索は苦手である点でQuickwitと補完的な関係にある。</p>
+
+      <h3 id="apache-iceberg">Apache Iceberg / Delta Lake</h3>
+      <p>Apache IcebergやDelta Lakeはオブジェクトストレージ上のテーブルフォーマット仕様である。スナップショット管理、スキーマ進化、タイムトラベルクエリなど高度なデータ管理機能を提供する。Quickwitのスプリット管理モデルはこれらとコンセプトが近く、将来的にIcebergテーブルとの統合が検討される分野である。</p>
+
+      <h3 id="loki-prometheus">Loki / Prometheus（参考対比）</h3>
+      <p>Grafana Lokiもオブジェクトストレージをバックエンドとしたログアグリゲーションシステムだが、転置インデックスを持たずラベルベースの検索に限定される。全文検索が必要なユースケースではQuickwitが優位であり、<a href="observability.html">オブザーバビリティ</a>スタックの選択においてトレードオフが生じる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <rect width="680" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">オブジェクトストレージ系プラットフォームの位置づけ</text>
+
+          <!-- Axes -->
+          <!-- X: Full-text search capability (left=low, right=high) -->
+          <line x1="60" y1="240" x2="620" y2="240" stroke="#202122" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="340" y="262" text-anchor="middle" font-size="11" fill="#555">全文検索能力 →</text>
+          <!-- Y: Cost efficiency (bottom=low, top=high) -->
+          <line x1="60" y1="240" x2="60" y2="50" stroke="#202122" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="30" y="145" text-anchor="middle" font-size="11" fill="#555" transform="rotate(-90,30,145)">コスト効率 →</text>
+
+          <!-- Elasticsearch -->
+          <circle cx="540" cy="190" r="24" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="540" y="193" text-anchor="middle" font-size="10" fill="#202122">Elastic</text>
+          <text x="540" y="205" text-anchor="middle" font-size="9" fill="#555">search</text>
+
+          <!-- Quickwit -->
+          <circle cx="520" cy="90" r="28" fill="#dbeafe" stroke="#3366cc" stroke-width="2"/>
+          <text x="520" y="87" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">Quickwit</text>
+          <text x="520" y="101" text-anchor="middle" font-size="9" fill="#3366cc">（本記事）</text>
+
+          <!-- Snowflake -->
+          <circle cx="200" cy="80" r="26" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="200" y="78" text-anchor="middle" font-size="10" fill="#202122">Snow</text>
+          <text x="200" y="91" text-anchor="middle" font-size="10" fill="#202122">flake</text>
+
+          <!-- Databricks -->
+          <circle cx="260" cy="110" r="26" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="260" y="108" text-anchor="middle" font-size="10" fill="#202122">Data</text>
+          <text x="260" y="121" text-anchor="middle" font-size="10" fill="#202122">bricks</text>
+
+          <!-- Loki -->
+          <circle cx="160" cy="120" r="22" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="160" y="117" text-anchor="middle" font-size="10" fill="#202122">Loki</text>
+          <text x="160" y="130" text-anchor="middle" font-size="9" fill="#555">(Grafana)</text>
+
+          <!-- Prometheus -->
+          <circle cx="100" cy="150" r="20" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="100" y="147" text-anchor="middle" font-size="10" fill="#202122">Prome</text>
+          <text x="100" y="160" text-anchor="middle" font-size="9" fill="#555">theus</text>
+
+          <text x="620" y="255" font-size="9" fill="#999">高</text>
+          <text x="62" y="255" font-size="9" fill="#999">低</text>
+          <text x="42" y="55" font-size="9" fill="#999">高</text>
+          <text x="42" y="245" font-size="9" fill="#999">低</text>
+        </svg>
+        <div class="diagram-caption">図2: 全文検索能力とコスト効率の2軸でのプラットフォーム比較（概念図）。Quickwitは両軸で高い位置を目指すオブジェクトストレージ系検索エンジンである。</div>
+      </div>
+
+      <h2 id="cost-model">コストモデルの比較</h2>
+      <p>オブジェクトストレージを採用することで、検索基盤のコスト構造は根本から変わる。</p>
+
+      <h3 id="storage-cost">ストレージコスト</h3>
+      <p>Amazon S3 Standardのストレージ単価はローカルSSDの約<b>10〜20分の1</b>（1 GB あたり月額 $0.023 vs $0.20〜$0.40）である。大量のログを長期保存する場合、このコスト差は数百万ドル規模に達することがある。さらにS3 Glacierなどのアーカイブクラスを組み合わせることで、コールドデータのコストをさらに削減できる。</p>
+
+      <h3 id="compute-cost">コンピュートコスト</h3>
+      <p>クエリが来ない夜間・週末などの低負荷時間帯に検索ノードをスケールダウン（または停止）できるため、コンピュートコストも削減可能である。従来のElasticsearchでは常時全ノードを起動しておく必要があったが、オブジェクトストレージ上の検索では「使った分だけ」の課金モデルに近づける。スポットインスタンスの活用も容易である。</p>
+
+      <h3 id="network-cost">ネットワーク・APIコスト</h3>
+      <p>オブジェクトストレージの読み取りAPIコスト（S3 GET: $0.0004/1000リクエスト）と、クロスリージョン転送コストが追加発生する。特にスプリット読み込みが頻繁な場合にコストが積み上がるため、<b>効果的なキャッシュ</b>はコスト最適化の観点からも重要である。検索ノードとオブジェクトストレージを同一リージョンに配置することで転送コストをほぼゼロにできる。</p>
+
+      <h3 id="total-cost">総保有コスト（TCO）の比較</h3>
+      <p><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a>において、Quickwit公式のベンチマークでは同等のデータ量に対して総コストが1/10以下になるケースも報告されている。ただし、低レイテンシが要求されるリアルタイム検索ではElasticsearchが依然として優位な面もあり、ユースケースに応じた選択が求められる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#storage-compute-separation">ストレージとコンピュートの分離</a></li>
+          <li class="toc-h3"><a href="#traditional-model">従来モデルの課題</a></li>
+          <li class="toc-h3"><a href="#new-model">分離モデルの利点</a></li>
+          <li><a href="#immutable-splits">イミュータブルインデックスセグメント（Split）</a></li>
+          <li class="toc-h3"><a href="#split-structure">スプリットの内部構造</a></li>
+          <li class="toc-h3"><a href="#split-lifecycle">スプリットのライフサイクル</a></li>
+          <li><a href="#cache-strategy">キャッシュ戦略：ホットデータとコールドデータ</a></li>
+          <li class="toc-h3"><a href="#hot-cold-tiering">データ階層化（ホット / コールド）</a></li>
+          <li class="toc-h3"><a href="#cache-eviction">キャッシュ退避とウォームアップ</a></li>
+          <li><a href="#formats-comparison">ParquetおよびArrow形式との関係</a></li>
+          <li class="toc-h3"><a href="#parquet">Apache Parquet</a></li>
+          <li class="toc-h3"><a href="#arrow">Apache Arrow</a></li>
+          <li class="toc-h3"><a href="#tantivy-vs-parquet">転置インデックス vs. 純粋な列指向</a></li>
+          <li><a href="#similar-architectures">類似アーキテクチャとの比較</a></li>
+          <li class="toc-h3"><a href="#snowflake-databricks">Snowflake / Databricks</a></li>
+          <li class="toc-h3"><a href="#apache-iceberg">Apache Iceberg / Delta Lake</a></li>
+          <li class="toc-h3"><a href="#loki-prometheus">Loki / Prometheus（参考対比）</a></li>
+          <li><a href="#cost-model">コストモデルの比較</a></li>
+          <li class="toc-h3"><a href="#storage-cost">ストレージコスト</a></li>
+          <li class="toc-h3"><a href="#compute-cost">コンピュートコスト</a></li>
+          <li class="toc-h3"><a href="#network-cost">ネットワーク・APIコスト</a></li>
+          <li class="toc-h3"><a href="#total-cost">総保有コスト（TCO）の比較</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

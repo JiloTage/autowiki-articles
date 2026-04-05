@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickwitのデータ取り込みソース - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    Quickwitのデータ取り込みソース
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Quickwitのデータ取り込みソース</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">QuickwitはKafka、Apache Pulsar、S3/ファイル、REST APIなど複数のデータソースからドキュメントを取り込む柔軟な取り込みパイプラインを提供します。各ソースにはそれぞれ固有の設定・最適化オプションがあり、ユースケースに応じて選択できます。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>Quickwitのデータ取り込みソース</b>は、<a href="quickwit.html">Quickwit</a>がインデックスを構築する際にドキュメントを受け取るための入口である。Quickwitのインデクサーノードがこれらのソースからデータを読み取り、スプリット（Split）を生成してオブジェクトストレージへアップロードする。取り込みソースはインデックス設定ファイル（YAML）内の <code>sources</code> セクションで定義される。</p>
+      <p>各ソースはポーリングまたはプッシュ型のいずれかの方式でデータを受け取る。ストリーミングソース（Kafka・Pulsar）はオフセットを追跡しながら継続的にデータを取り込み、バッチソース（S3・ファイル）は指定されたパスを一括処理する。Ingest REST APIはクライアントからのプッシュを受け付けるリアルタイム取り込み手段である。</p>
+
+      <!-- Data Flow Diagram -->
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arr-accent" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#3366cc"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="700" height="380" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="350" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Quickwit データ取り込みフロー</text>
+
+          <!-- Source boxes -->
+          <!-- Kafka -->
+          <rect x="20" y="55" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="77" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Kafka</text>
+          <text x="80" y="91" text-anchor="middle" font-size="10" fill="#555">パーティション / オフセット</text>
+
+          <!-- Pulsar -->
+          <rect x="20" y="115" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="137" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Apache Pulsar</text>
+          <text x="80" y="151" text-anchor="middle" font-size="10" fill="#555">サブスクリプション</text>
+
+          <!-- S3 / File -->
+          <rect x="20" y="175" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="197" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">S3 / ファイル</text>
+          <text x="80" y="211" text-anchor="middle" font-size="10" fill="#555">バッチ取り込み</text>
+
+          <!-- Ingest API -->
+          <rect x="20" y="235" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="257" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Ingest API</text>
+          <text x="80" y="271" text-anchor="middle" font-size="10" fill="#555">REST / プッシュ型</text>
+
+          <!-- Agent integrations -->
+          <rect x="20" y="295" width="120" height="56" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="317" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">エージェント連携</text>
+          <text x="80" y="331" text-anchor="middle" font-size="10" fill="#555">Vector / Fluent Bit</text>
+          <text x="80" y="344" text-anchor="middle" font-size="10" fill="#555">Logstash</text>
+
+          <!-- Arrows to Indexer -->
+          <line x1="140" y1="77" x2="230" y2="170" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="140" y1="137" x2="230" y2="175" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="140" y1="197" x2="230" y2="185" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="140" y1="257" x2="230" y2="195" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="140" y1="323" x2="230" y2="205" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Indexer -->
+          <rect x="230" y="145" width="140" height="80" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="2"/>
+          <text x="300" y="178" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">インデクサー</text>
+          <text x="300" y="196" text-anchor="middle" font-size="10" fill="#555">スプリット生成</text>
+          <text x="300" y="210" text-anchor="middle" font-size="10" fill="#555">コミット・アップロード</text>
+
+          <!-- Arrow Indexer -> Object Storage -->
+          <line x1="370" y1="185" x2="450" y2="185" stroke="#3366cc" stroke-width="2" marker-end="url(#arr-accent)"/>
+
+          <!-- Object Storage -->
+          <rect x="450" y="145" width="130" height="80" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="515" y="178" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">オブジェクト</text>
+          <text x="515" y="194" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">ストレージ</text>
+          <text x="515" y="212" text-anchor="middle" font-size="10" fill="#555">S3 / GCS / Azure</text>
+
+          <!-- Arrow Object Storage -> Searcher -->
+          <line x1="515" y1="225" x2="515" y2="275" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Searcher -->
+          <rect x="450" y="275" width="130" height="60" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="515" y="302" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">サーチャー</text>
+          <text x="515" y="318" text-anchor="middle" font-size="10" fill="#555">クエリ実行</text>
+
+          <!-- Document mapping label -->
+          <rect x="230" y="55" width="140" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="300" y="76" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ドキュメントマッピング</text>
+          <text x="300" y="91" text-anchor="middle" font-size="10" fill="#555">スキーマ定義 / フィールド型</text>
+          <!-- Arrow mapping -> Indexer -->
+          <line x1="300" y1="99" x2="300" y2="141" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arr)"/>
+        </svg>
+        <div class="diagram-caption">図1: Quickwitのデータ取り込みフロー。複数のソースからインデクサーがデータを受け取り、スプリットを生成してオブジェクトストレージに保存する。</div>
+      </div>
+
+      <h2 id="kafka-source">Kafkaソース</h2>
+      <p>Kafkaソースは、Apache Kafkaからのストリーミングデータ取り込みに特化したQuickwitの主要な取り込み手段である。大量のログやイベントデータをリアルタイムに近い形で処理するために設計されている。</p>
+
+      <h3 id="kafka-partition">パーティション管理</h3>
+      <p>QuickwitのKafkaソースは、Kafkaトピックの各パーティションをインデクサーノードへ均等に割り当てる。パーティションの割り当てはQuickwitのコントロールプレーンが管理し、インデクサーノードの増減に応じてリバランスが自動的に行われる。各パーティションは独立したシャードとして処理されるため、スループットのスケールアウトが容易である。</p>
+
+      <h3 id="kafka-offset">オフセット追跡</h3>
+      <p>Kafkaのコンシューマーオフセットはメタストアに保存される。これにより、インデクサーの再起動や障害後も取り込みの重複・欠落を防ぐことができる。Quickwitはat-least-onceの配送セマンティクスを採用しており、重複排除はユニークドキュメントIDを利用して実現する。</p>
+      <p>設定例（インデックスYAML）:</p>
+      <pre><code>sources:
+  - source_id: kafka-logs
+    source_type: kafka
+    params:
+      topic: application-logs
+      client_params:
+        bootstrap.servers: "kafka:9092"
+        group.id: "quickwit-indexer"</code></pre>
+
+      <h2 id="pulsar-source">Apache Pulsarソース</h2>
+      <p>Apache PulsarソースはPulsarブローカーへのサブスクリプションを通じてメッセージを取り込む。Pulsarの持つ地理的レプリケーション（Geo-Replication）機能やマルチテナント機能と組み合わせることで、分散環境での取り込みが可能になる。</p>
+      <p>Pulsarソースは <code>Shared</code> または <code>Exclusive</code> サブスクリプションタイプをサポートする。QuickwitはPulsarのメッセージIDをオフセットとして使用し、チェックポイントをメタストアに保持する。設定は <code>source_type: pulsar</code> と <code>params</code> ブロックでブローカーURL・トピック・サブスクリプション名を指定する。</p>
+
+      <h2 id="s3-file-source">S3/ファイルソース</h2>
+      <p>S3ソースおよびファイルソースは、既存のファイルやオブジェクトストレージ内のデータをバッチで取り込む際に使用する。ログアーカイブのバックフィルや、一時的な大量データ投入に適している。</p>
+
+      <h3 id="s3-source-detail">S3ソースの設定</h3>
+      <p>S3ソースはバケット名とプレフィックス（またはグロブパターン）を指定する。QuickwitはS3オブジェクトのリストを取得し、各オブジェクトを順次ダウンロードして処理する。処理済みオブジェクトはメタストアに記録され、再処理を防ぐ。</p>
+      <p>サポートするファイル形式は <code>ndjson</code>（改行区切りJSON）が基本であり、gzip圧縮にも対応する。</p>
+
+      <h3 id="file-source-detail">ローカルファイルソース</h3>
+      <p>ファイルソースはローカルパスまたは標準入力からデータを読み込む。CI/CDパイプラインやワンショットのデータ移行シナリオに適している。<code>source_type: file</code> と <code>params.filepath</code> でファイルパスを指定する。</p>
+
+      <h2 id="ingest-api">Ingest REST API</h2>
+      <p>Ingest APIは、HTTPクライアントから直接QuickwitへドキュメントをPOSTするプッシュ型の取り込み手段である。ストリーミングソースのセットアップが不要なシンプルな統合や、アプリケーションからの直接送信に適している。</p>
+
+      <h3 id="ingest-api-endpoint">エンドポイントと使用方法</h3>
+      <p>Ingest APIの主なエンドポイントは <code>POST /api/v1/{index_id}/ingest</code> である。リクエストボディにはNDJSON形式のドキュメントを含める。1回のリクエストで複数ドキュメントをバルク送信できる。</p>
+      <p>Ingest APIには <b>wal</b>（Write-Ahead Log）バッファが存在し、受信したドキュメントはまずメモリバッファに格納される。バッファが一定量（バイト数またはドキュメント数）に達するか、コミット間隔タイムアウトが到来すると、スプリットとしてコミットされる。</p>
+
+      <h3 id="ingest-api-latency">取り込みレイテンシとコミット設定</h3>
+      <p>Quickwitのインデックス取り込みは、ElasticsearchのNear-Real-Time（NRT）とは異なり、スプリット単位でコミットされるため、デフォルトで数秒〜数十秒のレイテンシが発生する。このトレードオフにより、高いスループットと低いオブジェクトストレージコストを実現している。</p>
+      <p>コミット間隔は <code>indexing_settings.commit_timeout_secs</code> で調整可能である。値を小さくするとレイテンシは下がるが、小さなスプリットが多数生成されるため、マージ処理（Merge）の負荷が増す。本番環境では60秒程度が推奨される。</p>
+
+      <h2 id="agent-integrations">エージェント連携</h2>
+      <p>Quickwitは多様なログ転送エージェントと統合できる。これらのエージェントはIngest APIまたはElasticsearch互換のBulk APIを使用してデータを送信する。</p>
+
+      <h3 id="vector-integration">Vector</h3>
+      <p>Vectorは高性能なオブザーバビリティデータパイプラインツールである。Quickwitへの送信には <code>elasticsearch</code> シンクを使用し、エンドポイントにQuickwitのBulk APIアドレスを指定する。Vectorのトランスフォーム機能でフィールド変換・フィルタリングを行いながらQuickwitへ転送できる。</p>
+
+      <h3 id="fluentbit-integration">Fluent Bit</h3>
+      <p>Fluent Bitは軽量なログプロセッサ・フォワーダーであり、Kubernetes環境でのDaemonSetとしての利用が一般的である。QuickwitへはElasticsearchアウトプットプラグインを設定し、<code>Host</code> にQuickwitのホスト、<code>Index</code> にインデックスIDを指定する。</p>
+
+      <h3 id="logstash-integration">Logstash</h3>
+      <p>LogstashはElasticが開発するデータ収集・処理パイプラインツールである。Quickwitは<a href="elasticsearch-comparison.html">Elasticsearch互換API</a>を提供しているため、Logstashの <code>elasticsearch</code> アウトプットプラグインをそのまま利用できる。既存のLogstashパイプラインからの移行が容易である。</p>
+
+      <h2 id="document-mapping">ドキュメントマッピングとスキーマ設定</h2>
+      <p>Quickwitでは取り込むドキュメントのスキーマを <b>ドキュメントマッピング</b>（Document Mapping）として定義する。マッピングはインデックス設定の <code>doc_mapping</code> セクションで記述する。</p>
+
+      <h3 id="field-types">フィールド型</h3>
+      <p>主なフィールド型は以下の通りである:</p>
+      <ul>
+        <li><b>text</b>: 全文検索対象の文字列フィールド。トークナイザーを指定可能</li>
+        <li><b>keyword</b>: 完全一致検索・集計に使用する文字列フィールド</li>
+        <li><b>i64 / u64 / f64</b>: 数値フィールド。範囲クエリや集計に利用</li>
+        <li><b>datetime</b>: タイムスタンプフィールド。ログのタイムライン検索に不可欠</li>
+        <li><b>ip</b>: IPv4/IPv6アドレスフィールド。CIDR範囲クエリに対応</li>
+        <li><b>json</b>: 動的なJSONオブジェクト。スキーマが不定のログに有用</li>
+        <li><b>bool</b>: 真偽値フィールド</li>
+      </ul>
+
+      <h3 id="timestamp-field">タイムスタンプフィールドの設定</h3>
+      <p><code>timestamp_field</code> はQuickwitが時刻ベースのプルーニング（Pruning）を行うための特別なフィールドである。このフィールドを正しく設定することで、時刻範囲クエリのパフォーマンスが大幅に向上する。ログ管理のユースケースでは必ず設定することが推奨される。</p>
+      <p>ドキュメントマッピングの設定例:</p>
+      <pre><code>doc_mapping:
+  timestamp_field: timestamp
+  field_mappings:
+    - name: timestamp
+      type: datetime
+      input_formats: [unix_timestamp, rfc3339]
+      fast: true
+    - name: message
+      type: text
+      tokenizer: default
+    - name: level
+      type: keyword
+    - name: host
+      type: keyword
+    - name: extra
+      type: json</code></pre>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#kafka-source">Kafkaソース</a></li>
+          <li class="toc-h3"><a href="#kafka-partition">パーティション管理</a></li>
+          <li class="toc-h3"><a href="#kafka-offset">オフセット追跡</a></li>
+          <li><a href="#pulsar-source">Apache Pulsarソース</a></li>
+          <li><a href="#s3-file-source">S3/ファイルソース</a></li>
+          <li class="toc-h3"><a href="#s3-source-detail">S3ソースの設定</a></li>
+          <li class="toc-h3"><a href="#file-source-detail">ローカルファイルソース</a></li>
+          <li><a href="#ingest-api">Ingest REST API</a></li>
+          <li class="toc-h3"><a href="#ingest-api-endpoint">エンドポイントと使用方法</a></li>
+          <li class="toc-h3"><a href="#ingest-api-latency">取り込みレイテンシとコミット設定</a></li>
+          <li><a href="#agent-integrations">エージェント連携</a></li>
+          <li class="toc-h3"><a href="#vector-integration">Vector</a></li>
+          <li class="toc-h3"><a href="#fluentbit-integration">Fluent Bit</a></li>
+          <li class="toc-h3"><a href="#logstash-integration">Logstash</a></li>
+          <li><a href="#document-mapping">ドキュメントマッピングとスキーマ設定</a></li>
+          <li class="toc-h3"><a href="#field-types">フィールド型</a></li>
+          <li class="toc-h3"><a href="#timestamp-field">タイムスタンプフィールドの設定</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+          <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+        <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

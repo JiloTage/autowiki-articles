@@ -1,0 +1,77 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "apache-tantivy",
+      "proposed_title": "Apache Tantivy",
+      "source_id": "quickwit",
+      "rationale": "QuickwitのコアエンジンとなるRust製全文検索ライブラリ。Luceneに着想を得た高性能な検索基盤",
+      "interestingness_score": 0.95,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "object-storage-search",
+      "proposed_title": "オブジェクトストレージ上の検索",
+      "source_id": "quickwit",
+      "rationale": "Quickwitの根幹アーキテクチャ思想。S3などのオブジェクトストレージを検索インデックスとして活用する手法",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "elasticsearch-comparison",
+      "proposed_title": "ElasticsearchとQuickwitの比較",
+      "source_id": "quickwit",
+      "rationale": "コスト・パフォーマンス・アーキテクチャの観点からElasticsearchとの詳細比較",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "observability",
+      "proposed_title": "オブザーバビリティ（可観測性）",
+      "source_id": "quickwit",
+      "rationale": "Quickwitの主要ユースケース領域。ログ・メトリクス・トレースの三本柱",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "opentelemetry-integration",
+      "proposed_title": "OpenTelemetry統合",
+      "source_id": "quickwit",
+      "rationale": "QuickwitのOTLPネイティブサポートとOpenTelemetryエコシステムとの統合",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "distributed-tracing",
+      "proposed_title": "分散トレーシング",
+      "source_id": "quickwit",
+      "rationale": "マイクロサービスアーキテクチャにおける分散トレーシングの概念とQuickwitでの実装",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "quickwit-ingest",
+      "proposed_title": "Quickwitのデータ取り込みソース",
+      "source_id": "quickwit",
+      "rationale": "Kafka・Pulsar・S3・REST APIなど多様なデータソースからの取り込み機能詳解",
+      "interestingness_score": 0.83,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "quickwit-query-language",
+      "proposed_title": "Quickwitクエリ言語",
+      "source_id": "quickwit",
+      "rationale": "全文検索・フィルタリング・集計を可能にするクエリ言語の文法と機能",
+      "interestingness_score": 0.8,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "quickwit-licensing",
+      "proposed_title": "Quickwitのライセンスモデル",
+      "source_id": "quickwit",
+      "rationale": "OSS戦略とビジネスモデルの観点からライセンス変遷を分析",
+      "interestingness_score": 0.75,
+      "status": "processing"
+    }
+  ]
+}

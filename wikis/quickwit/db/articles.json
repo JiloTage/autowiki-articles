@@ -1,0 +1,247 @@
+{
+  "articles": {
+    "quickwit": {
+      "id": "quickwit",
+      "title": "Quickwit",
+      "filename": "wikis/quickwit/articles/quickwit.html",
+      "created_at": "2026-04-05T09:24:53.398618+00:00",
+      "updated_at": "2026-04-05T09:30:57.634132+00:00",
+      "links_to": [
+        "apache-tantivy",
+        "object-storage-search",
+        "observability",
+        "opentelemetry-integration",
+        "elasticsearch-comparison",
+        "quickwit-query-language",
+        "distributed-tracing",
+        "quickwit-ingest",
+        "quickwit-licensing"
+      ],
+      "linked_from": [
+        "apache-tantivy",
+        "observability",
+        "distributed-tracing",
+        "quickwit-ingest",
+        "opentelemetry-integration",
+        "object-storage-search",
+        "quickwit-query-language",
+        "elasticsearch-comparison",
+        "quickwit-licensing"
+      ],
+      "summary": "Quickwitは、Rustで実装されたクラウドネイティブな分散型検索・分析エンジンであり、大規模なログ管理や観測性（オブザーバビリティ）ワークフロー向けに設計されたオープンソースプロジェクトです。",
+      "expansion_status": "done",
+      "origin": "root"
+    },
+    "apache-tantivy": {
+      "id": "apache-tantivy",
+      "title": "Apache Tantivy",
+      "filename": "wikis/quickwit/articles/apache-tantivy.html",
+      "created_at": "2026-04-05T09:27:26.928331+00:00",
+      "updated_at": "2026-04-05T09:27:26.928331+00:00",
+      "links_to": [
+        "quickwit",
+        "lucene-architecture",
+        "columnar-storage",
+        "object-storage-search",
+        "elasticsearch-comparison"
+      ],
+      "linked_from": [
+        "quickwit",
+        "object-storage-search",
+        "quickwit-query-language",
+        "elasticsearch-comparison"
+      ],
+      "summary": "Apache TantivyはRustで実装された高性能な全文検索エンジンライブラリであり、Apache LuceneをインスパイアしたAPIを持ちながら、Rustの安全性とゼロコスト抽象化によって優れた検索パフォーマンスを実現します。Quickwitのコア検索エンジンとして採用されています。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "observability": {
+      "id": "observability",
+      "title": "オブザーバビリティ（可観測性）",
+      "filename": "wikis/quickwit/articles/observability.html",
+      "created_at": "2026-04-05T09:27:31.637198+00:00",
+      "updated_at": "2026-04-05T09:27:31.637198+00:00",
+      "links_to": [
+        "quickwit",
+        "distributed-tracing",
+        "opentelemetry-integration"
+      ],
+      "linked_from": [
+        "quickwit",
+        "distributed-tracing",
+        "quickwit-ingest",
+        "opentelemetry-integration",
+        "object-storage-search",
+        "quickwit-query-language",
+        "elasticsearch-comparison",
+        "quickwit-licensing"
+      ],
+      "summary": "オブザーバビリティ（可観測性）とは、システムの外部出力からその内部状態を推測・理解できる能力であり、ログ・メトリクス・トレースの三本柱を基盤とする。Quickwitはその中でログと分散トレースの検索基盤として機能し、OpenTelemetryとのネイティブ統合やGrafana・Jaeger連携を通じてオブザーバビリティスタックを支える。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "distributed-tracing": {
+      "id": "distributed-tracing",
+      "title": "分散トレーシング",
+      "filename": "wikis/quickwit/articles/distributed-tracing.html",
+      "created_at": "2026-04-05T09:28:05.794757+00:00",
+      "updated_at": "2026-04-05T09:28:05.794757+00:00",
+      "links_to": [
+        "quickwit",
+        "observability",
+        "opentelemetry-integration",
+        "object-storage-search"
+      ],
+      "linked_from": [
+        "quickwit",
+        "observability",
+        "opentelemetry-integration"
+      ],
+      "summary": "分散トレーシングは、マイクロサービスアーキテクチャにおいてリクエストの経路を追跡し、各サービスでの処理時間やエラーを可視化する観測性技術である。トレース・スパン・コンテキスト伝播の三要素により、複雑な分散システムのデバッグとパフォーマンス分析を可能にする。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "quickwit-ingest": {
+      "id": "quickwit-ingest",
+      "title": "Quickwitのデータ取り込みソース",
+      "filename": "wikis/quickwit/articles/quickwit-ingest.html",
+      "created_at": "2026-04-05T09:28:09.647767+00:00",
+      "updated_at": "2026-04-05T09:28:09.647767+00:00",
+      "links_to": [
+        "quickwit",
+        "elasticsearch-comparison",
+        "observability",
+        "opentelemetry-integration"
+      ],
+      "linked_from": [
+        "quickwit",
+        "opentelemetry-integration",
+        "quickwit-query-language"
+      ],
+      "summary": "QuickwitはKafka、Apache Pulsar、S3/ファイル、REST APIなど複数のデータソースからドキュメントを取り込む柔軟な取り込みパイプラインを提供します。各ソースにはそれぞれ固有の設定・最適化オプションがあり、ユースケースに応じて選択できます。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "opentelemetry-integration": {
+      "id": "opentelemetry-integration",
+      "title": "OpenTelemetry統合",
+      "filename": "wikis/quickwit/articles/opentelemetry-integration.html",
+      "created_at": "2026-04-05T09:29:31.923955+00:00",
+      "updated_at": "2026-04-05T09:29:31.923955+00:00",
+      "links_to": [
+        "quickwit",
+        "observability",
+        "distributed-tracing",
+        "quickwit-ingest"
+      ],
+      "linked_from": [
+        "quickwit",
+        "observability",
+        "distributed-tracing",
+        "quickwit-ingest",
+        "quickwit-query-language"
+      ],
+      "summary": "QuickwitはCNCFプロジェクトであるOpenTelemetryとのネイティブ統合を提供し、OTLPプロトコルを通じてログ・トレース・メトリクスを直接受信・保存・検索できるオブザーバビリティバックエンドとして機能します。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "object-storage-search": {
+      "id": "object-storage-search",
+      "title": "オブジェクトストレージ上の検索",
+      "filename": "wikis/quickwit/articles/object-storage-search.html",
+      "created_at": "2026-04-05T09:29:47.186382+00:00",
+      "updated_at": "2026-04-05T09:29:47.186382+00:00",
+      "links_to": [
+        "quickwit",
+        "apache-tantivy",
+        "elasticsearch-comparison",
+        "observability"
+      ],
+      "linked_from": [
+        "quickwit",
+        "apache-tantivy",
+        "distributed-tracing",
+        "quickwit-query-language",
+        "elasticsearch-comparison"
+      ],
+      "summary": "オブジェクトストレージ上の検索とは、Amazon S3・Google Cloud Storage・Azure Blob Storageなどのクラウドオブジェクトストレージを一次検索インデックスの保存先として活用するアーキテクチャであり、ストレージとコンピュートを分離することで大規模データに対するコスト効率の高い全文検索を実現する技術的アプローチである。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "quickwit-query-language": {
+      "id": "quickwit-query-language",
+      "title": "Quickwitクエリ言語",
+      "filename": "wikis/quickwit/articles/quickwit-query-language.html",
+      "created_at": "2026-04-05T09:30:10.812761+00:00",
+      "updated_at": "2026-04-05T09:30:10.812761+00:00",
+      "links_to": [
+        "quickwit",
+        "apache-tantivy",
+        "elasticsearch-comparison",
+        "object-storage-search",
+        "quickwit-ingest",
+        "opentelemetry-integration",
+        "observability"
+      ],
+      "linked_from": [
+        "quickwit"
+      ],
+      "summary": "QuickwitクエリはElasticsearch Query DSLと高い互換性を持ちながら、クラウドネイティブな分散検索エンジン向けに最適化されたクエリ言語・APIである。全文検索・フィルター・集計・スクロールなど多彩な機能を提供し、既存のElasticsearchエコシステムとの親和性を保ちつつQuickwit固有のパフォーマンス特性を活かす設計となっている。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "elasticsearch-comparison": {
+      "id": "elasticsearch-comparison",
+      "title": "ElasticsearchとQuickwitの比較",
+      "filename": "wikis/quickwit/articles/elasticsearch-comparison.html",
+      "created_at": "2026-04-05T09:30:19.259014+00:00",
+      "updated_at": "2026-04-05T09:30:19.259014+00:00",
+      "links_to": [
+        "quickwit",
+        "apache-tantivy",
+        "object-storage-search",
+        "observability"
+      ],
+      "linked_from": [
+        "quickwit",
+        "apache-tantivy",
+        "quickwit-ingest",
+        "object-storage-search",
+        "quickwit-query-language",
+        "quickwit-licensing"
+      ],
+      "summary": "ElasticsearchとQuickwitは、どちらも大規模なテキスト・ログデータの検索・分析を目的としたエンジンだが、設計哲学・アーキテクチャ・コスト特性において根本的な違いを持つ。アーキテクチャ、コスト、検索性能、取り込み特性、移行しやすさ、ユースケース別推奨の観点から詳解する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    },
+    "quickwit-licensing": {
+      "id": "quickwit-licensing",
+      "title": "Quickwitのライセンスモデル",
+      "filename": "wikis/quickwit/articles/quickwit-licensing.html",
+      "created_at": "2026-04-05T09:30:31.091583+00:00",
+      "updated_at": "2026-04-05T09:30:31.091583+00:00",
+      "links_to": [
+        "quickwit",
+        "elasticsearch-comparison",
+        "observability"
+      ],
+      "linked_from": [
+        "quickwit"
+      ],
+      "summary": "Quickwitのライセンスモデルは、Apache 2.0ライセンスから始まりオープンコア（コアOSS＋エンタープライズ商用機能）へと進化してきた経緯と、クラウドプロバイダーによる無償利用問題、Elasticsearch・Redis・MongoDBなど他OSSのライセンス変更との比較、フォークとOSS持続可能性の議論を解説する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "quickwit"
+    }
+  },
+  "root_id": null,
+  "total_count": 10
+}

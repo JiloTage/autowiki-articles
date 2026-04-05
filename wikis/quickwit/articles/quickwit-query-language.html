@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickwitクエリ言語 - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    Quickwitクエリ言語
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Quickwitクエリ言語</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">QuickwitクエリはElasticsearch Query DSLと高い互換性を持ちながら、クラウドネイティブな分散検索エンジン向けに最適化されたクエリ言語・APIである。全文検索・フィルター・集計・スクロールなど多彩な機能を提供し、既存のElasticsearchエコシステムとの親和性を保ちつつQuickwit固有のパフォーマンス特性を活かす設計となっている。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><a href="quickwit.html">Quickwit</a>の<b>Quickwitクエリ言語</b>は、Elasticsearch Query DSLをベースとしたクエリインターフェースを提供する。これにより、既存のElasticsearch/OpenSearchユーザーは最小限の変更でQuickwitへ移行できる。一方で、Quickwitはオブジェクトストレージ上のイミュータブルなスプリット構造を前提としたクエリプランナーを持ち、<a href="apache-tantivy.html">Apache Tantivy</a>を通じた高速な全文検索と列指向ストレージを活用する独自の最適化が施されている。</p>
+      <p>クエリは大きく3つのカテゴリに分類される: <b>全文検索クエリ</b>（matchやmatch_phraseなど）、<b>フィルタークエリ</b>（term、range、boolなど）、<b>集計クエリ</b>（terms、histogram、date_histogramなど）。これらはJSON形式のクエリDSLとして記述し、REST APIを通じてQuickwitに送信する。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" width="680" height="300">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="680" height="300" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Quickwit クエリ処理フロー</text>
+
+          <!-- Client -->
+          <rect x="20" y="60" width="100" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="70" y="86" text-anchor="middle" font-size="12" fill="#202122">クライアント</text>
+          <text x="70" y="100" text-anchor="middle" font-size="10" fill="#555">JSON Query DSL</text>
+
+          <!-- REST API -->
+          <rect x="170" y="60" width="110" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="225" y="82" text-anchor="middle" font-size="12" fill="#202122">REST API</text>
+          <text x="225" y="97" text-anchor="middle" font-size="10" fill="#555">ES互換 / Native</text>
+
+          <!-- Arrow: Client -> REST -->
+          <line x1="120" y1="82" x2="166" y2="82" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Query Planner -->
+          <rect x="330" y="50" width="130" height="64" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="395" y="76" text-anchor="middle" font-size="12" fill="#202122">クエリプランナー</text>
+          <text x="395" y="92" text-anchor="middle" font-size="10" fill="#555">スプリット剪定</text>
+          <text x="395" y="107" text-anchor="middle" font-size="10" fill="#555">並列実行計画</text>
+
+          <!-- Arrow: REST -> Planner -->
+          <line x1="280" y1="82" x2="326" y2="82" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Tantivy -->
+          <rect x="510" y="60" width="130" height="44" rx="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="575" y="82" text-anchor="middle" font-size="12" fill="#202122">Apache Tantivy</text>
+          <text x="575" y="97" text-anchor="middle" font-size="10" fill="#555">転置インデックス検索</text>
+
+          <!-- Arrow: Planner -> Tantivy -->
+          <line x1="460" y1="82" x2="506" y2="82" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Query Types -->
+          <rect x="20" y="160" width="130" height="50" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="85" y="182" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">全文検索クエリ</text>
+          <text x="85" y="198" text-anchor="middle" font-size="10" fill="#555">match / match_phrase</text>
+
+          <rect x="170" y="160" width="130" height="50" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+          <text x="235" y="182" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">フィルタークエリ</text>
+          <text x="235" y="198" text-anchor="middle" font-size="10" fill="#555">term / range / bool</text>
+
+          <rect x="320" y="160" width="130" height="50" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="385" y="182" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">集計クエリ</text>
+          <text x="385" y="198" text-anchor="middle" font-size="10" fill="#555">terms / histogram</text>
+
+          <rect x="470" y="160" width="130" height="50" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="535" y="182" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ページング</text>
+          <text x="535" y="198" text-anchor="middle" font-size="10" fill="#555">scroll / search_after</text>
+
+          <!-- Bracket line from REST API down -->
+          <line x1="225" y1="104" x2="225" y2="148" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="85" y1="148" x2="535" y2="148" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="85" y1="148" x2="85" y2="156" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="235" y1="148" x2="235" y2="156" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="385" y1="148" x2="385" y2="156" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="535" y1="148" x2="535" y2="156" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+          <!-- Result merge -->
+          <rect x="220" y="240" width="200" height="40" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="320" y="266" text-anchor="middle" font-size="12" fill="#202122">結果マージ &amp; レスポンス返却</text>
+
+          <line x1="320" y1="210" x2="320" y2="236" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+        </svg>
+        <div class="diagram-caption">図1: Quickwitのクエリ処理フロー。クライアントからJSON Query DSLがREST APIに届き、クエリプランナーがスプリット剪定と並列実行計画を立てた上でApache Tantivyによる検索が実行される。</div>
+      </div>
+
+      <h2 id="fulltext-queries">全文検索クエリ</h2>
+      <p>全文検索クエリはテキストフィールドに対してトークン化・アナライズを経た検索を行う。Quickwitでは<a href="apache-tantivy.html">Apache Tantivy</a>のアナライザー設定に基づいてクエリテキストが処理される。</p>
+
+      <h3 id="match-query">matchクエリ</h3>
+      <p><code>match</code>クエリは最も基本的な全文検索クエリである。指定したフィールドに対してテキストを分析し、含まれるトークンのいずれかが一致するドキュメントを返す（デフォルトはOR論理）。</p>
+      <pre><code>{
+  "query": {
+    "match": {
+      "message": {
+        "query": "connection timeout error",
+        "operator": "AND"
+      }
+    }
+  }
+}</code></pre>
+      <p><code>operator</code>を<code>"AND"</code>に設定すると、すべてのトークンが含まれるドキュメントのみが返される。デフォルトの<code>"OR"</code>はいずれかのトークンが含まれれば一致とみなす。また、<code>fuzziness</code>パラメータを設定することでファジーマッチも可能である。</p>
+
+      <h3 id="match-phrase-query">match_phraseクエリ</h3>
+      <p><code>match_phrase</code>クエリはフレーズとして連続するトークンが同じ順序で出現するドキュメントを検索する。ログ解析でエラーメッセージの特定フレーズを探す際に有効である。</p>
+      <pre><code>{
+  "query": {
+    "match_phrase": {
+      "message": "disk quota exceeded"
+    }
+  }
+}</code></pre>
+      <p><code>slop</code>パラメータを追加すると、フレーズ内のトークン間に許容する位置ずれ数を指定できる。</p>
+
+      <h3 id="query-string">query_stringクエリ</h3>
+      <p><code>query_string</code>クエリはLucene構文に基づいた表現力の高いクエリ文字列をサポートする。複数フィールドへのクロスフィールド検索、ワイルドカード、正規表現などが使用できる。</p>
+      <pre><code>{
+  "query": {
+    "query_string": {
+      "query": "level:ERROR AND service:\"auth-service\"",
+      "default_field": "message"
+    }
+  }
+}</code></pre>
+
+      <h2 id="filter-queries">フィルタークエリ</h2>
+      <p>フィルタークエリはスコアリングを行わず、ドキュメントが条件に一致するかどうかのみを判定する。スコア計算が不要なため全文検索クエリより高速であり、Quickwitのクエリプランナーはフィルター条件を使ってスプリット剪定を積極的に行う。</p>
+
+      <h3 id="term-query">termクエリ</h3>
+      <p><code>term</code>クエリは特定フィールドの値が完全に一致するドキュメントを検索する。キーワードフィールドやIDフィールドに対して使用する。</p>
+      <pre><code>{
+  "query": {
+    "term": {
+      "status": "error"
+    }
+  }
+}</code></pre>
+      <p>複数の値に対する一致検索には<code>terms</code>クエリを使用する。</p>
+
+      <h3 id="range-query">rangeクエリ</h3>
+      <p><code>range</code>クエリは数値・日時フィールドの範囲検索に使用する。Quickwitの列指向ストレージを活用し効率的に処理される。タイムスタンプフィールドへのrange指定は、スプリット剪定に直結するため検索パフォーマンスに大きく影響する。</p>
+      <pre><code>{
+  "query": {
+    "range": {
+      "timestamp": {
+        "gte": "2026-04-01T00:00:00Z",
+        "lt":  "2026-04-02T00:00:00Z",
+        "format": "strict_date_optional_time"
+      }
+    }
+  }
+}</code></pre>
+
+      <h3 id="bool-query">boolクエリ</h3>
+      <p><code>bool</code>クエリは複数のクエリを論理的に組み合わせる複合クエリである。以下の4つの節を持つ:</p>
+      <ul>
+        <li><b>must</b>: すべての条件が一致し、スコアに寄与する</li>
+        <li><b>filter</b>: すべての条件が一致するが、スコアには寄与しない（キャッシュ効率が高い）</li>
+        <li><b>should</b>: いずれかの条件が一致すると好ましい（スコア加点）</li>
+        <li><b>must_not</b>: いずれの条件にも一致しない（除外条件）</li>
+      </ul>
+      <pre><code>{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "message": "authentication failed" } }
+      ],
+      "filter": [
+        { "term":  { "service": "gateway" } },
+        { "range": { "timestamp": { "gte": "now-1h" } } }
+      ],
+      "must_not": [
+        { "term": { "level": "debug" } }
+      ]
+    }
+  }
+}</code></pre>
+      <p>実務上は<code>filter</code>節でタイムスタンプや固定条件を絞り込み、<code>must</code>節で全文検索スコアリングを行うパターンが最も効率的である。</p>
+
+      <h2 id="aggregation-queries">集計クエリ</h2>
+      <p>集計クエリはログ分析やモニタリングダッシュボードで不可欠な機能である。QuickwitはElasticsearch互換の集計APIを提供し、<a href="observability.html">オブザーバビリティ</a>ワークフローで使われる主要な集計タイプをサポートする。</p>
+
+      <h3 id="terms-agg">terms集計</h3>
+      <p><code>terms</code>集計はフィールドの値ごとにドキュメント数（またはメトリクス値）を集計し、上位N件を返す。エラーの発生元サービスや頻出ログレベルの分布を把握する際に使用する。</p>
+      <pre><code>{
+  "aggs": {
+    "top_services": {
+      "terms": {
+        "field": "service",
+        "size": 10
+      }
+    }
+  }
+}</code></pre>
+
+      <h3 id="histogram-agg">histogramおよびdate_histogram集計</h3>
+      <p><code>histogram</code>は数値フィールドを指定した間隔でバケット化し、<code>date_histogram</code>は時刻フィールドをカレンダー単位（minute / hour / day など）でバケット化する。時系列ログのビジュアル化に直接対応する。</p>
+      <pre><code>{
+  "aggs": {
+    "events_over_time": {
+      "date_histogram": {
+        "field": "timestamp",
+        "calendar_interval": "1h",
+        "time_zone": "Asia/Tokyo"
+      },
+      "aggs": {
+        "error_count": {
+          "filter": { "term": { "level": "ERROR" } }
+        }
+      }
+    }
+  }
+}</code></pre>
+      <p>サブ集計（nested aggregation）を使うことで、時間帯ごとのエラー件数など複合的な分析が一度のリクエストで実現できる。</p>
+
+      <h3 id="metrics-agg">メトリクス集計</h3>
+      <p>数値フィールドに対する統計集計として、<code>min</code>、<code>max</code>、<code>avg</code>、<code>sum</code>、<code>stats</code>（上記すべてを同時に返す）が利用できる。レイテンシ分布やリソース使用量の集計に有効である。</p>
+      <pre><code>{
+  "aggs": {
+    "latency_stats": {
+      "stats": {
+        "field": "response_time_ms"
+      }
+    }
+  }
+}</code></pre>
+
+      <h2 id="query-planner">クエリプランナーの最適化</h2>
+      <p>Quickwitのクエリプランナーはオブジェクトストレージ上のスプリット構造を前提とした独自の最適化を行う。この設計は<a href="object-storage-search.html">オブジェクトストレージ上の検索</a>における高コストなI/Oを最小化するために重要である。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" width="640" height="260">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <rect width="640" height="260" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">クエリプランナーによるスプリット剪定</text>
+
+          <!-- All Splits -->
+          <text x="50" y="65" text-anchor="middle" font-size="11" fill="#555">全スプリット</text>
+          <rect x="10"  y="74" width="80" height="32" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="50" y="95" text-anchor="middle" font-size="10" fill="#202122">Split 2026-03-28</text>
+          <rect x="10"  y="112" width="80" height="32" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="50" y="133" text-anchor="middle" font-size="10" fill="#202122">Split 2026-03-29</text>
+          <rect x="10"  y="150" width="80" height="32" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="50" y="171" text-anchor="middle" font-size="10" fill="#202122">Split 2026-03-30</text>
+          <rect x="10"  y="188" width="80" height="32" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="50" y="209" text-anchor="middle" font-size="10" fill="#202122">Split 2026-04-04</text>
+          <rect x="10"  y="226" width="80" height="32" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="50" y="247" text-anchor="middle" font-size="10" fill="#202122">Split 2026-04-05</text>
+
+          <!-- Query range label -->
+          <rect x="130" y="90" width="160" height="54" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="210" y="112" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">range クエリ条件</text>
+          <text x="210" y="128" text-anchor="middle" font-size="10" fill="#555">timestamp &gt;= 2026-04-03</text>
+          <text x="210" y="143" text-anchor="middle" font-size="10" fill="#555">timestamp &lt;  2026-04-06</text>
+
+          <!-- Arrow from query to planner -->
+          <line x1="290" y1="117" x2="336" y2="117" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Planner box -->
+          <rect x="340" y="90" width="120" height="54" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="400" y="114" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">クエリプランナー</text>
+          <text x="400" y="130" text-anchor="middle" font-size="10" fill="#555">スプリットメタデータ照合</text>
+
+          <!-- Arrow to result -->
+          <line x1="460" y1="117" x2="506" y2="117" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Selected splits -->
+          <text x="580" y="65" text-anchor="middle" font-size="11" fill="#555">選択スプリット</text>
+          <rect x="510" y="74" width="130" height="32" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="575" y="95" text-anchor="middle" font-size="10" fill="#202122">Split 2026-04-04 ✓</text>
+          <rect x="510" y="112" width="130" height="32" rx="4" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="575" y="133" text-anchor="middle" font-size="10" fill="#202122">Split 2026-04-05 ✓</text>
+
+          <!-- Pruned splits annotation -->
+          <rect x="130" y="170" width="160" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+          <text x="210" y="190" text-anchor="middle" font-size="10" fill="#dc2626">03-28〜03-30 は範囲外</text>
+          <text x="210" y="204" text-anchor="middle" font-size="10" fill="#dc2626">→ ダウンロードをスキップ</text>
+        </svg>
+        <div class="diagram-caption">図2: クエリプランナーによるスプリット剪定の例。timestampのrange条件を使ってメタデータだけで対象外スプリットを除外し、必要なスプリットのみを実際にダウンロードして検索する。</div>
+      </div>
+
+      <h3 id="split-pruning">スプリット剪定</h3>
+      <p>各スプリットはメタデータとして時刻範囲・タグなどを保持している。クエリプランナーはこのメタデータをメタストアから参照し、クエリの<code>range</code>条件やタグフィルターと照合することで、実際にダウンロードが必要なスプリットの数を最小化する。これは特にオブジェクトストレージのリクエスト課金コストを直接削減する効果がある。</p>
+
+      <h3 id="parallel-execution">並列実行</h3>
+      <p>選択されたスプリットは複数のサーチャーノードに分散され、並列に検索される。各サーチャーは担当スプリットのサブセットに対してローカル検索を実行し、結果を返す。クエリプランナーは最終的にすべての部分結果をマージして、クライアントへのレスポンスを構築する。</p>
+
+      <h2 id="pagination">スクロールAPIとsearch_after</h2>
+      <p>大量の検索結果を分割して取得するために、QuickwitはElasticsearch互換のページング機構を提供する。</p>
+
+      <h3 id="scroll-api">スクロールAPI</h3>
+      <p>スクロールAPIは検索コンテキストをサーバー側に保持し、複数回のリクエストで連続的にドキュメントを取得する仕組みである。大量データのエクスポートや全件スキャンに向いている。</p>
+      <pre><code>POST /api/v1/my-index/_search?scroll=1m
+{
+  "query": { "match_all": {} },
+  "size": 1000,
+  "sort": [{ "timestamp": "asc" }]
+}</code></pre>
+      <p>レスポンスに含まれる<code>_scroll_id</code>を使って後続リクエストを送信する。スクロールコンテキストは指定した有効期間（上記では1分）が過ぎると自動的に破棄される。</p>
+
+      <h3 id="search-after">search_after</h3>
+      <p><code>search_after</code>はステートレスなページングを実現するパラメータである。スクロールAPIと異なりサーバー側でコンテキストを保持しないため、リソース消費が少なく長期間にわたるページングに適している。</p>
+      <pre><code>{
+  "query": { "match": { "level": "ERROR" } },
+  "size": 100,
+  "sort": [
+    { "timestamp": "asc" },
+    { "_id": "asc" }
+  ],
+  "search_after": ["2026-04-05T12:34:56Z", "doc-0000abc"]
+}</code></pre>
+      <p>前のページの最後のドキュメントのソート値を<code>search_after</code>に渡すことで次のページを取得する。ソートキーには一意性を保証するための<code>_id</code>を含めることが推奨される。</p>
+
+      <h2 id="native-api">QuickwitネイティブAPIの特徴</h2>
+      <p>Quickwitは<a href="elasticsearch-comparison.html">Elasticsearch互換API</a>に加えて、Quickwit固有の機能を持つネイティブAPIも提供する。</p>
+
+      <h3 id="native-query">ネイティブクエリ構文</h3>
+      <p>ネイティブクエリ構文では、Lucene構文に近いシンプルなクエリ文字列でフィールド検索・範囲検索・ブール演算を記述できる。これはKibana Dev Tools等の外部依存なしに素早くクエリを試したい場面で有用である。</p>
+
+      <h3 id="otlp-query">OpenTelemetryログ・トレースへの最適化</h3>
+      <p>QuickwitはOpenTelemetryのログ・トレースデータモデルに最適化されたインデックス設定を提供する。<code>resource_attributes</code>や<code>span_attributes</code>などのネストしたJSONフィールドに対するクエリも効率的に処理できる。詳細は<a href="opentelemetry-integration.html">OpenTelemetry統合</a>を参照。</p>
+
+      <h3 id="instant-ingest-query">取り込みとクエリの分離</h3>
+      <p>Quickwitは取り込みの最終確認（コミット）を経てからスプリットがクエリ対象になるため、厳密な整合性モデルを持つ。Ingest APIには即時コミットモード（<code>commit=force</code>）と非同期コミットモードがあり、用途に応じてレイテンシとスループットのバランスを調整できる。詳細は<a href="quickwit-ingest.html">データ取り込みソース</a>を参照。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#fulltext-queries">全文検索クエリ</a></li>
+          <li class="toc-h3"><a href="#match-query">matchクエリ</a></li>
+          <li class="toc-h3"><a href="#match-phrase-query">match_phraseクエリ</a></li>
+          <li class="toc-h3"><a href="#query-string">query_stringクエリ</a></li>
+          <li><a href="#filter-queries">フィルタークエリ</a></li>
+          <li class="toc-h3"><a href="#term-query">termクエリ</a></li>
+          <li class="toc-h3"><a href="#range-query">rangeクエリ</a></li>
+          <li class="toc-h3"><a href="#bool-query">boolクエリ</a></li>
+          <li><a href="#aggregation-queries">集計クエリ</a></li>
+          <li class="toc-h3"><a href="#terms-agg">terms集計</a></li>
+          <li class="toc-h3"><a href="#histogram-agg">date_histogram集計</a></li>
+          <li class="toc-h3"><a href="#metrics-agg">メトリクス集計</a></li>
+          <li><a href="#query-planner">クエリプランナーの最適化</a></li>
+          <li class="toc-h3"><a href="#split-pruning">スプリット剪定</a></li>
+          <li class="toc-h3"><a href="#parallel-execution">並列実行</a></li>
+          <li><a href="#pagination">スクロールAPIとsearch_after</a></li>
+          <li class="toc-h3"><a href="#scroll-api">スクロールAPI</a></li>
+          <li class="toc-h3"><a href="#search-after">search_after</a></li>
+          <li><a href="#native-api">ネイティブAPIの特徴</a></li>
+          <li class="toc-h3"><a href="#native-query">ネイティブクエリ構文</a></li>
+          <li class="toc-h3"><a href="#otlp-query">OpenTelemetryへの最適化</a></li>
+          <li class="toc-h3"><a href="#instant-ingest-query">取り込みとクエリの分離</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+          <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+          <li><a href="quickwit-ingest.html">データ取り込みソース</a></li>
+          <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="apache-tantivy.html">Apache Tantivy</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+        <li><a href="quickwit-ingest.html">データ取り込みソース</a></li>
+        <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

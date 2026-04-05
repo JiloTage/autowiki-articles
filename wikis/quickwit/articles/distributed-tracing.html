@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分散トレーシング - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    分散トレーシング
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">分散トレーシング</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary">分散トレーシングは、マイクロサービスアーキテクチャにおいてリクエストの経路を追跡し、各サービスでの処理時間やエラーを可視化する観測性技術である。トレース・スパン・コンテキスト伝播の三要素により、複雑な分散システムのデバッグとパフォーマンス分析を可能にする。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>分散トレーシング</b>（Distributed Tracing）は、複数のサービスにまたがるリクエストの実行経路を追跡・可視化する観測性（オブザーバビリティ）技術である。モノリシックアプリケーションでは単一プロセス内のスタックトレースでデバッグが完結していたが、マイクロサービスアーキテクチャでは一つのユーザーリクエストが数十のサービスを横断することがあり、従来の手法では障害の根本原因を特定することが困難になった。</p>
+      <p>分散トレーシングはこの課題を解決するため、各サービスでの処理を「スパン」として記録し、リクエスト全体を「トレース」として結合する。これにより、ボトルネックの特定、エラーの伝播経路の把握、サービス間の依存関係の可視化が可能になる。<a href="observability.html">オブザーバビリティ</a>の三本柱（ログ・メトリクス・トレース）の一つとして、現代のクラウドネイティブシステムに不可欠な技術である。</p>
+
+      <h2 id="concepts">基本概念</h2>
+
+      <h3 id="trace-span">トレースとスパン</h3>
+      <p>分散トレーシングの核心となる概念は以下の通りである:</p>
+      <ul>
+        <li><b>トレース（Trace）</b>: 一つのリクエストがシステムを通過する完全な経路を表す。グローバルに一意な<code>trace_id</code>で識別される。</li>
+        <li><b>スパン（Span）</b>: トレース内の個々の作業単位。特定のサービス・関数・操作の開始時刻・終了時刻・属性・イベントを保持する。</li>
+        <li><b>ルートスパン（Root Span）</b>: トレースの起点となるスパン。通常、フロントエンドやAPIゲートウェイで生成される。</li>
+        <li><b>子スパン（Child Span）</b>: 親スパンの処理中に発生した子処理を表す。ネストしたスパン構造によりコールグラフを形成する。</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 320" width="660" height="320">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="660" height="320" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="330" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">トレースとスパンの構造</text>
+
+          <!-- Timeline axis -->
+          <line x1="40" y1="50" x2="620" y2="50" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="40" y="44" font-size="10" fill="#555">0ms</text>
+          <text x="180" y="44" font-size="10" fill="#555">50ms</text>
+          <text x="330" y="44" font-size="10" fill="#555">100ms</text>
+          <text x="480" y="44" font-size="10" fill="#555">150ms</text>
+          <text x="590" y="44" font-size="10" fill="#555">200ms</text>
+
+          <!-- Root Span: API Gateway (0-200ms) -->
+          <rect x="40" y="64" width="580" height="28" rx="4" fill="#3366cc" opacity="0.85"/>
+          <text x="48" y="83" font-size="12" fill="#fff" font-weight="bold">API Gateway (root span)</text>
+          <text x="580" y="83" text-anchor="end" font-size="10" fill="#ddd">200ms</text>
+
+          <!-- Child Span: Auth Service (5-30ms) -->
+          <rect x="54" y="106" width="87" height="24" rx="4" fill="#36c" opacity="0.7"/>
+          <text x="60" y="122" font-size="11" fill="#fff">Auth Service</text>
+          <text x="137" y="122" text-anchor="end" font-size="9" fill="#ddd">25ms</text>
+
+          <!-- Child Span: Product Service (35-130ms) -->
+          <rect x="143" y="106" width="261" height="24" rx="4" fill="#36c" opacity="0.7"/>
+          <text x="150" y="122" font-size="11" fill="#fff">Product Service</text>
+          <text x="400" y="122" text-anchor="end" font-size="9" fill="#ddd">95ms</text>
+
+          <!-- Child Span: Order Service (135-195ms) -->
+          <rect x="423" y="106" width="174" height="24" rx="4" fill="#36c" opacity="0.7"/>
+          <text x="430" y="122" font-size="11" fill="#fff">Order Service</text>
+          <text x="593" y="122" text-anchor="end" font-size="9" fill="#ddd">60ms</text>
+
+          <!-- Grand-child: DB Query under Product (40-80ms) -->
+          <rect x="157" y="144" width="116" height="22" rx="4" fill="#1a56a0" opacity="0.75"/>
+          <text x="163" y="159" font-size="10" fill="#fff">DB Query (Postgres)</text>
+
+          <!-- Grand-child: Cache under Product (85-125ms) -->
+          <rect x="281" y="144" width="116" height="22" rx="4" fill="#1a56a0" opacity="0.75"/>
+          <text x="287" y="159" font-size="10" fill="#fff">Cache Read (Redis)</text>
+
+          <!-- Grand-child: DB Write under Order (140-185ms) -->
+          <rect x="437" y="144" width="145" height="22" rx="4" fill="#1a56a0" opacity="0.75"/>
+          <text x="443" y="159" font-size="10" fill="#fff">DB Write (Postgres)</text>
+
+          <!-- Legend -->
+          <rect x="40" y="200" width="14" height="14" rx="2" fill="#3366cc" opacity="0.85"/>
+          <text x="60" y="212" font-size="11" fill="#202122">ルートスパン / 第1レベル子スパン</text>
+          <rect x="40" y="222" width="14" height="14" rx="2" fill="#1a56a0" opacity="0.75"/>
+          <text x="60" y="234" font-size="11" fill="#202122">第2レベル子スパン（孫スパン）</text>
+
+          <!-- Span attributes note -->
+          <rect x="40" y="258" width="580" height="48" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="52" y="276" font-size="11" fill="#202122" font-weight="bold">各スパンが保持するデータ:</text>
+          <text x="52" y="294" font-size="10" fill="#555">trace_id, span_id, parent_span_id, operation_name, start_time, duration, status, attributes (key-value), events</text>
+        </svg>
+        <div class="diagram-caption">図1: トレースのスパン構造。一つのAPIリクエスト（200ms）が複数のマイクロサービスを横断し、各処理が子スパンとして記録される。</div>
+      </div>
+
+      <h3 id="context-propagation">コンテキスト伝播</h3>
+      <p>分散トレーシングの要となるのがコンテキスト伝播（Context Propagation）である。サービスAからサービスBへHTTPリクエストを送る際、<code>trace_id</code>や<code>span_id</code>などのトレースコンテキストをHTTPヘッダーに付与して伝達する。受信側のサービスはこのヘッダーを読み取り、受信したトレースに自身のスパンを子として追加する。</p>
+      <p>この仕組みにより、サービス間の境界を越えてトレースが継続し、システム全体のリクエスト経路を一つのツリー構造として表現できる。gRPC・Kafka・非同期キューなど、HTTPに限らずさまざまなプロトコルでコンテキスト伝播が実装される。</p>
+
+      <h2 id="w3c-tracecontext">W3C TraceContext標準</h2>
+      <p>かつて分散トレーシングのコンテキスト伝播フォーマットはベンダーごとに独自実装されており、異なるツール間での相互運用が困難であった。この問題を解決するために策定されたのが<b>W3C TraceContext</b>標準（W3C Recommendation）である。</p>
+      <p>W3C TraceContextは主に二つのHTTPヘッダーを定義する:</p>
+      <ul>
+        <li><b><code>traceparent</code></b>: バージョン・trace_id（128bit）・parent_span_id（64bit）・トレースフラグ（サンプリング済みかどうかなど）を含む。例: <code>00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01</code></li>
+        <li><b><code>tracestate</code></b>: ベンダー固有の追加情報をキーバリュー形式で伝搬するための拡張ヘッダー。異なる実装間の相互運用性を保ちながらベンダー拡張を可能にする。</li>
+      </ul>
+      <p><a href="opentelemetry-integration.html">OpenTelemetry</a>はW3C TraceContextをデフォルトのコンテキスト伝播形式として採用しており、現代の分散トレーシングエコシステムの標準となっている。</p>
+
+      <h2 id="jaeger-zipkin">JaegerとZipkinの比較</h2>
+      <p>分散トレーシングのバックエンドシステムとして広く使われているのがJaegerとZipkinである。どちらもトレースデータの収集・保存・可視化を担うが、設計哲学や機能に違いがある。</p>
+
+      <h3 id="jaeger">Jaeger</h3>
+      <p>Jaegerは2016年にUberが開発し、Cloud Native Computing Foundation（CNCF）に寄贈したオープンソースの分散トレーシングプラットフォームである。主な特徴:</p>
+      <ul>
+        <li>スケーラブルなマイクロサービスアーキテクチャ（コレクター・クエリー・UI・エージェントの分離）</li>
+        <li>Cassandra・Elasticsearch・Badgerなど複数のストレージバックエンドをサポート</li>
+        <li>サービスパフォーマンス監視（SPM）ダッシュボードの提供</li>
+        <li>OTLPプロトコルのネイティブサポート（Jaeger v1.35以降）</li>
+        <li><a href="quickwit.html">Quickwit</a>をJaeger互換バックエンドとして利用可能</li>
+      </ul>
+
+      <h3 id="zipkin">Zipkin</h3>
+      <p>Zipkinは2012年にTwitterが開発したトレーシングシステムで、Jaegerより歴史が長い。主な特徴:</p>
+      <ul>
+        <li>シンプルなアーキテクチャで導入が容易</li>
+        <li>Zipkin独自のB3 Propagation形式（W3C TraceContextとも互換）</li>
+        <li>MySQL・Elasticsearch・Cassandraをストレージとしてサポート</li>
+        <li>コミュニティは活発だがJaegerほどのCNCFサポートはない</li>
+      </ul>
+
+      <p>現代の新規導入ではJaegerかOpenTelemetry Collectorの組み合わせが主流となっており、ZipkinはB3伝播形式の互換性のために引き続き参照される。</p>
+
+      <h2 id="quickwit-jaeger-backend">QuickwitのJaeger互換バックエンド</h2>
+      <p><a href="quickwit.html">Quickwit</a>はJaeger互換のgRPC APIを提供しており、Jaegerのクエリーサービスの代替バックエンドとして機能する。これにより、既存のJaeger UIをそのまま使いながら、トレースデータの保存先をQuickwitのオブジェクトストレージベースのインデックスに変更できる。</p>
+      <p>標準的な統合パターンは以下の通りである:</p>
+      <ul>
+        <li>アプリケーションはOpenTelemetry SDKを使ってスパンを生成し、<a href="opentelemetry-integration.html">OpenTelemetry Collector</a>に送信する</li>
+        <li>OpenTelemetry CollectorはOTLPエクスポーターを通じてQuickwitにトレースデータを転送する</li>
+        <li>Jaeger UIはJaeger互換APIを通じてQuickwitからトレースデータをクエリする</li>
+      </ul>
+      <p>この構成の最大の利点は、Elasticsearchなどの高コストなストレージを必要とせず、S3などのオブジェクトストレージにトレースデータを低コストで長期保存できる点である。テラバイト規模のトレースデータも経済的に管理できる。</p>
+
+      <h2 id="sampling">サンプリング戦略</h2>
+      <p>マイクロサービスシステムでは毎秒数千〜数万のリクエストが発生し、すべてのトレースを記録するとストレージコストと処理負荷が膨大になる。これを解決するのがサンプリング戦略である。</p>
+
+      <h3 id="head-based-sampling">Head-based サンプリング</h3>
+      <p>Head-based（ヘッドベース）サンプリングは、リクエストの開始時点でサンプリングするかどうかを決定する方式である。確率的サンプリング（例: 10%のリクエストをトレース）が一般的で、実装がシンプルで低レイテンシである。</p>
+      <p>課題として、サンプリング決定がリクエストの結果（成功・エラー・遅延）を知る前に行われるため、重要なエラートレースが欠落する可能性がある。</p>
+
+      <h3 id="tail-based-sampling">Tail-based サンプリング</h3>
+      <p>Tail-based（テールベース）サンプリングは、リクエストが完了してすべてのスパンが収集された後にサンプリングを決定する方式である。エラーが発生したトレースや異常に遅いトレースを優先的に保存できるため、観測の品質が大幅に向上する。</p>
+      <p>OpenTelemetry CollectorのTail Sampling Processorは代表的な実装であり、以下のようなポリシーを組み合わせて使用できる:</p>
+      <ul>
+        <li><b>Always sample</b>: 特定の条件（エラーステータス、高レイテンシ）に合致したトレースを必ずサンプリング</li>
+        <li><b>Probabilistic</b>: 残りのトレースを確率的にサンプリング</li>
+        <li><b>Rate limiting</b>: 毎秒のサンプリング数を上限で制限</li>
+      </ul>
+      <p>Tail-basedサンプリングはメモリ使用量が多く、コレクターの水平スケーリングが難しいというトレードオフがある。Quickwitの低コストストレージと組み合わせることで、サンプリング率を高めながらもコストを抑えることが可能になる。</p>
+
+      <h2 id="storage-requirements">トレースデータのストレージ要件</h2>
+      <p>トレースデータはログやメトリクスと比べて構造が複雑であり、独特のストレージ要件を持つ:</p>
+      <ul>
+        <li><b>高書き込みスループット</b>: 大量のスパンデータをリアルタイムに取り込む必要がある</li>
+        <li><b>時系列アクセスパターン</b>: 多くの場合、最近のデータへのアクセスが集中し、古いデータは低頻度でアクセスされる</li>
+        <li><b>trace_idによるルックアップ</b>: 特定のtrace_idに属するすべてのスパンを高速に取得する必要がある</li>
+        <li><b>長期保存</b>: 障害調査やSLA分析のために数週間〜数ヶ月のトレースデータを保持する</li>
+        <li><b>コスト効率</b>: 大量データのコスト効率的な保存が求められる</li>
+      </ul>
+      <p>Quickwitはオブジェクトストレージ上に<a href="object-storage-search.html">検索インデックス</a>を構築することで、これらの要件を低コストで満たす。特に時系列データの効率的なパーティショニングと、古いデータの自動階層化（ライフサイクル管理）との親和性が高い。</p>
+      <p>トレースデータのサイズ感として、1スパンあたり平均1〜2KB程度のデータが生成され、毎秒10,000スパンを処理するシステムでは1日あたり約900GB（非圧縮）のデータが発生する。Quickwitの圧縮とオブジェクトストレージの組み合わせにより、実際のストレージコストはこの数分の一に抑えられる。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#concepts">基本概念</a></li>
+          <li class="toc-h3"><a href="#trace-span">トレースとスパン</a></li>
+          <li class="toc-h3"><a href="#context-propagation">コンテキスト伝播</a></li>
+          <li><a href="#w3c-tracecontext">W3C TraceContext標準</a></li>
+          <li><a href="#jaeger-zipkin">JaegerとZipkinの比較</a></li>
+          <li class="toc-h3"><a href="#jaeger">Jaeger</a></li>
+          <li class="toc-h3"><a href="#zipkin">Zipkin</a></li>
+          <li><a href="#quickwit-jaeger-backend">QuickwitのJaeger互換バックエンド</a></li>
+          <li><a href="#sampling">サンプリング戦略</a></li>
+          <li class="toc-h3"><a href="#head-based-sampling">Head-based サンプリング</a></li>
+          <li class="toc-h3"><a href="#tail-based-sampling">Tail-based サンプリング</a></li>
+          <li><a href="#storage-requirements">トレースデータのストレージ要件</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+          <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+          <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+        <li><a href="opentelemetry-integration.html">OpenTelemetry統合</a></li>
+        <li><a href="object-storage-search.html">オブジェクトストレージ上の検索</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

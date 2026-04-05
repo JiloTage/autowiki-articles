@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quickwitのライセンスモデル - Quickwit Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Quickwit Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Quickwit Wiki</a> &gt;
+    Quickwitのライセンスモデル
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Quickwitのライセンスモデル</h1>
+      <div class="article-meta">最終更新: 2026-04-05</div>
+      <div class="article-summary"><b>Quickwitのライセンスモデル</b>は、<a href="quickwit.html">Quickwit</a>プロジェクトがオープンソース持続可能性とビジネスモデルのバランスをどのように取るかを定義する枠組みである。Apache 2.0ライセンスから始まり、クラウドプロバイダーによる無償利用問題への対応としてライセンス戦略を進化させてきた経緯は、現代OSSビジネスの課題を象徴している。</div>
+
+      <h2 id="history">ライセンス変遷の歴史</h2>
+      <p><b>Quickwitのライセンスモデル</b>は、プロジェクト発足当初からいくつかの段階を経て変化してきた。初期はオープンソースコミュニティへの親和性を最大化するためにApache 2.0ライセンスが採用されたが、OSSビジネスの持続可能性という課題に直面するにつれ、ライセンス戦略の見直しが行われた。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 200" width="680" height="200">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <!-- Background -->
+          <rect width="680" height="200" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="340" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Quickwit ライセンス変遷タイムライン</text>
+
+          <!-- Timeline line -->
+          <line x1="60" y1="100" x2="620" y2="100" stroke="#a2a9b1" stroke-width="2" marker-end="url(#arr)"/>
+
+          <!-- Phase 1: Apache 2.0 -->
+          <circle cx="120" cy="100" r="8" fill="#3366cc" stroke="#fff" stroke-width="2"/>
+          <rect x="60" y="116" width="120" height="48" rx="6" fill="#fff" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="120" y="133" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">Apache 2.0</text>
+          <text x="120" y="148" text-anchor="middle" font-size="10" fill="#555">創設期</text>
+          <text x="120" y="162" text-anchor="middle" font-size="10" fill="#555">完全OSS・制限なし</text>
+          <text x="120" y="88" text-anchor="middle" font-size="10" fill="#555">2021〜</text>
+
+          <!-- Phase 2: Dual (AGPL + Proprietary) -->
+          <circle cx="300" cy="100" r="8" fill="#e07b39" stroke="#fff" stroke-width="2"/>
+          <rect x="230" y="116" width="140" height="48" rx="6" fill="#fff" stroke="#e07b39" stroke-width="1.5"/>
+          <text x="300" y="133" text-anchor="middle" font-size="11" font-weight="bold" fill="#e07b39">デュアルライセンス</text>
+          <text x="300" y="148" text-anchor="middle" font-size="10" fill="#555">AGPL + 商用ライセンス</text>
+          <text x="300" y="162" text-anchor="middle" font-size="10" fill="#555">エンタープライズ機能分離</text>
+          <text x="300" y="88" text-anchor="middle" font-size="10" fill="#555">移行期</text>
+
+          <!-- Phase 3: Current -->
+          <circle cx="500" cy="100" r="8" fill="#22863a" stroke="#fff" stroke-width="2"/>
+          <rect x="430" y="116" width="140" height="48" rx="6" fill="#fff" stroke="#22863a" stroke-width="1.5"/>
+          <text x="500" y="133" text-anchor="middle" font-size="11" font-weight="bold" fill="#22863a">コア OSS + EE</text>
+          <text x="500" y="148" text-anchor="middle" font-size="10" fill="#555">コアはApache 2.0</text>
+          <text x="500" y="162" text-anchor="middle" font-size="10" fill="#555">EE機能は商用ライセンス</text>
+          <text x="500" y="88" text-anchor="middle" font-size="10" fill="#555">現在</text>
+        </svg>
+        <div class="diagram-caption">図1: Quickwitのライセンス変遷タイムライン。Apache 2.0による完全OSSから始まり、デュアルライセンスを経て、現在のコアOSS＋エンタープライズ版（EE）モデルに至る。</div>
+      </div>
+
+      <h3 id="apache-era">Apache 2.0時代</h3>
+      <p>Quickwitは2021年のプロジェクト創設時からApache License 2.0のもとで公開された。Apache 2.0はOSSの中でも最も自由度が高いライセンスの一つであり、商用利用、改変、再配布が無制限に許可される。この選択はコミュニティの広がりを最大化し、開発者エコシステムへの迅速な普及を促す戦略的判断であった。</p>
+      <p>しかし、Apache 2.0の自由度の高さは同時に脆弱性でもある。大手クラウドプロバイダーがソースコードをそのまま取り込み、マネージドサービスとして販売するケースが現れると、オリジナル開発者への還元なしにビジネスが成立してしまう構造的問題が浮き彫りになった。</p>
+
+      <h3 id="transition">ライセンス移行の契機</h3>
+      <p>Elasticsearchを運営するElasticが2021年にElasticsearch・KibanaのライセンスをApache 2.0からSSPL（Server Side Public License）へ変更したことは、OSSコミュニティに大きな波紋を呼んだ。同様にHashiCorpが2023年にTerraformをMPL（Mozilla Public License）からBSL（Business Source License）へ移行したことも、OSSライセンスの再考を促す契機となった。</p>
+      <p>こうした先例を受けて、Quickwit開発チームも持続可能なビジネスモデルの構築に向けてライセンス戦略を見直す必要性を認識した。</p>
+
+      <h2 id="oss-business-challenge">OSSビジネスモデルの課題</h2>
+      <p>オープンソースソフトウェアのビジネスモデルにおける最大の課題の一つが、「クラウドプロバイダー問題」である。AWS、Google Cloud、Microsoft Azureなどの大手クラウドプロバイダーは、オープンソースプロジェクトのコードを取り込み、マネージドサービスとして提供することで収益を上げることができる。一方、そのコードを書いた開発チームへの直接的な収益還元はほとんどない。</p>
+
+      <h3 id="cloud-provider-problem">クラウドプロバイダーの無償利用問題</h3>
+      <p>この問題はOSSコミュニティで「クラウドウォッシング（cloud washing）」または「フリーライダー問題」とも呼ばれる。具体的には以下のシナリオが問題視される:</p>
+      <ul>
+        <li>クラウドプロバイダーがOSSのコードをフォークし、自社サービスに組み込む</li>
+        <li>オリジナル開発チームへのコントリビューションなしにサービス展開する</li>
+        <li>ユーザーはクラウドプロバイダーのSLAや統合エコシステムを好むため、オリジナルプロジェクトの商用サポートを選ばない</li>
+        <li>結果として、オリジナル開発チームのビジネス収益が圧迫される</li>
+      </ul>
+      <p>Quickwitのような高度な検索インフラを開発するには、専任エンジニアチームによる継続的なR&amp;Dが不可欠であり、収益モデルの確立は長期的な開発継続の前提条件となる。</p>
+
+      <h3 id="sustainability-models">持続可能性モデルの選択肢</h3>
+      <p>OSSプロジェクトが収益を確保する手段として、業界では以下のモデルが検討・採用されている:</p>
+      <ul>
+        <li><b>オープンコア（Open Core）モデル</b>: コアをOSSとし、エンタープライズ機能を商用ライセンスで提供する</li>
+        <li><b>BSL（Business Source License）</b>: 一定期間経過後にOSSライセンスへ転換する時限商用ライセンス</li>
+        <li><b>AGPL</b>: ネットワーク越しにサービス提供する場合もソース公開を義務付けるコピーレフトライセンス</li>
+        <li><b>SSPL</b>: AGPLをさらに強化し、サービス提供に使用するすべての周辺コードの公開も要求するライセンス</li>
+        <li><b>Dual License</b>: OSSライセンスと商用ライセンスを並行して提供し、商用利用者から収益を得る</li>
+      </ul>
+
+      <h2 id="core-ee-split">コアとエンタープライズ機能の分離</h2>
+      <p>Quickwitが採用する現在のモデルは、コアエンジンをオープンソースとして維持しつつ、エンタープライズグレードの機能を商用ライセンスで提供する「オープンコア」アプローチである。この分離により、個人開発者や中小規模のデプロイメントはコストなしに高性能な検索エンジンを利用でき、大規模エンタープライズ向けの高度な機能はサポート付きの商用モデルで提供される。</p>
+
+      <h3 id="core-features">コア（OSS）機能</h3>
+      <p>Apache 2.0ライセンスのもとでオープンに提供されるコア機能には、<a href="quickwit.html">Quickwit</a>の基本的な検索・インデックス機能が含まれる:</p>
+      <ul>
+        <li>全文検索、フィルタリング、集計クエリ</li>
+        <li>オブジェクトストレージへのインデックス管理</li>
+        <li>分散アーキテクチャ（インデクサー・サーチャー・コントロールプレーン）</li>
+        <li>Elasticsearch互換REST API</li>
+        <li>Kafka・Pulsar・S3からのデータ取り込み</li>
+        <li>OpenTelemetry（OTLP）ネイティブサポート</li>
+      </ul>
+
+      <h3 id="enterprise-features">エンタープライズ（EE）機能</h3>
+      <p>商用ライセンスが必要なエンタープライズ機能は、大規模組織での運用に特化した付加価値機能で構成される:</p>
+      <ul>
+        <li>高度なアクセス制御（RBAC）とシングルサインオン（SSO）統合</li>
+        <li>エンタープライズSLAによる優先サポート</li>
+        <li>高度なモニタリングとアラーティング機能</li>
+        <li>マルチテナント管理機能</li>
+        <li>コンプライアンス対応のための監査ログ</li>
+      </ul>
+
+      <h2 id="oss-precedents">他OSSプロジェクトのライセンス変更との比較</h2>
+      <p>Quickwitのライセンス戦略を理解するには、OSSエコシステム全体でのライセンス変更の動向を把握することが重要である。特に<a href="elasticsearch-comparison.html">Elasticsearchとの比較</a>においてライセンス戦略の違いは重要な側面となる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <rect width="680" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="340" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">主要OSSプロジェクトのライセンス変更比較</text>
+
+          <!-- Header row -->
+          <rect x="20" y="40" width="160" height="30" rx="4" fill="#3366cc"/>
+          <text x="100" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">プロジェクト</text>
+          <rect x="184" y="40" width="140" height="30" rx="4" fill="#3366cc"/>
+          <text x="254" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">旧ライセンス</text>
+          <rect x="328" y="40" width="140" height="30" rx="4" fill="#3366cc"/>
+          <text x="398" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">新ライセンス</text>
+          <rect x="472" y="40" width="188" height="30" rx="4" fill="#3366cc"/>
+          <text x="566" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">主な理由</text>
+
+          <!-- Row 1: Elasticsearch -->
+          <rect x="20" y="74" width="160" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="100" y="96" text-anchor="middle" font-size="11" fill="#202122">Elasticsearch</text>
+          <rect x="184" y="74" width="140" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="254" y="96" text-anchor="middle" font-size="11" fill="#555">Apache 2.0</text>
+          <rect x="328" y="74" width="140" height="34" rx="0" fill="#fff3cd" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="398" y="96" text-anchor="middle" font-size="11" fill="#856404">SSPL / ELv2</text>
+          <rect x="472" y="74" width="188" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="566" y="96" text-anchor="middle" font-size="10" fill="#555">AWS OpenSearch対抗</text>
+
+          <!-- Row 2: HashiCorp Terraform -->
+          <rect x="20" y="112" width="160" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="100" y="134" text-anchor="middle" font-size="11" fill="#202122">Terraform</text>
+          <rect x="184" y="112" width="140" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="254" y="134" text-anchor="middle" font-size="11" fill="#555">MPL 2.0</text>
+          <rect x="328" y="112" width="140" height="34" rx="0" fill="#fff3cd" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="398" y="134" text-anchor="middle" font-size="11" fill="#856404">BSL 1.1</text>
+          <rect x="472" y="112" width="188" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="566" y="134" text-anchor="middle" font-size="10" fill="#555">競合マネージドSaaS対抗</text>
+
+          <!-- Row 3: Redis -->
+          <rect x="20" y="150" width="160" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="100" y="172" text-anchor="middle" font-size="11" fill="#202122">Redis</text>
+          <rect x="184" y="150" width="140" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="254" y="172" text-anchor="middle" font-size="11" fill="#555">BSD 3-Clause</text>
+          <rect x="328" y="150" width="140" height="34" rx="0" fill="#fff3cd" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="398" y="172" text-anchor="middle" font-size="11" fill="#856404">RSALv2 / SSPLv1</text>
+          <rect x="472" y="150" width="188" height="34" rx="0" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="566" y="172" text-anchor="middle" font-size="10" fill="#555">クラウドプロバイダー対抗</text>
+
+          <!-- Row 4: MongoDB -->
+          <rect x="20" y="188" width="160" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="100" y="210" text-anchor="middle" font-size="11" fill="#202122">MongoDB</text>
+          <rect x="184" y="188" width="140" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="254" y="210" text-anchor="middle" font-size="11" fill="#555">AGPL v3</text>
+          <rect x="328" y="188" width="140" height="34" rx="0" fill="#fff3cd" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="398" y="210" text-anchor="middle" font-size="11" fill="#856404">SSPL</text>
+          <rect x="472" y="188" width="188" height="34" rx="0" fill="#f7f8f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="566" y="210" text-anchor="middle" font-size="10" fill="#555">AWS DocumentDB対抗</text>
+
+          <!-- Row 5: Quickwit -->
+          <rect x="20" y="226" width="160" height="34" rx="0" fill="#e8f4fd" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="100" y="248" text-anchor="middle" font-size="11" font-weight="bold" fill="#3366cc">Quickwit</text>
+          <rect x="184" y="226" width="140" height="34" rx="0" fill="#e8f4fd" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="254" y="248" text-anchor="middle" font-size="11" fill="#555">Apache 2.0</text>
+          <rect x="328" y="226" width="140" height="34" rx="0" fill="#e8f4fd" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="398" y="244" text-anchor="middle" font-size="11" fill="#3366cc">コアApache 2.0</text>
+          <text x="398" y="256" text-anchor="middle" font-size="10" fill="#3366cc">+ EE商用ライセンス</text>
+          <rect x="472" y="226" width="188" height="34" rx="0" fill="#e8f4fd" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="566" y="248" text-anchor="middle" font-size="10" fill="#555">OSS持続可能性の確保</text>
+        </svg>
+        <div class="diagram-caption">図2: 主要OSSプロジェクトのライセンス変更比較。多くのプロジェクトがクラウドプロバイダーによる無償利用に対抗するためライセンス戦略を見直している。</div>
+      </div>
+
+      <h3 id="elasticsearch-case">Elasticsearchの事例</h3>
+      <p>Elasticが2021年にElasticsearchとKibanaのライセンスをSSPLとElastic License v2（ELv2）のデュアルライセンスへ変更した背景には、AWSがAmazon Elasticsearch Serviceとして提供したことへの対抗がある。AWSはElasticの製品をほぼそのまま使用しながら、Elasticへの貢献なしにサービス展開した。この対応としてAWSはOpenSearchプロジェクトをフォークし、Apache 2.0ライセンスのもとで独立した開発を続けている。</p>
+
+      <h3 id="redis-mongodb-case">RedisとMongoDBの事例</h3>
+      <p>Redisは2024年にBSD 3-Clauseから独自のRSALv2とSSPLv1のデュアルライセンスへ移行した。これに対してOSSコミュニティはValkey（Linux Foundation傘下）をフォークし、BSD互換ライセンスでの開発を継続した。MongoDBもSSPLへの移行によりAWS DocumentDBへの対抗措置を講じたが、同様に制限を嫌うユーザーはFerretDBなどの互換代替実装へ移行する動きが生じた。</p>
+
+      <h2 id="community-impact">コミュニティへの影響</h2>
+      <p>ライセンス変更はコミュニティとの関係に複雑な影響を及ぼす。開発チームの持続可能性確保とコミュニティの信頼維持はトレードオフの関係にある場合が多い。</p>
+
+      <h3 id="positive-aspects">ポジティブな側面</h3>
+      <ul>
+        <li><b>開発継続の保証</b>: 収益モデルが確立されることで、フルタイム開発者を雇用し、長期的な開発ロードマップを維持できる</li>
+        <li><b>エンタープライズ品質の向上</b>: 商用サポート収益がコア品質向上のR&amp;Dへ還元される</li>
+        <li><b>明確な境界線</b>: コアとエンタープライズ機能の明示的な分離により、ユーザーは何が無料で何が有料かを明確に把握できる</li>
+      </ul>
+
+      <h3 id="negative-aspects">ネガティブな側面</h3>
+      <ul>
+        <li><b>コントリビューターの離反</b>: 商用ライセンス条件を嫌うコントリビューターがプロジェクトへの貢献を躊躇する可能性がある</li>
+        <li><b>フォークリスク</b>: コミュニティがライセンス変更を受け入れない場合、フォークが生まれプロジェクトが分裂するリスクがある</li>
+        <li><b>信頼の毀損</b>: ライセンス変更をビジネス都合による方針転換として批判的に見るユーザーが現れる</li>
+      </ul>
+
+      <h2 id="forks-sustainability">フォークとオープンソース持続可能性の議論</h2>
+      <p>ライセンス変更に対するコミュニティの典型的な反応の一つがフォークである。ElasticsearchのOpenSearch、RedisのValkey、TerraformのOpenTofuなどはいずれもライセンス変更への対抗としてフォークされたプロジェクトである。</p>
+
+      <h3 id="fork-dynamics">フォークのダイナミクス</h3>
+      <p>フォークが成功するかどうかは、以下の要因に左右される:</p>
+      <ul>
+        <li><b>スポンサーの存在</b>: OpenSearchはAWS、ValkeyはLinux Foundation、OpenTofuはLinux Foundationが支援しており、大手スポンサーの存在がフォークの継続的な開発を支える</li>
+        <li><b>コミュニティの規模</b>: 既存のコントリビューターコミュニティがフォークへ移行するかどうか</li>
+        <li><b>互換性の維持</b>: フォークがオリジナルと互換性を維持し続けられるかどうか</li>
+      </ul>
+
+      <h3 id="sustainability-debate">持続可能性の本質的な問い</h3>
+      <p>OSSの持続可能性をめぐる議論は、「誰がOSSを作る費用を負担するのか」という根本的な問いに行き着く。純粋なボランティアモデルは小規模プロジェクトでは機能するが、<a href="quickwit.html">Quickwit</a>のような高度なシステムソフトウェアには専任エンジニアチームによる継続的な投資が必要である。オープンコアモデルは、コアをコミュニティの公共財として維持しながら、商用機能の収益で開発コストを賄うという現実的な妥協点を提供する。</p>
+      <p>この議論はOSSエコシステム全体に共通する課題であり、Quickwitの事例は<a href="elasticsearch-comparison.html">Elasticsearchとの比較</a>においても頻繁に引用される参考事例となっている。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#history">ライセンス変遷の歴史</a></li>
+          <li class="toc-h3"><a href="#apache-era">Apache 2.0時代</a></li>
+          <li class="toc-h3"><a href="#transition">ライセンス移行の契機</a></li>
+          <li><a href="#oss-business-challenge">OSSビジネスモデルの課題</a></li>
+          <li class="toc-h3"><a href="#cloud-provider-problem">クラウドプロバイダーの無償利用問題</a></li>
+          <li class="toc-h3"><a href="#sustainability-models">持続可能性モデルの選択肢</a></li>
+          <li><a href="#core-ee-split">コアとエンタープライズ機能の分離</a></li>
+          <li class="toc-h3"><a href="#core-features">コア（OSS）機能</a></li>
+          <li class="toc-h3"><a href="#enterprise-features">エンタープライズ（EE）機能</a></li>
+          <li><a href="#oss-precedents">他OSSプロジェクトとの比較</a></li>
+          <li class="toc-h3"><a href="#elasticsearch-case">Elasticsearchの事例</a></li>
+          <li class="toc-h3"><a href="#redis-mongodb-case">RedisとMongoDBの事例</a></li>
+          <li><a href="#community-impact">コミュニティへの影響</a></li>
+          <li class="toc-h3"><a href="#positive-aspects">ポジティブな側面</a></li>
+          <li class="toc-h3"><a href="#negative-aspects">ネガティブな側面</a></li>
+          <li><a href="#forks-sustainability">フォークと持続可能性の議論</a></li>
+          <li class="toc-h3"><a href="#fork-dynamics">フォークのダイナミクス</a></li>
+          <li class="toc-h3"><a href="#sustainability-debate">持続可能性の本質的な問い</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="quickwit.html">Quickwit</a></li>
+          <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+          <li><a href="observability.html">オブザーバビリティ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+        <li><a href="elasticsearch-comparison.html">Elasticsearchとの比較</a></li>
+        <li><a href="observability.html">オブザーバビリティ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="quickwit.html">Quickwit</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
