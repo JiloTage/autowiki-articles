@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Claw サウンドトラックと音響設計 - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Captain Claw サウンドトラックと音響設計
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Captain Claw サウンドトラックと音響設計</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Captain Claw（1997年）のサウンドトラックはNathan Griggが作曲したMIDIベースの楽曲群で構成され、各レベルの雰囲気を的確に表現する海賊冒険スタイルの音楽と、臨場感あふれる効果音が一体となってゲーム体験を支えています。オープンソースの<a href="openclaw.html">OpenClaw</a>エンジンでは、SDL2_mixerライブラリを通じてこれらの音響資産が現代の環境で忠実に再生されています。</div>
+
+      <p><b>Captain Claw サウンドトラックと音響設計</b>は、1997年にMonolith Productionsが開発した横スクロールアクションゲーム<a href="captain-claw.html">Captain Claw</a>の音楽的・音響的側面を扱う分野です。作曲家<b>Nathan Grigg</b>が手がけたMIDI楽曲は、海賊冒険の雰囲気を盛り上げる勇壮なメロディーラインと、各ワールドの個性を際立たせるテーマ音楽で構成されています。ゲームの効果音は剣戟、銃声、敵の撃破音など多彩なサウンドで戦闘に臨場感を与え、プレイヤーを海賊の世界へと誘います。<a href="openclaw.html">OpenClaw</a>プロジェクトによる現代的な再実装においては、SDL2_mixerを用いた音響システムが採用され、MIDIからOGG形式への変換によって現代のオペレーティングシステムでも高品質な音楽再生が実現されています。</p>
+
+      <h2 id="composer">Nathan Griggと作曲背景</h2>
+      <p>Captain Clawの音楽はMonolith ProductionsのサウンドデザイナーおよびコンポーザーであるNathan Griggによって制作されました。1990年代半ばのPC向けゲーム音楽はMIDI規格が主流であり、サウンドカードのシンセサイザーを通じて再生される音楽はハードウェアの性能に大きく左右されました。Griggはこの制約の中で、海賊冒険のジャンルに相応しい躍動感と叙情性を兼ね備えた楽曲群を作り上げました。</p>
+      <p>オリジナルの楽曲はMIDI形式で収録されており、ゲームのREZアーカイブに格納されていました。各トラックはループ再生を前提とした構造を持ち、プレイヤーがレベルを攻略する間、音楽が途切れることなく場の雰囲気を維持し続けるよう設計されています。使用されるメロディー楽器はホルン、フルート、弦楽器群、打楽器など多岐にわたり、海洋冒険映画のサウンドトラックを彷彿とさせるオーケストラ風の質感が与えられています。</p>
+      <p>1990年代のゲーム音楽コンポーザーは、ファイルサイズの制約から最大限の表現を引き出す高度な技術を要求されていました。MIDI形式は音声波形ではなく演奏指示のみを記録するため、極めて小さなデータサイズで複雑な音楽を表現できます。Griggの楽曲はこの形式の利点を最大限に活用し、当時のPCゲームサウンドとしては水準以上のメロディーの豊かさを実現しています。同時代の比較対象としては、Diablo（1996年）のマット・ウエルマンによる不穏な環境音楽や、Quake（1996年）のナイン・インチ・ネイルズによるインダストリアル系アンビエント音楽が挙げられますが、Captain Clawの楽曲はこれらと対照的に、より明快でアドベンチャー調のスタイルを選択しています。</p>
+
+      <h2 id="level-themes">レベル別音楽テーマ</h2>
+      <p><a href="captain-claw-levels.html">Captain Clawの14レベル</a>はそれぞれ固有の音楽テーマを持ち、各ワールドの視覚的・テーマ的個性と連動しています。楽曲の選択はレベルデザインの一部として機能し、プレイヤーが新しいエリアへ踏み込む瞬間に音楽の変化が場の雰囲気を即座に伝えます。</p>
+      <ul>
+        <li><b>海賊船（レベル1〜2）：</b>活気に満ちたジグと船乗り風のメロディーが主体で、弦楽器とホルンが海上冒険の高揚感を演出します。テンポは速めで、脱出劇の緊張感と冒険の始まりを同時に表現しています。</li>
+        <li><b>熱帯密林・遺跡（レベル3〜4）：</b>木管楽器と打楽器が中心となり、神秘的でやや異国情緒のある雰囲気を醸し出します。マリンバやバスドラムを思わせる打楽器のリズムパターンが、熱帯のジャングルを探索する感覚を高めます。</li>
+        <li><b>水中世界（レベル5）：</b>テンポを落とした流れるようなメロディーと、波打つような音域の変動が水中の浮遊感を表現します。他のレベルと比べて低音域の楽器が強調され、水の中という独特の空間を音で描き出しています。</li>
+        <li><b>氷の要塞（レベル6〜8）：</b>金属的な音色のシンセパッドと硬質な打楽器が組み合わさり、凍てついた要塞の冷厳な雰囲気を形成します。メロディーはやや不安定で、滑りやすい地形や凍てついた罠を示唆するような緊張感があります。</li>
+        <li><b>アラビアの宮殿（レベル9〜10）：</b>音階に中東的な旋法を取り入れ、装飾音が多用されます。弦楽器の速いパッセージとタンバリン風の打楽器が、華やかな宮廷の雰囲気と剣士との対決の緊迫感を表現しています。</li>
+        <li><b>火山・溶岩洞（レベル11〜12）：</b>重厚な低音と力強い打楽器のパターンが支配的で、危険な環境を強調します。テンポは速く、溶岩の迫る脅威と高いプレッシャーを音楽的に補強します。</li>
+        <li><b>最終要塞（レベル13〜14）：</b>ゲーム全体で用いられたモチーフを統合した集大成的な楽曲で、クライマックスに向けた高揚感と決戦の重さが共存しています。ボス戦では専用の戦闘テーマが流れ、通常レベルの音楽と区別されます。</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340" width="700" height="340">
+          <!-- Background -->
+          <rect width="700" height="340" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="350" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Captain Claw: レベル別音楽テーマの概観</text>
+
+          <!-- Y-axis label -->
+          <text x="18" y="185" text-anchor="middle" font-size="11" fill="#202122" transform="rotate(-90,18,185)">テンポ（相対値）</text>
+
+          <!-- Grid lines -->
+          <line x1="60" y1="60" x2="660" y2="60" stroke="#a2a9b1" stroke-width="0.5" stroke-dasharray="4,3"/>
+          <line x1="60" y1="110" x2="660" y2="110" stroke="#a2a9b1" stroke-width="0.5" stroke-dasharray="4,3"/>
+          <line x1="60" y1="160" x2="660" y2="160" stroke="#a2a9b1" stroke-width="0.5" stroke-dasharray="4,3"/>
+          <line x1="60" y1="210" x2="660" y2="210" stroke="#a2a9b1" stroke-width="0.5" stroke-dasharray="4,3"/>
+          <line x1="60" y1="260" x2="660" y2="260" stroke="#a2a9b1" stroke-width="0.5" stroke-dasharray="4,3"/>
+
+          <!-- Axes -->
+          <line x1="60" y1="270" x2="660" y2="270" stroke="#202122" stroke-width="1.5"/>
+          <line x1="60" y1="50" x2="60" y2="270" stroke="#202122" stroke-width="1.5"/>
+
+          <!-- Y-axis ticks -->
+          <text x="52" y="64" text-anchor="end" font-size="10" fill="#202122">速</text>
+          <text x="52" y="264" text-anchor="end" font-size="10" fill="#202122">遅</text>
+
+          <!-- Bars: 7 level groups -->
+          <!-- Pirate Ship: fast -->
+          <rect x="75" y="75" width="72" height="195" fill="#3366cc" opacity="0.75" rx="3"/>
+          <text x="111" y="288" text-anchor="middle" font-size="9" fill="#202122">海賊船</text>
+          <text x="111" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv1-2</text>
+
+          <!-- Jungle: medium-fast -->
+          <rect x="165" y="105" width="72" height="165" fill="#22a832" opacity="0.75" rx="3"/>
+          <text x="201" y="288" text-anchor="middle" font-size="9" fill="#202122">密林</text>
+          <text x="201" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv3-4</text>
+
+          <!-- Underwater: slow -->
+          <rect x="255" y="195" width="72" height="75" fill="#0ea5e9" opacity="0.75" rx="3"/>
+          <text x="291" y="288" text-anchor="middle" font-size="9" fill="#202122">水中</text>
+          <text x="291" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv5</text>
+
+          <!-- Ice Fortress: medium -->
+          <rect x="345" y="135" width="72" height="135" fill="#a8d8ea" opacity="0.85" rx="3"/>
+          <text x="381" y="288" text-anchor="middle" font-size="9" fill="#202122">氷の要塞</text>
+          <text x="381" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv6-8</text>
+
+          <!-- Arabian Palace: medium-fast -->
+          <rect x="435" y="95" width="72" height="175" fill="#f59e0b" opacity="0.75" rx="3"/>
+          <text x="471" y="288" text-anchor="middle" font-size="9" fill="#202122">アラビア</text>
+          <text x="471" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv9-10</text>
+
+          <!-- Volcano: fast -->
+          <rect x="525" y="70" width="72" height="200" fill="#ef4444" opacity="0.75" rx="3"/>
+          <text x="561" y="288" text-anchor="middle" font-size="9" fill="#202122">火山</text>
+          <text x="561" y="298" text-anchor="middle" font-size="9" fill="#202122">Lv11-12</text>
+
+          <!-- Final Fortress: medium (climax) removed - only 6 groups fit nicely -->
+
+          <!-- Color legend -->
+          <rect x="80" y="318" width="12" height="12" fill="#3366cc" opacity="0.75" rx="2"/>
+          <text x="96" y="328" font-size="10" fill="#202122">海洋</text>
+          <rect x="145" y="318" width="12" height="12" fill="#22a832" opacity="0.75" rx="2"/>
+          <text x="161" y="328" font-size="10" fill="#202122">自然</text>
+          <rect x="210" y="318" width="12" height="12" fill="#0ea5e9" opacity="0.75" rx="2"/>
+          <text x="226" y="328" font-size="10" fill="#202122">水中</text>
+          <rect x="275" y="318" width="12" height="12" fill="#a8d8ea" opacity="0.85" rx="2"/>
+          <text x="291" y="328" font-size="10" fill="#202122">氷雪</text>
+          <rect x="340" y="318" width="12" height="12" fill="#f59e0b" opacity="0.75" rx="2"/>
+          <text x="356" y="328" font-size="10" fill="#202122">異国</text>
+          <rect x="405" y="318" width="12" height="12" fill="#ef4444" opacity="0.75" rx="2"/>
+          <text x="421" y="328" font-size="10" fill="#202122">火山</text>
+        </svg>
+        <div class="diagram-caption">図1: Captain Clawの各ワールド音楽テーマにおける相対的なテンポ比較。水中レベルは最も緩やかで、火山と海賊船ステージが最も速いテンポを持つ。</div>
+      </div>
+
+      <h2 id="sound-effects">効果音のデザイン</h2>
+      <p>Captain Clawの効果音は音楽と同様に、ゲーム体験の質を大きく左右する要素として丁寧に設計されています。戦闘、環境、UIの各カテゴリにわたる効果音が、ゲームの世界観の説得力を高めています。</p>
+      <p><b>戦闘効果音</b>は特に重要な役割を担っています。カトラスの振り下ろし音は鋭い金属音で、攻撃の手応えを明確に伝えます。敵へのヒット音は攻撃が命中したことを即座にフィードバックし、戦闘のリズムを形成します。フリントロックピストルの発射音は乾いた銃声で、海賊時代の武器の雰囲気を表現しています。爆発物であるダイナマイトは低音の炸裂音を伴い、通常の攻撃と明確に区別されます。</p>
+      <p><b>敵の死亡音</b>は種類によって異なり、プレイヤーに撃破の達成感を与えます。海賊の歩兵は短い叫び声を上げ、より強力な敵はより大げさなリアクションを示します。これらのサウンドは単なる情報伝達を超え、戦闘の娯楽性を高めるエンターテインメント的な機能も果たしています。</p>
+      <p><b>環境音</b>は各レベルのアンビエント感を補強します。海賊船では波や軋む木材の音、密林では鳥の鳴き声や虫の声、水中では水流の音、火山洞窟ではマグマが泡立つ低い音など、各ワールドの環境音がプレイヤーの没入感を高めています。これらのアンビエントサウンドは音楽と干渉しないよう音量と周波数帯域が調整されており、BGMと効果音が共存する音響空間が設計されています。</p>
+      <p><b>UIサウンド</b>には、アイテム取得時の明るいチャイム音、レベルクリア時の勝利ファンファーレ、体力が低下した際の警告音などが含まれます。これらは直感的な操作フィードバックとして機能し、プレイヤーがゲーム状況を音声情報からも把握できるよう設計されています。</p>
+
+      <h2 id="openclaw-audio">OpenClawにおける音響実装</h2>
+      <p><a href="openclaw.html">OpenClaw</a>エンジンでは、音響システムの実装に<a href="sdl2-engine.html">SDL2</a>の拡張ライブラリであるSDL2_mixerが採用されています。このライブラリはオーディオチャンネルのミキシング、多チャンネル同時再生、音量制御などの機能を提供し、ゲームの複雑な音響要件を満たしています。</p>
+      <p>SDL2_mixerの採用により、以下の音響機能が実現されています。まず、BGMの再生はMUSIC_CHANNELとして専用チャンネルに割り当てられており、音楽の独立したボリューム制御が可能です。効果音は複数の独立したミキシングチャンネルで同時再生され、複数の敵が同時に撃破された場合でも音が欠けることなく再生されます。また、音量レベルはゲームの設定から動的に調整でき、プレイヤーの好みに応じたカスタマイズが可能です。</p>
+      <p>OpenClawのオーディオマネージャーはSDL2_mixerの上に抽象層として実装されており、ゲームロジックから音響制御を分離しています。これにより、将来的な音響バックエンドの変更が容易になるとともに、テストと保守が容易なコードアーキテクチャが維持されています。サウンドアセットはゲーム起動時にメモリへプリロードされるものと、オンデマンドでロードされるものに分類されており、メモリ使用量と読み込み速度のバランスが取られています。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 280" width="660" height="280">
+          <!-- Background -->
+          <rect width="660" height="280" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="330" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">OpenClaw オーディオパイプライン</text>
+
+          <!-- REZ Archive box -->
+          <rect x="30" y="55" width="130" height="50" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5" rx="5"/>
+          <text x="95" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">CLAW.REZ</text>
+          <text x="95" y="92" text-anchor="middle" font-size="10" fill="#555">アーカイブ</text>
+
+          <!-- Arrow -->
+          <line x1="160" y1="80" x2="198" y2="80" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Asset Extractor box -->
+          <rect x="200" y="55" width="130" height="50" fill="#dcfce7" stroke="#3366cc" stroke-width="1.5" rx="5"/>
+          <text x="265" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">資産抽出器</text>
+          <text x="265" y="92" text-anchor="middle" font-size="10" fill="#555">MID / WAV</text>
+
+          <!-- Arrow down from extractor to MIDI converter -->
+          <line x1="265" y1="105" x2="265" y2="143" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- MIDI Converter box -->
+          <rect x="200" y="145" width="130" height="50" fill="#fce7f3" stroke="#3366cc" stroke-width="1.5" rx="5"/>
+          <text x="265" y="166" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">MIDIコンバーター</text>
+          <text x="265" y="182" text-anchor="middle" font-size="10" fill="#555">MIDI → OGG</text>
+
+          <!-- Arrow right from MIDI converter -->
+          <line x1="330" y1="170" x2="368" y2="170" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Arrow right from Asset Extractor (WAV direct) -->
+          <line x1="330" y1="80" x2="368" y2="80" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- SDL2_mixer box -->
+          <rect x="370" y="55" width="140" height="170" fill="#ede9fe" stroke="#3366cc" stroke-width="1.5" rx="5"/>
+          <text x="440" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">SDL2_mixer</text>
+          <line x1="385" y1="90" x2="495" y2="90" stroke="#a2a9b1" stroke-width="0.8"/>
+          <text x="440" y="108" text-anchor="middle" font-size="10" fill="#202122">Music Channel (BGM)</text>
+          <text x="440" y="126" text-anchor="middle" font-size="10" fill="#202122">SFX Channel 1-N</text>
+          <text x="440" y="144" text-anchor="middle" font-size="10" fill="#202122">ボリューム制御</text>
+          <text x="440" y="162" text-anchor="middle" font-size="10" fill="#202122">ミキシング</text>
+          <text x="440" y="180" text-anchor="middle" font-size="10" fill="#202122">ループ再生</text>
+          <text x="440" y="198" text-anchor="middle" font-size="10" fill="#202122">フェードイン/アウト</text>
+
+          <!-- Arrow to output -->
+          <line x1="510" y1="140" x2="548" y2="140" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Audio Output box -->
+          <rect x="550" y="115" width="90" height="50" fill="#fff3e0" stroke="#3366cc" stroke-width="1.5" rx="5"/>
+          <text x="595" y="136" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">音声出力</text>
+          <text x="595" y="152" text-anchor="middle" font-size="10" fill="#555">スピーカー</text>
+
+          <!-- WAV label arrow -->
+          <text x="345" y="74" text-anchor="middle" font-size="9" fill="#555">WAV</text>
+          <text x="345" y="164" text-anchor="middle" font-size="9" fill="#555">OGG</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+
+          <text x="330" y="255" text-anchor="middle" font-size="11" fill="#555">REZアーカイブからの資産抽出を経て、SDL2_mixerによる統合音響出力へ</text>
+        </svg>
+        <div class="diagram-caption">図2: OpenClawにおけるオーディオパイプライン。CLAW.REZから抽出されたMIDIおよびWAVアセットがSDL2_mixerを介してリアルタイムに再生される。</div>
+      </div>
+
+      <h2 id="midi-ogg">MIDIからOGGへの変換と現代対応</h2>
+      <p>オリジナルのCaptain ClawはMIDI形式の音楽ファイルを使用しており、再生にはシステムのMIDIシンセサイザーに依存していました。1990年代のWindows環境ではSoundBlasterなどのサウンドカードに搭載されたFMシンセサイザーやウェーブテーブル音源がMIDI再生を担当しており、同じMIDIファイルでもハードウェアによって音質が大きく異なりました。</p>
+      <p>現代のオペレーティングシステム、特にLinuxおよびmacOSではMIDI再生のための標準的なシンセサイザーが提供されないケースが多く、そのままではゲームの音楽が正常に再生されない問題が生じます。OpenClawプロジェクトはこの課題に対し、MIDIファイルをOGG Vorbis形式の圧縮音声ファイルへ事前変換するアプローチを採用しています。</p>
+      <p>MIDIからOGGへの変換には、FluidSynthなどのソフトウェアシンセサイザーとサウンドフォントを使用してMIDIデータを高品質な音声波形にレンダリングし、その音声をOGGコーデックで圧縮する手順が取られます。このプロセスにより、再生環境に依存せず一貫した音質が保証されるとともに、現代のコンピューターで広くサポートされているOGGフォーマットで音楽を再生できるようになります。</p>
+      <p>変換されたOGGファイルはSDL2_mixerのMix_LoadMUS関数でロードされ、Mix_PlayMusic関数でシームレスなループ再生が行われます。レベル遷移時には新しいレベルのBGMへのフェードトランジションが行われ、音楽の唐突な切り替わりを防いでいます。OGG形式はMIDIよりもファイルサイズが大きいものの、現代の十分なストレージ環境では実用上の問題はなく、音質の向上と互換性の確保という利益が優先されています。</p>
+
+      <h2 id="atmosphere">音楽と雰囲気の役割</h2>
+      <p>Captain Clawにおける音楽の最も重要な役割は、各ワールドの世界観と感情的なトーンを確立することです。1990年代のゲームは現代と比較して高精細なグラフィックスの表現力に制約があったため、音楽が視覚情報の補完として果たす役割は特に大きなものでした。手描きスプライトアートの温かみある質感と、Griggの躍動感ある楽曲が組み合わさることで、Captain Clawは同時代の多くのゲームとは異なる独特の個性を持つ作品として記憶されています。</p>
+      <p>音楽はゲームの難易度曲線とも連動しています。序盤の海賊船ステージの明るく軽快なメロディーは初心者プレイヤーを歓迎する雰囲気を作り出し、後半の火山や最終要塞の緊迫した楽曲はゲームクライマックスの緊張感を高めます。このように音楽の情緒的な変化がゲームの物語的進行を音響面から支援し、プレイヤーの感情移入を深めています。</p>
+      <p>同時代の1990年代ゲーム音楽と比較した場合、Captain Clawの楽曲はジャンルとテーマの一貫性においての際立っています。Super Mario 64（1996年）がプラットフォームゲームとして参照されることが多いものの、Nintendo側のサウンドは3D空間の表現を意識した実験的なアプローチを取っていたのに対し、Captain Clawは2D横スクロールの伝統に則った分かりやすいメロディー重視の楽曲スタイルを選択しています。Indiana JonesやPiratesといった映画・ゲームフランチャイズが確立した冒険音楽の文法を巧みに継承しながら、Captain Clawは独自のサウンドアイデンティティを構築しています。</p>
+      <p>長年にわたってCaptain Clawのファンがこのゲームを懐かしむ際に最も頻繁に言及するのが、その音楽です。カルト的支持者たちはレベルの音楽テーマをゲーム体験の不可分な要素として捉えており、音楽なしにはゲームの魔法が半減するという評価が一般的です。OpenClawプロジェクトがオリジナルの音響体験の忠実な再現に注力している背景には、こうした音楽の果たす感情的・記憶的役割への認識があります。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#composer">Nathan Griggと作曲背景</a></li>
+          <li><a href="#level-themes">レベル別音楽テーマ</a></li>
+          <li><a href="#sound-effects">効果音のデザイン</a></li>
+          <li><a href="#openclaw-audio">OpenClawにおける音響実装</a></li>
+          <li><a href="#midi-ogg">MIDIからOGGへの変換と現代対応</a></li>
+          <li><a href="#atmosphere">音楽と雰囲気の役割</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">キャプテン・クロウ（1997年）</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw レベルデザイン</a></li>
+          <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw.html">キャプテン・クロウ（1997年）</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw レベルデザイン</a></li>
+        <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

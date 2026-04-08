@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゲームエンジンアーキテクチャパターン - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    ゲームエンジンアーキテクチャパターン
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ゲームエンジンアーキテクチャパターン</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">ゲームエンジンアーキテクチャパターンとは、ゲームループ設計・エンティティ管理・レンダーパイプライン・リソース管理・状態機械・入力処理といったゲームエンジン構築に共通する設計手法の体系であり、<a href="openclaw.html">OpenClaw</a> はこれらのパターンをシンプルな SDL2 ベースの構成で採用することで、オープンソースのプラットフォームゲームエンジンを実現している。</div>
+
+      <p><b>ゲームエンジンアーキテクチャパターン</b>とは、ゲームエンジンを構築する際に繰り返し登場する設計上の問題を解決するための確立された手法群を指す。<a href="openclaw.html">OpenClaw</a> は Captain Claw (1997) を現代のプラットフォーム上で再現するために設計された C++ ゲームエンジンであり、ゲームループ・エンティティ管理・シーングラフ・リソース管理・状態機械・入力ハンドリングといった古典的なアーキテクチャパターンを SDL2 エコシステム上に直接実装している。本記事では、各パターンの概念と <a href="sdl2-engine.html">SDL2 ゲームエンジンフレームワーク</a> としての OpenClaw における具体的な実現方式を解説し、Unity・Unreal Engine といった商用エンジンとの比較、ならびにプリザベーション（ゲーム保存）プロジェクトにおけるシンプルな SDL2 ベースアーキテクチャの優位性を論じる。</p>
+
+      <h2 id="game-loop">ゲームループパターン</h2>
+      <p>ゲームループはあらゆるゲームエンジンの心臓部であり、入力処理・状態更新・描画を一定のサイクルで繰り返す構造体である。ループの設計次第でゲームの応答性・物理精度・フレームレート安定性が大きく変わる。</p>
+
+      <h3>固定タイムステップ方式</h3>
+      <p>固定タイムステップ（Fixed Timestep）方式では、更新ロジックを一定の時間刻み（例：60Hz の場合 16.67ms）で呼び出す。物理演算や当たり判定が時間刻みに依存するため、再現性が高くデバッグが容易である。OpenClaw はこの方式を採用しており、<a href="box2d-physics.html">Box2D</a> の物理サブステップも同じ固定刻みで進行する。実際の経過時間がタイムステップを超えた場合はアキュムレータパターンで複数回更新を呼び出し、遅延を解消する。</p>
+
+      <h3>可変タイムステップ方式</h3>
+      <p>可変タイムステップ（Variable Timestep）方式では、前フレームからの実経過時間 <code>deltaTime</code> を各更新呼び出しに渡す。描画負荷の変動に柔軟に対応できる反面、浮動小数点の累積誤差や高フレームレート時の物理破綻が起きやすい。Unity はデフォルトで可変タイムステップを物理以外の更新に、固定タイムステップを <code>FixedUpdate</code> に採用するハイブリッド構成を取っている。</p>
+
+      <h3>SDL2 タイミングプリミティブ</h3>
+      <p><a href="sdl2-engine.html">SDL2</a> は <code>SDL_GetTicks64</code>（ミリ秒精度）および <code>SDL_GetPerformanceCounter</code> / <code>SDL_GetPerformanceFrequency</code>（高分解能カウンタ）を提供する。OpenClaw のゲームループは高分解能カウンタを用いてフレーム間の経過時間を計測し、アキュムレータに加算する。垂直同期（VSync）は <code>SDL_RENDERER_PRESENTVSYNC</code> フラグで有効にでき、画面のテアリングを排除しつつ CPU の空きを OS スケジューラに返す。</p>
+
+      <!-- SVG: Game Loop Diagram -->
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <rect width="680" height="340" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">ゲームループ（固定タイムステップ + アキュムレータ）</text>
+
+          <!-- Boxes -->
+          <!-- Start -->
+          <rect x="290" y="44" width="100" height="36" rx="18" fill="#3366cc" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="340" y="67" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">START</text>
+
+          <!-- SDL_PollEvent -->
+          <rect x="240" y="108" width="200" height="38" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="132" text-anchor="middle" font-size="12" fill="#202122">SDL_PollEvent（入力処理）</text>
+
+          <!-- Accumulator -->
+          <rect x="220" y="172" width="240" height="38" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="196" text-anchor="middle" font-size="12" fill="#202122">accumulator += deltaTime</text>
+
+          <!-- Fixed update loop -->
+          <rect x="200" y="236" width="280" height="38" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="340" y="255" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">while (accumulator &gt;= STEP)</text>
+          <text x="340" y="268" text-anchor="middle" font-size="10" fill="#202122">Update(STEP) · Box2D · AI · accumulator -= STEP</text>
+
+          <!-- Render -->
+          <rect x="240" y="298" width="200" height="36" rx="6" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="340" y="321" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">SDL_RenderPresent（描画）</text>
+
+          <!-- Arrows -->
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#3366cc"/>
+            </marker>
+          </defs>
+          <line x1="340" y1="80" x2="340" y2="108" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="340" y1="146" x2="340" y2="172" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="340" y1="210" x2="340" y2="236" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="340" y1="274" x2="340" y2="298" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <!-- Loop back arrow -->
+          <path d="M 480 317 Q 590 317 590 108 Q 590 95 480 95" fill="none" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+          <text x="600" y="220" text-anchor="start" font-size="10" fill="#202122" transform="rotate(-90,600,220)">次フレームへ</text>
+        </svg>
+        <div class="diagram-caption">図1: 固定タイムステップとアキュムレータを組み合わせた OpenClaw のゲームループ構造</div>
+      </div>
+
+      <h2 id="ecs">エンティティ・コンポーネント・システム vs 継承ヒエラルキー</h2>
+      <p>ゲームオブジェクトの設計では、継承ベースの階層構造とコンポジションベースのエンティティ・コンポーネント・システム（ECS）が二大アプローチとして対立してきた。</p>
+
+      <h3>継承ヒエラルキー</h3>
+      <p>継承ヒエラルキーでは <code>GameObject → Actor → Player</code> のように is-a 関係でクラスを積み上げる。実装が直感的であり、小規模なゲームには適している。しかし「ダイヤモンド継承」問題や、基底クラスの肥大化（God Object）が生じやすい。OpenClaw は C++ の継承を基盤とし、キャラクター・発射物・環境ギミックなどを共通の基底クラス（Actor）から派生させている。メソッドの仮想ディスパッチにより各サブクラスが <code>Update()</code> と <code>Render()</code> を独自に実装する。</p>
+
+      <h3>エンティティ・コンポーネント・システム（ECS）</h3>
+      <p>ECS ではエンティティ（一意の ID）・コンポーネント（純粋データ）・システム（ロジック）を厳密に分離する。コンポーネントをメモリ上に連続配置（SoA: Structure of Arrays）することでキャッシュ効率が向上し、大量のエンティティを高速に処理できる。Unity（DOTS）・Unreal Engine（Mass Entity）はこのアプローチに移行している。OpenClaw の規模（数十〜数百のアクター）では ECS の恩恵は限定的であり、継承ベースの設計がコードの可読性と保守性の点で有利である。</p>
+
+      <h3>OpenClaw の選択</h3>
+      <p>OpenClaw は軽量な継承ヒエラルキーを採用し、過剰なアーキテクチャ複雑性を避けている。これはプリザベーションプロジェクトの目的——オリジナルゲームの挙動を正確に再現すること——に適合した実用的な選択であり、エンジンの新規開発者がコードを理解しやすくする効果もある。</p>
+
+      <h2 id="scene-render">シーングラフとレンダーパイプライン</h2>
+      <p>シーングラフはゲームワールドを構成するオブジェクトの階層的なデータ構造であり、親子関係による座標変換の伝播・カリング・描画順序の管理を担う。</p>
+
+      <h3>レイヤードシーングラフ</h3>
+      <p>OpenClaw のシーングラフは奥行きによるレイヤー構成を採用している。背景タイルレイヤー・パララックス背景・ゲームオブジェクト（アクター・発射物・エフェクト）・前景タイルレイヤー・HUD の順で描画することで、擬似的な奥行き感を生み出す。各レイヤーは SDL2 の <code>SDL_RenderCopy</code> 呼び出しのバッチとして発行され、レイヤー間の深度ソートは CPU 側で事前に解決される。</p>
+
+      <h3>レンダーパイプライン</h3>
+      <p>1フレームの描画は以下のステップで進行する：(1) <code>SDL_RenderClear</code> でバックバッファをクリア、(2) カメラ変換を適用してワールド座標をスクリーン座標に変換、(3) 奥から手前の順でタイル・スプライトを <code>SDL_RenderCopy</code> / <code>SDL_RenderCopyEx</code> で発行、(4) デバッグビルド時に <a href="box2d-physics.html">Box2D</a> コリジョン形状を SDL2_gfx でオーバーレイ描画、(5) <code>SDL_RenderPresent</code> でバックバッファをフロントに swap する。カメラはプレイヤー位置を追跡し、ワールド座標の平行移動をすべての描画呼び出しに適用する。</p>
+
+      <h2 id="resources">リソース管理：テクスチャアトラスと音声キャッシュ</h2>
+      <p>ゲームエンジンにおけるリソース管理は、メモリ使用量・ロード時間・GPU への再転送コストを最適化する重要な関心事である。</p>
+
+      <h3>テクスチャアトラス</h3>
+      <p><a href="sdl2-engine.html">SDL2</a> のテクスチャ切り替えは GPU ステート変更を伴うため、異なるテクスチャを頻繁に切り替えると描画スループットが低下する。OpenClaw は複数のスプライトフレームを 1 枚の大きなテクスチャアトラス（スプライトシート）にパックすることでこの問題に対処している。アニメーションフレームのシーケンスは同一の GPU テクスチャを共有し、ソース矩形のみが変化するため、テクスチャバインドのオーバーヘッドが大幅に削減される。アトラスのメタデータ（スプライト名とフレームインデックスからアトラス座標へのマッピング）は起動時に構築されるルックアップテーブルで管理される。</p>
+
+      <h3>音声キャッシュとチャンネル管理</h3>
+      <p>SDL_Mixer は効果音を <code>Mix_Chunk</code>（メモリ常駐 WAV/OGG）として扱い、BGM は <code>Mix_Music</code>（ストリーミング）として扱う。OpenClaw は効果音を起動時に一括デコードしてメモリにキャッシュしておき、再生のたびにディスクから読み込むコストを排除している。チャンネルプールは論理グループ（移動音・戦闘音・環境音・UI 音）に分割され、優先度ルールに基づいてチャンネルが枯渇した際に低優先度の音声を停止して高優先度の音声のチャンネルを確保する。BGM はチャンネルプールとは独立した専用ミュージックチャンネルでストリーミングされる。</p>
+
+      <h3>アセットライフサイクル</h3>
+      <p>テクスチャと音声チャンクは参照カウント方式で管理され、使用中のリソースは破棄されない。レベル切り替え時には現在のレベル固有アセットをアンロードし、次のレベルのアセットをロードする。共通アセット（UI フォント・共通効果音）は起動から終了まで常駐する。この「ロードオンデマンド・アンロードオンレベルチェンジ」方式は、利用可能メモリが限られた環境での安定動作を保証する。</p>
+
+      <h2 id="state-input">状態機械と入力ハンドリングパイプライン</h2>
+      <h3>ゲームオブジェクトの状態機械</h3>
+      <p>プラットフォームゲームのキャラクターは、立ち・歩き・ジャンプ・落下・攻撃・ダメージ・死亡といった離散的な状態を持ち、状態間の遷移は入力・物理接触・タイマーによってトリガーされる。有限状態機械（FSM）はこの挙動を明確にモデル化できる。OpenClaw のプレイヤーキャラクターと敵キャラクターはそれぞれ FSM を持ち、現在の状態が再生するアニメーション・有効なコリジョン形状・適用される移動ベクトルを決定する。状態遷移は条件テーブルとして定義されており、新しいキャラクター挙動の追加は既存の状態クラスを変更せずに新しい状態クラスを追加することで対応できる。</p>
+
+      <p><a href="captain-claw-gameplay.html">Captain Claw のゲームプレイ</a>では、プレイヤーが壁に近づくと「壁キック」状態に、水中に入ると「水泳」状態に遷移するなど、状態機械が複雑なキャラクター挙動を整然と表現している。</p>
+
+      <h3>入力ハンドリングパイプライン</h3>
+      <p>SDL2 のイベントシステムはキーボード・マウス・ゲームパッドのイベントをプラットフォーム非依存の構造体（<code>SDL_Event</code>）として配信する。OpenClaw の入力パイプラインは以下の3層構造を持つ：</p>
+      <ol>
+        <li><strong>生イベント層：</strong> <code>SDL_PollEvent</code> ループが OS イベントキューを排出し、各イベントを内部キューに積む。</li>
+        <li><strong>アクションマッピング層：</strong> 生のキーコード・スキャンコード・ゲームパッドボタンを「ジャンプ」「攻撃」「移動左」などのゲームアクションに変換する。この層により、キーバインドの変更をゲームロジックから完全に分離できる。</li>
+        <li><strong>コンシューマ層：</strong> ゲームの現在の状態（ゲームプレイ中・ポーズ中・メニュー表示中）に応じてアクションを適切なハンドラに配信する。ゲームプレイ中はプレイヤーキャラクターの FSM が入力アクションを受け取り、ポーズ中は UI ハンドラが受け取る。</li>
+      </ol>
+
+      <h2 id="comparison">商用エンジンとの比較・プリザベーションへの適性</h2>
+      <h3>Unity・Unreal Engine との比較</h3>
+      <p>Unity と Unreal Engine はフルスタックのゲームエンジンであり、物理・レンダリング・AI・ネットワーク・エディタ・アセットパイプラインを統合的に提供する。これらのエンジンは数百人のチームが数年かけて開発する AAA タイトルを想定した設計であり、エンジン自体の習得コストが高い。スクリプティング（Unity の C#・Unreal の Blueprints/C++）・シーンエディタ・アセットインポートパイプラインは開発効率を大幅に向上させる一方、エンジンの内部動作が抽象化されるため低レベルの挙動を正確に制御することが難しい。</p>
+
+      <p>OpenClaw のような SDL2 ベースのシンプルなエンジンは、エンジンのすべての層が C++ ソースコードとして可視であり、オリジナルゲームの挙動を 1 ピクセル・1 フレーム単位で正確に再現する際の予測可能性が高い。商用エンジンのバージョンアップによる挙動変化のリスクも存在しない。</p>
+
+      <h3>プリザベーションプロジェクトにおける SDL2 の優位性</h3>
+      <p>ゲームプリザベーション（ゲーム保存）プロジェクトにとって、エンジンの長期的な保守性は最重要課題のひとつである。SDL2 は以下の点でプリザベーションに適している。</p>
+      <ul>
+        <li><strong>ライセンスの安定性：</strong> SDL2 は zlib ライセンスで公開されており、商用・非商用を問わず長期的に利用できる。商用エンジンはライセンスポリシーの変更や価格改定のリスクを伴う。</li>
+        <li><strong>ソースコードの可読性：</strong> 外部依存が SDL2 ファミリーとBox2D に限定されており、新規コントリビュータがコードベース全体を把握しやすい。</li>
+        <li><strong>クロスプラットフォーム一貫性：</strong> 同一のゲームロジックが Windows・macOS・Linux で同一の挙動を示すため、プリザベーション記録の再現性が保証される。</li>
+        <li><strong>軽量な依存関係：</strong> エンジン全体を数百メガバイトのエディタやランタイムなしにビルドできるため、将来のプラットフォームへの移植が容易である。</li>
+        <li><strong>デバッグの透明性：</strong> エンジンの全レイヤーにブレークポイントを設置して挙動を検証できるため、オリジナルゲームとの差異を発見・修正しやすい。</li>
+      </ul>
+      <p>Unity や Unreal Engine で <a href="captain-claw-gameplay.html">Captain Claw</a> の完全な再実装を試みることは技術的には可能だが、エンジン固有の抽象化がオリジナルの挙動との差異を生む可能性が高く、また数年後にエンジンのメジャーバージョンアップで互換性が失われるリスクがある。<a href="openclaw.html">OpenClaw</a> が SDL2 を選択したことは、技術的シンプルさと長期保守性のバランスを重視したアーキテクチャ上の判断といえる。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#game-loop">ゲームループパターン</a></li>
+          <li><a href="#ecs">ECS vs 継承ヒエラルキー</a></li>
+          <li><a href="#scene-render">シーングラフとレンダーパイプライン</a></li>
+          <li><a href="#resources">リソース管理</a></li>
+          <li><a href="#state-input">状態機械と入力ハンドリング</a></li>
+          <li><a href="#comparison">商用エンジンとの比較</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="sdl2-engine.html">SDL2 ゲームエンジンフレームワーク</a></li>
+          <li><a href="box2d-physics.html">Box2D Physics</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="sdl2-engine.html">SDL2 ゲームエンジンフレームワーク</a></li>
+        <li><a href="box2d-physics.html">Box2D Physics</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

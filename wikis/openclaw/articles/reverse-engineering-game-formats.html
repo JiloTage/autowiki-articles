@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゲームフォーマットのリバースエンジニアリング - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    ゲームフォーマットのリバースエンジニアリング
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ゲームフォーマットのリバースエンジニアリング</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">ゲームフォーマットのリバースエンジニアリングとは、公開された仕様書を持たない独自バイナリ形式をバイナリ解析・動的観察・パターン認識などの技術によって解読し、オープンソースの再実装や保存活動を可能にする取り組みである。REZアーカイブやWWDレベルデータなど、Captain Clawが採用した独自形式はこのプロセスを通じてOpenClawコミュニティによって解析・文書化された。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>ゲームフォーマットのリバースエンジニアリング</b>とは、ゲームメーカーが公開した仕様を持たない独自のバイナリ形式・アーカイブ構造・スクリプトエンコーディングを、外部から観察・解析することで理解する技術的プロセスである。歴史的に見て、商業ゲームの大半は内部アセット形式を意図的に非公開にしてきた。これはサードパーティによるコンテンツ流用の防止、競合他社からの技術的差別化の維持、あるいは単に外部向けの文書化が商業的利益に直結しなかったという理由による。</p>
+      <p><a href="openclaw.html">OpenClaw</a> のようなオープンソース再実装プロジェクトにとって、リバースエンジニアリングはゲームの動作を再現するうえで避けられない前提作業となる。オリジナルの実行ファイルやSDKが存在しない状況では、<a href="rez-file-format.html">REZファイル形式</a>や<a href="wwd-level-format.html">WWDレベル形式</a>などの独自フォーマットを理解する唯一の方法は、ファイルのバイト列を直接調べることである。この知識がパーサーの実装に結びつき、エンジンの再現が可能となる。また、<a href="game-preservation-ethics.html">ゲーム保存の倫理</a>の観点から、リバースエンジニアリングによって得られた知識はゲームの長期的な可用性を支える重要な基盤でもある。</p>
+      <p>リバースエンジニアリングの手法は大きく静的解析と動的解析に分類される。静的解析はファイルのバイト列を実行せずに調べるアプローチであり、動的解析はプロセスの実行時挙動を観察するアプローチである。実際の解析作業ではこれら二つを組み合わせて相互に補完しながら進めることが多い。</p>
+
+      <h2 id="static-analysis">静的解析：バイナリの読み解き</h2>
+      <p>静的解析はファイルを実行することなくそのバイナリ内容を検査する手法であり、アーカイブやデータファイルのリバースエンジニアリングにおいて最も基本的なアプローチである。ファイルを開いて16進数表現で眺めることから始まる作業は、正確なツールと系統的な思考によって精密な形式仕様の導出へと発展する。</p>
+      <p><strong>ヘキサエディタ</strong>は静的解析の出発点となるツールである。ファイルのバイト列を16進数と対応するASCII文字で並べて表示することで、マジックバイト・テキスト断片・繰り返し構造などを肉眼で確認できる。無償で利用可能な ImHex は、バイナリテンプレート言語によるフィールド定義・エントリポイントマーカー・パターンハイライトを提供し、複雑な入れ子構造を持つ形式の解析に特に有効である。商用ツールの 010 Editor はコミュニティ製のバイナリテンプレートライブラリを多数収録しており、WAVやPCXなど標準的なサブフォーマットが即座に認識される。</p>
+      <p><strong>バイナリ差分</strong>も重要な技法の一つである。既知の内容がわずかに異なる二つのファイルを比較することで、変化したフィールドと変化しなかったフィールドを特定できる。例えば、テキスト文字列の長さが異なる二つのレベルファイルを比較することで、そのフィールドのオフセットと長さエンコーディングを推定できる。</p>
+      <p><strong>エントロピー解析</strong>はファイル内のランダム性の分布を可視化する。高エントロピー領域は圧縮・暗号化・RLEエンコードされたデータを示し、低エントロピー領域はテキスト文字列やスパースな整数テーブルを示すことが多い。この分布を把握することで、ディレクトリセクション（低エントロピー）とデータペイロード（中〜高エントロピー）の境界を大まかに特定できる。</p>
+      <p><strong>既知ファイルシグネチャの照合</strong>はコンテナ形式の解析において特に有効である。PCXファイルの先頭バイト <code>0x0A</code>、RIFF/WAVの <code>52 49 46 46</code>（"RIFF"）、MIDIの <code>4D 54 68 64</code>（"MThd"）のような既知シグネチャを検索することで、アーカイブ内の個々のアセット境界を特定できる。REZフォーマットの解析においても、この手法がディレクトリ構造の理解に先行してアセットの存在確認に活用された。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 370" width="700" height="370">
+          <!-- Background -->
+          <rect width="700" height="370" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="350" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">リバースエンジニアリング ワークフロー</text>
+
+          <!-- Step boxes -->
+          <!-- Step 1 -->
+          <rect x="40" y="50" width="140" height="56" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="110" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">バイナリ取得</text>
+          <text x="110" y="92" text-anchor="middle" font-size="10" fill="#202122">ゲームファイル収集</text>
+          <text x="110" y="104" text-anchor="middle" font-size="10" fill="#202122">バージョン確認</text>
+
+          <!-- Arrow 1->2 -->
+          <line x1="180" y1="78" x2="218" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 2 -->
+          <rect x="220" y="50" width="140" height="56" rx="6" fill="#dcfce7" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="290" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">静的解析</text>
+          <text x="290" y="92" text-anchor="middle" font-size="10" fill="#202122">ヘキサエディタ・</text>
+          <text x="290" y="104" text-anchor="middle" font-size="10" fill="#202122">エントロピー解析</text>
+
+          <!-- Arrow 2->3 -->
+          <line x1="360" y1="78" x2="398" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 3 -->
+          <rect x="400" y="50" width="140" height="56" rx="6" fill="#fef3c7" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="470" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">動的解析</text>
+          <text x="470" y="92" text-anchor="middle" font-size="10" fill="#202122">デバッガ・メモリ</text>
+          <text x="470" y="104" text-anchor="middle" font-size="10" fill="#202122">API監視</text>
+
+          <!-- Arrow 3->4 down -->
+          <line x1="470" y1="106" x2="470" y2="144" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 4 -->
+          <rect x="400" y="146" width="140" height="56" rx="6" fill="#ede9fe" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="470" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">パターン認識</text>
+          <text x="470" y="188" text-anchor="middle" font-size="10" fill="#202122">マジックバイト・ヘッダ</text>
+          <text x="470" y="200" text-anchor="middle" font-size="10" fill="#202122">繰り返し構造の特定</text>
+
+          <!-- Arrow 4->5 left -->
+          <line x1="400" y1="174" x2="362" y2="174" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 5 -->
+          <rect x="220" y="146" width="140" height="56" rx="6" fill="#fce7f3" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="290" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">仮説検証</text>
+          <text x="290" y="188" text-anchor="middle" font-size="10" fill="#202122">試作パーサー実装</text>
+          <text x="290" y="200" text-anchor="middle" font-size="10" fill="#202122">複数ファイルで確認</text>
+
+          <!-- Arrow 5->6 left -->
+          <line x1="220" y1="174" x2="182" y2="174" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 6 -->
+          <rect x="40" y="146" width="140" height="56" rx="6" fill="#dcfce7" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="110" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">文書化</text>
+          <text x="110" y="188" text-anchor="middle" font-size="10" fill="#202122">フォーマット仕様の</text>
+          <text x="110" y="200" text-anchor="middle" font-size="10" fill="#202122">wiki・コメント記述</text>
+
+          <!-- Arrow 6->7 down -->
+          <line x1="110" y1="202" x2="110" y2="240" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 7: Implementation -->
+          <rect x="40" y="242" width="300" height="56" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="190" y="266" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">オープンソースパーサー実装</text>
+          <text x="190" y="284" text-anchor="middle" font-size="10" fill="#202122">クリーンルーム再実装 → コミュニティレビュー → 統合</text>
+
+          <!-- Arrow 7->8 right -->
+          <line x1="340" y1="270" x2="378" y2="270" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#re-arr)"/>
+
+          <!-- Step 8 -->
+          <rect x="380" y="242" width="270" height="56" rx="6" fill="#fef3c7" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="515" y="266" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">ゲーム保存・再実装</text>
+          <text x="515" y="284" text-anchor="middle" font-size="10" fill="#202122">エンジン再現・長期的なアクセス保証</text>
+
+          <!-- Feedback loop arrow: step 5 back to step 2 -->
+          <path d="M290 146 Q290 120 290 106" stroke="#3366cc" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#re-arr-blue)"/>
+          <text x="298" y="128" font-size="9" fill="#3366cc">反復</text>
+
+          <defs>
+            <marker id="re-arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+            <marker id="re-arr-blue" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#3366cc"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: リバースエンジニアリングの一般的ワークフロー — バイナリ取得から静的・動的解析を経てオープンソース実装と保存へ至る反復プロセス</div>
+      </div>
+
+      <h2 id="dynamic-analysis">動的解析：実行時挙動の観察</h2>
+      <p>静的解析がファイルの内容そのものを対象とするのに対し、動的解析はゲームプロセスが実際に動作している最中の挙動を観察することでフォーマット理解を深める手法である。特にファイル構造が複雑であったり、難読化・暗号化が施されていたりする場合に有効であり、静的解析で生まれた仮説を実証するためにも用いられる。</p>
+      <p><strong>メモリ検査</strong>は動的解析の中核的手法の一つである。ゲームがファイルをロードしてメモリ上に展開した後、プロセスのメモリ空間を覗くことでデシリアライズされたデータ構造を確認できる。たとえばレベルファイルの解析では、タイルインデックス配列や敵の座標がメモリ上でどのような配置になっているかを観察することで、バイナリエンコーディングとランタイム表現の対応関係が明らかになる。Cheat Engine のようなメモリスキャナーや、x64dbg・WinDbg のような本格的なデバッガがこの用途に用いられる。</p>
+      <p><strong>APIモニタリング</strong>はファイルI/O操作を傍受することでフォーマット理解を助ける。Windowsの <code>CreateFile</code>・<code>ReadFile</code>・<code>SetFilePointer</code> といったWin32 APIをフックして、プロセスがいつ・どのオフセットから・何バイトを読み取っているかを記録する。この情報はファイル内のどの領域が最初に読まれるか（通常はヘッダーとディレクトリ）、どのオフセットが頻繁にアクセスされるかを明示し、静的解析で見当をつけたディレクトリ構造の仮説を検証するための強力な補助データとなる。</p>
+      <p><strong>逆アセンブルとデコンパイル</strong>は動的解析の延長として用いられることもある。Ghidra（NSAが公開したフリーの逆アセンブラ）や IDA Pro のような逆アセンブラを使用して、ゲームのロードルーチンをアセンブリまたは擬似C言語で読み解くことで、パーサーロジックの正確な動作を把握できる。ただし、クリーンルームリバースエンジニアリングの観点からは、逆アセンブルコードをそのまま移植することは著作権上の問題を生じさせる可能性があるため、仕様理解の参照にとどめ、実装は独自コードで行うことが重要である。</p>
+      <p><strong>ファジング</strong>は動的解析の応用として、意図的に不正なバイト列を与えることでパーサーの境界条件を調べる手法である。クラッシュが発生するオフセットや値から、フィールドの型・範囲チェック・エラー処理のロジックを逆算できる。再実装の堅牢性検証にも有用であり、OpenClawのREZパーサーも破損ファイルや切り詰められたアーカイブに対する耐性がテストされた。</p>
+
+      <h2 id="pattern-recognition">バイナリファイルにおけるパターン認識</h2>
+      <p>独自フォーマットを解析する際、熟練した解析者は経験的に蓄積されたパターン知識を活用して未知のバイト列に意味を付与していく。このセクションでは、ゲームデータファイルに頻出するパターンとその認識方法を整理する。</p>
+      <p><strong>マジックバイト</strong>はファイルまたはチャンクの先頭に置かれた固定バイト列で、フォーマットを識別するための「署名」である。ゲームアーカイブ固有の識別子（例：REZアーカイブ冒頭の識別子バイト列）から、内包されるアセット固有の標準シグネチャ（PCXの <code>0x0A</code>、ZIPの <code>50 4B</code> など）まで、様々な粒度でマジックバイトが存在する。ヘキサエディタでの検索やバイナリgrepでこれらを発見することが、形式解析の最初の手がかりとなることが多い。</p>
+      <p><strong>オフセット・サイズのペア</strong>はアーカイブ形式に普遍的に現れるパターンである。ディレクトリエントリが「データの開始オフセット」と「データのバイトサイズ」という2つの整数フィールドをセットで持つことが多く、この値に対応するバイト位置に既知のシグネチャが見つかれば、エントリ構造の仮説が強く支持される。REZ形式のファイルエントリ記述子解析においても、このパターンが早期に確認された。</p>
+      <p><strong>ヌル終端文字列</strong>はファイル名・パス文字列・ラベルのエンコーディングとして広く使われる。16進ビューでASCIIテキストに続いて <code>00</code> バイトが現れるパターンを探すことで、ディレクトリのファイル名フィールドや設定キーを発見できる。REZのディレクトリツリーにおいても、フォルダ名とファイル名はヌル終端文字列として格納されている。</p>
+      <p><strong>カウントフィールドとリストパターン</strong>も頻出する。小さな整数値（子の数・エントリ数など）に続いて均一なサイズのレコードが繰り返されるパターンは、配列エンコーディングを示唆する。フィールド値を候補として仮定し、そのバイト数分ずつ後続データを区切って構造が規則的に解釈できるかを試すアプローチは、手動解析における基本的な検証戦略である。</p>
+      <p><strong>エンディアンの判定</strong>は多バイト整数フィールドの解釈に不可欠である。同一アーカイブ内の既知サイズの値（例：ファイルサイズが既知のアセットのサイズフィールド）を候補オフセットで読み、リトルエンディアンとビッグエンディアンの両解釈で既知値と一致するか確認することで判定できる。1990年代のx86 DOS/Windowsゲームは事実上すべてリトルエンディアンであり、REZやWWDも例外ではない。</p>
+
+      <h2 id="case-study">事例研究：REZ形式とWWD形式の解析</h2>
+      <p>OpenClawプロジェクトにおけるREZおよびWWD形式の解析は、コミュニティ主導のリバースエンジニアリングがどのように進行するかを示す具体的な事例である。オリジナルのMonolith Productionsからは技術仕様書が一切公開されなかったため、解析はゲームファイルのみを手がかりとして行われた。</p>
+      <p><strong>REZ形式の解析</strong>はまずファイル先頭のバイト列の観察から始まった。ヘキサエディタで <code>CLAW.REZ</code> を開くと、先頭に識別可能なテキスト断片（フォルダ名 "SOUNDS"・"SPRITES"・"LEVEL" など）が見つかり、これがディレクトリ構造の存在を示唆した。次に、アーカイブ中盤でPCXシグネチャ（<code>0x0A</code> バイトで始まる領域）とRIFF/WAVシグネチャを検索することで、個々のアセットがどのオフセットに配置されているかが判明した。ヘッダー冒頭の4バイト整数値がディレクトリ領域へのオフセットとして解釈でき、そのオフセット位置にテキスト断片が集中していることが確認されたことで、ヘッダー→ディレクトリ→エントリ記述子→データペイロードという4領域構造の仮説が固まった。試作パーサーを実装して複数のREZファイル（Captain Claw以外のMonolithゲームも含む）で検証を重ね、フィールドの詳細が確定した。</p>
+      <p><strong>WWD形式の解析</strong>はREZ解析の副産物として行われた。REZパーサーが機能するようになると、<code>.WWD</code> ファイルをアーカイブから抽出して単独で解析できるようになった。WWDファイルはREZに比べて構造が複雑であり、タイルプレーン・オブジェクトリスト・スクリプティングバイトコードという3つの主要ブロックをそれぞれポインタテーブルで参照する設計であった。オブジェクトリストの解析には動的解析が補助的に活用された。既知の敵配置を持つレベルをゲームでロードしながらメモリを観察することで、オブジェクトレコードの座標フィールドとタイプ識別子フィールドを特定し、静的解析で立てた仮説を裏付けた。スクリプティングバイトコードは最も難易度が高く、カットシーンの挙動をメモリ観察しながら命令セットを一命令ずつ解読するという根気のいる作業を要した。</p>
+      <p>解析の成果として得られた知識は段階的に文書化された。初期にはコードコメントとして非公式に記録され、後にwikiページと正式なフォーマット仕様書として整理された。この文書化により、後発の開発者が解析済みの知識を土台にして実装作業に集中できるようになり、コミュニティへの知識の累積が実現した。</p>
+
+      <h2 id="documentation-legal">文書化・コミュニティリソース・法的側面</h2>
+      <p>リバースエンジニアリングの成果は個人の知識にとどまらず、体系的な文書として記録・共有されることでより大きな価値を生む。ゲームフォーマット解析のコミュニティは長年にわたり、知識の蓄積と共有のためのリソースを育ててきた。</p>
+      <p><strong>XentaxWiki</strong>（現在はアーカイブ状態）はゲームアーカイブ・画像・音声・レベルフォーマットの非公式仕様書を集積したwikiであり、数百種類の独自形式がコミュニティ貢献者によって解析・記述された。REZに類似した形式の記述もXentaxWikiに存在しており、解析のアプローチや共通パターンの把握に参照された。同様の役割を果たすリソースとしてMultiMediaWikiやVGMWikiがあり、音声フォーマットに特化した情報を提供する。</p>
+      <p><strong>フォーマット仕様書とオープンソースパーサー</strong>は知識共有の最も実用的な形態である。解析結果をコードコメントや別ドキュメントとして記述し、実装と仕様を同時にリポジトリに保持することで、実装の意図と根拠が後発者に伝わる。OpenClawのソースコード内でも、REZパーサーとWWDパーサーはフィールドの意味と解析上の注意事項を詳細にコメントで記述している。</p>
+      <p><strong>法的側面</strong>は独自フォーマットのリバースエンジニアリングにおいて常に意識すべき問題である。米国ではDMCA（デジタルミレニアム著作権法）が著作権保護手段の回避を禁じているが、相互運用性を目的とした解析はセクション1201(f)の例外規定により一定の保護を受ける。欧州では情報社会指令および各国法が同様の相互運用性例外を設けている。</p>
+      <p><strong>クリーンルームリバースエンジニアリング</strong>は法的リスクを最小化するための実践的手法である。解析チームと実装チームを分離し、解析チームはバイナリの動作を記述した仕様書のみを実装チームに引き渡す。実装チームは仕様書に基づいて独自コードを書き、オリジナルのバイナリコードは参照しない。この手法により、実装がオリジナルコードの著作権派生物となるリスクを回避できる。OpenClawは公式にクリーンルーム再実装を標榜しており、エンジンロジックはオリジナル実行ファイルのコードではなく観察された挙動に基づいて記述されている。これは<a href="game-preservation-ethics.html">ゲーム保存の倫理</a>において詳述される重要な区別である。</p>
+      <p>コミュニティによるリバースエンジニアリングとオープンソース実装の組み合わせは、商業的に入手困難になったゲームを将来の世代が楽しめる形で保存する最も実績ある手段の一つである。<a href="openclaw.html">OpenClaw</a> はその具体的な成功例であり、<a href="rez-file-format.html">REZファイル形式</a>と<a href="wwd-level-format.html">WWDレベル形式</a>の解析なしには存在し得なかった。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#static-analysis">静的解析：バイナリの読み解き</a></li>
+          <li><a href="#dynamic-analysis">動的解析：実行時挙動の観察</a></li>
+          <li><a href="#pattern-recognition">バイナリファイルにおけるパターン認識</a></li>
+          <li><a href="#case-study">事例研究：REZ形式とWWD形式の解析</a></li>
+          <li><a href="#documentation-legal">文書化・コミュニティリソース・法的側面</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="rez-file-format.html">REZファイル形式とアセットパッケージング</a></li>
+          <li><a href="wwd-level-format.html">WWDレベル形式</a></li>
+          <li><a href="game-preservation-ethics.html">ゲーム保存の倫理</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="rez-file-format.html">REZファイル形式とアセットパッケージング</a></li>
+        <li><a href="wwd-level-format.html">WWDレベル形式</a></li>
+        <li><a href="game-preservation-ethics.html">ゲーム保存の倫理</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

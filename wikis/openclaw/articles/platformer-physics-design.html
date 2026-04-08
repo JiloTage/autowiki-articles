@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2Dプラットフォーマーにおける物理設計の課題 - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    2Dプラットフォーマーにおける物理設計の課題
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">2Dプラットフォーマーにおける物理設計の課題</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">2Dプラットフォーマーにおける物理設計の課題とは、現実の物理法則を正確にシミュレートするだけでは「気持ちよく動くゲーム」を作れないというジレンマを指す。<a href="openclaw.html">OpenClaw</a> は Captain Claw の操作感を忠実に再現するため、<a href="box2d-physics.html">Box2D</a> の汎用シミュレーションに多数のゲームデザイン的なハックを重ね合わせている。</div>
+
+      <h2 id="game-feel">「ゲームフィール」という問題</h2>
+      <p><b>2Dプラットフォーマーにおける物理設計の課題</b>の根本は、物理的な正確さとプレイヤーの快適性の間に存在する根本的な矛盾にある。現実の物体は慣性に従って動き、摩擦で減速し、空中では放物線を描く。しかしこれをそのままゲームに実装すると、操作が「重い」「反応が遅い」「思い通りにならない」と感じられる。</p>
+      <p>この現象はゲームデザイン分野で<em>ゲームフィール（game feel）</em>と呼ばれる。ゲームフィールとは、プレイヤーが入力を与えたときにゲームがどの程度「即座に・意図通りに・満足感をもって」反応するかを表す概念だ。1990年代の偉大なプラットフォームゲームは、物理エンジンなど存在しない時代にもかかわらず、手作業でパラメーターを調整することで卓越したゲームフィールを実現していた。</p>
+      <p>現代のプラットフォームゲームが Box2D などの汎用物理エンジンを使う場合、エンジンのデフォルト設定はリアリズムに最適化されており、ゲームフィールには最適化されていない。そのためゲームデザイナーは物理パラメーターを大幅に調整し、さらに物理エンジンの上に「嘘をつく」レイヤーを重ねる必要がある。<a href="openclaw.html">OpenClaw</a> はこのアプローチの典型例であり、Box2D の厳密なシミュレーションの上に豊富な補正ロジックを構築している。</p>
+
+      <h2 id="platformer-tricks">コヨーテタイム・ジャンプバッファリングと他の定番テクニック</h2>
+      <p>プラットフォームゲームには長年にわたって発見・共有されてきた「ゲームフィール改善テクニック」の集積がある。これらは物理的にはありえない動作を許可することで、プレイヤーの意図を先読みして実行してくれる「寛容なシステム」を作り出す。</p>
+      <p><strong>コヨーテタイム（Coyote Time）</strong>は、アニメのコヨーテが崖から走り出た後も空中で止まっているように見えるシーンにちなんだ名称だ。プレイヤーキャラクターが崖の端から一歩踏み出した直後、数フレーム（通常6〜10フレーム）の間はまだジャンプが可能というルールを設ける。技術的には、<code>EndContact</code> コールバックで接地フラグを即座にクリアするのではなく、タイマーが失効するまで保持し続けることで実装される。これにより崖の端での移動が寛容になり、プレイヤーは「ギリギリ間に合った」という体験を頻繁に得られる。</p>
+      <p><strong>ジャンプバッファリング（Jump Buffering）</strong>は逆方向の寛容性だ。着地の数フレーム前にジャンプボタンを押した場合、着地と同時に即座にジャンプが発動する。ボタン押下時にバッファタイマーを起動し、タイマーが有効な間にキャラクターが接地状態になると自動的にジャンプを実行する。ジャンプのタイミングをシビアにしすぎず、着地直後のジャンプが自然に繋がるようにする。</p>
+      <p><strong>可変ジャンプ高さ（Variable Jump Height）</strong>は、ジャンプボタンを長押しするとより高くジャンプできる仕組みだ。ボタンを離した瞬間に上昇中の垂直速度を一定割合でカットすることで実現する。短押しで小ジャンプ、長押しで大ジャンプを自然に実現できる。</p>
+      <p><strong>落下加速度の非対称化</strong>も広く使われる。ジャンプの上昇フェーズと落下フェーズで重力スケールを変える手法で、上昇時は標準重力、落下時は1.5〜2倍の重力を加えることで「すっと上がってストンと落ちる」歯切れの良い感触を生む。さらに、ジャンプボタンを離して落下に転じた際にもより強い重力を適用することで、ショートジャンプとロングジャンプの差が明確になる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320">
+          <!-- Background -->
+          <rect width="720" height="320" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">プラットフォーマー物理テクニックの概念図</text>
+
+          <!-- Ground line -->
+          <line x1="40" y1="240" x2="680" y2="240" stroke="#202122" stroke-width="2"/>
+          <!-- Cliff edge -->
+          <line x1="340" y1="240" x2="340" y2="300" stroke="#202122" stroke-width="2"/>
+          <rect x="40" y="240" width="300" height="60" fill="#dbeafe" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="190" y="275" text-anchor="middle" font-size="11" fill="#202122">地面</text>
+          <rect x="340" y="240" width="340" height="60" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="510" y="275" text-anchor="middle" font-size="11" fill="#a2a9b1">崖下（空洞）</text>
+
+          <!-- Coyote time zone indicator -->
+          <rect x="300" y="210" width="80" height="28" rx="4" fill="#fef9c3" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="340" y="229" text-anchor="middle" font-size="10" fill="#92400e">コヨーテゾーン</text>
+
+          <!-- Player positions - walking off edge -->
+          <!-- pos 1: on ground -->
+          <circle cx="260" cy="224" r="12" fill="#3366cc" opacity="0.9"/>
+          <text x="260" y="228" text-anchor="middle" font-size="10" fill="white">1</text>
+          <!-- pos 2: at edge -->
+          <circle cx="330" cy="224" r="12" fill="#3366cc" opacity="0.7"/>
+          <text x="330" y="228" text-anchor="middle" font-size="10" fill="white">2</text>
+          <!-- pos 3: just over edge (coyote window) -->
+          <circle cx="370" cy="224" r="12" fill="#f59e0b" opacity="0.9"/>
+          <text x="370" y="228" text-anchor="middle" font-size="10" fill="white">3</text>
+          <text x="370" y="208" text-anchor="middle" font-size="9" fill="#92400e">まだジャンプ可</text>
+
+          <!-- Jump arc from coyote -->
+          <path d="M 370 224 Q 420 140 480 224" fill="none" stroke="#3366cc" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="425" y="155" text-anchor="middle" font-size="10" fill="#3366cc">コヨーテジャンプ</text>
+
+          <!-- Jump buffering section -->
+          <!-- Player falling -->
+          <circle cx="560" cy="170" r="12" fill="#a855f7" opacity="0.9"/>
+          <text x="560" y="174" text-anchor="middle" font-size="10" fill="white">A</text>
+          <text x="560" y="155" text-anchor="middle" font-size="9" fill="#7c3aed">ボタン押下（空中）</text>
+          <!-- Arrow down -->
+          <line x1="560" y1="182" x2="560" y2="212" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arr-buf)"/>
+          <!-- Player landing + jump -->
+          <circle cx="560" cy="224" r="12" fill="#a855f7" opacity="0.7"/>
+          <text x="560" y="228" text-anchor="middle" font-size="10" fill="white">B</text>
+          <!-- Immediate jump arc -->
+          <path d="M 560 224 Q 600 160 640 224" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="600" y="155" text-anchor="middle" font-size="10" fill="#7c3aed">バッファジャンプ</text>
+
+          <!-- Legend -->
+          <circle cx="60" cy="295" r="7" fill="#3366cc"/>
+          <text x="75" y="299" font-size="10" fill="#202122">コヨーテタイム</text>
+          <circle cx="180" cy="295" r="7" fill="#a855f7"/>
+          <text x="195" y="299" font-size="10" fill="#202122">ジャンプバッファリング</text>
+          <rect x="320" y="288" width="14" height="14" fill="#fef9c3" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="342" y="299" font-size="10" fill="#202122">コヨーテゾーン（崖端直後）</text>
+
+          <defs>
+            <marker id="arr-buf" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a855f7"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: コヨーテタイムとジャンプバッファリングの動作概念図。コヨーテタイムは崖端を超えた直後もジャンプを許可し（位置3）、ジャンプバッファリングは空中でボタンを押しておくと着地と同時にジャンプを実行する（A→B）</div>
+      </div>
+
+      <h2 id="character-controller">キャラクターコントローラー設計：キネマティックvsダイナミック</h2>
+      <p>Box2D の剛体（Rigidbody）には主にキネマティックとダイナミックの2種類があり、プレイヤーキャラクターの実装にどちらを採用するかはゲームの操作感に大きく影響する。</p>
+      <p><strong>ダイナミック剛体</strong>は力・重力・衝突すべての影響を受ける。物理的にリアルな挙動を示すが、プレイヤーキャラクターとして使うと「操作が重い」「慣性で滑る」「壁や敵に当たった反発が大きい」などゲームフィールを損ねる問題が生じやすい。これを解決するには摩擦係数・反発係数・線形減衰（linear damping）を大幅に調整する必要がある。</p>
+      <p><strong>キネマティック剛体</strong>は速度を直接セットして動かし、物理演算の影響を受けないが衝突判定は行う。動くプラットフォームや敵パトロールに適しているが、プレイヤーキャラクターとして使うと重力を自前で実装しなければならないなど管理が複雑になる。</p>
+      <p><a href="openclaw.html">OpenClaw</a> が選択したアプローチは<em>ハイブリッド戦略</em>だ。プレイヤーは動的剛体として実装しながら、水平方向の速度コンポーネントに対しては <code>SetLinearVelocity</code> を直接呼び出して瞬時に目標速度を設定する。垂直コンポーネントだけは Box2D の重力に委ねる。これにより「慣性による滑り」を排除しつつ、ジャンプの放物線軌道は自然な物理演算で実現できる。</p>
+      <p>敵キャラクターはよりシンプルだ。ほとんどのパトロール型の敵はキネマティック剛体を使い、前方の壁や崖をセンサーで検出して速度を反転させる。飛行敵やボスのような複雑な動きには動的剛体に力のインパルスを与えるスクリプト制御を使う。</p>
+
+      <h2 id="slope-and-platform">斜面処理・段差検出・一方通行プラットフォーム</h2>
+      <p>プラットフォームゲームの地形処理には Box2D の汎用機能では対処しきれないいくつかの課題がある。</p>
+      <p><strong>斜面のゴーストコリジョン</strong>は最もよく知られた問題の一つだ。複数のエッジ形状が連結されている地形の上をオブジェクトがスライドするとき、エッジの継ぎ目でオブジェクトが引っかかって予期しない上向きのインパルスが発生することがある。Box2D の <code>b2ChainShape</code> はゴーストバーテックス（前後のセグメントの延長点）を持つことでこの問題を軽減し、内部エッジでの衝突を防いでいる。</p>
+      <p><strong>段差（ステップ）の乗り越え</strong>も重要だ。現実の人間は数センチの段差を意識せずに乗り越えるが、矩形の当たり判定では小さな段差に引っかかってしまう。OpenClaw は足部分に小さな円形フィクスチャを持つカプセル形状の当たり判定を採用している。円の丸みが段差との接触を斜め上方向に誘導し、地形をスムーズに乗り越えられるようにする。</p>
+      <p><strong>一方通行プラットフォーム</strong>は下から飛び越えられるが上から乗ることができるプラットフォームで、多くのプラットフォームゲームに欠かせない要素だ。Box2D ではこれを <code>PreSolve</code> コールバックで実装する。接触が計算される前に呼ばれるこのコールバック内で、プレイヤーが上方向に移動中か、プレイヤーの足位置がプラットフォーム上面より下にある場合に接触を無効化する。<code>PreSolve</code> は物理サブステップごとに呼ばれるため、プレイヤーの軌道が頂点を越えてプラットフォームに上から乗る瞬間にちょうど接触が有効になる。</p>
+      <p><a href="captain-claw-levels.html">Captain Claw のレベルデザイン</a>では一方通行プラットフォームが随所に使われており、縦方向の探索と立体的な動きの基盤となっている。下から上に飛び乗る、上から下に降りるという二方向の移動を流れるように実現することがレベルの快適さに直結する。</p>
+
+      <h2 id="box2d-tuning">Box2D パラメーターのプラットフォームゲーム向けチューニング</h2>
+      <p>Box2D のデフォルトパラメーターはリアルな物理シミュレーションを想定しており、プラットフォームゲームにはそのままでは適さない。OpenClaw が Captain Claw の操作感を再現するために行ったチューニングのアプローチは以下のような考え方に基づいている。</p>
+      <p><strong>重力スケール（gravity scale）</strong>は最も影響が大きいパラメーターだ。Box2D のデフォルトは地球重力相当の約 9.8 m/s² だが、プラットフォームゲームでは2〜4倍の重力がよいゲームフィールをもたらすことが多い。重力を強くするとジャンプが歯切れよく感じられ、空中での制御が明確になる。さらに前述の非対称重力（上昇時と落下時で異なる重力スケール）を組み合わせることで、細かくジャンプの弧を調整できる。</p>
+      <p><strong>摩擦係数（friction）</strong>は地面との接触面に設定する値で、高すぎると加速・減速が遅くなり、低すぎると氷の上を歩くような感触になる。プラットフォームゲームでは、移動の即応性を優先するために摩擦を低めに設定し、速度制御は直接 <code>SetLinearVelocity</code> で行うことが多い。</p>
+      <p><strong>反発係数（restitution）</strong>は衝突時のバウンシネスだ。プレイヤーキャラクターにはほぼ0に設定するのが標準で、ゲームの世界観に合わせてバウンスするオブジェクト（バネ床など）には1.0以上を設定する。</p>
+      <p><strong>線形減衰（linear damping）</strong>は空気抵抗に相当する。これを大きくすると空中でも速度が自然に落ちるため、浮遊感や水中などの特殊環境の表現に使える。通常の空中移動では0に近い値を使い、水中移動では大きな値を設定することで泳ぐような感触を実現できる。</p>
+      <p>固定タイムステップの設定も重要だ。Box2D は可変フレームレートに弱く、タイムステップが大きいとシミュレーションが不安定になる。<a href="box2d-physics.html">Box2D 物理</a>のドキュメントでも述べられているとおり、OpenClaw は物理を60Hz固定で更新し、レンダリングとは独立させた上で補間を行ってスムーズな描画を実現している。</p>
+
+      <h2 id="classic-vs-modern">クラシックゲームと現代エンジンの比較：Captain Claw・Sonicと物理エンジン</h2>
+      <p>1990年代のプラットフォームゲームは物理エンジンなど使っていなかった。速度・加速度・重力はすべて整数の固定小数点演算で手書きされ、デザイナーが直感と試行錯誤でパラメーターを磨き上げた。</p>
+      <p>オリジナルの <strong>Captain Claw</strong>（1997年、Monolith Productions）は DirectX を使った 2D スクロールゲームで、衝突判定はタイルベースのシンプルな AABB（軸揃えバウンディングボックス）チェックだった。重力加速度・ジャンプ速度・最大落下速度は定数として埋め込まれており、デザイナーが感覚的にチューニングした値だ。一方通行プラットフォームや斜面は、特殊なタイルフラグと専用の衝突処理ルーチンで実装されていた。物理エンジンの抽象化がない分、実装はシンプルで実行効率が高く、動作の予測可能性も高かった。</p>
+      <p><strong>Sonic the Hedgehog</strong>（1991年、Sega）はさらに精緻な独自物理を持つ。角度センサーで接地面の傾きを検出し、斜面では重力の分力を利用して加速・減速を計算するという、当時としては異例に物理ベースのアプローチを取っていた。傾斜に応じたアニメーション変化、ループ走行、天井走りなど斜面物理を徹底的に活用したゲームデザインは、手書き物理の到達点ともいえる。</p>
+      <p>これらに対して、現代の Box2D ベースの実装は汎用性と柔軟性に優れる反面、ゲームフィールを実現するために多くのチューニングと補正ロジックが必要になる。<a href="openclaw.html">OpenClaw</a> の挑戦は、オリジナルの Captain Claw が職人的なチューニングで実現していた操作感を、Box2D という全く異なるアーキテクチャの上に再構築することだ。<a href="captain-claw-gameplay.html">Captain Claw のゲームプレイ</a>が持つ軽快さと歯切れの良さを再現するため、速度の直接制御・コヨーテタイム・ジャンプバッファリング・非対称重力といった技術が組み合わされている。</p>
+      <p>皮肉なことに、「物理エンジンを使うほど物理から遠ざかる補正が必要になる」という逆説がプラットフォームゲーム物理設計の核心にある。物理エンジンはツールであり、ゲームフィールを実現するための手段であって目的ではない。最終的にプレイヤーが感じるのはシミュレーションの正確さではなく、キャラクターを動かす「楽しさ」だ。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#game-feel">「ゲームフィール」という問題</a></li>
+          <li><a href="#platformer-tricks">コヨーテタイム・ジャンプバッファリングと他の定番テクニック</a></li>
+          <li><a href="#character-controller">キャラクターコントローラー設計：キネマティックvsダイナミック</a></li>
+          <li><a href="#slope-and-platform">斜面処理・段差検出・一方通行プラットフォーム</a></li>
+          <li><a href="#box2d-tuning">Box2D パラメーターのプラットフォームゲーム向けチューニング</a></li>
+          <li><a href="#classic-vs-modern">クラシックゲームと現代エンジンの比較</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="box2d-physics.html">プラットフォームゲームにおけるBox2D物理</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw ゲームプレイ</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw レベルデザイン</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="box2d-physics.html">プラットフォームゲームにおけるBox2D物理</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw ゲームプレイ</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw レベルデザイン</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

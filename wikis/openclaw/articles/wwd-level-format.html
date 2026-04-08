@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WWDレベルデータフォーマット - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    WWDレベルデータフォーマット
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">WWDレベルデータフォーマット</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">WWDレベルデータフォーマットは、Captain Claw（1997年）のすべてのゲームプレイレベルを格納するために使用されたプロプライエタリなバイナリフォーマットであり、<a href="rez-file-format.html">CLAW.REZ</a>アーカイブ内に組み込まれている。<a href="openclaw.html">OpenClaw</a>のWapWorldパーサーがこのフォーマットを解析することで、手作業による移植なしにオリジナルのレベルデータを完全忠実に再現している。</div>
+
+      <h2 id="overview">概要</h2>
+      <p><b>WWDレベルデータフォーマット</b>（World/Wap Data の略）は、Monolith Productionsが1997年のプラットフォームゲーム<a href="captain-claw-gameplay.html">Captain Claw</a>のために設計したバイナリレベル記述フォーマットである。WWDファイルには、タイルマップグリッド、レンダリングレイヤー定義、ゲームオブジェクト配置、スポーンポイント、音楽トラック参照など、1つのゲームレベルを再現するために必要なすべてのデータが収められている。Captain Clawの14の各アクトは独立したWWDファイルとして<a href="rez-file-format.html">CLAW.REZ</a>アーカイブ内に格納されており、実行時にエンジンによって解凍・解析される。</p>
+      <p>WWDはバイナリ形式のフォーマットであり、人間が読めるXMLやJSONの類ではない。フィールドはリトルエンディアンのバイト順で格納され、文字列はヌル終端またはレングスプレフィックス形式で記録される。ファイル全体はCLAW.REZの圧縮エントリとして格納されているため、直接読み取るにはまずREZアーカイブを展開する必要がある。<a href="openclaw.html">OpenClaw</a>プロジェクトのWapWorldライブラリがこのパース処理を担い、ゲームエンジン本体へメモリ内データ構造として渡す。</p>
+      <p>WWDフォーマットの詳細なリバースエンジニアリングはOpenClawコミュニティによって行われた。ゲーム本体のソースコードは公開されていないため、フォーマット仕様はバイナリ解析と動作検証の繰り返しによって確立されたものである。この成果がファンツールや<a href="captain-claw-levels.html">レベルデザイン</a>の研究を可能にしている。</p>
+
+      <h2 id="file-structure">ファイル構造</h2>
+      <p>WWDファイルはヘッダー、プレーン（レイヤー）ブロック群、オブジェクトリストという大きく3つの領域に分かれている。以下のSVG図はファイルのバイナリ構造を示したものである。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" width="680" height="520">
+          <!-- Background -->
+          <rect width="680" height="520" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">WWDバイナリファイル構造</text>
+
+          <!-- File container -->
+          <rect x="40" y="44" width="280" height="456" rx="6" fill="#ffffff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="180" y="62" text-anchor="middle" font-size="11" font-weight="bold" fill="#36c">LEVELXX.WWD（バイナリ）</text>
+
+          <!-- Header block -->
+          <rect x="52" y="70" width="256" height="72" rx="4" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="180" y="88" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">ファイルヘッダー</text>
+          <text x="68" y="104" font-size="10" fill="#202122">マジックナンバー / バージョン</text>
+          <text x="68" y="118" font-size="10" fill="#202122">ワールドサイズ（幅×高さ タイル数）</text>
+          <text x="68" y="132" font-size="10" fill="#202122">プレーン数 / 音楽トラックID</text>
+
+          <!-- Plane 1 -->
+          <rect x="52" y="152" width="256" height="80" rx="4" fill="#dcfce7" stroke="#36c" stroke-width="1.2"/>
+          <text x="180" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プレーン0：背景（Background）</text>
+          <text x="68" y="186" font-size="10" fill="#202122">タイルインデックスグリッド（2D配列）</text>
+          <text x="68" y="200" font-size="10" fill="#202122">視差係数・描画フラグ</text>
+          <text x="68" y="214" font-size="10" fill="#202122">コリジョン属性なし（装飾専用）</text>
+
+          <!-- Plane 2 -->
+          <rect x="52" y="242" width="256" height="80" rx="4" fill="#fef3c7" stroke="#36c" stroke-width="1.2"/>
+          <text x="180" y="260" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プレーン1：アクション（Action）</text>
+          <text x="68" y="276" font-size="10" fill="#202122">タイルインデックスグリッド（2D配列）</text>
+          <text x="68" y="290" font-size="10" fill="#202122">コリジョン属性フラグ（固体/水/はしご等）</text>
+          <text x="68" y="304" font-size="10" fill="#202122">Box2D静的ボディの生成に使用</text>
+
+          <!-- Plane 3 -->
+          <rect x="52" y="332" width="256" height="68" rx="4" fill="#fce7f3" stroke="#36c" stroke-width="1.2"/>
+          <text x="180" y="350" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">プレーン2：前景（Foreground）</text>
+          <text x="68" y="366" font-size="10" fill="#202122">タイルインデックスグリッド（2D配列）</text>
+          <text x="68" y="380" font-size="10" fill="#202122">プレイヤーの上に描画（遮蔽装飾）</text>
+
+          <!-- Object list -->
+          <rect x="52" y="410" width="256" height="76" rx="4" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="180" y="428" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">オブジェクトリスト</text>
+          <text x="68" y="444" font-size="10" fill="#202122">各オブジェクト：タイプID・座標・パラメータ</text>
+          <text x="68" y="458" font-size="10" fill="#202122">敵・ピックアップ・チェックポイント・ポータル</text>
+          <text x="68" y="472" font-size="10" fill="#202122">スポーン設定・パトロール範囲など</text>
+
+          <!-- Right side: detail annotations -->
+          <text x="380" y="62" font-size="12" font-weight="bold" fill="#202122">フィールド詳細</text>
+
+          <!-- Header annotation -->
+          <line x1="308" y1="106" x2="370" y2="106" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="370" y="76" width="260" height="84" rx="4" fill="#f0f7ff" stroke="#3366cc" stroke-width="1"/>
+          <text x="382" y="93" font-size="10" fill="#202122">マジック: "WWD" (3バイト)</text>
+          <text x="382" y="108" font-size="10" fill="#202122">バージョン: 0x00050000</text>
+          <text x="382" y="123" font-size="10" fill="#202122">幅・高さ: int32 × 2</text>
+          <text x="382" y="138" font-size="10" fill="#202122">スタートX・Y: プレイヤー初期位置</text>
+          <text x="382" y="153" font-size="10" fill="#202122">音楽ID・アンビエントサウンドID</text>
+
+          <!-- Plane annotation -->
+          <line x1="308" y1="282" x2="370" y2="282" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="370" y="244" width="260" height="96" rx="4" fill="#fffbeb" stroke="#36c" stroke-width="1"/>
+          <text x="382" y="261" font-size="10" fill="#202122">プレーン幅・高さ: int32 × 2</text>
+          <text x="382" y="276" font-size="10" fill="#202122">タイルデータ: int16[] (幅×高さ要素)</text>
+          <text x="382" y="291" font-size="10" fill="#202122">属性データ: uint8[] (同サイズ)</text>
+          <text x="382" y="306" font-size="10" fill="#202122">視差X係数: float32</text>
+          <text x="382" y="321" font-size="10" fill="#202122">視差Y係数: float32</text>
+
+          <!-- Object annotation -->
+          <line x1="308" y1="448" x2="370" y2="448" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="370" y="410" width="260" height="96" rx="4" fill="#f5f3ff" stroke="#6d28d9" stroke-width="1"/>
+          <text x="382" y="428" font-size="10" fill="#202122">オブジェクト数: int32</text>
+          <text x="382" y="443" font-size="10" fill="#202122">各レコード: タイプID (int32)</text>
+          <text x="382" y="458" font-size="10" fill="#202122">座標X・Y: int32 × 2</text>
+          <text x="382" y="473" font-size="10" fill="#202122">パラメータ1〜4: int32 × 4</text>
+          <text x="382" y="488" font-size="10" fill="#202122">名前文字列（ヌル終端）</text>
+
+          <defs>
+            <marker id="arr" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+              <polygon points="0 0, 7 2.5, 0 5" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: WWDバイナリファイルのセクション構成。左列がファイル内の格納順序、右列が各セクションの主要フィールド詳細</div>
+      </div>
+
+      <h3 id="header">ファイルヘッダー</h3>
+      <p>WWDファイルはマジックバイト列「WWD」で始まり、続いてバージョン番号フィールドが格納されている。ヘッダーにはワールドのタイル単位の幅と高さ、プレイヤーの初期スポーン座標（ピクセル単位）、プレーン（レイヤー）の総数、使用する音楽トラックのIDが記録されている。またアンビエントサウンドIDのフィールドもあり、波の音や風の音などの環境音ループを指定する。ヘッダーに記録されたワールドサイズは後続のプレーンデータバッファのサイズを決定するため、パーサーはまずヘッダーを読み込んでから各プレーンの読み込みバイト数を算出する。</p>
+
+      <h3 id="planes">プレーン（レイヤー）ブロック</h3>
+      <p>ヘッダーの直後に各プレーンのデータブロックが順番に並ぶ。各プレーンブロックはプレーン固有のヘッダー（幅・高さ・視差係数）と、その後に続くタイルインデックス配列および属性配列で構成される。タイルインデックスはint16値であり、対応するワールドタイルセット内のタイル番号を表す。インデックス0は「空タイル（描画なし）」を意味する慣例が採られている。属性配列はuint8値の同サイズ配列であり、各タイルの物理的性質（固体・水面・水中・はしご・スパイク等）をビットフラグで記録する。OpenClawはアクションプレーンの属性配列のみをBox2Dスタティックボディ生成に使用し、背景プレーンと前景プレーンは純粋にレンダリング用途に使用する。</p>
+
+      <h2 id="objects">オブジェクトデータ</h2>
+      <p>プレーンブロック群の後にはオブジェクトリストが格納されている。リスト先頭のint32フィールドがオブジェクト総数を示し、その後に各オブジェクトのレコードが続く。1つのオブジェクトレコードはタイプID、ワールド座標（X・Y）、4つの汎用パラメータフィールド（int32）、およびヌル終端の名前文字列から構成される。タイプIDがオブジェクトの種別を決定し、パラメータフィールドの意味はタイプIDごとに異なる。</p>
+      <p>主要なオブジェクトタイプとその役割は以下の通りである。</p>
+      <ul>
+        <li><strong>敵スポーン</strong>——配置座標・パトロール左端・パトロール右端・向きなどのパラメータを持つ。タイプIDで敵の種類（衛兵、兵士、サメ、ボスなど）を区別する。</li>
+        <li><strong>コレクタブル</strong>——コイン・宝石・クラウン・チャリス・十字架などのトレジャーアイテム。配置座標のほかに収集可能な回数（通常1回のみ）が記録される。</li>
+        <li><strong>チェックポイント</strong>——プレイヤーが接触すると有効化されるセーブポイント。配置座標と識別番号（チェックポイントインデックス）が格納される。</li>
+        <li><strong>出口ポータル</strong>——レベル完了トリガー。配置座標と遷移先のレベル番号が記録される。</li>
+        <li><strong>鍵・宝箱</strong>——鍵オブジェクトと対応する宝箱オブジェクトはオブジェクトIDで紐付けられており、鍵を取得しなければ宝箱を開けられない。</li>
+        <li><strong>移動プラットフォーム</strong>——往復移動するプラットフォーム。開始座標、終了座標、移動速度がパラメータに格納される。</li>
+        <li><strong>アンビエントトリガー</strong>——プレイヤーが特定エリアに入ると音楽やサウンドを切り替えるゾーントリガー。</li>
+      </ul>
+
+      <h2 id="openwaw-parser">OpenClawのWapWorldパーサー</h2>
+      <p><a href="openclaw.html">OpenClaw</a>ではWapWorldライブラリがWWDパースを担当する。読み込みパイプラインは<a href="rez-file-format.html">REZアーカイブリーダー</a>によるCLAW.REZからのファイル展開から始まり、展開されたバイトストリームをWapWorldパーサーに渡す。パーサーはリトルエンディアンのバイナリストリームを順次読み進め、ヘッダー・プレーン・オブジェクトリストを対応するC++データ構造にマップする。</p>
+      <p>プレーンデータの変換は2段階で行われる。第1段階ではタイルインデックス配列をSDL2のテクスチャバッチに変換し、スクリーンへのレンダリングを準備する。第2段階ではアクションプレーンの属性配列を走査し、コリジョン属性を持つ隣接タイルをBox2Dスタティックボディのチェーン形状にまとめる。このマージ処理によりBox2D物理ワールドのボディ数を大幅に削減し、大型マップでもシミュレーションを軽量に保っている。さらにエッジスムージング処理が適用され、タイル境界でキャラクターが引っかかる既知の問題を回避している。</p>
+      <p>オブジェクトリストの処理では、タイプIDをOpenClawのC++エンティティクラスにマッピングするファクトリパターンが使用される。各エンティティクラスはオブジェクトレコードから初期パラメータを読み込み、エンティティマネージャーに登録する。このデータ駆動型設計により、新しいオブジェクトタイプのサポート追加はエンティティクラスの実装とファクトリテーブルへの登録のみで完結し、パーサー本体の変更は不要である。</p>
+      <p>なお<a href="captain-claw-levels.html">レベル読み込み時</a>には、エンティティを起動する前にセーブファイルからチェックポイント状態が復元される。これにより、死亡後のリロード時にも以前に有効化されたチェックポイントや消費済みのピックアップが正しい状態で再現される。</p>
+
+      <h2 id="comparison">1990年代レベルフォーマットとの比較</h2>
+      <p>WWDフォーマットは1990年代中盤から後半にかけて普及した2Dプラットフォームゲームのレベルフォーマット設計思想を体現している。同時代の主要なレベルフォーマットと比較すると、共通する設計判断と独自の特徴が見えてくる。</p>
+      <p>同時代のDOOM（1993年）のWADフォーマットはセクター・ライン・シングス（スポーン点）という抽象化を採用しており、頂点ベースのポリゴンジオメトリを中心としている。これに対しWWDはタイルグリッドベースの設計であり、横スクロールアクションゲームに特化している。同じくタイルベースのフォーマットを採用した同時代のゲームとしてはJazz Jackrabbit 2（1998年）のJ2Lフォーマットがあり、複数の描画レイヤー・視差スクロール・オブジェクト配置という点でWWDと多くの類似を持つ。Epic MegaGamesのUnrealフォーマットのようなより複雑なフォーマットが既に登場しつつあった時期でもあるが、WWDは2Dゲームの用途としては必要十分な構造に絞り込まれた実用的な設計となっている。</p>
+      <p>WWD固有の特徴として、3つのレンダリングレイヤー（背景・アクション・前景）への分離と視差係数の直接格納が挙げられる。これはゲームエンジン側にパララックス計算を委ねるのではなく、レベルデータ自体に奥行き表現の意図を記録する設計であり、レベルデザイナーが視差の度合いをレベルごとに調整できる柔軟性を提供していた。</p>
+      <p>一方でWWDには現代のレベルフォーマットにあるような機能——プロパティの継承、スクリプトコードの埋め込み、ベクターグラフィクスのサポートなど——は備わっていない。オブジェクトパラメータがタイプIDに依存した固定の4フィールドに限定されており、複雑なオブジェクト定義には名前文字列への追加情報の埋め込みで対応するなど、1990年代の制約が随所に見られる。</p>
+
+      <h2 id="preservation-tools">ゲーム保存とファンツール</h2>
+      <p>WWDフォーマットのリバースエンジニアリングとドキュメント化は、Captain Clawのゲーム保存活動において中心的な役割を果たしている。オリジナルゲームのソースコードが公開されていないため、フォーマット仕様の確立は実行ファイルの解析と大量のテストによって達成された成果である。この知識が<a href="openclaw.html">OpenClaw</a>をはじめとするファンプロジェクトの基盤となっている。</p>
+      <p>WWDファイルの閲覧・編集を可能にするファンツールも複数開発されている。主要なものを以下に示す。</p>
+      <ul>
+        <li><strong>WapMap</strong>——WWDファイルのビジュアルエディター。タイルマップの表示・編集、オブジェクト配置の変更、カスタムレベルの作成が可能。OpenClawコミュニティで広く使用されている。</li>
+        <li><strong>WapWorld（ライブラリ）</strong>——OpenClawプロジェクトに含まれるC++パーサーライブラリ。他のツール開発者がWWDの読み書き機能を自プロジェクトに組み込む際のリファレンス実装としても機能する。</li>
+        <li><strong>REZExtract</strong>——CLAW.REZアーカイブからWWDファイルをはじめとするリソースを抽出するコマンドラインツール。WWD編集の前処理として使用される。</li>
+      </ul>
+      <p>フォーマットのドキュメント化により、カスタムレベルの制作コミュニティが形成されている。WapMapを使用することでファンは既存の14レベルを改変したり、ゲームエンジンの規則に完全準拠した新規レベルを制作したりすることが可能である。<a href="captain-claw-gameplay.html">ゲームプレイメカニクス</a>のすべての挙動がWWDオブジェクト定義を通じて再現されるため、カスタムレベルでもオリジナルゲームと同一のプレイ体験が得られる。</p>
+      <p>ゲーム保存の観点からは、フォーマット仕様が詳細に文書化されていることにより、将来的に新たなオープンソース実装が登場した場合でも同じオリジナルレベルデータを忠実に再現できるという重要な意義がある。WWDファイル自体は数キロバイトから数十キロバイトの小さなサイズであり、長期的なアーカイブにも適している。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#file-structure">ファイル構造</a></li>
+          <li><a href="#objects">オブジェクトデータ</a></li>
+          <li><a href="#openwaw-parser">OpenClawのWapWorldパーサー</a></li>
+          <li><a href="#comparison">1990年代レベルフォーマットとの比較</a></li>
+          <li><a href="#preservation-tools">ゲーム保存とファンツール</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw-levels.html">キャプテン・クロウ レベルデザイン</a></li>
+          <li><a href="rez-file-format.html">REZファイルフォーマット</a></li>
+          <li><a href="captain-claw-gameplay.html">キャプテン・クロウ ゲームプレイ機能</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw-levels.html">キャプテン・クロウ レベルデザイン</a></li>
+        <li><a href="rez-file-format.html">REZファイルフォーマット</a></li>
+        <li><a href="captain-claw-gameplay.html">キャプテン・クロウ ゲームプレイ機能</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

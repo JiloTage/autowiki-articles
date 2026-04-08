@@ -24,7 +24,17 @@
         "game-preservation-methods",
         "rez-file-format",
         "captain-claw-levels",
-        "game-preservation-ethics"
+        "game-preservation-ethics",
+        "monolith-productions",
+        "captain-claw-soundtrack",
+        "captain-claw-enemies",
+        "wwd-level-format",
+        "tile-based-level-design",
+        "game-engine-architecture",
+        "platformer-physics-design",
+        "open-source-game-engines",
+        "reverse-engineering-game-formats",
+        "abandonware-legal-status"
       ],
       "summary": "OpenClawはMonolith Productionsによる1997年クラシックプラットフォーマー「Captain Claw」のマルチプラットフォーム・オープンソースC++再実装であり、現代のOSでネイティブ動作を実現する。",
       "expansion_status": "done",
@@ -35,7 +45,7 @@
       "title": "Captain Claw (1997)",
       "filename": "wikis/openclaw/articles/captain-claw.html",
       "created_at": "2026-04-08T11:47:27.366373+00:00",
-      "updated_at": "2026-04-08T12:14:09.254751+00:00",
+      "updated_at": "2026-04-08T12:24:16.174181+00:00",
       "links_to": [
         "openclaw",
         "captain-claw-gameplay",
@@ -50,10 +60,15 @@
         "game-preservation-methods",
         "rez-file-format",
         "captain-claw-levels",
-        "game-preservation-ethics"
+        "game-preservation-ethics",
+        "monolith-productions",
+        "captain-claw-soundtrack",
+        "captain-claw-enemies",
+        "open-source-game-engines",
+        "abandonware-legal-status"
       ],
       "summary": "Captain Clawは1997年にMonolith Productionsが開発・発売した2Dサイドスクロールアクションゲームで、海賊猫のキャプテン・クロウを主人公に14の個性豊かなレベルを冒険する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -62,7 +77,7 @@
       "title": "Captain Claw Gameplay Mechanics",
       "filename": "wikis/openclaw/articles/captain-claw-gameplay.html",
       "created_at": "2026-04-08T11:47:56.314095+00:00",
-      "updated_at": "2026-04-08T12:14:12.684458+00:00",
+      "updated_at": "2026-04-08T12:24:16.234980+00:00",
       "links_to": [
         "openclaw",
         "captain-claw",
@@ -73,10 +88,16 @@
         "openclaw",
         "captain-claw",
         "box2d-physics",
-        "captain-claw-levels"
+        "captain-claw-levels",
+        "monolith-productions",
+        "captain-claw-enemies",
+        "wwd-level-format",
+        "tile-based-level-design",
+        "game-engine-architecture",
+        "platformer-physics-design"
       ],
       "summary": "キャプテン・クロウのゲームプレイ機能について解説。戦闘・移動・敵AI・トレジャースコアリング・体力システムを網羅し、OpenClawがそれらをモダンC++とBox2D物理でどう再現しているかを説明する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -85,7 +106,7 @@
       "title": "SDL2 as a Game Engine Framework",
       "filename": "wikis/openclaw/articles/sdl2-engine.html",
       "created_at": "2026-04-08T11:48:20.391051+00:00",
-      "updated_at": "2026-04-08T12:14:12.739787+00:00",
+      "updated_at": "2026-04-08T12:24:16.300088+00:00",
       "links_to": [
         "openclaw",
         "box2d-physics",
@@ -94,10 +115,13 @@
       "linked_from": [
         "openclaw",
         "captain-claw",
-        "box2d-physics"
+        "box2d-physics",
+        "captain-claw-soundtrack",
+        "tile-based-level-design",
+        "game-engine-architecture"
       ],
       "summary": "SDL2（Simple DirectMedia Layer 2）はOpenClawの基盤マルチメディアライブラリであり、Windows・macOS・Linuxに対応した2Dレンダリング・音声・入力処理のクロスプラットフォーム抽象化を提供する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -106,7 +130,7 @@
       "title": "Box2D Physics in Platform Games",
       "filename": "wikis/openclaw/articles/box2d-physics.html",
       "created_at": "2026-04-08T11:48:24.819080+00:00",
-      "updated_at": "2026-04-08T12:14:24.864322+00:00",
+      "updated_at": "2026-04-08T12:24:16.364565+00:00",
       "links_to": [
         "openclaw",
         "sdl2-engine",
@@ -115,10 +139,13 @@
       "linked_from": [
         "openclaw",
         "captain-claw-gameplay",
-        "sdl2-engine"
+        "sdl2-engine",
+        "captain-claw-enemies",
+        "game-engine-architecture",
+        "platformer-physics-design"
       ],
       "summary": "Box2DはErin Cattoによるオープンソース2D剛体シミュレーションライブラリで、OpenClawの物理エンジンとしてキャラクター移動・衝突検出・射体軌道・環境インタラクションを担う。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -127,7 +154,7 @@
       "title": "Game Preservation Through Engine Reimplementation",
       "filename": "wikis/openclaw/articles/game-preservation-methods.html",
       "created_at": "2026-04-08T11:48:30.326786+00:00",
-      "updated_at": "2026-04-08T12:14:24.919573+00:00",
+      "updated_at": "2026-04-08T12:24:16.426991+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-ethics",
@@ -136,10 +163,13 @@
       "linked_from": [
         "openclaw",
         "captain-claw",
-        "game-preservation-ethics"
+        "game-preservation-ethics",
+        "monolith-productions",
+        "open-source-game-engines",
+        "abandonware-legal-status"
       ],
       "summary": "エンジン再実装によるゲーム保存は、ゲームの元エンジンをモダンな技術で1から書き直す手法で、クラシックタイトルをエミュレーションなしに現代のハードウェアで動作させることができる。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -148,7 +178,7 @@
       "title": "REZ File Format and Asset Packaging",
       "filename": "wikis/openclaw/articles/rez-file-format.html",
       "created_at": "2026-04-08T11:48:38.690255+00:00",
-      "updated_at": "2026-04-08T12:14:24.975487+00:00",
+      "updated_at": "2026-04-08T12:24:16.488510+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-ethics",
@@ -157,10 +187,12 @@
       "linked_from": [
         "openclaw",
         "captain-claw-levels",
-        "game-preservation-ethics"
+        "game-preservation-ethics",
+        "wwd-level-format",
+        "reverse-engineering-game-formats"
       ],
       "summary": "REZフォーマットはMonolith ProductionsがRIOTエンジン向けに開発した専用アーカイブコンテナであり、Captain Clawの全ゲームアセットを1つの配布ファイルにパッケージングする。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -169,7 +201,7 @@
       "title": "Captain Claw Level Design",
       "filename": "wikis/openclaw/articles/captain-claw-levels.html",
       "created_at": "2026-04-08T11:48:46.671726+00:00",
-      "updated_at": "2026-04-08T12:14:25.030565+00:00",
+      "updated_at": "2026-04-08T12:24:16.548924+00:00",
       "links_to": [
         "openclaw",
         "captain-claw",
@@ -179,10 +211,15 @@
       "linked_from": [
         "openclaw",
         "captain-claw",
-        "captain-claw-gameplay"
+        "captain-claw-gameplay",
+        "captain-claw-soundtrack",
+        "captain-claw-enemies",
+        "wwd-level-format",
+        "tile-based-level-design",
+        "platformer-physics-design"
       ],
       "summary": "キャプテン・クロウのレベルデザインでは、オリジナルキャンペーンを構成する14の章の構造・テーマ・進行を解説し、OpenClawがCLAW.REZのWWDデータからどう忠実に再現するかを説明する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
     },
@@ -191,7 +228,7 @@
       "title": "Ethics of Game Preservation",
       "filename": "wikis/openclaw/articles/game-preservation-ethics.html",
       "created_at": "2026-04-08T11:49:03.097597+00:00",
-      "updated_at": "2026-04-08T12:14:25.085489+00:00",
+      "updated_at": "2026-04-08T12:24:16.609243+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-methods",
@@ -201,14 +238,202 @@
       "linked_from": [
         "openclaw",
         "game-preservation-methods",
-        "rez-file-format"
+        "rez-file-format",
+        "open-source-game-engines",
+        "reverse-engineering-game-formats",
+        "abandonware-legal-status"
       ],
       "summary": "ゲーム保存の倫理は、知的財産法とインタラクティブメディアの文化的保護の命令との間の緊張を検討し、法的境界・コミュニティ規範・道徳的義務が交わる場所を探求する。",
-      "expansion_status": "pending",
+      "expansion_status": "done",
       "origin": "expanded",
       "source_id": "openclaw"
+    },
+    "monolith-productions": {
+      "id": "monolith-productions",
+      "title": "Monolith Productions: スタジオ史",
+      "filename": "wikis/openclaw/articles/monolith-productions.html",
+      "created_at": "2026-04-08T12:31:43.552129+00:00",
+      "updated_at": "2026-04-08T12:31:43.552129+00:00",
+      "links_to": [
+        "openclaw",
+        "captain-claw",
+        "captain-claw-gameplay",
+        "game-preservation-methods"
+      ],
+      "linked_from": [],
+      "summary": "Monolith Productionsは1994年にワシントン州カークランドで設立されたアメリカのビデオゲーム開発スタジオであり、Captain ClawやBlood、No One Lives Forever、F.E.A.R.など革新的なタイトルで知られ、2004年にWarner Bros. Interactiveに買収された。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "captain-claw"
+    },
+    "captain-claw-soundtrack": {
+      "id": "captain-claw-soundtrack",
+      "title": "Captain Claw サウンドトラックと音響設計",
+      "filename": "wikis/openclaw/articles/captain-claw-soundtrack.html",
+      "created_at": "2026-04-08T12:31:43.613682+00:00",
+      "updated_at": "2026-04-08T12:31:43.613682+00:00",
+      "links_to": [
+        "openclaw",
+        "captain-claw",
+        "captain-claw-levels",
+        "sdl2-engine"
+      ],
+      "linked_from": [],
+      "summary": "Captain Claw（1997年）のサウンドトラックはNathan Griggが作曲したMIDIベースの楽曲群で構成され、各レベルの雰囲気を的確に表現する海賊冒険スタイルの音楽と効果音が一体となってゲーム体験を支えています。OpenClawエンジンではSDL2_mixerライブラリを通じてこれらの音響資産が現代の環境で忠実に再生されています。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "captain-claw"
+    },
+    "captain-claw-enemies": {
+      "id": "captain-claw-enemies",
+      "title": "Captain Claw 敵キャラクター図鑑",
+      "filename": "wikis/openclaw/articles/captain-claw-enemies.html",
+      "created_at": "2026-04-08T12:31:43.674748+00:00",
+      "updated_at": "2026-04-08T12:31:43.674748+00:00",
+      "links_to": [
+        "openclaw",
+        "captain-claw",
+        "captain-claw-gameplay",
+        "box2d-physics",
+        "captain-claw-levels"
+      ],
+      "linked_from": [],
+      "summary": "Captain Claw（1997年）に登場する敵キャラクターの全体像を解説し、基本兵士からボスまでの種別・AI行動パターン・難易度スケーリングを網羅するとともに、OpenClawがそれらをC++のステートマシンとBox2D衝突検知で再実装した方法を詳述します。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "captain-claw"
+    },
+    "wwd-level-format": {
+      "id": "wwd-level-format",
+      "title": "WWDレベルデータフォーマット",
+      "filename": "wikis/openclaw/articles/wwd-level-format.html",
+      "created_at": "2026-04-08T12:31:57.793977+00:00",
+      "updated_at": "2026-04-08T12:31:57.793977+00:00",
+      "links_to": [
+        "openclaw",
+        "captain-claw-levels",
+        "rez-file-format",
+        "captain-claw-gameplay"
+      ],
+      "linked_from": [
+        "tile-based-level-design",
+        "reverse-engineering-game-formats"
+      ],
+      "summary": "WWDレベルデータフォーマットは、Captain Claw（1997年）のすべてのゲームプレイレベルを格納するために使用されたプロプライエタリなバイナリフォーマットであり、CLAW.REZアーカイブ内に組み込まれている。OpenClawのWapWorldパーサーがこのフォーマットを解析することで、手作業による移植なしにオリジナルのレベルデータを完全忠実に再現している。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "captain-claw-gameplay"
+    },
+    "tile-based-level-design": {
+      "id": "tile-based-level-design",
+      "title": "タイルベースレベルデザインの原理",
+      "filename": "wikis/openclaw/articles/tile-based-level-design.html",
+      "created_at": "2026-04-08T12:31:57.851208+00:00",
+      "updated_at": "2026-04-08T12:31:57.851208+00:00",
+      "links_to": [
+        "openclaw",
+        "captain-claw-levels",
+        "captain-claw-gameplay",
+        "wwd-level-format",
+        "sdl2-engine"
+      ],
+      "linked_from": [],
+      "summary": "タイルベースレベルデザインの原理では、アーケード黎明期から1990年代PCゲームに至るタイルマップ技術の歴史と設計手法を解説し、Captain Clawを主要な事例としてマルチレイヤー構成・オブジェクト配置・探索誘導パターンを考察する。あわせてOpenClawがSDL2上でこれらの原理をいかに実装しているかを示す。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "captain-claw-gameplay"
+    },
+    "game-engine-architecture": {
+      "id": "game-engine-architecture",
+      "title": "ゲームエンジンアーキテクチャパターン",
+      "filename": "wikis/openclaw/articles/game-engine-architecture.html",
+      "created_at": "2026-04-08T12:31:57.908540+00:00",
+      "updated_at": "2026-04-08T12:31:57.908540+00:00",
+      "links_to": [
+        "openclaw",
+        "sdl2-engine",
+        "box2d-physics",
+        "captain-claw-gameplay"
+      ],
+      "linked_from": [],
+      "summary": "ゲームエンジンアーキテクチャパターンとは、ゲームループ設計・エンティティ管理・レンダーパイプライン・リソース管理・状態機械・入力処理といったゲームエンジン構築に共通する設計手法の体系であり、OpenClawはこれらのパターンをシンプルなSDL2ベースの構成で採用することで、オープンソースのプラットフォームゲームエンジンを実現している。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "sdl2-engine"
+    },
+    "platformer-physics-design": {
+      "id": "platformer-physics-design",
+      "title": "2Dプラットフォーマーにおける物理設計の課題",
+      "filename": "wikis/openclaw/articles/platformer-physics-design.html",
+      "created_at": "2026-04-08T12:32:21.294419+00:00",
+      "updated_at": "2026-04-08T12:32:21.294419+00:00",
+      "links_to": [
+        "openclaw",
+        "box2d-physics",
+        "captain-claw-gameplay",
+        "captain-claw-levels"
+      ],
+      "linked_from": [],
+      "summary": "2Dプラットフォーマーにおける物理設計の課題とは、現実の物理法則を正確にシミュレートするだけでは「気持ちよく動くゲーム」を作れないというジレンマを指す。OpenClawはCaptain Clawの操作感を忠実に再現するため、Box2Dの汎用シミュレーションに多数のゲームデザイン的なハックを重ね合わせている。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "box2d-physics"
+    },
+    "open-source-game-engines": {
+      "id": "open-source-game-engines",
+      "title": "オープンソースゲームエンジン再実装の歴史",
+      "filename": "wikis/openclaw/articles/open-source-game-engines.html",
+      "created_at": "2026-04-08T12:32:21.354308+00:00",
+      "updated_at": "2026-04-08T12:32:21.354308+00:00",
+      "links_to": [
+        "openclaw",
+        "game-preservation-methods",
+        "game-preservation-ethics",
+        "captain-claw"
+      ],
+      "linked_from": [],
+      "summary": "オープンソースゲームエンジン再実装の歴史とは、ファン開発者がクラシックゲームのエンジンをゼロから書き直し、現代プラットフォームへの移植・保存・拡張を実現してきた数十年にわたる運動の記録であり、ScummVMからOpenClawに至る多様なプロジェクトを通じてゲーム文化の継承を支えている。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "game-preservation-methods"
+    },
+    "reverse-engineering-game-formats": {
+      "id": "reverse-engineering-game-formats",
+      "title": "ゲームフォーマットのリバースエンジニアリング",
+      "filename": "wikis/openclaw/articles/reverse-engineering-game-formats.html",
+      "created_at": "2026-04-08T12:32:21.415933+00:00",
+      "updated_at": "2026-04-08T12:32:21.415933+00:00",
+      "links_to": [
+        "openclaw",
+        "rez-file-format",
+        "wwd-level-format",
+        "game-preservation-ethics"
+      ],
+      "linked_from": [],
+      "summary": "ゲームフォーマットのリバースエンジニアリングとは、公開された仕様書を持たない独自バイナリ形式をバイナリ解析・動的観察・パターン認識などの技術によって解読し、オープンソースの再実装や保存活動を可能にする取り組みである。REZアーカイブやWWDレベルデータなど、Captain Clawが採用した独自形式はこのプロセスを通じてOpenClawコミュニティによって解析・文書化された。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "rez-file-format"
+    },
+    "abandonware-legal-status": {
+      "id": "abandonware-legal-status",
+      "title": "アバンドンウェアの法的地位",
+      "filename": "wikis/openclaw/articles/abandonware-legal-status.html",
+      "created_at": "2026-04-08T12:32:21.476380+00:00",
+      "updated_at": "2026-04-08T12:32:21.476380+00:00",
+      "links_to": [
+        "openclaw",
+        "game-preservation-ethics",
+        "game-preservation-methods",
+        "captain-claw"
+      ],
+      "linked_from": [],
+      "summary": "アバンドンウェアの法的地位は、著作権の放棄という概念が法律上存在しないにもかかわらず、販売・サポートが終了したソフトウェアを巡る複雑な権利関係と保存活動の合法性を扱う分野である。Captain ClawやOpenClawはこの問題の実践的な事例として重要な示唆を与える。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "game-preservation-ethics"
     }
   },
   "root_id": null,
-  "total_count": 9
+  "total_count": 19
 }

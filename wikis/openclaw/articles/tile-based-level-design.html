@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タイルベースレベルデザインの原理 - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    タイルベースレベルデザインの原理
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">タイルベースレベルデザインの原理</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">タイルベースレベルデザインの原理では、アーケード黎明期から1990年代PCゲームに至るタイルマップ技術の歴史と設計手法を解説し、Captain Clawを主要な事例としてマルチレイヤー構成・オブジェクト配置・探索誘導パターンを考察する。あわせて<a href="openclaw.html">OpenClaw</a>がSDL2上でこれらの原理をいかに実装しているかを示す。</div>
+
+      <h2 id="history">歴史：アーケードから1990年代PCゲームへ</h2>
+      <p><b>タイルベースレベルデザインの原理</b>は、2Dゲームの最も基礎的なレベル構築手法の体系である。タイルマップとは、同一サイズの矩形画像（タイル）を格子状に並べてゲーム世界を構成する方式を指し、そのルーツはアーケードゲームの初期にさかのぼる。</p>
+      <p>1978年の<em>Space Invaders</em>や1980年の<em>Pac-Man</em>はすでに画面を固定グリッドで管理していたが、スクロールするタイルマップが本格的に普及したのは1981年の<em>Donkey Kong</em>以降である。ハードウェアのビデオチップはタイル単位でVRAMを管理する設計が一般的で、タイル再利用による省メモリは当時の制約環境に最適な解であった。1980年代後半から1990年代前半にかけて、スーパーファミコン・メガドライブ世代では背景・前景の多重スクロールが標準化し、パララックス効果による奥行き表現が確立された。</p>
+      <p>1990年代のDOS/Windowsプラットフォームでは、<em>Commander Keen</em>（1990年）や<em>Jazz Jackrabbit</em>（1994年）などのPCプラットフォーマーが大容量RAMを活かしてより大きなタイルセットと広大なスクロールマップを実現した。1997年にMonolith Productionsが発表した<em>Captain Claw</em>はこの系譜の集大成であり、64×64ピクセルのタイルと多層プレーン構成によって映画的な視覚表現とゲームプレイの多様性を両立させた。<a href="openclaw.html">OpenClaw</a>プロジェクトはこのタイルシステムを現代のC++とSDL2で再実装し、オリジナルのWWDデータを直接読み込んで完全に忠実な再現を実現している。</p>
+
+      <h2 id="layers">タイルマップのレイヤー構成</h2>
+      <p>現代的なタイルベースゲームのレベルは、単一の平面グリッドではなく複数の名前付きレイヤーを重ねることで構築される。各レイヤーは異なる役割を担い、視覚・物理・インタラクションの各側面を分離して管理できる。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 400" width="680" height="400">
+          <!-- Background panel -->
+          <rect width="680" height="400" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">タイルマップのレイヤー構成（断面図）</text>
+
+          <!-- Layer 3: Foreground overlay -->
+          <rect x="60" y="50" width="560" height="70" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="120" y="78" font-size="12" font-weight="bold" fill="#202122">前景レイヤー（Foreground Plane）</text>
+          <text x="120" y="96" font-size="10" fill="#202122">プレイヤーの前面に描画。装飾専用。コリジョンなし。</text>
+          <!-- tile symbols -->
+          <rect x="580" y="62" width="22" height="22" rx="2" fill="#93c5fd" stroke="#3366cc" stroke-width="1"/>
+          <text x="591" y="77" text-anchor="middle" font-size="9" fill="#1e3a8a">柱</text>
+          <rect x="606" y="62" width="22" height="22" rx="2" fill="#93c5fd" stroke="#3366cc" stroke-width="1"/>
+          <text x="617" y="77" text-anchor="middle" font-size="9" fill="#1e3a8a">葉</text>
+
+          <!-- Layer 2: Action / Collision -->
+          <rect x="60" y="138" width="560" height="90" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="120" y="165" font-size="12" font-weight="bold" fill="#202122">アクションレイヤー（Action Plane）</text>
+          <text x="120" y="183" font-size="10" fill="#202122">固体足場・はしご・水面・破壊可能ブロック。Box2D静的ボディを生成。</text>
+          <text x="120" y="200" font-size="10" fill="#36c">オブジェクト（敵・ピックアップ・チェックポイント）もここに配置。</text>
+          <!-- tile symbols -->
+          <rect x="580" y="150" width="22" height="22" rx="2" fill="#86efac" stroke="#16a34a" stroke-width="1"/>
+          <text x="591" y="165" text-anchor="middle" font-size="9" fill="#14532d">地面</text>
+          <rect x="606" y="150" width="22" height="22" rx="2" fill="#fde68a" stroke="#ca8a04" stroke-width="1"/>
+          <text x="617" y="165" text-anchor="middle" font-size="9" fill="#78350f">宝</text>
+
+          <!-- Layer 1: Background decoration -->
+          <rect x="60" y="248" width="560" height="70" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="120" y="276" font-size="12" font-weight="bold" fill="#202122">背景レイヤー（Background Plane）</text>
+          <text x="120" y="294" font-size="10" fill="#202122">遠景・装飾。コリジョンなし。パララックス係数で低速スクロール。</text>
+          <!-- tile symbols -->
+          <rect x="580" y="260" width="22" height="22" rx="2" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+          <text x="591" y="275" text-anchor="middle" font-size="9" fill="#713f12">空</text>
+          <rect x="606" y="260" width="22" height="22" rx="2" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+          <text x="617" y="275" text-anchor="middle" font-size="9" fill="#713f12">雲</text>
+
+          <!-- Render order arrows on the right -->
+          <text x="644" y="90" text-anchor="middle" font-size="9" fill="#202122">③</text>
+          <text x="644" y="185" text-anchor="middle" font-size="9" fill="#202122">②</text>
+          <text x="644" y="285" text-anchor="middle" font-size="9" fill="#202122">①</text>
+          <line x1="644" y1="297" x2="644" y2="102" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowUp)"/>
+          <text x="644" y="350" text-anchor="middle" font-size="9" fill="#36c">描画順</text>
+          <text x="644" y="363" text-anchor="middle" font-size="9" fill="#36c">（下→上）</text>
+
+          <!-- Parallax note -->
+          <rect x="80" y="336" width="480" height="44" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.2"/>
+          <text x="320" y="356" text-anchor="middle" font-size="11" fill="#4c1d95">パララックス：背景レイヤーはカメラ移動量の約50%でスクロールし、奥行き感を演出する</text>
+          <text x="320" y="372" text-anchor="middle" font-size="11" fill="#4c1d95">OpenClaw: WWDヘッダーの係数をSDL2レンダラーのオフセット計算に適用</text>
+
+          <defs>
+            <marker id="arrowUp" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto">
+              <polygon points="0 6, 8 3, 0 0" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: タイルマップの3レイヤー構成と描画順序。Captain Clawの各プレーンが担う役割と、OpenClawにおけるSDL2レンダリング実装の概要</div>
+      </div>
+
+      <h3>背景装飾レイヤー</h3>
+      <p>最も後方に描画される背景レイヤーは、大洋の波・森の木立・城の遠景など、ゲームプレイに影響しない純粋な装飾情報を持つ。コリジョン属性を持たないため、物理エンジンはこのレイヤーを完全に無視する。カメラが右へ100ピクセル移動する際に背景を50ピクセルしかスクロールさせないパララックス係数を設定することで、遠近感と没入感が生まれる。<a href="captain-claw-levels.html">Captain Clawの14アクト</a>では、アクトごとに異なる背景タイルセットが世界観を視覚的に確立している。</p>
+
+      <h3>アクション（コリジョン）レイヤー</h3>
+      <p>ゲームプレイの核心はアクションレイヤーに集約される。プレイヤーが踏む足場・登るはしご・潜る水面・叩き壊すクレートはすべてここに配置される。<a href="openclaw.html">OpenClaw</a>はこのレイヤーのタイル属性を解析し、コリジョンフラグが立つタイル境界からBox2Dスタティックボディのチェーンを生成する。隣接タイル同士の境界でキャラクターが引っかかるエッジアーティファクトを防ぐため、頂点のスムージング処理がローダー段階で行われる。<a href="wwd-level-format.html">WWDレベルフォーマット</a>はタイルごとにコリジョン属性ビットフィールドを持ち、OpenClawはこれをエンジン内部の物理レイヤーマスクに変換する。</p>
+
+      <h3>前景オーバーレイレイヤー</h3>
+      <p>前景レイヤーはプレイヤースプライトよりも後から描画されるため、鍾乳石・ロープ・アーチの柱などの構造物がキャラクターを自然に遮蔽する。これにより部屋の内側にいるような奥行き表現が可能になる。前景タイルもコリジョンを持たないが、プレイヤーの視界を制限することで隠し経路を視覚的に示唆するデザイン手段として機能する。</p>
+
+      <h2 id="grid-and-scroll">タイルサイズ、グリッド整列、スクリーンスクロール</h2>
+      <p>タイルサイズの選択はゲームの操作感と視覚的精度の両方を決定する根本的なパラメータである。タイルが大きければ描画コストが下がりレベル構築が速くなる一方、細部の表現が粗くなる。タイルが小さければ表現力は増すがデータ量と管理コストが増大する。</p>
+      <p>Captain Clawは<strong>64×64ピクセル</strong>のタイルを採用した。これは1990年代後半のPC解像度（典型的には640×480）に対して画面横幅に約10タイル分が収まる計算になり、十分な視野と豊かな絵柄を両立している。プレイヤーキャラクターの幅は約2タイル分であるため、ジャンプや移動の精度に対するグリッドの影響が体感しやすい大きさである。</p>
+
+      <h3>グリッド整列とスナッピング</h3>
+      <p>タイルマップ上のオブジェクトはグリッドの格子点に整列させることを基本とする。プレイヤーがジャンプで届く足場・落とせない奈落の縁・ドアや宝箱の配置はすべてタイルグリッドの倍数座標に置かれる。これにより設計者はピクセル単位の調整を必要とせず、「タイル何個分のジャンプが必要か」という直感的な尺度でレベルを組み立てられる。OpenClawは<a href="wwd-level-format.html">WWDフォーマット</a>から読み込んだオブジェクト座標を内部的にはピクセル精度で保持しつつ、エディタ表示時はグリッドスナップを基準にする設計を踏襲している。</p>
+
+      <h3>スクリーンスクロールの実装</h3>
+      <p>スクロール型プラットフォーマーでは、仮想的なカメラがプレイヤーに追随して巨大なタイルマップの一部をビューポートに切り出す。最も単純な実装はプレイヤーを常に画面中央に保つセンタリング追尾だが、Captain Clawを含む多くの1990年代ゲームはデッドゾーン（プレイヤーがこの矩形内にいる間はカメラを動かさない領域）を設けて急激なカメラ移動を抑制している。<a href="sdl2-engine.html">OpenClawのSDL2エンジン</a>はカメラ位置をワールド座標で管理し、各フレームの描画時に全レイヤーのタイルオフセットをそれぞれのパララックス係数で調整して渡す。画面外のタイルは描画呼び出しに含まれないため、大きなマップでも描画負荷は一定に保たれる。</p>
+
+      <h2 id="object-placement">グリッド上のオブジェクト配置</h2>
+      <p>タイルマップはゲーム世界の「地形」を定義するが、そこに生命を吹き込むのはタイルグリッドとは独立した座標系で管理されるオブジェクト層である。敵キャラクター・コレクタブルなアイテム・ハザード・ギミックはすべてこのオブジェクト層に属する。</p>
+
+      <h3>敵の配置とパトロール範囲</h3>
+      <p>敵の初期位置はタイルグリッドに合わせた座標で定義されることが多いが、パトロール経路は「左端タイルX座標から右端タイルX座標まで往復する」というグリッド相対指定が便利である。<a href="captain-claw-gameplay.html">Captain Clawの衛兵や兵士</a>のパトロール範囲は<a href="wwd-level-format.html">WWDオブジェクトレコード</a>の属性フィールドに格納されており、OpenClawはこれをAIステートマシンの折り返し点として読み込む。パトロール中の敵を足場の端に到達したら折り返させる簡易実装では、タイルの「端検出」コリジョンを利用する設計が一般的である。</p>
+
+      <h3>ピックアップとハザードの配置原理</h3>
+      <p>コレクタブルなアイテム（コイン・宝石・体力回復）は、プレイヤーの自然な動線上に少量ずつ配置することで、探索行動を誘導するパンくずとして機能させる設計が有効である。一方、高価値の宝は脇道や高所に置き、リスクとリターードのトレードオフを生む。スパイク床・炎噴射・落石などのハザードは、プレイヤーが反射的に回避行動を取れるよう、入力から結果まで一定のリードタイムを持たせた配置が推奨される。Captain Clawではほぼすべてのハザードがアクションプレーン内の特殊タイルとして表現されており、オブジェクトテーブルに登録された実体を持たないケースが多い。</p>
+
+      <h2 id="design-patterns">レベルデザインパターン</h2>
+      <p>タイルベース2Dプラットフォーマーのレベル設計には、長年の実践から蓄積された定石パターンが存在する。Captain Clawはそれらのパターンを教科書的に活用したゲームであり、<a href="captain-claw-levels.html">14のアクト</a>を通じて多彩な組み合わせを見せる。</p>
+
+      <h3>秘密の経路</h3>
+      <p>プレイヤーが見つけることを期待されていない隠し通路は、タイルベースゲームの探索報酬の代表例である。実装手法としては、①薄い壁（当たり判定を持つが視覚的に隙間があるタイル列）を壊して進む、②画面外まで伸びたプラットフォームの先に入口がある、③前景タイルで完全に隠れた空間への通路がある、などが一般的である。Captain Clawの隠し部屋は多くの場合、破壊可能なクレートの裏か、ジャンプで届くように思えない上方のプラットフォームの先にある。<a href="openclaw.html">OpenClaw</a>はWWDデータに記録された各部屋のコリジョン定義をそのまま再現するため、隠し経路も意図通りに機能する。</p>
+
+      <h3>垂直探索</h3>
+      <p>水平スクロールが主体のプラットフォーマーでも、縦方向への探索を促す設計は深みを生む。上部に宝が隠れた高い塔、下部に隠しルートがある深い縦穴、ロープやはしごを使った縦移動セクションがその典型である。垂直探索は画面外を把握するための「メンタルマップ構築」をプレイヤーに促し、探索達成感を高める。Captain Clawのアクト4（ジャングル）では、木の頂上へ向かうルートと地下の遺跡へ向かうルートが分岐し、それぞれに異なる宝と敵が配置されている。</p>
+
+      <h3>プラットフォーミングチャレンジ</h3>
+      <p>タイルサイズとプレイヤーのジャンプ能力から逆算して設計される精密ジャンプセクションは、純粋な操作技量を問う挑戦として機能する。代表的なパターンは、①落下即死の奈落を越える最小幅の足場列、②移動する足場への連続ジャンプ、③スパイクや砲弾ハザードを避けながら登るはしごセクション、である。Captain Clawのアクト9（氷ワールド）では滑る床タイルが通常の停止距離を変化させ、「氷上でのプラットフォーミング」という専用チャレンジを構成している。</p>
+
+      <h2 id="openclaw-implementation">OpenClawにおけるタイルレンダリング実装</h2>
+      <p><a href="openclaw.html">OpenClaw</a>のタイルレンダリングは、<a href="sdl2-engine.html">SDL2エンジン</a>上に構築されたレイヤー別描画パイプラインで実現されている。起動時に<a href="wwd-level-format.html">WWDレベルファイル</a>を読み込み、各プレーンのタイルインデックスグリッドをメモリに展開する。レンダリングループではまず背景プレーンを描画し、次にアクションプレーンのタイルと全エンティティ（プレイヤー・敵・エフェクト）を描画し、最後に前景プレーンを重ねることで正しい描画順を保証する。</p>
+      <p>タイルセット画像はCLAW.REZアーカイブから展開したPCXファイルをSDL2テクスチャに変換して管理する。各フレームの描画では、現在のカメラオフセットと各プレーンのパララックス係数から描画領域のタイル範囲を計算し、その範囲内のタイルのみをSDL_RenderCopyでブリットする。タイルインデックス0は透明扱いとしてスキップされるため、疎なマップでも余計な描画コールが発生しない。</p>
+      <p>コリジョンレイヤーの生成は起動時に一度だけ行われる。アクションプレーンのタイルのうちコリジョン属性ビットが立つものの境界辺をBox2Dエッジシェイプに変換し、隣接する辺を連結してチェーンシェイプにまとめる。このアプローチにより、プレイヤーが隣接タイルの境界で引っかかる「エッジキャッチ」問題を最小化している。動的に変化するタイル（破壊可能なクレートなど）については、破壊イベント発生時にBox2Dボディを個別に削除する処理が実装されている。</p>
+
+      <h2 id="tools">1990年代ツール対現代のタイルエディタ</h2>
+      <p>Captain Clawが開発された1990年代後半、Monolith Productionsは自社製の専用レベルエディタを使用してWWDファイルを作成した。当時の商用ゲームでは、エンジンとツールチェーンを同一チームが内製することが一般的であり、エディタは特定のゲームのデータ形式に特化した専用ツールであった。UIはシンプルなグリッドビューとプロパティパネルから構成され、タイルのスタンプ配置・オブジェクト設置・スクリプトイベントの設定が主な機能であった。</p>
+      <p>現代ではオープンソースの汎用タイルエディタ<strong>Tiled</strong>（mapeditor.org）が広く採用されており、TMX/JSON形式でのデータ出力、複数レイヤー管理、オブジェクトレイヤーのプロパティ編集、カスタムタイルセット管理などを統合したGUIを提供する。OpenClawのコミュニティでも追加コンテンツ作成の可能性を探る際にTiledのような現代ツールが参照されるが、メインの読み込みパイプラインはあくまでオリジナルのWWDバイナリフォーマットをターゲットとしている。</p>
+      <p>1990年代ツールと現代ツールの最大の違いは<strong>ライブプレビュー</strong>と<strong>Undo/Redo</strong>の充実度である。当時のツールはタイルを配置した後にゲームを別途起動して確認する作業が必要だったが、現代のエディタはリアルタイムプレビューと無制限のUndoを提供する。また、現代のツールはGitなどのバージョン管理システムと親和性の高いテキスト系フォーマットを出力できるため、チームによる共同作業が容易になっている。一方で、専用フォーマットに特化した1990年代ツールは特定ゲームのプロパティ（パトロール範囲・スクリプトイベントID・音楽トラック指定など）を直感的に編集できるアドバンテージがあった。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#history">歴史：アーケードから1990年代PCゲームへ</a></li>
+          <li><a href="#layers">タイルマップのレイヤー構成</a></li>
+          <li><a href="#grid-and-scroll">タイルサイズ、グリッド整列、スクリーンスクロール</a></li>
+          <li><a href="#object-placement">グリッド上のオブジェクト配置</a></li>
+          <li><a href="#design-patterns">レベルデザインパターン</a></li>
+          <li><a href="#openclaw-implementation">OpenClawにおけるタイルレンダリング実装</a></li>
+          <li><a href="#tools">1990年代ツール対現代のタイルエディタ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw-levels.html">キャプテン・クロウ レベルデザイン</a></li>
+          <li><a href="captain-claw-gameplay.html">キャプテン・クロウ ゲームプレイ機能</a></li>
+          <li><a href="wwd-level-format.html">WWDレベルフォーマット</a></li>
+          <li><a href="sdl2-engine.html">SDL2エンジン</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw-levels.html">キャプテン・クロウ レベルデザイン</a></li>
+        <li><a href="captain-claw-gameplay.html">キャプテン・クロウ ゲームプレイ機能</a></li>
+        <li><a href="wwd-level-format.html">WWDレベルフォーマット</a></li>
+        <li><a href="sdl2-engine.html">SDL2エンジン</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

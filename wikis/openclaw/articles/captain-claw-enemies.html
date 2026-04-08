@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Claw 敵キャラクター図鑑 - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Captain Claw 敵キャラクター図鑑
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Captain Claw 敵キャラクター図鑑</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary"><a href="captain-claw.html">Captain Claw</a>（1997年）に登場する敵キャラクターの全体像を解説し、基本兵士からボスまでの種別・AI行動パターン・難易度スケーリングを網羅するとともに、<a href="openclaw.html">OpenClaw</a>がそれらをC++のステートマシンとBox2D衝突検知で再実装した方法を詳述します。</div>
+
+      <p><b>Captain Claw 敵キャラクター図鑑</b>は、<a href="captain-claw.html">Captain Claw</a>（Monolith Productions, 1997年）の14レベルにわたってキャプテン・クロウの行く手を阻む敵キャラクターを体系的に分類・解説した記事です。本作には海賊兵士・動物型クリーチャー・魔法使い・水棲生物・ボスなど多様な敵が登場し、各ワールドのテーマに沿ったデザインで段階的に難易度が上昇します。<a href="openclaw.html">OpenClaw</a>プロジェクトはこれらの敵の挙動をC++のステートマシンとして忠実に再現しており、AIロジックの詳細が現代の開発者にとって参照可能な形で公開されています。<a href="captain-claw-gameplay.html">ゲームプレイ機能</a>の記事で説明される戦闘システムと密接に連携し、敵ごとに異なるヒットポイント・攻撃パターン・衝突ジオメトリが定義されています。</p>
+
+      <h2 id="enemy-categories">敵キャラクターの分類</h2>
+      <p>Captain Clawの敵は大きく五つのカテゴリーに分類できます。各カテゴリーは出現するワールドのテーマと難易度帯に対応しており、プレイヤーが進むにつれて新しい種類が段階的に導入されます。</p>
+      <ul>
+        <li><strong>基本兵士（オフィサー・海賊・ネズミ）</strong>——ゲーム序盤に登場する汎用的な陸上敵。近接攻撃主体で、一部は射撃も行います。最も数が多く、あらゆるワールドで変種が登場します。</li>
+        <li><strong>動物型クリーチャー（オウム・トラ・オーガ）</strong>——特定のワールドテーマに紐づく動物・怪物系の敵。基本兵士より体力が高く、特殊な攻撃パターンを持ちます。</li>
+        <li><strong>水棲生物（サメ・人魚・魚人）</strong>——水中ゾーン専用の敵。陸上の移動物理とは異なるルールで動作し、プレイヤーに水中移動の習熟を要求します。</li>
+        <li><strong>特殊敵（スリ・魔法使い・罠番）</strong>——固有のギミックを持つ敵。スリは接触時にコインを奪い、魔法使いはテレポートや魔法弾を使用します。</li>
+        <li><strong>ボス</strong>——各ワールドの最終関門として登場するマルチフェーズの強敵。通常の敵より大幅に高い体力と複数の攻撃パターンを持ちます。</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 370" width="720" height="370">
+          <rect width="720" height="370" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="360" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Captain Claw 敵キャラクター分類図</text>
+
+          <!-- Root node -->
+          <rect x="270" y="48" width="180" height="40" rx="8" fill="#dbeafe" stroke="#3366cc" stroke-width="2"/>
+          <text x="360" y="73" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">全敵キャラクター</text>
+
+          <!-- Category nodes -->
+          <!-- 基本兵士 -->
+          <rect x="20" y="130" width="130" height="44" rx="6" fill="#dcfce7" stroke="#36c" stroke-width="1.5"/>
+          <text x="85" y="149" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">基本兵士</text>
+          <text x="85" y="165" text-anchor="middle" font-size="10" fill="#444">オフィサー・海賊・ネズミ</text>
+
+          <!-- 動物型 -->
+          <rect x="165" y="130" width="130" height="44" rx="6" fill="#fef9c3" stroke="#36c" stroke-width="1.5"/>
+          <text x="230" y="149" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">動物型クリーチャー</text>
+          <text x="230" y="165" text-anchor="middle" font-size="10" fill="#444">オウム・トラ・オーガ</text>
+
+          <!-- 水棲 -->
+          <rect x="310" y="130" width="130" height="44" rx="6" fill="#e0f2fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="375" y="149" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">水棲生物</text>
+          <text x="375" y="165" text-anchor="middle" font-size="10" fill="#444">サメ・人魚・魚人</text>
+
+          <!-- 特殊 -->
+          <rect x="455" y="130" width="130" height="44" rx="6" fill="#fce7f3" stroke="#36c" stroke-width="1.5"/>
+          <text x="520" y="149" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">特殊敵</text>
+          <text x="520" y="165" text-anchor="middle" font-size="10" fill="#444">スリ・魔法使い・罠番</text>
+
+          <!-- ボス -->
+          <rect x="600" y="130" width="100" height="44" rx="6" fill="#ede9fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="650" y="149" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ボス</text>
+          <text x="650" y="165" text-anchor="middle" font-size="10" fill="#444">マルチフェーズ</text>
+
+          <!-- Connector lines from root to categories -->
+          <line x1="360" y1="88" x2="85" y2="130" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="88" x2="230" y2="130" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="88" x2="375" y2="130" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="88" x2="520" y2="130" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="88" x2="650" y2="130" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Sub-type detail boxes -->
+          <!-- 基本兵士サブ -->
+          <rect x="10" y="218" width="150" height="36" rx="5" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="85" y="233" text-anchor="middle" font-size="10" fill="#202122">HP: 低〜中</text>
+          <text x="85" y="247" text-anchor="middle" font-size="10" fill="#202122">攻撃: 近接 / 射撃</text>
+          <line x1="85" y1="174" x2="85" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- 動物型サブ -->
+          <rect x="158" y="218" width="145" height="36" rx="5" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="230" y="233" text-anchor="middle" font-size="10" fill="#202122">HP: 中〜高</text>
+          <text x="230" y="247" text-anchor="middle" font-size="10" fill="#202122">攻撃: 突進 / 爪</text>
+          <line x1="230" y1="174" x2="230" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- 水棲サブ -->
+          <rect x="308" y="218" width="135" height="36" rx="5" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="375" y="233" text-anchor="middle" font-size="10" fill="#202122">HP: 中</text>
+          <text x="375" y="247" text-anchor="middle" font-size="10" fill="#202122">攻撃: 接触 / 魔法弾</text>
+          <line x1="375" y1="174" x2="375" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- 特殊サブ -->
+          <rect x="448" y="218" width="145" height="36" rx="5" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="520" y="233" text-anchor="middle" font-size="10" fill="#202122">HP: 低〜中</text>
+          <text x="520" y="247" text-anchor="middle" font-size="10" fill="#202122">特技: 盗難 / 瞬間移動</text>
+          <line x1="520" y1="174" x2="520" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- ボスサブ -->
+          <rect x="597" y="218" width="110" height="36" rx="5" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="652" y="233" text-anchor="middle" font-size="10" fill="#202122">HP: 非常に高い</text>
+          <text x="652" y="247" text-anchor="middle" font-size="10" fill="#202122">フェーズ変化あり</text>
+          <line x1="650" y1="174" x2="650" y2="218" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- OpenClaw note -->
+          <rect x="160" y="296" width="400" height="34" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.2"/>
+          <text x="360" y="310" text-anchor="middle" font-size="11" fill="#4c1d95">OpenClaw: 全敵タイプをC++ステートマシンとBox2D衝突センサーで実装</text>
+          <text x="360" y="324" text-anchor="middle" font-size="10" fill="#4c1d95">XMLデータ駆動設計により敵パラメータはコード変更なしで調整可能</text>
+        </svg>
+        <div class="diagram-caption">図1: Captain Clawの敵キャラクター分類 — 五大カテゴリーと各グループの基本属性</div>
+      </div>
+
+      <h2 id="ai-state-machine">AI行動パターンとステートマシン</h2>
+      <p>Captain Clawの全ての敵はステートマシンに基づくAIで制御されています。基本的な敵は<strong>パトロール</strong>・<strong>警戒</strong>・<strong>攻撃</strong>・<strong>被弾</strong>・<strong>死亡</strong>の五つの状態を持ち、プレイヤーとの距離や視線判定によって状態間を遷移します。<a href="openclaw.html">OpenClaw</a>はこの設計を忠実に踏襲し、各敵AIクラスがこれらの状態を管理するC++の列挙型と遷移ハンドラーを実装しています。</p>
+
+      <h3>パトロール状態</h3>
+      <p>デフォルト状態のパトロールでは、敵はあらかじめ定義されたウェイポイント間を往復するか、プラットフォームの端や壁に達すると向きを変えて水平に歩き続けます。オフィサーや海賊兵士の多くはこのシンプルなパトロールを取り、特定エリアを周期的に行き来します。一部の上位兵士は複数のウェイポイントを経由するより複雑なルートを持ちます。OpenClawではパトロール経路はXMLのレベルデータで定義されており、エンジンが読み込み時に各敵エンティティへ割り当てます。</p>
+
+      <h3>警戒・追跡状態</h3>
+      <p>プレイヤーが検知半径（Box2Dセンサーサークルで実装）に入ると、敵は警戒状態に移行してパトロールを中断します。警戒状態では敵はプレイヤーの方向を向いて接近し始め、攻撃距離に入ると攻撃状態へ遷移します。オフィサーや上級衛兵はより広い検知半径を持ち、早期にプレイヤーに反応します。一部の敵は高度な視線チェックも行い、壁や遮蔽物を通して反応しないよう実装されています。</p>
+
+      <h3>攻撃状態</h3>
+      <p>攻撃状態では敵はそれぞれの攻撃アニメーションを再生してダメージを与えます。近接攻撃型は振り下ろしや突き攻撃のヒットボックスを一時的に有効化し、遠距離攻撃型は射撃物エンティティを生成します。攻撃後にクールダウンタイマーが設定され、その間は次の攻撃ができません。このクールダウン値はXMLデータで敵ごとに設定可能であり、OpenClawのバランス調整の柔軟性を支えています。</p>
+
+      <h3>後退・逃走状態</h3>
+      <p>一部の敵タイプ（特にスリや逃走行動が設定された特殊敵）は体力が一定値を下回ると後退状態に遷移し、プレイヤーから距離を取ろうとします。この後退はプレイヤーに追撃を促す動的な緊張感を生み出します。ボスの一部は特定のフェーズ間に短い後退モーションを挟み、次の攻撃フェーズへの予兆として機能します。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340">
+          <rect width="660" height="340" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="330" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">敵AI ステートマシン図</text>
+
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#3366cc"/>
+            </marker>
+            <marker id="arr3" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+
+          <!-- State boxes -->
+          <!-- Patrol -->
+          <rect x="250" y="48" width="160" height="44" rx="8" fill="#dcfce7" stroke="#36c" stroke-width="2"/>
+          <text x="330" y="66" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">パトロール</text>
+          <text x="330" y="82" text-anchor="middle" font-size="10" fill="#444">PATROL</text>
+
+          <!-- Alert -->
+          <rect x="450" y="140" width="160" height="44" rx="8" fill="#fef9c3" stroke="#36c" stroke-width="2"/>
+          <text x="530" y="158" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">警戒・追跡</text>
+          <text x="530" y="174" text-anchor="middle" font-size="10" fill="#444">ALERT / CHASE</text>
+
+          <!-- Attack -->
+          <rect x="250" y="230" width="160" height="44" rx="8" fill="#fce7f3" stroke="#36c" stroke-width="2"/>
+          <text x="330" y="248" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">攻撃</text>
+          <text x="330" y="264" text-anchor="middle" font-size="10" fill="#444">ATTACK</text>
+
+          <!-- Retreat -->
+          <rect x="50" y="140" width="160" height="44" rx="8" fill="#e0f2fe" stroke="#36c" stroke-width="2"/>
+          <text x="130" y="158" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">後退</text>
+          <text x="130" y="174" text-anchor="middle" font-size="10" fill="#444">RETREAT</text>
+
+          <!-- Dead -->
+          <rect x="250" y="140" width="160" height="44" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="330" y="158" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">被弾 / 死亡</text>
+          <text x="330" y="174" text-anchor="middle" font-size="10" fill="#444">HIT / DEAD</text>
+
+          <!-- Transition arrows -->
+          <!-- Patrol -> Alert: player enters sensor -->
+          <path d="M 410 70 Q 490 70 490 140" stroke="#3366cc" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="480" y="105" text-anchor="middle" font-size="9" fill="#3366cc">プレイヤー検知</text>
+
+          <!-- Alert -> Attack: in range -->
+          <path d="M 450 162 Q 410 185 410 230" stroke="#3366cc" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="445" y="210" text-anchor="middle" font-size="9" fill="#3366cc">攻撃距離内</text>
+
+          <!-- Attack -> Patrol: player lost -->
+          <path d="M 250 252 Q 170 252 170 162 Q 170 90 250 70" stroke="#a2a9b1" stroke-width="1.5" fill="none" marker-end="url(#arr3)"/>
+          <text x="158" y="200" text-anchor="start" font-size="9" fill="#555">見失った</text>
+
+          <!-- Alert -> Retreat: HP low -->
+          <path d="M 450 162 Q 300 162 290 162" stroke="#3366cc" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+
+          <path d="M 450 162 Q 290 162 210 162" stroke="#3366cc" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="325" y="153" text-anchor="middle" font-size="9" fill="#3366cc">HP低下</text>
+
+          <!-- Any state -> Dead: HP = 0 -->
+          <path d="M 330 92 L 330 140" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="347" y="120" text-anchor="start" font-size="9" fill="#dc2626">HP=0</text>
+
+          <!-- Attack -> Hit -->
+          <path d="M 330 230 L 330 184" stroke="#dc2626" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="347" y="212" text-anchor="start" font-size="9" fill="#dc2626">被弾</text>
+
+          <!-- OpenClaw note -->
+          <rect x="100" y="300" width="460" height="24" rx="5" fill="#ede9fe" stroke="#6d28d9" stroke-width="1"/>
+          <text x="330" y="316" text-anchor="middle" font-size="10" fill="#4c1d95">OpenClaw: Box2Dセンサーフィクスチャが検知判定、C++ステートマシンが状態遷移を管理</text>
+        </svg>
+        <div class="diagram-caption">図2: 基本敵AIのステートマシン — 五つの状態とBox2Dセンサーによる遷移条件</div>
+      </div>
+
+      <h2 id="notable-enemies">主要敵キャラクター詳細</h2>
+      <p>Captain Clawには多数の敵が登場しますが、中でも特徴的なキャラクターについて詳述します。これらの敵はゲームの戦術的多様性を支える重要な要素であり、<a href="captain-claw-levels.html">各レベル</a>の攻略において習熟が求められます。</p>
+
+      <h3>オフィサー（Officers）</h3>
+      <p>ル・ロクスの軍の将校であるオフィサーは、序盤から登場する最も基本的な陸上敵です。青いコートと帽子で識別され、カトラスによる近接攻撃を行います。体力は低く一〜二撃で倒せますが、複数体が同時に出現することが多く集団対処の練習台となります。OpenClawの実装ではオフィサーのヒットボックスはBox2D矩形フィクスチャで定義されており、カトラス攻撃範囲とのオーバーラップ検知でダメージが発生します。</p>
+
+      <h3>ネズミ（Rats）</h3>
+      <p>船倉や下水道を縦横無尽に動き回る小型の敵です。素早い動きと低い姿勢が特徴で、プレイヤーの通常の斬撃が当たりにくく、しゃがみ攻撃や正確な射撃を要求します。ネズミは群れで出現することが多く、一匹あたりのダメージは低いながら集団のDPSは無視できません。OpenClawではネズミの当たり判定は縦方向に圧縮された扁平な矩形で実装されており、プレイヤーの標準攻撃ヒットボックスがそのままでは届かない高さに設定されています。</p>
+
+      <h3>海賊兵士（Pirates）</h3>
+      <p>赤いバンダナを巻いた海賊兵士は汎用的な中級敵として機能します。近接攻撃のみを持つ基本型と、フリントロック銃で遠距離攻撃を行う射撃型の二種類が存在します。射撃型はクロウと同じ高さに立っている場合に射撃を行い、高低差があると近接攻撃に切り替えます。レベルが進むにつれて射撃型の割合が増え、プレイヤーは積極的に高低差を活用した立ち位置の工夫を求められます。</p>
+
+      <h3>オーガ（Ogres）</h3>
+      <p>中盤以降のレベルに登場する大型の人型敵です。通常の敵の二〜三倍の体力を持ち、強力な近接攻撃はクロウに大きなダメージを与えます。動きは遅いものの攻撃範囲が広く、オフィサーや海賊兵士のように簡単には蹴散らせません。一部のオーガは前後の揺れモーションを予備動作として持ち、この予兆を読んで回避するタイミングを覚えることが効率的な攻略につながります。OpenClawではオーガの物理コリジョンは通常敵より大きなAABBフィクスチャを使用しており、当たり判定の広さがゲームプレイに直結しています。</p>
+
+      <h3>トラ（Tigers）</h3>
+      <p>熱帯ワールドや密林ゾーンに登場する四足歩行の動物型敵です。高い移動速度と跳躍攻撃が特徴で、パトロール時から攻撃時への状態遷移が特に素早く、プレイヤーが準備する間を与えません。跳躍攻撃では空中から飛びかかってくるため、通常の地上ヒットボックスへの対応だけでなく空中の軌道を読んだ回避が必要です。スニーク的な配置をされることも多く、狭い通路の先や崖の下で待ち伏せているケースがあります。</p>
+
+      <h3>人魚（Mermaids）</h3>
+      <p>水中ゾーン専用の遠距離攻撃敵です。水平方向に発射される魔法の球体は貫通性能を持たず壁に当たると消えますが、水中では回避できるスペースが限られているため実質的な脅威となります。人魚は逃走AIを持たないため正面から交戦するしかなく、素早い射撃で近づく隙を与えません。先手を取った射撃や水面上からの攻撃が有効な対策となります。OpenClawでは人魚の射撃物はキネマティックなBox2D剛体として生成され、水物理コンテキストフラグが有効な領域内のみで出現・動作するよう制限されています。</p>
+
+      <h3>スリ（Thieves）</h3>
+      <p>素早い動きと接触時のコイン盗難という特殊ギミックを持つ敵です。スリに接触されるとプレイヤーの所持コインが一定量減少するため、スコア重視のプレイヤーにとっては高い優先度で倒すべき敵となります。体力は低く攻撃は弱いものの、積極的に逃走するAIを持ち追いかけ回すことになります。狭い通路での出会いが最も危険で、退路を確保した立ち位置からの素早い排除が求められます。</p>
+
+      <h2 id="boss-encounters">ボス戦：ワールド別攻略</h2>
+      <p>Captain Clawでは各ワールドの最終レベルでボスキャラクターと対決します。ボスはすべてマルチフェーズ設計を採用しており、体力が特定の閾値を下回ると攻撃パターンが変化します。<a href="openclaw.html">OpenClaw</a>はボスのフェーズ管理をXMLイベントトリガーで実装しており、体力割合に基づいてスクリプト化されたフェーズ遷移が発動します。</p>
+
+      <h3>ル・ロクスの軍とボス配置</h3>
+      <p>本作の主要な悪役ルシウス・ル・ロクスはゲーム全体を通じてプレイヤーの宿敵として機能しますが、各ワールドには代理ボスが配置されています。序盤のボスはシンプルな二フェーズ構成で近接と射撃を交互に使用するのみですが、中盤以降のボスは三〜四フェーズを持ち、通常敵の召喚や環境オブジェクトの利用など複雑なパターンを見せます。</p>
+
+      <h3>ボス共通メカニクス</h3>
+      <p>全てのボスに共通する要素として、大型のヒットボックス、高い体力、フェーズ移行時の短無敵時間、専用の戦闘アリーナがあります。アリーナは多くの場合プレイヤーの逃げ場を限定する閉鎖空間であり、ボスの攻撃を受けつつ隙に攻撃を差し込む判断力が問われます。一部のボスは体力が低下するとフェーズ間に短い後退モーションを挟み、次のフェーズ開始を視覚的に通知します。</p>
+      <p>OpenClawのボス実装では、フェーズ移行はエンジンのイベントシステムを通じてトリガーされます。体力が設定された閾値を下回ると、ボスエンティティのAIコンポーネントが遷移イベントを受け取り、新しい攻撃パターンのセットを読み込みます。この設計はボスごとにコードを書き直す必要がなく、XMLデータを変更するだけで新しいボスパターンを追加できる拡張性を実現しています。</p>
+
+      <h2 id="openclaw-implementation">OpenClawにおける実装詳細</h2>
+      <p><a href="openclaw.html">OpenClaw</a>プロジェクトは敵AIと衝突システムを現代のC++で再実装しており、<a href="box2d-physics.html">Box2D物理エンジン</a>を衝突検知の基盤として活用しています。この実装の詳細はオープンソースコードとして公開されており、ゲーム保存の観点から貴重な参照資料となっています。</p>
+
+      <h3>敵ステートマシンのC++実装</h3>
+      <p>各敵タイプはC++クラスとして定義され、基底クラスの<code>BaseEnemy</code>からパトロール・検知・攻撃の基本ロジックを継承します。派生クラスは固有の攻撃パターン、移動速度、ヒットポイント値をオーバーライドします。状態管理は列挙型<code>EnemyState</code>と対応するハンドラー関数テーブルで実装されており、各フレームで現在の状態に応じた更新関数が呼ばれます。</p>
+
+      <h3>衝突検知とヒットボックス設計</h3>
+      <p>全ての敵は少なくとも二種類のBox2Dフィクスチャを持ちます。一つは物理的な衝突（床や壁との接触）のためのソリッドフィクスチャで、もう一つはプレイヤーの攻撃や視線判定のためのセンサーフィクスチャです。攻撃ヒットボックスは攻撃アニメーションのフレームに同期して有効・無効が切り替わり、空振り時のダメージ判定を防ぎます。センサーの半径はXMLの敵定義ファイルで設定されており、検知距離をデータとして管理できます。</p>
+
+      <h3>難易度スケーリング</h3>
+      <p>Captain Clawの難易度は複数の機構で段階的に上昇します。レベルが進むにつれて出現する敵の数が増加し、高体力・高ダメージの上位バリアントが増えます。また<a href="captain-claw-levels.html">レベルデザイン</a>との相乗効果として、後半レベルでは縦方向に複雑な地形や落下即死エリアが増え、敵との戦闘自体よりも戦闘しながら足場を維持することへの難易度が上昇します。OpenClawの実装ではこの難易度スケーリングはハードコードされず、各レベルのXMLスポーンデータが敵の種類と数を決定します。</p>
+
+      <p>これらの敵キャラクターが生み出す戦闘メカニクスの全体像については、<a href="captain-claw-gameplay.html">ゲームプレイ機能</a>の記事を参照してください。また物理エンジンの詳細は<a href="box2d-physics.html">OpenClawにおけるBox2D物理</a>で解説しています。<a href="captain-claw-levels.html">レベル解説</a>では各ワールドでの敵配置の文脈が確認できます。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#enemy-categories">敵キャラクターの分類</a></li>
+          <li><a href="#ai-state-machine">AI行動パターンとステートマシン</a></li>
+          <li><a href="#notable-enemies">主要敵キャラクター詳細</a></li>
+          <li><a href="#boss-encounters">ボス戦：ワールド別攻略</a></li>
+          <li><a href="#openclaw-implementation">OpenClawにおける実装詳細</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw ゲームプレイ機能</a></li>
+          <li><a href="box2d-physics.html">Box2D Physics</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw レベル解説</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw ゲームプレイ機能</a></li>
+        <li><a href="box2d-physics.html">Box2D Physics</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw レベル解説</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
