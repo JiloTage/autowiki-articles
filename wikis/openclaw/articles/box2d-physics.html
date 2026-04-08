@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Box2D Physics in Platform Games - OpenClaw</title>
+  <title>プラットフォームゲームにおけるBox2D物理 - OpenClaw</title>
   <link rel="stylesheet" href="../../../assets/css/wiki.css">
 </head>
 <body>
@@ -21,31 +21,31 @@
   <div class="breadcrumb">
     <a href="../../../index.html">Auto-Wiki</a> &gt;
     <a href="../index.html">OpenClaw</a> &gt;
-    Box2D Physics in Platform Games
+    プラットフォームゲームにおけるBox2D物理
   </div>
 
   <div class="wiki-content">
     <main class="wiki-main">
-      <h1 class="article-title">Box2D Physics in Platform Games</h1>
+      <h1 class="article-title">プラットフォームゲームにおけるBox2D物理</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">Box2D is an open-source 2D rigid body simulation library by Erin Catto that powers the physics engine in <a href="openclaw.html">OpenClaw</a>, handling character movement, collision detection, projectile arcs, and environmental interactions in a faithful recreation of classic platformer behaviour.</div>
+      <div class="article-summary">Box2D は Erin Catto によるオープンソースの 2D 剛体シミュレーションライブラリで、<a href="openclaw.html">OpenClaw</a> の物理エンジンを駆動しています。キャラクターの動き・衝突判定・発射物の弾道・環境との相互作用を処理し、クラシックなプラットフォームアクションの挙動を忠実に再現します。</div>
 
-      <h2 id="overview">Overview of Box2D</h2>
-      <p><b>Box2D Physics in Platform Games</b> refers to the application of Box2D — a widely-used, open-source 2D rigid body simulation library originally written by Erin Catto — in the context of side-scrolling platformer games. Box2D was introduced at the 2006 Game Developers Conference and has since become one of the most influential physics engines in the independent and hobbyist game-development ecosystem, underpinning engines and games such as Angry Birds and many Ludum Dare entries.</p>
-      <p>In <a href="openclaw.html">OpenClaw</a>, Box2D serves as the authoritative physics layer for the entire simulation. The engine creates a Box2D <em>world</em> object that advances one fixed time step per game tick, keeping physics updates decoupled from the rendering frame rate. All collidable entities — Captain Claw, enemies, platforms, ladders, springs, and projectiles — are represented as Box2D bodies. This separation of physics from rendering allows the <a href="sdl2-engine.html">SDL2 rendering layer</a> to interpolate draw positions between physics steps, producing smooth motion even when the physics rate and display refresh rate differ.</p>
-      <p>Box2D's coordinate system uses metres as its unit of length and operates independently of pixel coordinates. OpenClaw therefore maintains a scale factor (pixels per metre) and transforms between physics space and screen space at both input and output boundaries of the physics step.</p>
+      <h2 id="overview">Box2D の概要</h2>
+      <p><b>プラットフォームゲームにおけるBox2D物理</b>とは、Erin Catto によって書かれた広く使われるオープンソースの 2D 剛体シミュレーションライブラリ Box2D を、横スクロールプラットフォーマーゲームに応用することを指します。Box2D は 2006 年の Game Developers Conference で発表され、それ以降インディおよびホビー系のゲーム開発エコシステムで最も影響力のある物理エンジンのひとつとなり、Angry Birds をはじめ多くの Ludum Dare 出展作品などのエンジンやゲームを支えています。</p>
+      <p><a href="openclaw.html">OpenClaw</a> において、Box2D はシミュレーション全体の権威ある物理レイヤーとして機能します。エンジンはゲームティックごとに固定タイムステップを進める Box2D の <em>world</em> オブジェクトを作成し、物理更新をレンダリングフレームレートから切り離して管理します。Captain Claw・敵・プラットフォーム・はしご・バネ・発射物など衝突可能なすべてのエンティティは Box2D ボディとして表現されます。物理とレンダリングを分離することで、<a href="sdl2-engine.html">SDL2 レンダリングレイヤー</a>は物理ステップ間の描画位置を補間でき、物理レートとディスプレイリフレッシュレートが異なる場合でも滑らかな動きを実現します。</p>
+      <p>Box2D の座標系はメートルを長さの単位として使用し、ピクセル座標とは独立して動作します。そのため OpenClaw はスケールファクター（ピクセル/メートル）を維持し、物理ステップの入出力両方の境界で物理空間とスクリーン空間を相互変換します。</p>
 
-      <h2 id="core-concepts">Core Concepts: Bodies, Fixtures, and Joints</h2>
-      <p>Box2D models the physical world through three principal abstractions: <strong>rigid bodies</strong>, <strong>fixtures</strong>, and <strong>joints</strong>.</p>
-      <p>A <em>rigid body</em> (<code>b2Body</code>) represents a point mass with position, velocity, angular velocity, and mass properties. Bodies may be <em>static</em> (infinite mass, never moves — used for terrain), <em>kinematic</em> (moves under direct velocity control but is not pushed by forces — used for moving platforms), or <em>dynamic</em> (fully simulated under forces, gravity, and collisions — used for the player character and enemies).</p>
-      <p>A <em>fixture</em> (<code>b2Fixture</code>) attaches a collision shape to a body and carries material properties: density (which influences mass), friction coefficient, and restitution (bounciness). Multiple fixtures can be attached to one body, enabling composite collision hulls. The available shape types are:</p>
+      <h2 id="core-concepts">コアコンセプト：ボディ・フィクスチャ・ジョイント</h2>
+      <p>Box2D は物理世界を 3 つの主要な抽象化でモデル化します：<strong>剛体（rigid body）</strong>・<strong>フィクスチャ（fixture）</strong>・<strong>ジョイント（joint）</strong>です。</p>
+      <p><em>剛体</em>（<code>b2Body</code>）は位置・速度・角速度・質量プロパティを持つ点質量を表します。ボディは <em>静的</em>（無限の質量を持ち動かない — 地形に使用）・<em>キネマティック</em>（直接速度制御で動くが力で押されない — 動くプラットフォームに使用）・<em>動的</em>（力・重力・衝突のもとで完全にシミュレートされる — プレイヤーキャラクターや敵に使用）のいずれかになります。</p>
+      <p><em>フィクスチャ</em>（<code>b2Fixture</code>）はボディに衝突形状をアタッチし、密度（質量に影響）・摩擦係数・反発係数（バウンシネス）などのマテリアルプロパティを持ちます。1 つのボディに複数のフィクスチャをアタッチでき、複合衝突ハルを実現します。利用可能な形状タイプは以下の通りです：</p>
       <ul>
-        <li><strong>Polygon</strong> (<code>b2PolygonShape</code>) — a convex polygon; the axis-aligned box is the most common specialisation.</li>
-        <li><strong>Circle</strong> (<code>b2CircleShape</code>) — a disc defined by centre offset and radius; cheap to compute and useful for rolling objects.</li>
-        <li><strong>Edge</strong> (<code>b2EdgeShape</code>) — a single line segment, used for individual terrain edges.</li>
-        <li><strong>Chain</strong> (<code>b2ChainShape</code>) — a connected sequence of line segments sharing ghost vertices to prevent internal edge collisions; the standard choice for level terrain in OpenClaw.</li>
+        <li><strong>Polygon</strong>（<code>b2PolygonShape</code>）— 凸多角形。軸揃えボックスが最も一般的な特殊化です。</li>
+        <li><strong>Circle</strong>（<code>b2CircleShape</code>）— 中心オフセットと半径で定義される円盤。計算コストが低く、転がるオブジェクトに適しています。</li>
+        <li><strong>Edge</strong>（<code>b2EdgeShape</code>）— 1 本の線分。個々の地形エッジに使用されます。</li>
+        <li><strong>Chain</strong>（<code>b2ChainShape</code>）— ゴーストバーテックスを共有した連結線分列。内部エッジの衝突を防ぎます。OpenClaw のレベル地形の標準的な選択肢です。</li>
       </ul>
-      <p><em>Joints</em> (<code>b2Joint</code> subclasses) constrain relative motion between two bodies. A distance joint keeps two anchor points a fixed length apart, a revolute joint allows rotation around a shared pivot, and a prismatic joint permits sliding along one axis. In platformers these are used for pendulum traps, conveyor mechanisms, and hinged doors.</p>
+      <p><em>ジョイント</em>（<code>b2Joint</code> サブクラス）は 2 つのボディ間の相対運動を制約します。距離ジョイントは 2 つのアンカーポイントを固定距離に保ち、回転ジョイントは共有ピボット周りの回転を許可し、プリズマティックジョイントは 1 軸方向のスライドを許可します。プラットフォームゲームではこれらを振り子トラップ・コンベアメカニズム・ヒンジ扉に使用します。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 370" width="720" height="370">
@@ -125,50 +125,50 @@
         <div class="diagram-caption">図1: Box2D の主要オブジェクト階層 — b2World が b2Body を管理し、各 Body が形状と材質プロパティを持つ b2Fixture を保持する</div>
       </div>
 
-      <h2 id="contact-listener">Contact Listener Pattern in OpenClaw</h2>
-      <p>Box2D provides a callback-based interface, <code>b2ContactListener</code>, that notifies application code when two fixtures begin or end contact, and when contact impulses are computed. OpenClaw subclasses this listener to drive game logic that depends on what is touching what.</p>
-      <p>The four virtual methods available are:</p>
+      <h2 id="contact-listener">OpenClaw におけるコンタクトリスナーパターン</h2>
+      <p>Box2D はコールバックベースのインターフェース <code>b2ContactListener</code> を提供しており、2 つのフィクスチャが接触を開始または終了したとき、および接触インパルスが計算されたときにアプリケーションコードに通知します。OpenClaw はこのリスナーをサブクラス化して、何が何に触れているかに依存するゲームロジックを駆動します。</p>
+      <p>利用可能な 4 つの仮想メソッドは以下の通りです：</p>
       <ul>
-        <li><code>BeginContact(b2Contact*)</code> — fires when two fixtures first overlap. OpenClaw uses this to detect when Claw lands on solid ground (setting an <em>isGrounded</em> flag), when a projectile touches an enemy, and when the player enters a water volume.</li>
-        <li><code>EndContact(b2Contact*)</code> — fires when the overlap ceases. Used to clear the <em>isGrounded</em> flag when Claw walks off an edge, and to end water-physics mode when the character exits a water body.</li>
-        <li><code>PreSolve(b2Contact*, const b2Manifold*)</code> — called before the impulse is computed, allowing the application to disable contact entirely. This is where one-way platform logic lives: if Claw is moving upward or his feet are above the platform surface, the contact is disabled for that step.</li>
-        <li><code>PostSolve(b2Contact*, const b2ContactImpulse*)</code> — called after impulse resolution, providing the actual impulse magnitude. Useful for impact-damage calculations and sound-effect triggering based on collision force.</li>
+        <li><code>BeginContact(b2Contact*)</code> — 2 つのフィクスチャが最初に重なったときに発火します。OpenClaw はこれを使って、Claw が地面に着地したとき（<em>isGrounded</em> フラグをセット）、発射物が敵に当たったとき、プレイヤーが水中に入ったときを検出します。</li>
+        <li><code>EndContact(b2Contact*)</code> — 重なりが解消されたときに発火します。Claw がエッジから歩き出たときに <em>isGrounded</em> フラグをクリアしたり、キャラクターが水中から出たときに水中物理モードを終了するために使用されます。</li>
+        <li><code>PreSolve(b2Contact*, const b2Manifold*)</code> — インパルスが計算される前に呼ばれ、アプリケーションが接触を完全に無効化できます。ここに一方通行プラットフォームのロジックが実装されています：Claw が上方向に動いているか、足がプラットフォーム面より上にある場合、そのステップでは接触が無効化されます。</li>
+        <li><code>PostSolve(b2Contact*, const b2ContactImpulse*)</code> — インパルス解決後に呼ばれ、実際のインパルス大きさを提供します。衝突力に基づく衝撃ダメージ計算や効果音のトリガーに役立ちます。</li>
       </ul>
-      <p>Fixtures carry a <em>user data</em> pointer (a raw <code>void*</code> or a typed pointer in newer Box2D versions) that OpenClaw sets to a pointer to the owning game entity. Inside contact callbacks, OpenClaw casts this pointer to its internal <code>ActorComponent</code> type to identify which game object was involved, then dispatches the appropriate game event through the event system.</p>
+      <p>フィクスチャは <em>ユーザーデータ</em> ポインタ（生の <code>void*</code> または新しい Box2D バージョンではタイプドポインタ）を持ちます。OpenClaw はこれを所有するゲームエンティティへのポインタに設定します。コンタクトコールバック内で OpenClaw はこのポインタを内部の <code>ActorComponent</code> 型にキャストして関係するゲームオブジェクトを特定し、イベントシステムを通じて適切なゲームイベントをディスパッチします。</p>
 
-      <h2 id="platform-challenges">Platform-Specific Physics Challenges</h2>
-      <p>Platformer games impose requirements on physics that are unusual in other genres. Several challenges arise directly in <a href="captain-claw-gameplay.html">Captain Claw's gameplay</a> and must be handled carefully on top of Box2D's general-purpose simulation.</p>
-      <p><strong>One-way platforms</strong> (platforms the character can jump up through but lands on top of) are implemented via the <code>PreSolve</code> callback. A fixture category flag marks a surface as one-directional. Each frame, the callback checks the contact normal direction and the player's vertical velocity; if the player is moving upward or the contact normal points downward from the platform's perspective, the contact is disabled. Because <code>PreSolve</code> is called every sub-step, the platform feels solid the moment the player's trajectory inverts.</p>
-      <p><strong>Slopes</strong> create a problem known as <em>ghost collisions</em>: when a body slides along a chain of edge shapes, internal vertices can catch the shape and impart unexpected upward impulses. Box2D's chain shape addresses this by storing ghost vertices — the previous and next segment endpoints — so the solver treats adjacent edges as smoothly connected, preventing snagging.</p>
-      <p><strong>Moving platforms</strong> are kinematic bodies whose velocity is set each frame by a scripted path. Because kinematic bodies transfer momentum, a character standing on a moving platform inherits its horizontal velocity via friction. OpenClaw supplements this by directly adding the platform's velocity delta to the character's velocity when the contact listener confirms the player is grounded on a kinematic surface, preventing the subtle slipping that pure friction sometimes introduces at low frame rates.</p>
-      <p><strong>Conveyor belts</strong> are static bodies (they don't move themselves) whose surface friction is overridden in <code>PreSolve</code> using <code>b2Contact::SetTangentSpeed</code>, which injects a target tangential velocity into the contact, effectively dragging the player character in one direction without requiring the tile geometry to move.</p>
+      <h2 id="platform-challenges">プラットフォーム固有の物理課題</h2>
+      <p>プラットフォームゲームは他のジャンルでは珍しい要件を物理に課します。<a href="captain-claw-gameplay.html">Captain Claw のゲームプレイ</a>では複数の課題が直接発生し、Box2D の汎用シミュレーションの上に慎重に対処する必要があります。</p>
+      <p><strong>一方通行プラットフォーム</strong>（キャラクターが下から飛び越えられるが上から乗ることができるプラットフォーム）は <code>PreSolve</code> コールバックで実装されます。フィクスチャのカテゴリフラグが面を一方向として示します。毎フレーム、コールバックは接触法線の方向とプレイヤーの垂直速度を確認します。プレイヤーが上方向に動いているか、接触法線がプラットフォームの視点から下方向を向いている場合、接触は無効化されます。<code>PreSolve</code> は各サブステップごとに呼ばれるため、プレイヤーの軌道が反転した瞬間にプラットフォームが固体として感じられます。</p>
+      <p><strong>斜面</strong>は<em>ゴーストコリジョン</em>と呼ばれる問題を引き起こします：ボディがエッジ形状の連鎖に沿ってスライドするとき、内部頂点がボディを引っかけて予期せぬ上方向のインパルスを与えることがあります。Box2D のチェーン形状はゴーストバーテックス（前後のセグメントのエンドポイント）を格納することでこれに対処し、ソルバーが隣接するエッジをスムーズに連結されたものとして扱い、引っかかりを防ぎます。</p>
+      <p><strong>動くプラットフォーム</strong>はキネマティックボディで、スクリプト化されたパスによって毎フレーム速度が設定されます。キネマティックボディは運動量を伝達するため、動くプラットフォーム上に立つキャラクターは摩擦によってその水平速度を受け取ります。OpenClaw はコンタクトリスナーがプレイヤーがキネマティックサーフェス上に接地していることを確認した際にプラットフォームの速度デルタをキャラクターの速度に直接加算することでこれを補完し、低フレームレートで純粋な摩擦が生じる微妙なスリップを防ぎます。</p>
+      <p><strong>コンベアベルト</strong>は静的ボディ（自分自身は動かない）で、<code>PreSolve</code> 内で <code>b2Contact::SetTangentSpeed</code> を使って表面摩擦をオーバーライドします。これにより接触に目標の接線速度が注入され、タイルのジオメトリを動かすことなくプレイヤーキャラクターを一方向に引っ張る効果が生まれます。</p>
 
-      <h2 id="character-controller">Character Controller Design</h2>
-      <p>The player character's physics body in OpenClaw uses a <em>capsule</em> approximation: a rectangular box fixture for the main body combined with a small circle fixture at the bottom. The circle acts as a foot sensor — its rounded edge allows the character to smoothly ride over small bumps in terrain without catching. A separate, slightly narrower box fixture tagged as a sensor (no collision response) detects the ground below the character, providing the <em>isGrounded</em> state without requiring the main body to be resting on a surface.</p>
-      <p>Direct velocity manipulation replaces force-based movement for a responsive feel. Instead of applying horizontal forces and relying on friction to decelerate, OpenClaw reads the player's input each frame and sets <code>b2Body::SetLinearVelocity</code> for the horizontal component directly, leaving the vertical component under Box2D's gravity. This produces the snappy, precise feel expected of a traditional platformer without the floaty overshoot that pure force application creates.</p>
-      <p>Two timing tricks common in quality platformers are also present:</p>
+      <h2 id="character-controller">キャラクターコントローラーの設計</h2>
+      <p>OpenClaw のプレイヤーキャラクターの物理ボディは<em>カプセル</em>近似を使用しています：メインボディ用の矩形ボックスフィクスチャと底部の小さな円フィクスチャを組み合わせたものです。円は足センサーとして機能し、その丸みのあるエッジによってキャラクターが地形の小さな段差をスムーズに乗り越えられます。若干幅が狭い別のボックスフィクスチャがセンサー（衝突応答なし）としてタグ付けされ、メインボディが表面に乗っていることを要求せずにキャラクター下方の地面を検出して <em>isGrounded</em> 状態を提供します。</p>
+      <p>レスポンシブな感触を実現するため、力ベースの移動の代わりに直接速度操作を採用しています。水平力を適用して摩擦による減速に頼るのではなく、OpenClaw は毎フレームプレイヤーの入力を読み取り、水平コンポーネントに対して直接 <code>b2Body::SetLinearVelocity</code> を設定し、垂直コンポーネントは Box2D の重力のもとに置きます。これにより、純粋な力の適用が生み出すフワフワとした行き過ぎを生じさせることなく、従来のプラットフォーマーに期待されるキビキビとした精密な感触が実現されます。</p>
+      <p>高品質なプラットフォーマーに共通する 2 つのタイミングテクニックも実装されています：</p>
       <ul>
-        <li><strong>Coyote time</strong>: after Claw walks off a ledge, a small timer (typically 6–10 frames) continues to allow a jump input to trigger a jump. The <em>isGrounded</em> flag is not immediately cleared when <code>EndContact</code> fires; instead it is cleared only after the coyote window expires without a new ground contact. This makes edge-traversal feel forgiving.</li>
-        <li><strong>Jump buffering</strong>: if the player presses the jump button a few frames before landing, the jump fires immediately on landing rather than being dropped. A jump-buffer timer is set on the button press; if the character becomes grounded while the timer is still active, the jump is executed.</li>
+        <li><strong>コヨーテタイム</strong>：Claw が崖の端から歩き出した後、短時間（通常 6〜10 フレーム）はジャンプ入力でジャンプが実行できます。<code>EndContact</code> が発火しても <em>isGrounded</em> フラグはすぐにクリアされず、コヨーテウィンドウが期限切れになるか新たな地面接触が確認されるまでクリアされません。これにより崖の端の移動が寛容に感じられます。</li>
+        <li><strong>ジャンプバッファリング</strong>：着地の数フレーム前にジャンプボタンを押すと、着地と同時にジャンプが即座に発動されます。ボタン押下時にジャンプバッファタイマーが設定され、タイマーが有効な間にキャラクターが接地状態になるとジャンプが実行されます。</li>
       </ul>
-      <p>Enemy characters follow a simpler pattern: most patrol enemies use kinematic bodies whose velocity is reversed when a terrain-edge sensor detects a cliff or wall ahead, while airborne enemies and bosses use dynamic bodies with scripted force impulses.</p>
+      <p>敵キャラクターはよりシンプルなパターンに従います。ほとんどのパトロール敵は、前方の地形エッジセンサーが崖や壁を検出すると速度を反転させるキネマティックボディを使用しており、空中の敵やボスはスクリプト化された力のインパルスを持つ動的ボディを使用しています。</p>
 
-      <h2 id="performance-sdl2">Performance and SDL2 Integration</h2>
-      <p>Box2D's collision detection pipeline runs in two stages. The <em>broad phase</em> uses a dynamic AABB tree (<code>b2DynamicTree</code>) to find pairs of bodies whose axis-aligned bounding boxes overlap; this reduces the O(n²) naive pair-testing cost to roughly O(n log n). Only overlapping pairs advance to the <em>narrow phase</em>, where the GJK and EPA algorithms compute exact contact points and penetration depths. Bodies that have been stationary for several steps are put to <em>sleep</em> by the solver, removing them from the simulation until a nearby event wakes them, which substantially reduces CPU cost in large levels.</p>
-      <p>OpenClaw integrates Box2D with the <a href="sdl2-engine.html">SDL2 rendering layer</a> through a coordinate-mapping utility. The physics world uses a scale of approximately 50 pixels per metre so that character dimensions map to realistic Box2D units (a character roughly 1.8 m tall corresponds to about 90 pixels). Each frame, the rendering system reads <code>b2Body::GetPosition()</code> and <code>b2Body::GetAngle()</code>, converts from metre-space to pixel-space, and passes the result to the SDL2 sprite renderer.</p>
-      <p>The physics step is run at a fixed rate (typically 60 Hz) inside the game loop, while SDL2's rendering may run at a different rate on high-refresh displays. OpenClaw computes an <em>alpha</em> interpolation factor from the time accumulated since the last physics step and blends the previous and current physics positions to derive a smooth draw position, preventing the jitter that occurs when the render rate is not a perfect multiple of the physics rate. Debug rendering — drawing Box2D shape outlines directly via SDL2's line-drawing primitives — is available through a compile-time flag, useful for tuning hitboxes and diagnosing collision edge cases.</p>
+      <h2 id="performance-sdl2">パフォーマンスと SDL2 統合</h2>
+      <p>Box2D の衝突検出パイプラインは 2 段階で動作します。<em>ブロードフェーズ</em>は動的 AABB ツリー（<code>b2DynamicTree</code>）を使って軸揃えバウンディングボックスが重なるボディのペアを見つけます。これにより素朴な O(n²) のペアテストコストが概ね O(n log n) に削減されます。重なっているペアだけが<em>ナローフェーズ</em>に進み、GJK および EPA アルゴリズムで正確な接触点と貫通深さが計算されます。数ステップ静止しているボディはソルバーによって<em>スリープ</em>状態に置かれ、近くのイベントで起こされるまでシミュレーションから除外されるため、大規模なレベルでも CPU コストが大幅に削減されます。</p>
+      <p>OpenClaw は座標マッピングユーティリティを通じて Box2D と <a href="sdl2-engine.html">SDL2 レンダリングレイヤー</a>を統合します。物理ワールドは約 50 ピクセル/メートルのスケールを使用し、キャラクターの寸法が現実的な Box2D 単位にマッピングされます（約 1.8m の身長のキャラクターは約 90 ピクセルに相当）。毎フレーム、レンダリングシステムは <code>b2Body::GetPosition()</code> と <code>b2Body::GetAngle()</code> を読み取り、メートル空間からピクセル空間に変換して結果を SDL2 スプライトレンダラーに渡します。</p>
+      <p>物理ステップはゲームループ内で固定レート（通常 60Hz）で実行される一方、SDL2 のレンダリングは高リフレッシュレートのディスプレイでは異なるレートで実行される場合があります。OpenClaw は最後の物理ステップからの経過時間から<em>アルファ</em>補間係数を計算し、前後の物理位置をブレンドして滑らかな描画位置を導出することで、レンダリングレートが物理レートの完全な倍数でない場合に発生するジッターを防ぎます。デバッグレンダリング — SDL2 のライン描画プリミティブで Box2D の形状アウトラインを直接描画 — はコンパイル時フラグで利用可能で、ヒットボックスの調整や衝突エッジケースの診断に役立ちます。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#overview">Overview of Box2D</a></li>
-          <li><a href="#core-concepts">Core Concepts: Bodies, Fixtures, and Joints</a></li>
-          <li><a href="#contact-listener">Contact Listener Pattern in OpenClaw</a></li>
-          <li><a href="#platform-challenges">Platform-Specific Physics Challenges</a></li>
-          <li><a href="#character-controller">Character Controller Design</a></li>
-          <li><a href="#performance-sdl2">Performance and SDL2 Integration</a></li>
+          <li><a href="#overview">Box2D の概要</a></li>
+          <li><a href="#core-concepts">コアコンセプト：ボディ・フィクスチャ・ジョイント</a></li>
+          <li><a href="#contact-listener">OpenClaw におけるコンタクトリスナーパターン</a></li>
+          <li><a href="#platform-challenges">プラットフォーム固有の物理課題</a></li>
+          <li><a href="#character-controller">キャラクターコントローラーの設計</a></li>
+          <li><a href="#performance-sdl2">パフォーマンスと SDL2 統合</a></li>
         </ul>
       </div>
 

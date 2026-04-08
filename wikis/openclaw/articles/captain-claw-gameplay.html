@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Captain Claw Gameplay Mechanics - OpenClaw</title>
+  <title>キャプテン・クロウ ゲームプレイ機能 - OpenClaw</title>
   <link rel="stylesheet" href="../../../assets/css/wiki.css">
 </head>
 <body>
@@ -21,37 +21,37 @@
   <div class="breadcrumb">
     <a href="../../../index.html">Auto-Wiki</a> &gt;
     <a href="../index.html">OpenClaw</a> &gt;
-    Captain Claw Gameplay Mechanics
+    キャプテン・クロウ ゲームプレイ機能
   </div>
 
   <div class="wiki-content">
     <main class="wiki-main">
-      <h1 class="article-title">Captain Claw Gameplay Mechanics</h1>
+      <h1 class="article-title">キャプテン・クロウ ゲームプレイ機能</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">Captain Claw Gameplay Mechanics covers the core systems of the 1997 Monolith Productions platformer — combat, movement, enemy AI, treasure scoring, and health — and describes how <a href="openclaw.html">OpenClaw</a> faithfully reimplements each system using modern C++ and Box2D physics.</div>
+      <div class="article-summary">キャプテン・クロウ ゲームプレイ機能では、1997年Monolith Productions製プラットフォーマーのコアシステム——戦闘、移動、敵AI、トレジャースコアリング、体力——を解説し、<a href="openclaw.html">OpenClaw</a>が現代のC++とBox2D物理を使って各システムをいかに忠実に再実装しているかを説明します。</div>
 
-      <h2 id="core-loop">Core Gameplay Loop</h2>
-      <p><b>Captain Claw Gameplay Mechanics</b> describes the interlocking systems that define how <a href="captain-claw.html">Captain Claw</a> (1997) plays, and how the open-source reimplementation <a href="openclaw.html">OpenClaw</a> reproduces them. At its heart, Captain Claw is a 2D side-scrolling action platformer built around a simple but satisfying loop: explore a level, collect scattered treasure, defeat enemies blocking your path, and reach the exit portal to advance to the next stage.</p>
-      <p>Each of the <a href="captain-claw-levels.html">14 levels</a> presents a self-contained themed world — pirate ships, jungle ruins, an ice fortress, a haunted graveyard — and challenges the player to traverse it horizontally and vertically while accumulating points from treasure. A level score is tallied at the exit, rewarding thorough exploration over a straight rush to the goal. The loop is reinforced by a checkpoint system that saves progress at waypoints within each level, softening the penalty of death without removing tension entirely.</p>
-      <p>OpenClaw preserves this loop precisely: level completion triggers the same score-summary screen, checkpoints restore the player to the same waypoint positions, and the exit portal animation plays correctly on level clear.</p>
+      <h2 id="core-loop">コアゲームプレイループ</h2>
+      <p><b>キャプテン・クロウ ゲームプレイ機能</b>では、<a href="captain-claw.html">Captain Claw</a>（1997年）のプレイを定義する相互連携システムと、オープンソース再実装である<a href="openclaw.html">OpenClaw</a>がそれらをどのように再現しているかを説明します。Captain Clawの核心は、シンプルながら爽快な2D横スクロールアクションプラットフォーマーであり、レベルを探索し、散らばったトレジャーを集め、行く手をふさぐ敵を倒し、出口ポータルに到達して次のステージへ進むというサイクルを中心に構成されています。</p>
+      <p><a href="captain-claw-levels.html">14のレベル</a>それぞれが自己完結したテーマワールド——海賊船、密林の遺跡、氷の要塞、呪われた墓地——を提示し、プレイヤーはトレジャーからポイントを積み上げながら横方向・縦方向に攻略します。レベルスコアは出口で集計され、ゴールへの直進よりも丹念な探索が報われます。このループはチェックポイントシステムによって強化されており、各レベル内のウェイポイントで進行を保存することで、緊張感を失わずに死亡ペナルティを緩和しています。</p>
+      <p>OpenClawはこのループを正確に保持しています。レベルクリア時には同じスコアサマリー画面が表示され、チェックポイントはプレイヤーを同じウェイポイント位置に戻し、レベルクリア時の出口ポータルアニメーションも正しく再生されます。</p>
 
-      <h2 id="combat">Combat System</h2>
-      <p>Combat in Captain Claw revolves around two primary attack modes — melee and ranged — augmented by collectible magic power-ups that temporarily transform either weapon. The combination of close-quarters slashing and long-distance shooting gives the player flexibility when approaching the varied enemy roster.</p>
+      <h2 id="combat">戦闘システム</h2>
+      <p>Captain Clawの戦闘は、近接と遠距離という二つの主要攻撃モードを中心に展開し、どちらの武器も一時的に変化させるコレクタブルな魔法パワーアップで補強されます。近接での斬撃と長距離での射撃の組み合わせにより、多様な敵の構成に柔軟に対応できます。</p>
 
-      <h3>Melee: The Cutlass</h3>
-      <p>Claw's default melee attack swings a cutlass in a short arc in front of him. The engine distinguishes between a standard <em>slash</em> (horizontal sweep) and a <em>stab</em> (forward thrust with slightly longer reach), each dealing different amounts of damage and possessing different hitbox geometries. Skilled players use the stab to poke enemies just outside their own attack range. OpenClaw recreates these hitboxes as Box2D sensor fixtures that activate for the duration of the swing animation frame, firing damage callbacks on contact.</p>
+      <h3>近接攻撃：カトラス</h3>
+      <p>クロウのデフォルトの近接攻撃は、正面の短い弧でカトラスを振ります。エンジンは標準的な<em>斬り</em>（水平の薙ぎ払い）と<em>突き</em>（わずかにリーチの長い前方への突き）を区別しており、それぞれ異なるダメージ量と異なるヒットボックスのジオメトリを持ちます。熟練したプレイヤーは突きを使って、敵の攻撃範囲のわずか外から牽制します。OpenClawはこれらのヒットボックスをBox2Dセンサーフィクスチャとして再現し、スイングアニメーションのフレーム期間中に有効化されて、接触時にダメージコールバックを発火します。</p>
 
-      <h3>Ranged: The Pistol</h3>
-      <p>The secondary weapon fires a pistol shot in a straight horizontal line. Shots travel at a fixed speed and despawn on contact with an enemy, a solid tile, or the level boundary. The pistol consumes ammunition stored as a finite resource, requiring the player to collect bullet pickups throughout the level. OpenClaw models each bullet as a kinematic Box2D body with a contact listener that resolves hits and removes the body from the simulation.</p>
+      <h3>遠距離攻撃：ピストル</h3>
+      <p>サブウェポンは水平一直線にピストル弾を発射します。弾は固定速度で飛行し、敵、固体タイル、またはレベル境界に接触すると消滅します。ピストルは有限のリソースとして保存された弾薬を消費し、プレイヤーはレベル全体でバレット補給品を集める必要があります。OpenClawは各弾をキネマティックなBox2D剛体としてモデル化し、ヒットを解決してシミュレーションから剛体を除去するコンタクトリスナーを使用しています。</p>
 
-      <h3>Magic Power-Ups</h3>
-      <p>Three collectible magic states temporarily enhance Claw's attacks:</p>
+      <h3>魔法パワーアップ</h3>
+      <p>三つのコレクタブルな魔法状態がクロウの攻撃を一時的に強化します：</p>
       <ul>
-        <li><strong>Fire Sword</strong> — The cutlass wraps in flame, extending its hitbox and igniting enemies, dealing bonus damage over time.</li>
-        <li><strong>Ice</strong> — Shots and melee hits freeze enemies momentarily, immobilising them and allowing follow-up attacks without retaliation.</li>
-        <li><strong>Catnip Invincibility</strong> — Claw becomes briefly invulnerable and deals increased damage, represented by a glowing aura animation.</li>
+        <li><strong>ファイアソード</strong>——カトラスが炎に包まれ、ヒットボックスが拡張して敵を着火し、継続的なボーナスダメージを与えます。</li>
+        <li><strong>アイス</strong>——射撃および近接ヒットが敵を一瞬凍結し、動きを封じて反撃なしのフォローアップ攻撃を可能にします。</li>
+        <li><strong>キャットニップ無敵</strong>——クロウが短時間無敵となりダメージが増加し、発光するオーラアニメーションで表現されます。</li>
       </ul>
-      <p>Each power-up has a timed duration tracked by the engine; OpenClaw reproduces the countdown timers and state transitions using the same entity-component system that drives all other actor state machines.</p>
+      <p>各パワーアップにはエンジンが追跡するタイマー付き持続時間があります。OpenClawは、他のすべてのアクターステートマシンを駆動する同じエンティティコンポーネントシステムを使用して、カウントダウンタイマーと状態遷移を再現しています。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" width="700" height="360">
@@ -124,59 +124,59 @@
         <div class="diagram-caption">図1: Captain Clawの戦闘システム構造 — プレイヤーの3種類の攻撃と敵タイプへの作用、OpenClawのBox2D実装</div>
       </div>
 
-      <h2 id="movement">Movement Mechanics</h2>
-      <p>Precise, responsive movement is essential to Captain Claw's feel as a platformer. The original game ships with tight controls that OpenClaw replicates via <a href="box2d-physics.html">Box2D</a> dynamic bodies and carefully tuned velocity impulses.</p>
+      <h2 id="movement">移動メカニクス</h2>
+      <p>プラットフォーマーとしてのCaptain Clawの感触には、正確で反応の良い移動が不可欠です。オリジナルゲームの鋭い操作性を、OpenClawは<a href="box2d-physics.html">Box2D</a>の動的剛体と丁寧に調整された速度インパルスによって再現しています。</p>
 
-      <h3>Ground Movement and Jumping</h3>
-      <p>Claw runs left and right at a fixed speed, with a slight acceleration ramp at the start of movement to prevent instant-stop snappiness. Jumping applies an upward impulse; holding the jump button does not extend jump height (the jump arc is fixed), so timing is determined solely by when the button is pressed. OpenClaw's Box2D implementation sets the character body's linear velocity directly each frame for horizontal movement, while vertical motion is governed by gravity and the initial jump impulse.</p>
+      <h3>地上移動とジャンプ</h3>
+      <p>クロウは固定速度で左右に走り、動き始めにわずかな加速ランプがあることで即時停止の不自然さを防いでいます。ジャンプは上方向のインパルスを加えますが、ジャンプボタンを押し続けてもジャンプの高さは伸びません（ジャンプ弧は固定）。そのためタイミングはボタンを押した瞬間だけで決まります。OpenClawのBox2D実装では、水平移動に対しキャラクター剛体の線形速度をフレームごとに直接設定し、垂直方向の動きは重力と最初のジャンプインパルスによって制御されます。</p>
 
-      <h3>Climbing: Ropes and Ladders</h3>
-      <p>Levels are full of ropes hanging from ceilings and ladders fixed to walls. When Claw grabs a rope or ladder, his physics body transitions to a kinematic mode: gravity is suppressed and the player controls vertical position directly. The rope can also be swung sideways by pressing horizontal movement keys, allowing Claw to leap off with horizontal momentum. OpenClaw models this transition with a separate physics state that disables gravity on the body and caps horizontal velocity during the swing arc.</p>
+      <h3>登攀：ロープとはしご</h3>
+      <p>レベルには天井から垂れ下がるロープや壁に固定されたはしごがあふれています。クロウがロープやはしごを掴むと、物理剛体はキネマティックモードに移行します。重力が抑制され、プレイヤーが垂直位置を直接制御します。水平移動キーを押すことでロープを横に揺らすこともでき、クロウが水平の勢いをつけて飛び降りることができます。OpenClawはこの遷移を、剛体の重力を無効化してスイング弧の間の水平速度を制限する別個の物理状態でモデル化しています。</p>
 
-      <h3>Swimming</h3>
-      <p>Water areas use buoyancy mechanics: Claw moves more slowly in water, jumps are replaced with a swim-up action, and falling speed is reduced. Enemies like sharks and mermaids are exclusive to these zones. OpenClaw implements water volumes as Box2D sensor bodies that set a "in-water" flag on any actor overlapping them, triggering the alternate movement parameter set.</p>
+      <h3>水泳</h3>
+      <p>水中エリアは浮力メカニクスを使用しています。クロウは水中でゆっくりと移動し、ジャンプは水上アクションに置き換えられ、落下速度も低下します。サメや人魚などの敵はこのゾーン専用です。OpenClawは水域をBox2Dセンサー剛体として実装しており、重なるアクターに「水中」フラグをセットし、代替の移動パラメータセットを起動します。</p>
 
-      <h2 id="enemies">Enemy Types and AI Behaviors</h2>
-      <p>Captain Claw features a varied roster of enemies, each defined by distinct movement patterns, detection radii, and attack behaviors. OpenClaw recreates each AI archetype using a state-machine model, where enemies transition between Patrol, Alert, Attack, Hurt, and Death states.</p>
+      <h2 id="enemies">敵の種類とAIの振る舞い</h2>
+      <p>Captain Clawには多様な敵が登場し、それぞれ固有の移動パターン、検知半径、攻撃行動で定義されています。OpenClawは各AIアーキタイプをステートマシンモデルで再現しており、敵はパトロール、警戒、攻撃、被弾、死亡の各状態間を遷移します。</p>
 
-      <h3>Guards and Soldiers</h3>
-      <p>Standard guards patrol a fixed horizontal segment, turning at edges or walls. When Claw enters their detection range they switch to an Alert state, stopping their patrol, and then transition to Attack once within strike distance. Soldiers may carry pistols, adding a ranged attack that fires when Claw is on the same platform and within a maximum horizontal distance. OpenClaw uses Box2D sensor circles as detection zones; a contact listener fires the state transition callback when the player body enters the sensor.</p>
+      <h3>衛兵と兵士</h3>
+      <p>標準的な衛兵は固定された水平区間をパトロールし、端や壁で向きを変えます。クロウが検知範囲に入ると警戒状態に切り替わってパトロールを止め、攻撃距離に入ると攻撃状態に移行します。兵士はピストルを持っている場合もあり、クロウが同じプラットフォーム上の最大水平距離内にいると遠距離攻撃を発射します。OpenClawはBox2Dセンサーサークルを検知ゾーンとして使用し、プレイヤー剛体がセンサーに入ったときにコンタクトリスナーが状態遷移コールバックを発火します。</p>
 
-      <h3>Aquatic Enemies: Sharks and Mermaids</h3>
-      <p>Sharks patrol underwater segments continuously, often moving in loops between horizontal boundaries. They deal contact damage, incentivising the player to shoot them from above the waterline before diving in. Mermaids serve as ranged attackers within water zones, firing projectiles horizontally. Both enemies are tagged for the water physics context and do not appear on land tiles.</p>
+      <h3>水中の敵：サメと人魚</h3>
+      <p>サメは水中区間を継続的にパトロールし、多くの場合水平境界間をループ移動します。接触ダメージを与えるため、プレイヤーは水に飛び込む前に水面の上から射撃することを促されます。人魚は水中ゾーンの遠距離攻撃者として機能し、水平に射撃物を発射します。両方の敵は水物理コンテキスト向けにタグ付けされており、陸地のタイルには出現しません。</p>
 
-      <h3>Bosses</h3>
-      <p>Each world culminates in a multi-phase boss encounter. Boss health is segmented: after losing a defined fraction of total HP, the boss transitions to a new attack pattern — faster projectiles, new movement telegraphs, or a summoned wave of regular enemies. OpenClaw scripts boss phases via XML-driven event triggers, keeping boss logic data-driven rather than hard-coded, consistent with the engine's general design philosophy.</p>
+      <h3>ボス</h3>
+      <p>各ワールドはマルチフェーズのボス戦で締めくくられます。ボスの体力は分割されており、合計HPの定められた割合を失うと、ボスは新しい攻撃パターンに移行します——より速い射撃物、新しい移動の予兆、または通常敵の召喚波です。OpenClawはXML駆動のイベントトリガーを通じてボスフェーズをスクリプト化しており、エンジンの一般的な設計哲学に沿って、ボスロジックをハードコードせずにデータ駆動で維持しています。</p>
 
-      <h2 id="treasure-scoring">Treasure and Scoring System</h2>
-      <p>Scattered throughout every level is a variety of collectible treasure, each type worth a different point value. The scoring system encourages thorough exploration and rewards players who search hidden rooms and defeat optional enemies for dropped loot.</p>
-      <p>The treasure hierarchy from lowest to highest value is:</p>
+      <h2 id="treasure-scoring">トレジャーとスコアリングシステム</h2>
+      <p>すべてのレベルに様々な種類のコレクタブルなトレジャーが散らばっており、それぞれ異なるポイント値を持っています。スコアリングシステムは丹念な探索を促し、隠し部屋を探したり倒した敵のドロップ品を取得したりするプレイヤーに報酬を与えます。</p>
+      <p>トレジャーの価値の低い順から高い順は次のとおりです：</p>
       <ul>
-        <li><strong>Coins</strong> — Copper, silver, and gold variants with escalating values; the most common pickup.</li>
-        <li><strong>Gems</strong> — Rubies, sapphires, and diamonds; moderately rare and worth substantially more than coins.</li>
-        <li><strong>Crosses</strong> — Religious relics scattered in locked side rooms, high value.</li>
-        <li><strong>Chalices</strong> — Golden cups, usually guarded by strong enemies or hidden behind destructible terrain.</li>
-        <li><strong>Crowns</strong> — The rarest pickup, typically one per level, worth a large point bonus.</li>
+        <li><strong>コイン</strong>——銅・銀・金のバリエーションがあり価値が増加します。最もよくある補給品。</li>
+        <li><strong>ジェム</strong>——ルビー・サファイア・ダイヤモンドがあり、適度にレアでコインよりも大幅に高い価値を持ちます。</li>
+        <li><strong>十字架</strong>——鍵のかかったサイドルームに散らばる宗教的遺物で、高い価値があります。</li>
+        <li><strong>チャリス</strong>——強い敵に守られているか、破壊可能な地形の背後に隠れている黄金のカップ。</li>
+        <li><strong>クラウン</strong>——最もレアな補給品で、通常レベルに一個のみ存在し、大きなポイントボーナスを持ちます。</li>
       </ul>
-      <p>Enemies defeated mid-level also drop small coin pickups, linking combat performance to score. A bonus multiplier applies at level exit if certain thresholds (e.g., 100% treasure collected) are met. OpenClaw stores each item as an entity with a pickup component; when Claw's body overlaps the item's Box2D sensor, the item is destroyed, its score value is added to the session total, and a floating score number is spawned as a temporary particle effect.</p>
+      <p>レベル中に倒した敵も少額のコインをドロップするため、戦闘パフォーマンスがスコアに結びつきます。特定の条件（例：トレジャー100%収集）が達成された場合、レベル出口でボーナス倍率が適用されます。OpenClawは各アイテムをピックアップコンポーネント付きのエンティティとして保存します。クロウの剛体がアイテムのBox2Dセンサーと重なると、アイテムが破棄され、スコア値がセッション合計に加算され、一時的なパーティクルエフェクトとして浮動スコア数字が生成されます。</p>
 
-      <h2 id="health-checkpoints">Health System and Checkpoints</h2>
-      <p>Claw's health is represented by a numeric life-point bar displayed in the HUD. Different enemy attacks and environmental hazards deal varying amounts of damage: a sword slash deals more than a claw scratch, spike traps drain health instantly on contact, and drowning (staying submerged too long) deals periodic tick damage. Health pickups — labelled health cross items — restore a fixed amount of HP and are placed at strategic points in each level.</p>
-      <p>When HP reaches zero, Claw dies and respawns at the most recently activated checkpoint. Checkpoints appear as glowing gem pedestals; stepping on one activates it (changing its visual state) and records the player's position and current score for respawn. Lives are tracked separately: losing all lives sends the player to a continue screen.</p>
-      <p>OpenClaw implements checkpoints as trigger entities with a persistent activated flag stored in the session state. On death, the engine reads the last checkpoint's stored data — position, score at the time of activation — and resets the player body to that position. The health bar, checkpoint system, and lives counter all interact through a single GameLogic component, mirroring the centralised state management used in the original game's source structure.</p>
-      <p>For a deeper look at how the physics layer underpins all of these mechanics, see the article on <a href="box2d-physics.html">Box2D Physics in OpenClaw</a>.</p>
+      <h2 id="health-checkpoints">体力システムとチェックポイント</h2>
+      <p>クロウの体力はHUDに表示される数値のライフポイントバーで表されます。異なる敵の攻撃と環境ハザードは異なる量のダメージを与えます。剣の斬撃は爪の引っかき傷より多くのダメージを与え、スパイクトラップは接触で即座に体力を奪い、溺死（水中に長くいすぎること）は定期的にダメージを与えます。体力ピックアップ——ヘルスクロスアイテムと表示——は固定量のHPを回復し、各レベルの戦略的なポイントに配置されています。</p>
+      <p>HPがゼロになると、クロウは死亡して最後に有効化されたチェックポイントで復活します。チェックポイントは輝くジェム台座として現れ、踏むと有効化（ビジュアル状態が変化）されてプレイヤーの位置と現在のスコアが復活用に記録されます。残機は別に管理されており、すべての残機を失うとコンティニュー画面に送られます。</p>
+      <p>OpenClawはチェックポイントをセッション状態に保存された永続的な有効化フラグを持つトリガーエンティティとして実装しています。死亡時、エンジンは最後のチェックポイントの保存データ——位置、有効化時のスコア——を読み込み、プレイヤー剛体をその位置にリセットします。体力バー、チェックポイントシステム、残機カウンターはすべて単一のGameLogicコンポーネントを通じて相互作用しており、オリジナルゲームのソース構造で使われていた集中型の状態管理を反映しています。</p>
+      <p>これらすべてのメカニクスを支える物理層についてさらに詳しくは、<a href="box2d-physics.html">OpenClawにおけるBox2D物理</a>の記事を参照してください。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#core-loop">Core Gameplay Loop</a></li>
-          <li><a href="#combat">Combat System</a></li>
-          <li><a href="#movement">Movement Mechanics</a></li>
-          <li><a href="#enemies">Enemy Types and AI Behaviors</a></li>
-          <li><a href="#treasure-scoring">Treasure and Scoring System</a></li>
-          <li><a href="#health-checkpoints">Health System and Checkpoints</a></li>
+          <li><a href="#core-loop">コアゲームプレイループ</a></li>
+          <li><a href="#combat">戦闘システム</a></li>
+          <li><a href="#movement">移動メカニクス</a></li>
+          <li><a href="#enemies">敵の種類とAIの振る舞い</a></li>
+          <li><a href="#treasure-scoring">トレジャーとスコアリングシステム</a></li>
+          <li><a href="#health-checkpoints">体力システムとチェックポイント</a></li>
         </ul>
       </div>
 

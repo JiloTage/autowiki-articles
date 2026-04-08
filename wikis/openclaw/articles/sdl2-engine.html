@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SDL2 as a Game Engine Framework - OpenClaw</title>
+  <title>SDL2 ゲームエンジンフレームワークとして - OpenClaw</title>
   <link rel="stylesheet" href="../../../assets/css/wiki.css">
 </head>
 <body>
@@ -21,24 +21,24 @@
   <div class="breadcrumb">
     <a href="../../../index.html">Auto-Wiki</a> &gt;
     <a href="../index.html">OpenClaw</a> &gt;
-    SDL2 as a Game Engine Framework
+    SDL2 ゲームエンジンフレームワークとして
   </div>
 
   <div class="wiki-content">
     <main class="wiki-main">
-      <h1 class="article-title">SDL2 as a Game Engine Framework</h1>
+      <h1 class="article-title">SDL2 ゲームエンジンフレームワークとして</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">SDL2 (Simple DirectMedia Layer 2) serves as the foundational multimedia library in OpenClaw, providing cross-platform abstractions for 2D rendering, audio playback, font rendering, and input handling that allow the engine to run natively on Windows, macOS, and Linux.</div>
+      <div class="article-summary">SDL2（Simple DirectMedia Layer 2）は OpenClaw の基盤となるマルチメディアライブラリであり、2D レンダリング、音声再生、フォントレンダリング、入力処理のクロスプラットフォーム抽象化を提供することで、エンジンを Windows・macOS・Linux 上でネイティブに動作させます。</div>
 
-      <p><b>SDL2 as a Game Engine Framework</b> describes how <a href="openclaw.html">OpenClaw</a> leverages the Simple DirectMedia Layer 2 (SDL2) library as its core multimedia backend. SDL2 is a free, open-source C library that provides a unified API for windowing, 2D hardware-accelerated rendering, audio output, keyboard and gamepad input, and image loading across all major desktop and mobile operating systems. Rather than building a platform-specific rendering pipeline, OpenClaw delegates all low-level platform concerns to SDL2 and its companion libraries, allowing the engine source code to remain portable and maintainable. This document covers SDL2's subsystem architecture, how each subsystem is applied within OpenClaw, the game loop pattern SDL2 encourages, performance techniques such as sprite batching and texture atlases, audio channel management, and a brief comparison with alternative frameworks that were considered or are commonly discussed alongside SDL2.</p>
+      <p><b>SDL2 ゲームエンジンフレームワークとして</b>では、<a href="openclaw.html">OpenClaw</a> が Simple DirectMedia Layer 2（SDL2）ライブラリをコアマルチメディアバックエンドとしてどのように活用しているかを説明します。SDL2 は、ウィンドウ管理・2D ハードウェアアクセラレーションレンダリング・音声出力・キーボード/ゲームパッド入力・画像ロードについて統一 API を提供するフリーのオープンソース C ライブラリで、主要なデスクトップおよびモバイル OS に対応しています。OpenClaw はプラットフォーム固有のレンダリングパイプラインを独自に構築するのではなく、低レベルのプラットフォーム処理をすべて SDL2 およびそのコンパニオンライブラリに委譲することで、エンジンのソースコードをポータブルかつ保守しやすい状態に保っています。本ドキュメントでは、SDL2 のサブシステムアーキテクチャ、各サブシステムの OpenClaw 内での利用方法、SDL2 が促すゲームループパターン、スプライトバッチングやテクスチャアトラスといったパフォーマンス手法、音声チャンネル管理、そして SDL2 と並び語られることの多い代替フレームワークとの比較について解説します。</p>
 
-      <h2 id="overview">Overview of SDL2</h2>
-      <p>SDL2 is the second major revision of the Simple DirectMedia Layer library, originally created by Sam Lantinga in 1998 and now maintained by the SDL community and Valve Corporation. It exposes a C API covering five primary domains: video (window management and 2D rendering), audio, input (keyboard, mouse, gamepad, touch), threading, and timer utilities. Because the API is pure C, it is trivially bindable from C++ — as <a href="openclaw.html">OpenClaw</a> uses — and from dozens of other languages through community bindings.</p>
-      <p>SDL2's 2D rendering backend (SDL_Renderer) can target OpenGL, OpenGL ES, Direct3D 9, Direct3D 11, Direct3D 12, Vulkan, or a software fallback, all selected transparently at runtime. For a game like <a href="captain-claw.html">Captain Claw</a> that relies on 2D sprites, tilemaps, and simple particle effects rather than 3D geometry, SDL_Renderer provides all required capabilities without the boilerplate of writing a raw OpenGL pipeline. Hardware acceleration is engaged by requesting the <code>SDL_RENDERER_ACCELERATED</code> flag, which routes draw calls through the platform's GPU driver, delivering smooth frame rates even at high resolutions.</p>
-      <p>SDL2 is licensed under the zlib license, a permissive open-source license that permits use in commercial and non-commercial projects without source disclosure requirements. This made it an unambiguous choice for an open-source engine like OpenClaw.</p>
+      <h2 id="overview">SDL2 の概要</h2>
+      <p>SDL2 は Simple DirectMedia Layer ライブラリの第 2 世代メジャーリビジョンで、1998 年に Sam Lantinga によって開発され、現在は SDL コミュニティと Valve Corporation によってメンテナンスされています。API は純粋な C で記述されており、映像（ウィンドウ管理・2D レンダリング）・音声・入力（キーボード・マウス・ゲームパッド・タッチ）・スレッド・タイマーユーティリティの 5 つの主要ドメインをカバーしています。API が純粋な C であるため、<a href="openclaw.html">OpenClaw</a> で使われている C++ はもちろん、コミュニティバインディングを通じて数十のほかの言語からも容易に利用できます。</p>
+      <p>SDL2 の 2D レンダリングバックエンド（SDL_Renderer）は、実行時に透過的に選択される OpenGL・OpenGL ES・Direct3D 9・Direct3D 11・Direct3D 12・Vulkan、またはソフトウェアフォールバックを描画先として利用できます。3D ジオメトリではなく 2D スプライト・タイルマップ・簡単なパーティクルエフェクトに依存する <a href="captain-claw.html">Captain Claw</a> のようなゲームにとって、SDL_Renderer は生の OpenGL パイプラインを記述するボイラープレートなしに必要な機能をすべて提供します。<code>SDL_RENDERER_ACCELERATED</code> フラグを指定することでハードウェアアクセラレーションが有効になり、描画呼び出しがプラットフォームの GPU ドライバを経由するため、高解像度でも滑らかなフレームレートが得られます。</p>
+      <p>SDL2 は zlib ライセンスのもとで公開されており、商用・非商用を問わずソースコードの開示義務なしに利用できる寛容なオープンソースライセンスです。これにより、OpenClaw のようなオープンソースエンジンにとって明白な選択肢となりました。</p>
 
-      <h2 id="subsystems">SDL2 Subsystems Used by OpenClaw</h2>
-      <p>OpenClaw makes use of several SDL2 companion libraries in addition to the core library. Each companion extends SDL2 with a specific capability while integrating cleanly with the SDL_Renderer and SDL_Surface types at the core.</p>
+      <h2 id="subsystems">OpenClaw が使用する SDL2 サブシステム</h2>
+      <p>OpenClaw はコアライブラリに加え、いくつかの SDL2 コンパニオンライブラリを利用しています。各コンパニオンは特定の機能で SDL2 を拡張しつつ、コアの SDL_Renderer および SDL_Surface 型とクリーンに統合されています。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400">
@@ -109,70 +109,70 @@
         <div class="diagram-caption">図1: SDL2のサブシステム関係図 — コアライブラリが各コンパニオンライブラリとOpenClawエンジンの中心ハブとして機能する</div>
       </div>
 
-      <h3>SDL_Renderer (2D Graphics)</h3>
-      <p>SDL_Renderer is the primary rendering interface. OpenClaw creates a single renderer attached to the game window with hardware acceleration enabled. All sprite draw calls — including the tile layer, animated characters, projectiles, HUD elements, and parallax backgrounds — pass through <code>SDL_RenderCopy</code> and <code>SDL_RenderCopyEx</code>, the latter handling rotation for spinning projectiles and flipped sprites. Render-to-texture is used for off-screen compositing of layered scenes before the final blit to the window framebuffer.</p>
+      <h3>SDL_Renderer（2D グラフィックス）</h3>
+      <p>SDL_Renderer はプライマリレンダリングインターフェースです。OpenClaw はハードウェアアクセラレーションを有効にした状態でゲームウィンドウにアタッチされた単一のレンダラーを作成します。タイルレイヤー・アニメーションキャラクター・発射物・HUD 要素・パララックス背景を含むすべてのスプライト描画呼び出しは、<code>SDL_RenderCopy</code> と <code>SDL_RenderCopyEx</code>（後者は回転する発射物や反転スプライトの回転処理に使用）を通じて行われます。レンダー・トゥ・テクスチャは、最終的にウィンドウのフレームバッファへブリットされる前に、レイヤードシーンをオフスクリーンで合成するために使用されます。</p>
 
-      <h3>SDL_Image (Sprite Loading)</h3>
-      <p>SDL_Image extends SDL2 with support for loading PNG, JPEG, BMP, WebP, and other image formats, returning an <code>SDL_Surface</code> that can be converted to an <code>SDL_Texture</code> for GPU-resident storage. OpenClaw uses SDL_Image to decode sprite sheets and tile set images extracted from the <code>CLAW.REZ</code> archive. Once loaded onto the GPU as textures, these surfaces are freed from system memory, keeping the memory footprint modest.</p>
+      <h3>SDL_Image（スプライト読み込み）</h3>
+      <p>SDL_Image は PNG・JPEG・BMP・WebP などの画像フォーマットの読み込みサポートを SDL2 に追加し、GPU 常駐ストレージ用の <code>SDL_Texture</code> に変換可能な <code>SDL_Surface</code> を返します。OpenClaw は SDL_Image を使って、<code>CLAW.REZ</code> アーカイブから展開したスプライトシートおよびタイルセット画像をデコードします。テクスチャとして GPU にロードされると、これらのサーフェスはシステムメモリから解放されるため、メモリフットプリントを抑えることができます。</p>
 
-      <h3>SDL_Mixer (Audio)</h3>
-      <p>SDL_Mixer provides a channel-based audio mixer with support for OGG, MP3, FLAC, and WAV files. OpenClaw allocates a fixed pool of mixing channels for sound effects (footsteps, sword strikes, gunshots, enemy vocalizations) and a separate streaming channel for background music. The mixer runs on a dedicated audio thread managed internally by SDL2, preventing audio stuttering during CPU-intensive game logic frames.</p>
+      <h3>SDL_Mixer（音声）</h3>
+      <p>SDL_Mixer は OGG・MP3・FLAC・WAV ファイルに対応したチャンネルベースの音声ミキサーを提供します。OpenClaw は効果音（足音・剣の打撃音・銃声・敵のボイス）用に固定数のミキシングチャンネルプールを割り当て、BGM 用には別途ストリーミングチャンネルを用意しています。ミキサーは SDL2 が内部で管理する専用の音声スレッドで動作するため、CPU 負荷の高いゲームロジックフレームでも音声のスタッタリングを防ぎます。</p>
 
-      <h3>SDL_TTF (Font Rendering)</h3>
-      <p>SDL_TTF wraps the FreeType library behind an SDL-compatible API, enabling OpenClaw to render TrueType and OpenType fonts to SDL surfaces. In-game text elements — score counters, life indicators, dialogue banners, and the level title card — are rendered through SDL_TTF. Glyphs are cached as textures after first render to avoid re-rasterizing the same characters on every frame.</p>
+      <h3>SDL_TTF（フォントレンダリング）</h3>
+      <p>SDL_TTF は FreeType ライブラリを SDL 互換の API でラップし、OpenClaw が TrueType および OpenType フォントを SDL サーフェスにレンダリングできるようにします。スコアカウンター・残機表示・ダイアログバナー・レベルタイトルカードなどのゲーム内テキスト要素は SDL_TTF を通じてレンダリングされます。グリフは初回レンダリング後にテクスチャとしてキャッシュされ、毎フレーム同じ文字を再ラスタライズするコストを回避します。</p>
 
-      <h3>SDL2_gfx (Geometric Primitives)</h3>
-      <p>SDL2_gfx is a community extension providing anti-aliased line, circle, ellipse, and polygon drawing routines. OpenClaw uses SDL2_gfx for debug visualization overlays: collision shape outlines from the <a href="box2d-physics.html">Box2D</a> physics simulation are drawn as colored rectangles and circles during development builds, making it straightforward to diagnose physics fixture misalignments without a separate debug renderer.</p>
+      <h3>SDL2_gfx（幾何プリミティブ）</h3>
+      <p>SDL2_gfx はアンチエイリアス処理されたライン・円・楕円・ポリゴンの描画ルーチンを提供するコミュニティ拡張ライブラリです。OpenClaw は SDL2_gfx をデバッグ可視化オーバーレイに使用しています。開発ビルドでは <a href="box2d-physics.html">Box2D</a> 物理シミュレーションのコリジョン形状アウトラインが色付きの矩形や円として描画され、専用のデバッグレンダラーなしに物理フィクスチャのずれを簡単に診断できます。</p>
 
-      <h2 id="cross-platform">Cross-Platform Abstraction</h2>
-      <p>One of SDL2's core design goals is to present an identical API surface regardless of the host operating system. On Windows, SDL2 initializes a Direct3D 11 renderer by default, falling back to Direct3D 9 or OpenGL if the primary backend is unavailable. On macOS, it uses a Metal-backed renderer (since SDL 2.0.14) with an OpenGL fallback for older hardware. On Linux, the OpenGL backend is standard, with Wayland and X11 window integration handled transparently by SDL2's platform layer.</p>
-      <p>For OpenClaw, this means the engine source contains no <code>#ifdef _WIN32</code> or platform-specific rendering code in the game logic. The entire platform surface area is encapsulated by SDL2's initialization, event, and rendering calls. File path handling is the only remaining platform consideration, addressed separately with a thin abstraction in the asset manager.</p>
-      <p>Input handling similarly benefits from SDL2's abstraction. Keyboard scancodes (physical key positions) and keycodes (logical character values) are both exposed, and the gamepad subsystem provides a standardized mapping for Xbox, PlayStation, and generic controllers across all platforms, enabling OpenClaw to support gamepad play without writing platform-specific HID code.</p>
+      <h2 id="cross-platform">クロスプラットフォーム抽象化</h2>
+      <p>SDL2 のコア設計目標のひとつは、ホスト OS に関係なく同一の API サーフェスを提供することです。Windows では SDL2 はデフォルトで Direct3D 11 レンダラーを初期化し、プライマリバックエンドが利用できない場合は Direct3D 9 または OpenGL にフォールバックします。macOS では SDL 2.0.14 以降に Metal バックエンドのレンダラーを使用し、古いハードウェア向けに OpenGL フォールバックも用意されています。Linux では OpenGL バックエンドが標準で、Wayland および X11 のウィンドウ統合は SDL2 のプラットフォームレイヤーによって透過的に処理されます。</p>
+      <p>OpenClaw にとって、これはゲームロジック内に <code>#ifdef _WIN32</code> やプラットフォーム固有のレンダリングコードが一切不要であることを意味します。プラットフォーム対応のすべては SDL2 の初期化・イベント・レンダリング呼び出しにカプセル化されています。ファイルパス処理だけが残るプラットフォーム上の考慮事項であり、アセットマネージャ内の薄い抽象化レイヤーで別途対処されています。</p>
+      <p>入力処理も同様に SDL2 の抽象化の恩恵を受けています。キーボードスキャンコード（物理的なキー位置）とキーコード（論理的な文字値）の両方が公開されており、ゲームパッドサブシステムは Xbox・PlayStation・汎用コントローラーの標準マッピングをすべてのプラットフォームで提供するため、OpenClaw はプラットフォーム固有の HID コードを書かずにゲームパッドプレイをサポートできます。</p>
 
-      <h2 id="game-loop">The SDL2 Game Loop Pattern</h2>
-      <p>SDL2 does not impose a game loop structure; instead, it provides the primitives that a canonical fixed-timestep game loop requires. OpenClaw implements the following loop structure, a common pattern in SDL2-based games:</p>
+      <h2 id="game-loop">SDL2 ゲームループパターン</h2>
+      <p>SDL2 はゲームループ構造を強制しませんが、標準的な固定タイムステップのゲームループに必要なプリミティブを提供します。OpenClaw は SDL2 ベースのゲームで一般的なパターンである以下のループ構造を実装しています：</p>
       <ol>
-        <li><strong>Event polling:</strong> <code>SDL_PollEvent</code> drains the OS event queue, dispatching keyboard, mouse, window resize, and quit events to the input subsystem. This must run on the main thread as most operating systems require UI event processing there.</li>
-        <li><strong>Update logic:</strong> The game state advances by a fixed timestep (typically 16 ms for 60 Hz). Entity positions, animations, AI decision trees, physics via <a href="box2d-physics.html">Box2D</a>, and the camera are all updated here. If the real elapsed time exceeds one timestep, the update phase runs multiple times to catch up, a technique known as the accumulator pattern.</li>
-        <li><strong>Render step:</strong> <code>SDL_RenderClear</code> clears the back buffer, draw calls are issued in depth order (background tiles, entities, foreground tiles, HUD), and <code>SDL_RenderPresent</code> swaps the back buffer to the display. SDL2 can be configured to sync this swap to the display's vertical blanking interval (VSync) to eliminate screen tearing.</li>
+        <li><strong>イベントポーリング：</strong> <code>SDL_PollEvent</code> が OS イベントキューを排出し、キーボード・マウス・ウィンドウリサイズ・終了イベントを入力サブシステムにディスパッチします。ほとんどの OS が UI イベント処理をメインスレッドで実行することを要求するため、この処理はメインスレッドで行う必要があります。</li>
+        <li><strong>更新ロジック：</strong> ゲームの状態が固定タイムステップ（通常 60Hz の場合 16ms）分だけ進みます。エンティティの位置・アニメーション・AI 判断木・<a href="box2d-physics.html">Box2D</a> による物理計算・カメラはすべてここで更新されます。実際の経過時間が 1 タイムステップを超えた場合、アキュムレータパターンと呼ばれる手法で更新フェーズを複数回実行して追いつきます。</li>
+        <li><strong>レンダリングステップ：</strong> <code>SDL_RenderClear</code> がバックバッファをクリアし、描画呼び出しが奥行き順（背景タイル・エンティティ・前景タイル・HUD）に発行され、<code>SDL_RenderPresent</code> がバックバッファをディスプレイにスワップします。SDL2 はこのスワップをディスプレイの垂直ブランキング期間（VSync）に同期するよう設定でき、スクリーンティアリングを排除できます。</li>
       </ol>
-      <p>The separation of the update and render phases is important for predictable physics simulation. Because <a href="box2d-physics.html">Box2D</a> advances at a fixed substep, decoupling it from the render rate prevents the simulation from running faster or slower depending on frame rate, which would change the feel of <a href="captain-claw.html">Captain Claw</a>'s platforming.</p>
+      <p>更新フェーズとレンダリングフェーズの分離は、予測可能な物理シミュレーションのために重要です。<a href="box2d-physics.html">Box2D</a> は固定のサブステップで進行するため、レンダリングレートから切り離すことで、フレームレートに依存してシミュレーションが速くなったり遅くなったりすることを防ぎ、<a href="captain-claw.html">Captain Claw</a> のプラットフォームアクションの感触を一定に保ちます。</p>
 
-      <h2 id="performance">Sprite Batching, Texture Atlases, and Audio Management</h2>
-      <h3>Texture Atlases</h3>
-      <p>Each call to <code>SDL_RenderCopy</code> carries a small overhead even with hardware acceleration, because each call may require a GPU state change if the source texture differs from the previous call. OpenClaw reduces this overhead by packing multiple sprite frames into a single large texture atlas (also called a sprite sheet). When rendering a sequence of animation frames, all frames share the same GPU texture object; only the source rectangle differs between calls, eliminating texture rebinds between sprites from the same atlas. SDL_Image loads the atlas as a single texture at startup, and a lookup table maps (sprite name, frame index) pairs to atlas coordinates.</p>
+      <h2 id="performance">スプライトバッチング・テクスチャアトラス・音声管理</h2>
+      <h3>テクスチャアトラス</h3>
+      <p><code>SDL_RenderCopy</code> の各呼び出しは、ハードウェアアクセラレーションを使用していても、前の呼び出しとソーステクスチャが異なる場合に GPU のステート変更が必要になる可能性があるため、若干のオーバーヘッドが発生します。OpenClaw はこのオーバーヘッドを軽減するため、複数のスプライトフレームを 1 枚の大きなテクスチャアトラス（スプライトシートとも呼ばれる）にパックしています。アニメーションフレームのシーケンスをレンダリングする際、すべてのフレームが同じ GPU テクスチャオブジェクトを共有し、呼び出し間で異なるのはソース矩形のみであるため、同じアトラスのスプライト間でのテクスチャの再バインドが排除されます。SDL_Image はアトラスを起動時に単一のテクスチャとして読み込み、ルックアップテーブルが（スプライト名・フレームインデックス）ペアをアトラス座標にマッピングします。</p>
 
-      <h3>Sprite Batching</h3>
-      <p>SDL2 2.0.18 introduced a render geometry batching API (<code>SDL_RenderGeometry</code>), but OpenClaw's architecture predates this and achieves batching implicitly through atlas-first texture management. By sorting draw calls by source texture before submission — grouping all tile layer calls together, then character sprites, then HUD — the number of GPU texture switches per frame is minimized, yielding a measurable throughput improvement on lower-end integrated graphics hardware.</p>
+      <h3>スプライトバッチング</h3>
+      <p>SDL2 2.0.18 ではレンダリングジオメトリバッチング API（<code>SDL_RenderGeometry</code>）が導入されましたが、OpenClaw のアーキテクチャはこれより前の設計であり、アトラス優先のテクスチャ管理によって暗黙的にバッチングを実現しています。提出前にソーステクスチャごとに描画呼び出しをソートすることで（タイルレイヤーの呼び出しをまとめ、次にキャラクタースプライト、次に HUD）、1 フレームあたりの GPU テクスチャ切り替え回数を最小化し、ローエンドの統合グラフィックスハードウェアでも測定可能なスループット改善が得られます。</p>
 
-      <h3>Audio Channel Management</h3>
-      <p>SDL_Mixer assigns each concurrent sound effect to a numbered channel. OpenClaw categorises channels into logical groups: movement sounds (footsteps, landing impacts), combat sounds (sword swings, gunshots, enemy hit reactions), environmental sounds (ambient loops, collectible pickups), and UI sounds (menu navigation, level clear fanfare). By assigning priority weights to each group, the engine can halt a low-priority ambient sound to free a channel for a high-priority combat effect, preventing silent gameplay moments when all channels are saturated. Background music is streamed from a dedicated music channel that bypasses the channel pool entirely, ensuring continuous playback regardless of sound effect activity.</p>
+      <h3>音声チャンネル管理</h3>
+      <p>SDL_Mixer は同時発音する各効果音に番号付きチャンネルを割り当てます。OpenClaw はチャンネルを論理グループに分類しています：移動音（足音・着地衝撃音）・戦闘音（剣の振り音・銃声・敵のヒット反応）・環境音（アンビエントループ・収集物ピックアップ）・UI 音（メニューナビゲーション・レベルクリアファンファーレ）。各グループに優先度ウェイトを割り当てることで、全チャンネルが飽和したときに低優先度のアンビエントサウンドを停止して高優先度の戦闘効果音のためのチャンネルを確保し、無音になるゲームプレイの瞬間を防ぎます。BGM はチャンネルプールをバイパスする専用ミュージックチャンネルからストリーミングされ、効果音の活動量に関わらず継続再生が保証されます。</p>
 
-      <h2 id="alternatives">Comparison with Alternatives</h2>
-      <p>When selecting a multimedia library for a game engine targeting Windows, macOS, and Linux, the principal alternatives to SDL2 are SFML, Allegro 5, and a raw OpenGL approach. Each has different trade-offs relevant to a project like OpenClaw.</p>
+      <h2 id="alternatives">代替手段との比較</h2>
+      <p>Windows・macOS・Linux をターゲットにしたゲームエンジンのマルチメディアライブラリを選定する際、SDL2 の主な代替手段は SFML・Allegro 5・生の OpenGL アプローチです。それぞれ OpenClaw のようなプロジェクトに関連する異なるトレードオフがあります。</p>
 
-      <h3>SFML (Simple and Fast Multimedia Library)</h3>
-      <p>SFML is a C++ library with an object-oriented API, providing window management, 2D rendering (on top of OpenGL), audio (via OpenAL), and networking. Its C++ design integrates more naturally with OpenClaw's codebase style than SDL2's C API. However, SFML's rendering model exposes OpenGL state more directly, and its audio subsystem lacks the channel mixing granularity of SDL_Mixer. SDL2 was preferred partly because of its wider community, broader platform support including web via Emscripten, and closer alignment with the original developer's existing expertise.</p>
+      <h3>SFML（Simple and Fast Multimedia Library）</h3>
+      <p>SFML はオブジェクト指向の API を持つ C++ ライブラリで、ウィンドウ管理・2D レンダリング（OpenGL ベース）・音声（OpenAL 経由）・ネットワーキングを提供します。C++ 設計は SDL2 の C API より OpenClaw のコードベーススタイルと自然に統合できます。しかし SFML のレンダリングモデルは OpenGL のステートをより直接的に露出させており、音声サブシステムは SDL_Mixer のチャンネルミキシングの細かさに欠けます。SDL2 が選ばれた理由の一部として、より広いコミュニティ・Emscripten 経由のウェブを含む幅広いプラットフォームサポート・オリジナル開発者の既存の知見との親和性が挙げられます。</p>
 
       <h3>Allegro 5</h3>
-      <p>Allegro 5 is a C multimedia library with a history reaching back to the 1990s, making it conceptually familiar to developers of that era. Its API surface overlaps substantially with SDL2, covering display, input, audio, and image loading. Allegro's add-on system mirrors SDL2's companion library ecosystem. For <a href="captain-claw.html">Captain Claw</a>-era game reimplementation, either library would have been technically adequate; SDL2 was chosen due to its larger ecosystem, broader platform targets, and strong backing from Valve.</p>
+      <p>Allegro 5 は 1990 年代にまでさかのぼる歴史を持つ C マルチメディアライブラリで、その時代の開発者にとって概念的に親しみやすいものです。API サーフェスは SDL2 と大きく重複しており、ディスプレイ・入力・音声・画像読み込みをカバーしています。Allegro のアドオンシステムは SDL2 のコンパニオンライブラリエコシステムを反映しています。<a href="captain-claw.html">Captain Claw</a> 時代のゲーム再実装においては、どちらのライブラリも技術的に十分だったでしょう。SDL2 が選ばれたのは、より大きなエコシステム・より広いプラットフォームターゲット・Valve による強力なサポートがあったためです。</p>
 
-      <h3>Raw OpenGL</h3>
-      <p>Using OpenGL directly — with a window management library such as GLFW — would provide maximum control over the rendering pipeline, enabling effects such as shader-based lighting, custom blending modes, and GPU-side geometry transforms. However, for a 2D platformer matching the visual style of a 1997 game, this additional complexity yields no visible benefit. SDL_Renderer already routes through OpenGL internally on Linux; the difference is that SDL2 manages the OpenGL context, shader compilation, and vertex buffer lifecycle on the engine's behalf, saving substantial development effort. A raw OpenGL approach would also require handling the compatibility matrix between OpenGL 3.3 core, OpenGL ES 2.0, and WebGL manually — work that SDL2 already encapsulates.</p>
+      <h3>生の OpenGL</h3>
+      <p>GLFW などのウィンドウ管理ライブラリと組み合わせて OpenGL を直接使用すれば、シェーダーベースのライティング・カスタムブレンドモード・GPU サイドのジオメトリ変換といったエフェクトが可能となり、レンダリングパイプラインを最大限に制御できます。しかし 1997 年のゲームのビジュアルスタイルに合わせた 2D プラットフォーマーにおいて、この追加の複雑さは目に見える利益をもたらしません。SDL_Renderer はすでに Linux では内部的に OpenGL を経由しています。違いは SDL2 が OpenGL コンテキスト・シェーダーのコンパイル・頂点バッファのライフサイクルをエンジンに代わって管理してくれることで、多大な開発工数を節約できます。生の OpenGL アプローチでは OpenGL 3.3 コア・OpenGL ES 2.0・WebGL 間の互換性マトリックスを手動で処理する必要がありますが、SDL2 はすでにそれをカプセル化しています。</p>
 
-      <p>In summary, SDL2's balance of portability, ease of integration, permissive licensing, and active maintenance made it the definitive choice for <a href="openclaw.html">OpenClaw</a>'s multimedia backend, supporting all required capabilities for faithfully recreating the <a href="captain-claw.html">Captain Claw</a> experience across modern platforms.</p>
+      <p>まとめると、SDL2 のポータビリティ・統合のしやすさ・寛容なライセンス・活発なメンテナンスのバランスが、<a href="openclaw.html">OpenClaw</a> のマルチメディアバックエンドとして SDL2 を明確な選択とし、現代のプラットフォーム上で <a href="captain-claw.html">Captain Claw</a> の体験を忠実に再現するために必要なすべての機能を支えています。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#overview">Overview of SDL2</a></li>
-          <li><a href="#subsystems">SDL2 Subsystems Used by OpenClaw</a></li>
-          <li><a href="#cross-platform">Cross-Platform Abstraction</a></li>
-          <li><a href="#game-loop">The SDL2 Game Loop Pattern</a></li>
-          <li><a href="#performance">Sprite Batching &amp; Audio Management</a></li>
-          <li><a href="#alternatives">Comparison with Alternatives</a></li>
+          <li><a href="#overview">SDL2 の概要</a></li>
+          <li><a href="#subsystems">OpenClaw が使用する SDL2 サブシステム</a></li>
+          <li><a href="#cross-platform">クロスプラットフォーム抽象化</a></li>
+          <li><a href="#game-loop">SDL2 ゲームループパターン</a></li>
+          <li><a href="#performance">スプライトバッチング &amp; 音声管理</a></li>
+          <li><a href="#alternatives">代替手段との比較</a></li>
         </ul>
       </div>
 

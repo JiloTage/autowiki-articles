@@ -5,7 +5,7 @@
       "title": "OpenClaw",
       "filename": "wikis/openclaw/articles/openclaw.html",
       "created_at": "2026-04-08T11:45:29.339790+00:00",
-      "updated_at": "2026-04-08T11:45:51.408304+00:00",
+      "updated_at": "2026-04-08T12:14:09.197703+00:00",
       "links_to": [
         "captain-claw",
         "sdl2-engine",
@@ -26,7 +26,7 @@
         "captain-claw-levels",
         "game-preservation-ethics"
       ],
-      "summary": "OpenClaw is a multiplatform, open-source C++ reimplementation of Captain Claw (1997), enabling the classic platformer to run natively on modern operating systems.",
+      "summary": "OpenClawはMonolith Productionsによる1997年クラシックプラットフォーマー「Captain Claw」のマルチプラットフォーム・オープンソースC++再実装であり、現代のOSでネイティブ動作を実現する。",
       "expansion_status": "done",
       "origin": "root"
     },
@@ -35,7 +35,7 @@
       "title": "Captain Claw (1997)",
       "filename": "wikis/openclaw/articles/captain-claw.html",
       "created_at": "2026-04-08T11:47:27.366373+00:00",
-      "updated_at": "2026-04-08T11:47:27.366373+00:00",
+      "updated_at": "2026-04-08T12:14:09.254751+00:00",
       "links_to": [
         "openclaw",
         "captain-claw-gameplay",
@@ -52,7 +52,7 @@
         "captain-claw-levels",
         "game-preservation-ethics"
       ],
-      "summary": "Captain Claw is a 1997 side-scrolling platformer developed and published by Monolith Productions, starring a swashbuckling pirate cat on a quest to reassemble the legendary Amulet of Nine Lives across 14 distinct levels.",
+      "summary": "Captain Clawは1997年にMonolith Productionsが開発・発売した2Dサイドスクロールアクションゲームで、海賊猫のキャプテン・クロウを主人公に14の個性豊かなレベルを冒険する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -62,7 +62,7 @@
       "title": "Captain Claw Gameplay Mechanics",
       "filename": "wikis/openclaw/articles/captain-claw-gameplay.html",
       "created_at": "2026-04-08T11:47:56.314095+00:00",
-      "updated_at": "2026-04-08T11:47:56.314095+00:00",
+      "updated_at": "2026-04-08T12:14:12.684458+00:00",
       "links_to": [
         "openclaw",
         "captain-claw",
@@ -75,7 +75,7 @@
         "box2d-physics",
         "captain-claw-levels"
       ],
-      "summary": "Captain Claw Gameplay Mechanics covers the core systems of the 1997 Monolith Productions platformer — combat, movement, enemy AI, treasure scoring, and health — and describes how OpenClaw faithfully reimplements each system using modern C++ and Box2D physics.",
+      "summary": "キャプテン・クロウのゲームプレイ機能について解説。戦闘・移動・敵AI・トレジャースコアリング・体力システムを網羅し、OpenClawがそれらをモダンC++とBox2D物理でどう再現しているかを説明する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -85,7 +85,7 @@
       "title": "SDL2 as a Game Engine Framework",
       "filename": "wikis/openclaw/articles/sdl2-engine.html",
       "created_at": "2026-04-08T11:48:20.391051+00:00",
-      "updated_at": "2026-04-08T11:48:20.391051+00:00",
+      "updated_at": "2026-04-08T12:14:12.739787+00:00",
       "links_to": [
         "openclaw",
         "box2d-physics",
@@ -96,7 +96,7 @@
         "captain-claw",
         "box2d-physics"
       ],
-      "summary": "SDL2 (Simple DirectMedia Layer 2) serves as the foundational multimedia library in OpenClaw, providing cross-platform abstractions for 2D rendering, audio playback, font rendering, and input handling that allow the engine to run natively on Windows, macOS, and Linux.",
+      "summary": "SDL2（Simple DirectMedia Layer 2）はOpenClawの基盤マルチメディアライブラリであり、Windows・macOS・Linuxに対応した2Dレンダリング・音声・入力処理のクロスプラットフォーム抽象化を提供する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -106,7 +106,7 @@
       "title": "Box2D Physics in Platform Games",
       "filename": "wikis/openclaw/articles/box2d-physics.html",
       "created_at": "2026-04-08T11:48:24.819080+00:00",
-      "updated_at": "2026-04-08T11:48:24.819080+00:00",
+      "updated_at": "2026-04-08T12:14:24.864322+00:00",
       "links_to": [
         "openclaw",
         "sdl2-engine",
@@ -117,7 +117,7 @@
         "captain-claw-gameplay",
         "sdl2-engine"
       ],
-      "summary": "Box2D is an open-source 2D rigid body simulation library by Erin Catto that powers the physics engine in OpenClaw, handling character movement, collision detection, projectile arcs, and environmental interactions in a faithful recreation of classic platformer behaviour.",
+      "summary": "Box2DはErin Cattoによるオープンソース2D剛体シミュレーションライブラリで、OpenClawの物理エンジンとしてキャラクター移動・衝突検出・射体軌道・環境インタラクションを担う。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -127,7 +127,7 @@
       "title": "Game Preservation Through Engine Reimplementation",
       "filename": "wikis/openclaw/articles/game-preservation-methods.html",
       "created_at": "2026-04-08T11:48:30.326786+00:00",
-      "updated_at": "2026-04-08T11:48:30.326786+00:00",
+      "updated_at": "2026-04-08T12:14:24.919573+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-ethics",
@@ -138,7 +138,7 @@
         "captain-claw",
         "game-preservation-ethics"
       ],
-      "summary": "Game preservation through engine reimplementation is the practice of recreating a game's original software engine from scratch, allowing classic titles to run natively on modern hardware without emulation, as exemplified by OpenClaw's faithful recreation of Captain Claw.",
+      "summary": "エンジン再実装によるゲーム保存は、ゲームの元エンジンをモダンな技術で1から書き直す手法で、クラシックタイトルをエミュレーションなしに現代のハードウェアで動作させることができる。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -148,7 +148,7 @@
       "title": "REZ File Format and Asset Packaging",
       "filename": "wikis/openclaw/articles/rez-file-format.html",
       "created_at": "2026-04-08T11:48:38.690255+00:00",
-      "updated_at": "2026-04-08T11:48:38.690255+00:00",
+      "updated_at": "2026-04-08T12:14:24.975487+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-ethics",
@@ -159,7 +159,7 @@
         "captain-claw-levels",
         "game-preservation-ethics"
       ],
-      "summary": "The REZ format is a proprietary archive container developed by Monolith Productions for their RIOT engine, used to package all game assets in Captain Claw into a single distributable file. OpenClaw's REZ reader parses this archive at runtime, enabling copyright-safe engine distribution without bundled assets.",
+      "summary": "REZフォーマットはMonolith ProductionsがRIOTエンジン向けに開発した専用アーカイブコンテナであり、Captain Clawの全ゲームアセットを1つの配布ファイルにパッケージングする。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -169,7 +169,7 @@
       "title": "Captain Claw Level Design",
       "filename": "wikis/openclaw/articles/captain-claw-levels.html",
       "created_at": "2026-04-08T11:48:46.671726+00:00",
-      "updated_at": "2026-04-08T11:48:46.671726+00:00",
+      "updated_at": "2026-04-08T12:14:25.030565+00:00",
       "links_to": [
         "openclaw",
         "captain-claw",
@@ -181,7 +181,7 @@
         "captain-claw",
         "captain-claw-gameplay"
       ],
-      "summary": "Captain Claw Level Design covers the structure, themes, and progression of the 14 acts that make up the original Captain Claw campaign, and how OpenClaw faithfully reconstructs them from WWD level data embedded in the CLAW.REZ archive.",
+      "summary": "キャプテン・クロウのレベルデザインでは、オリジナルキャンペーンを構成する14の章の構造・テーマ・進行を解説し、OpenClawがCLAW.REZのWWDデータからどう忠実に再現するかを説明する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"
@@ -191,7 +191,7 @@
       "title": "Ethics of Game Preservation",
       "filename": "wikis/openclaw/articles/game-preservation-ethics.html",
       "created_at": "2026-04-08T11:49:03.097597+00:00",
-      "updated_at": "2026-04-08T11:49:03.097597+00:00",
+      "updated_at": "2026-04-08T12:14:25.085489+00:00",
       "links_to": [
         "openclaw",
         "game-preservation-methods",
@@ -203,7 +203,7 @@
         "game-preservation-methods",
         "rez-file-format"
       ],
-      "summary": "The ethics of game preservation examines the tension between intellectual property law and the cultural imperative to protect interactive media, exploring where legal boundaries, community norms, and moral obligations converge.",
+      "summary": "ゲーム保存の倫理は、知的財産法とインタラクティブメディアの文化的保護の命令との間の緊張を検討し、法的境界・コミュニティ規範・道徳的義務が交わる場所を探求する。",
       "expansion_status": "pending",
       "origin": "expanded",
       "source_id": "openclaw"

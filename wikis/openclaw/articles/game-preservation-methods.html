@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Preservation Through Engine Reimplementation - OpenClaw</title>
+  <title>エンジン再実装によるゲーム保存 - OpenClaw</title>
   <link rel="stylesheet" href="../../../assets/css/wiki.css">
 </head>
 <body>
@@ -21,24 +21,24 @@
   <div class="breadcrumb">
     <a href="../../../index.html">Auto-Wiki</a> &gt;
     <a href="../index.html">OpenClaw</a> &gt;
-    Game Preservation Through Engine Reimplementation
+    エンジン再実装によるゲーム保存
   </div>
 
   <div class="wiki-content">
     <main class="wiki-main">
-      <h1 class="article-title">Game Preservation Through Engine Reimplementation</h1>
+      <h1 class="article-title">エンジン再実装によるゲーム保存</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">Game preservation through engine reimplementation is the practice of recreating a game's original software engine from scratch using modern programming techniques, allowing classic titles to run natively on contemporary hardware without relying on emulation or compatibility layers.</div>
+      <div class="article-summary">エンジン再実装によるゲーム保存とは、現代のプログラミング技術を用いてゲームのオリジナルソフトウェアエンジンをゼロから再現する実践であり、エミュレーションや互換レイヤーに頼ることなく、クラシックタイトルを現代のハードウェア上でネイティブに動作させることを可能にする。</div>
 
-      <p><b>Game Preservation Through Engine Reimplementation</b> is a category of software archaeology and cultural conservation in which developers study the behavior of original game engines and rewrite them entirely using modern languages and toolchains. Unlike emulation, which reproduces the hardware environment a game originally ran on, engine reimplementation targets the game's logic and rendering behavior directly, producing a clean native binary that can run on current operating systems. Projects like <a href="openclaw.html">OpenClaw</a> exemplify this approach, demonstrating how communities can extend the lifespan of games that would otherwise be lost to technical obsolescence.</p>
+      <p><b>エンジン再実装によるゲーム保存</b>は、ソフトウェア考古学と文化保存の一分野であり、開発者がオリジナルゲームエンジンの動作を研究し、現代の言語とツールチェーンを使ってそれを完全に書き直す活動である。エミュレーションがゲームの動作環境であったハードウェアを再現するのとは異なり、エンジン再実装はゲームのロジックとレンダリング動作を直接ターゲットとし、現在のオペレーティングシステム上で動作するクリーンなネイティブバイナリを生成する。<a href="openclaw.html">OpenClaw</a>のようなプロジェクトはこのアプローチを体現しており、技術的な陳腐化によって失われてしまうゲームの寿命をコミュニティがいかに延ばせるかを示している。</p>
 
-      <h2 id="why-preservation-matters">Why Game Preservation Matters</h2>
-      <p>Video games represent one of the most significant cultural and artistic media of the late twentieth and early twenty-first centuries. They encode the technical achievements, aesthetic sensibilities, and interactive storytelling conventions of their era in ways that no other medium can replicate. Allowing them to become inaccessible — due to hardware failure, operating system incompatibility, or the discontinuation of distribution channels — is equivalent to losing a generation of films or literature.</p>
-      <p>Beyond cultural heritage, games constitute a historical record of software engineering practice. The techniques used to squeeze performance from early hardware, the design compromises made under memory constraints, and the inventive workarounds pioneered by developers of the 1980s and 1990s are embedded in game code and behavior. Preservation ensures that researchers, educators, and future engineers can study these artefacts.</p>
-      <p>Economic and legal factors compound the technical challenges. Publishers frequently go out of business, franchises change ownership multiple times, and licensing agreements for music or third-party middleware can prevent legitimate re-release. Many games enter a state of commercial unavailability — sometimes called abandonware — where no legal purchase channel exists and no active steward maintains the codebase. For these titles, community-led preservation efforts are the only viable path to continued accessibility.</p>
+      <h2 id="why-preservation-matters">ゲーム保存が重要な理由</h2>
+      <p>ビデオゲームは、20世紀後半から21世紀初頭にかけての最も重要な文化的・芸術的メディアの一つである。ゲームは、その時代の技術的達成、美的感覚、そしてインタラクティブな語り口の慣習を、他のいかなるメディアも再現できない形で記録している。ハードウェアの故障、オペレーティングシステムの非互換性、または流通チャネルの廃止によってゲームがアクセス不能になることは、一世代分の映画や文学を失うに等しい。</p>
+      <p>文化的遺産を超えて、ゲームはソフトウェアエンジニアリングの歴史的記録でもある。初期のハードウェアから性能を絞り出すために使われた技術、メモリ制約のもとで行われた設計上の妥協、1980年代・90年代の開発者が切り開いた独創的な回避策は、ゲームのコードと動作の中に刻み込まれている。保存によって、研究者、教育者、そして未来のエンジニアがこれらの遺産を研究できるようになる。</p>
+      <p>経済的・法的な要因が技術的課題をさらに複雑にする。パブリッシャーは頻繁に廃業し、フランチャイズは何度も所有者が変わり、音楽やサードパーティミドルウェアのライセンス契約が正規の再リリースを妨げる場合がある。多くのゲームは商業的に入手不可能な状態、いわゆるアバンドンウェア（放棄ソフト）となり、合法的な購入チャネルが存在せず、コードベースを管理する積極的な管理者もいない。そのようなタイトルにとって、コミュニティ主導の保存活動が継続的なアクセスを維持する唯一の現実的な手段である。</p>
 
-      <h2 id="preservation-methods">Survey of Preservation Methods</h2>
-      <p>Several distinct technical strategies have been employed by the preservation community, each with different trade-offs in fidelity, legality, and accessibility.</p>
+      <h2 id="preservation-methods">保存手法の概観</h2>
+      <p>保存コミュニティでは、忠実度、合法性、アクセス性においてそれぞれ異なるトレードオフを持つ、いくつかの技術的戦略が採用されてきた。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
@@ -138,57 +138,57 @@
         <div class="diagram-caption">図1: ゲーム保存手法のタクソノミー — エミュレーション、ソースポート、エンジン再実装、放棄ソフト配布の4分類</div>
       </div>
 
-      <p><strong>Hardware emulation</strong> replicates the CPU, memory bus, and peripheral hardware of the original platform in software, running the original machine code unchanged. DOSBox provides an x86 processor and DOS environment for PC games, while MAME (Multiple Arcade Machine Emulator) targets arcade hardware. Emulation achieves the highest behavioral fidelity since it runs the original binary, but introduces a performance overhead and inherits any original bugs or compatibility quirks.</p>
-      <p><strong>Source code ports</strong> apply when the original source code has been released or leaked, allowing developers to recompile it against modern libraries. Projects like Chocolate Doom compile id Software's released Doom source against SDL2. These ports are constrained by the original code's architecture and may carry forward its technical debt.</p>
-      <p><strong>Engine reimplementation</strong> — the focus of this article — involves writing an entirely new engine that reproduces the behavior of the original without access to its source code. This is the most demanding approach but yields the cleanest long-term result.</p>
-      <p><strong>Abandonware distribution</strong> refers to making original binaries available through archival sites. While accessible, it offers no improvement in compatibility and carries the most significant legal risk, as it involves distributing copyrighted binaries regardless of their commercial availability.</p>
+      <p><strong>ハードウェアエミュレーション</strong>は、元のプラットフォームのCPU、メモリバス、および周辺ハードウェアをソフトウェアで再現し、元のマシンコードをそのまま動作させる。DOSBoxはPCゲーム向けにx86プロセッサとDOS環境を提供し、MAME（Multiple Arcade Machine Emulator）はアーケードハードウェアを対象とする。エミュレーションは元のバイナリを動作させるため最高の動作忠実度を実現するが、パフォーマンスのオーバーヘッドが生じ、元のバグや互換性の癖もそのまま引き継がれる。</p>
+      <p><strong>ソースコードポート</strong>は、元のソースコードが公開またはリークされた場合に有効であり、開発者はそれを現代のライブラリに対してリコンパイルできる。Chocolate Doomのようなプロジェクトはid SoftwareがリリースしたDoomのソースコードをSDL2に対してコンパイルしている。これらのポートは元のコードのアーキテクチャに制約され、その技術的負債を引き継ぐ場合がある。</p>
+      <p><strong>エンジン再実装</strong>——本記事の主題——は、元のソースコードにアクセスすることなく、オリジナルの動作を再現するまったく新しいエンジンを書くことを指す。最も要求の高いアプローチであるが、長期的には最もクリーンな結果をもたらす。</p>
+      <p><strong>アバンドンウェア配布</strong>とは、アーカイブサイトを通じてオリジナルのバイナリを公開することである。アクセスしやすい反面、互換性の改善はなく、商業的な入手可能性に関わらず著作権保護されたバイナリを配布することになるため、法的リスクが最も高い。</p>
 
-      <h2 id="engine-reimplementation-approach">The Engine Reimplementation Approach</h2>
-      <p>Engine reimplementation begins with systematic behavioral study of the original game. Developers play through the title exhaustively, documenting every observable mechanic: character movement physics, collision response, enemy AI state transitions, audio trigger conditions, and rendering properties. This process is sometimes called <em>behavioral reverse engineering</em> — rather than disassembling binary code, it studies inputs and outputs to infer the underlying rules.</p>
-      <p>A disciplined approach to reimplementation is the <em>clean-room implementation</em> technique, in which the team is divided between those who study the original (the specification team) and those who write the new code (the implementation team), with no direct contact between the two groups. This method, historically used in commercial reverse engineering, minimizes the risk that implementation is a derivative work of the original code.</p>
-      <p>The resulting engine is architecturally independent of the original. It uses contemporary data structures, modern memory management, and current graphics APIs. This separation from the original codebase has several advantages: the new engine can be compiled for any platform that supports its dependencies, optimized independently of the original's constraints, and extended with features the original author never anticipated.</p>
-      <p>Crucially, engine reimplementation differs from emulation in one key respect: it does not attempt to recreate hardware behavior. Instead, it recreates <em>game behavior</em> at a higher level of abstraction. Where DOSBox simulates the IBM PC hardware that originally ran a game, an engine reimplementation like <a href="openclaw.html">OpenClaw</a> simulates the rules of the game itself, using modern platform-abstraction libraries to handle the underlying hardware interaction.</p>
+      <h2 id="engine-reimplementation-approach">エンジン再実装のアプローチ</h2>
+      <p>エンジン再実装は、オリジナルゲームの体系的な動作研究から始まる。開発者はタイトルを徹底的にプレイし、観察可能なすべてのメカニクスを記録する：キャラクターの移動物理、衝突応答、敵AIの状態遷移、音声トリガー条件、レンダリング特性。このプロセスは<em>動作リバースエンジニアリング</em>と呼ばれることがある——バイナリコードを逆アセンブルするのではなく、入力と出力を研究して根底にあるルールを推定する。</p>
+      <p>再実装への厳格なアプローチが<em>クリーンルーム実装</em>技法であり、チームをオリジナルを研究するグループ（仕様チーム）と新しいコードを書くグループ（実装チーム）に分け、二者間の直接的な接触を持たせない。商業的なリバースエンジニアリングで歴史的に使われてきたこの手法は、実装がオリジナルコードの派生物になるリスクを最小化する。</p>
+      <p>生成されたエンジンはオリジナルとはアーキテクチャ的に独立している。現代のデータ構造、モダンなメモリ管理、現行のグラフィックスAPIを使用する。オリジナルのコードベースからのこの分離にはいくつかの利点がある：新しいエンジンは依存関係をサポートするあらゆるプラットフォームにコンパイルでき、オリジナルの制約とは独立して最適化でき、オリジナルの作者が想定しなかった機能で拡張できる。</p>
+      <p>重要な点として、エンジン再実装はエミュレーションと一点で異なる：ハードウェアの動作を再現しようとしない。代わりに、より高い抽象レベルで<em>ゲームの動作</em>を再現する。DOSBoxがゲームが元々動作していたIBM PCハードウェアをシミュレートするのに対し、<a href="openclaw.html">OpenClaw</a>のようなエンジン再実装はゲーム自体のルールをシミュレートし、現代のプラットフォーム抽象ライブラリを使って下位のハードウェアとのやり取りを処理する。</p>
 
-      <h2 id="openclaw-as-model">OpenClaw as a Model Case</h2>
-      <p>The <a href="openclaw.html">OpenClaw</a> project, a reimplementation of the engine behind <a href="captain-claw.html">Captain Claw</a> (Monolith Productions, 1997), illustrates several best practices that distinguish a principled preservation effort from legally or technically problematic alternatives.</p>
-      <p><strong>Legal asset separation</strong> is the first and most important principle. OpenClaw contains no game assets — no sprites, sounds, music, or level data. All content is loaded at runtime from the original CLAW.REZ archive, which players must supply from a legitimate copy of the game. The engine is thus a tool for running a game you already own, not a mechanism for distributing content you do not. This mirrors the model used by ScummVM, which has maintained the same policy for decades and has consequently received explicit endorsements and asset donations from multiple game publishers.</p>
-      <p><strong>Open-source development</strong> ensures that the preservation effort is auditable and communal. The full source code of OpenClaw is published on GitHub under a permissive license, allowing security review, platform porting, and continued maintenance by anyone in the community even if the original author steps back. This is essential for long-term survival: a preservation project that depends on a single maintainer is itself at risk of becoming inaccessible.</p>
-      <p><strong>Community collaboration</strong> accelerates completeness. Because the reimplementation target is a publicly playable game, any community member can identify behavioral discrepancies by comparing the reimplementation against the original. Bug reports and pull requests from players who know the original game intimately have been among the most valuable contributions to OpenClaw's development.</p>
-      <p>The project also demonstrates the importance of <a href="game-preservation-ethics.html">ethical dimensions of preservation</a> — acknowledging the intellectual property of original creators, maintaining clear documentation of what the project is and is not, and enabling players to legally acquire the original assets when possible.</p>
+      <h2 id="openclaw-as-model">モデルケースとしてのOpenClaw</h2>
+      <p><a href="openclaw.html">OpenClaw</a>プロジェクトは<a href="captain-claw.html">Captain Claw</a>（Monolith Productions、1997年）のエンジン再実装であり、法的・技術的に問題のある代替手段とは一線を画す原則的な保存活動のベストプラクティスをいくつか示している。</p>
+      <p><strong>法的アセット分離</strong>は最初かつ最も重要な原則である。OpenClawにはゲームアセット——スプライト、サウンド、音楽、レベルデータのいずれも——が含まれていない。すべてのコンテンツは実行時にオリジナルのCLAW.REZアーカイブから読み込まれ、プレイヤーは正規のゲームコピーから自分でそれを用意する必要がある。このエンジンは、既に所有しているゲームを動作させるためのツールであり、所有していないコンテンツを配布する仕組みではない。これはScummVMが何十年もの間維持してきたモデルと同じであり、その結果として複数のゲームパブリッシャーから明示的な支持とアセットの提供を受けている。</p>
+      <p><strong>オープンソース開発</strong>によって、保存活動は監査可能かつ共有のものとなる。OpenClawの完全なソースコードは寛容なライセンスのもとGitHubで公開されており、オリジナルの作者が退いた後でも誰でもセキュリティレビュー、プラットフォーム移植、継続的なメンテナンスができる。これは長期的な存続に不可欠である：単一のメンテナーに依存する保存プロジェクト自体がアクセス不能になるリスクを抱える。</p>
+      <p><strong>コミュニティコラボレーション</strong>が完成度を加速させる。再実装のターゲットが公開されてプレイ可能なゲームであるため、コミュニティメンバーは誰でも再実装とオリジナルを比較して動作の不一致を特定できる。オリジナルゲームを熟知しているプレイヤーからのバグ報告やプルリクエストは、OpenClawの開発にとって最も価値ある貢献の一つとなっている。</p>
+      <p>このプロジェクトはまた、<a href="game-preservation-ethics.html">保存の倫理的側面</a>——オリジナル制作者の知的財産を認め、プロジェクトが何であり何でないかを明確に文書化し、可能な限りプレイヤーがオリジナルのアセットを合法的に入手できるようにすること——の重要性を体現している。</p>
 
-      <h2 id="other-examples">Other Notable Engine Reimplementations</h2>
-      <p>Engine reimplementation has a long history in the gaming community. Several projects have achieved wide adoption and, in some cases, recognition from the original rights holders.</p>
-      <p><strong>ScummVM</strong> is arguably the most successful engine reimplementation project in existence. Founded in 2001, it initially targeted LucasArts adventure games using the SCUMM scripting engine (hence the name), but has since expanded to cover hundreds of game engines spanning decades. ScummVM has received asset donations and explicit licenses from publishers including LucasArts, Revolution Software, and Sierra On-Line, transforming from a grey-area project into a formally endorsed preservation tool.</p>
-      <p><strong>OpenMW</strong> reimplements the engine underlying The Elder Scrolls III: Morrowind (Bethesda Softworks, 2002). Like OpenClaw, it requires the player to own the original game data. OpenMW extends the original engine's capabilities significantly, adding support for higher-resolution rendering, improved scripting, and modding tools that surpass those available in the official release — a common secondary benefit of reimplementation.</p>
-      <p><strong>OpenRCT2</strong> reimplements RollerCoaster Tycoon 2 (Chris Sawyer Productions, 2002), a game whose original engine was written almost entirely in assembly language. The technical challenge of documenting assembly-level behavior and reproducing it in C++ was considerable, but the project achieved full compatibility with the original's save files and scenarios. OpenRCT2 also incorporates quality-of-life improvements and multiplayer support not present in the original.</p>
-      <p><strong>OpenTTD</strong> began as a reimplementation of Transport Tycoon Deluxe (MicroProse, 1994) and eventually replaced all original assets with open-licensed replacements, achieving a fully self-contained open-source game. This progression — from reimplementation requiring original assets to a standalone project — represents the most complete form of preservation, though it is only possible when community artists can recreate equivalent assets.</p>
-      <p><strong>FreeCiv</strong>, while not strictly a reimplementation (it was built from scratch as a Civilization-inspired game rather than a recreation of the original engine), influenced the reimplementation community as an early demonstration that open-source recreation of commercial game experiences was technically and legally viable.</p>
+      <h2 id="other-examples">他の注目すべきエンジン再実装</h2>
+      <p>エンジン再実装はゲームコミュニティに長い歴史を持つ。いくつかのプロジェクトは広く採用され、場合によってはオリジナルの権利保有者からの認知も得ている。</p>
+      <p><strong>ScummVM</strong>は、現存する中でおそらく最も成功したエンジン再実装プロジェクトである。2001年に設立され、当初はSCUMMスクリプトエンジン（名称の由来）を使用したLucasArtsのアドベンチャーゲームを対象としていたが、その後数十年にわたる数百のゲームエンジンをカバーするまでに拡張された。ScummVMはLucasArts、Revolution Software、Sierra On-Lineを含むパブリッシャーからアセットの提供と明示的なライセンスを受け、グレーゾーンのプロジェクトから正式に承認された保存ツールへと変貌した。</p>
+      <p><strong>OpenMW</strong>はThe Elder Scrolls III: Morrowind（Bethesda Softworks、2002年）の基盤となるエンジンを再実装している。OpenClawと同様に、オリジナルのゲームデータをプレイヤーが所有していることが必要である。OpenMWはオリジナルエンジンの機能を大幅に拡張し、高解像度レンダリングのサポート、改善されたスクリプト処理、公式リリースを超えるモッディングツールを追加している——これは再実装の一般的な二次的利益である。</p>
+      <p><strong>OpenRCT2</strong>はRollerCoaster Tycoon 2（Chris Sawyer Productions、2002年）を再実装している。オリジナルエンジンがほぼ全てアセンブリ言語で書かれていたため、アセンブリレベルの動作を文書化してC++で再現するという技術的課題は相当なものだったが、プロジェクトはオリジナルのセーブファイルとシナリオとの完全な互換性を達成した。OpenRCT2にはオリジナルにないQoL改善やマルチプレイヤーサポートも組み込まれている。</p>
+      <p><strong>OpenTTD</strong>はTransport Tycoon Deluxe（MicroProse、1994年）の再実装として始まり、最終的にオリジナルの全アセットをオープンライセンスの代替品で置き換え、完全に自己完結したオープンソースゲームを実現した。この進化——オリジナルアセットを必要とする再実装から独立したプロジェクトへ——は最も完全な形の保存を表しているが、コミュニティのアーティストが同等のアセットを再現できる場合にのみ可能である。</p>
+      <p><strong>FreeCiv</strong>は厳密には再実装ではないが（オリジナルエンジンの再現ではなくCivilizationに触発されたゲームとしてゼロから構築された）、オープンソースによる商業ゲーム体験の再現が技術的・法的に可能であることを早期に実証したことで、再実装コミュニティに影響を与えた。</p>
 
-      <h2 id="challenges">Challenges and Limitations</h2>
-      <p>Engine reimplementation is among the most technically demanding forms of software development. Several categories of challenge must be addressed by any serious project.</p>
-      <p><strong>Incomplete documentation.</strong> Commercial games from the 1990s and early 2000s were rarely documented beyond their user manuals. Internal data formats, scripting semantics, and physics parameters must be inferred entirely from observation. Edge cases in AI behavior or physics interactions may go unnoticed until a player encounters them years into a project's development.</p>
-      <p><strong>Reverse-engineering difficulty.</strong> Some behaviors are difficult to observe directly. Floating-point arithmetic subtleties, random number generator states, and timing-dependent interactions may only manifest in specific circumstances. Where emulation can defer to the original binary for any ambiguous case, reimplementation must commit to a specific interpretation of every behavior.</p>
-      <p><strong>Legal grey areas.</strong> Despite the clean-room approach and asset separation employed by well-designed projects, engine reimplementation occupies contested legal territory. Reproducing the behavior of a proprietary system can be construed as creating a derivative work even without copying source code. Jurisdictional variation in copyright law further complicates the picture. Projects must make explicit the boundaries of what they do and do not include, and must be prepared to respond to takedown requests from rights holders. The <a href="game-preservation-ethics.html">ethical and legal dimensions</a> of preservation work require ongoing attention throughout a project's lifecycle.</p>
-      <p><strong>Maintenance burden.</strong> A reimplemented engine must track updates in its dependency libraries, respond to breaking changes in operating system APIs, and fix issues introduced by new hardware. Commercial games are released once and then largely static; a reimplementation is a living software project that requires sustained maintenance to remain functional.</p>
+      <h2 id="challenges">課題と限界</h2>
+      <p>エンジン再実装は、ソフトウェア開発の中でも最も技術的に要求の高い形態の一つである。真剣なプロジェクトはいくつかのカテゴリの課題に対処しなければならない。</p>
+      <p><strong>不完全なドキュメント。</strong>1990年代・2000年代初頭の商業ゲームは、ユーザーマニュアル以上のドキュメントがほとんど存在しなかった。内部データフォーマット、スクリプトのセマンティクス、物理パラメータはすべて観察から推測しなければならない。AIの動作や物理的相互作用のエッジケースは、プロジェクトの開発が数年進んでからプレイヤーが遭遇するまで気づかれないことがある。</p>
+      <p><strong>リバースエンジニアリングの難しさ。</strong>一部の動作は直接観察が難しい。浮動小数点演算の微妙な差異、乱数生成器の状態、タイミング依存の相互作用は特定の状況でのみ現れる場合がある。エミュレーションは曖昧なケースをオリジナルのバイナリに委ねられるが、再実装はすべての動作について特定の解釈にコミットしなければならない。</p>
+      <p><strong>法的グレーゾーン。</strong>よく設計されたプロジェクトが採用するクリーンルームアプローチとアセット分離にもかかわらず、エンジン再実装は法的に争われる領域に位置している。ソースコードをコピーしなくても、独占的なシステムの動作を再現することは派生物の作成とみなされる場合がある。著作権法の管轄区域ごとの違いがさらに状況を複雑にする。プロジェクトは何を含み何を含まないかの境界を明確にし、権利保有者からの削除要請に対応する準備をしなければならない。保存活動の<a href="game-preservation-ethics.html">倫理的・法的側面</a>はプロジェクトのライフサイクル全体を通じて継続的な注意を必要とする。</p>
+      <p><strong>メンテナンスの負担。</strong>再実装されたエンジンは、依存ライブラリの更新を追跡し、オペレーティングシステムAPIの破壊的変更に対応し、新しいハードウェアによって生じた問題を修正しなければならない。商業ゲームは一度リリースされればほぼ静的であるが、再実装は機能し続けるために継続的なメンテナンスを必要とする生きたソフトウェアプロジェクトである。</p>
 
-      <h2 id="community-role">The Role of Fan Developers and Archive Organizations</h2>
-      <p>Engine reimplementation projects are almost universally community-driven. They emerge from the enthusiasm of developers who loved particular games and possess the technical skill to reconstruct them. This grassroots origin gives reimplementation projects their strength — contributors are highly motivated and deeply familiar with the games they are preserving — but also their vulnerability: project continuity depends on the availability of volunteer time.</p>
-      <p>Archive organizations provide complementary infrastructure. The Internet Archive maintains a large collection of software, including browser-playable versions of many classic games using emulation. These organizations document the existence of games, provide a repository for physical media, and advocate for legal reforms that would facilitate preservation work, such as exemptions to anti-circumvention provisions of copyright law for research and preservation purposes.</p>
-      <p>Libraries and museums with digital preservation mandates have begun to engage with games as cultural artefacts deserving the same attention as films or printed works. Some institutions have established formal relationships with engine reimplementation projects, providing hosting, legal counsel, or archival assistance. This institutionalization of what was once purely informal activity represents a maturation of the field.</p>
-      <p>The <a href="openclaw.html">OpenClaw</a> project and others like it demonstrate that motivated individuals, armed with modern tools and collaborative platforms, can accomplish preservation work that no commercial entity is currently performing. As long as games from the 1990s continue to be technically inaccessible on modern hardware, the community of fan developers will remain an essential part of the cultural preservation ecosystem.</p>
+      <h2 id="community-role">ファン開発者とアーカイブ組織の役割</h2>
+      <p>エンジン再実装プロジェクトはほぼ普遍的にコミュニティ主導である。特定のゲームを愛し、それを再構築する技術的スキルを持つ開発者の熱意から生まれる。この草の根的な起源は再実装プロジェクトに強みを与える——貢献者は高く動機づけられ、保存しているゲームに深く精通している——が、脆弱性でもある：プロジェクトの継続性はボランティアの時間の確保に依存する。</p>
+      <p>アーカイブ組織は補完的なインフラを提供する。インターネットアーカイブはブラウザでプレイ可能なクラシックゲームのエミュレーション版を含む大規模なソフトウェアコレクションを維持している。これらの組織はゲームの存在を記録し、物理メディアのリポジトリを提供し、研究・保存目的での著作権法の反回避条項に対する免除など、保存活動を促進する法的改革を提唱する。</p>
+      <p>デジタル保存の使命を持つ図書館や博物館は、映画や印刷物と同等の注目に値する文化的遺産としてゲームと向き合い始めている。一部の機関はエンジン再実装プロジェクトと正式な関係を構築し、ホスティング、法的アドバイス、またはアーカイブ支援を提供している。かつて純粋に非公式だった活動のこの制度化は、この分野の成熟を示している。</p>
+      <p><a href="openclaw.html">OpenClaw</a>をはじめとするプロジェクトは、現代のツールとコラボレーションプラットフォームを武器にした意欲ある個人が、いかなる商業的組織も現在行っていない保存活動を達成できることを示している。1990年代のゲームが現代のハードウェアで技術的にアクセス不能であり続ける限り、ファン開発者のコミュニティは文化保存のエコシステムにとって不可欠な存在であり続けるだろう。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#why-preservation-matters">Why Game Preservation Matters</a></li>
-          <li><a href="#preservation-methods">Survey of Preservation Methods</a></li>
-          <li><a href="#engine-reimplementation-approach">The Engine Reimplementation Approach</a></li>
-          <li><a href="#openclaw-as-model">OpenClaw as a Model Case</a></li>
-          <li><a href="#other-examples">Other Notable Engine Reimplementations</a></li>
-          <li><a href="#challenges">Challenges and Limitations</a></li>
-          <li><a href="#community-role">The Role of Fan Developers and Archive Organizations</a></li>
+          <li><a href="#why-preservation-matters">ゲーム保存が重要な理由</a></li>
+          <li><a href="#preservation-methods">保存手法の概観</a></li>
+          <li><a href="#engine-reimplementation-approach">エンジン再実装のアプローチ</a></li>
+          <li><a href="#openclaw-as-model">モデルケースとしてのOpenClaw</a></li>
+          <li><a href="#other-examples">他の注目すべきエンジン再実装</a></li>
+          <li><a href="#challenges">課題と限界</a></li>
+          <li><a href="#community-role">ファン開発者とアーカイブ組織の役割</a></li>
         </ul>
       </div>
 

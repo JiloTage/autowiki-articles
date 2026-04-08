@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Captain Claw Level Design - OpenClaw</title>
+  <title>キャプテン・クロウ レベルデザイン - OpenClaw</title>
   <link rel="stylesheet" href="../../../assets/css/wiki.css">
 </head>
 <body>
@@ -21,18 +21,18 @@
   <div class="breadcrumb">
     <a href="../../../index.html">Auto-Wiki</a> &gt;
     <a href="../index.html">OpenClaw</a> &gt;
-    Captain Claw Level Design
+    キャプテン・クロウ レベルデザイン
   </div>
 
   <div class="wiki-content">
     <main class="wiki-main">
-      <h1 class="article-title">Captain Claw Level Design</h1>
+      <h1 class="article-title">キャプテン・クロウ レベルデザイン</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">Captain Claw Level Design covers the structure, themes, and progression of the 14 acts that make up the original Captain Claw campaign, and how OpenClaw faithfully reconstructs them from WWD level data embedded in the CLAW.REZ archive.</div>
+      <div class="article-summary">キャプテン・クロウ レベルデザインでは、オリジナルのCaptain Clawキャンペーンを構成する14のアクトの構造、テーマ、進行について解説し、OpenClawがCLAW.REZアーカイブ内に組み込まれたWWDレベルデータからそれらをいかに忠実に再現しているかを説明する。</div>
 
-      <h2 id="overview">Overview</h2>
-      <p><b>Captain Claw Level Design</b> refers to the architecture and thematic organisation of the 14 acts (commonly called levels) that comprise the single-player campaign of <a href="captain-claw.html">Captain Claw</a> (1997). Each act is a self-contained scrolling platformer stage with a distinct visual palette, enemy roster, and hazard set. <a href="openclaw.html">OpenClaw</a> loads and renders these acts directly from the WWD (World Widow Data) format files bundled inside the <a href="rez-file-format.html">CLAW.REZ</a> archive, faithfully reproducing every tile layout, object placement, and scripted event without any hand-authored replacements.</p>
-      <p>The 14 acts are grouped into thematic worlds — broadly characterised as maritime, jungle, aquatic, frozen, and arcane environments — with the final act reserved for the ultimate boss confrontation. Difficulty escalates progressively across acts: enemy counts increase, hazard density rises, and platforming sequences demand greater precision. The <a href="captain-claw-gameplay.html">core gameplay loop</a> of exploration, combat, and treasure collection is reinforced by each world's layout.</p>
+      <h2 id="overview">概要</h2>
+      <p><b>キャプテン・クロウ レベルデザイン</b>とは、<a href="captain-claw.html">Captain Claw</a>（1997年）のシングルプレイヤーキャンペーンを構成する14のアクト（一般にレベルと呼ばれる）のアーキテクチャとテーマ的な構成を指す。各アクトは独自のビジュアルパレット、敵の構成、ハザードセットを持つ自己完結型のスクロールアクションステージである。<a href="openclaw.html">OpenClaw</a>は<a href="rez-file-format.html">CLAW.REZ</a>アーカイブ内に格納されたWWD（World Widow Data）形式ファイルからこれらのアクトを直接読み込み・レンダリングし、すべてのタイルレイアウト、オブジェクト配置、スクリプトイベントを手作業による置き換えなしに忠実に再現する。</p>
+      <p>14のアクトは、おおまかに海洋、ジャングル、水中、凍土、神秘的な環境として特徴付けられるテーマ別のワールドにグループ分けされており、最終アクトは究極のボス対決のために用意されている。難易度はアクトを通じて段階的に上昇し、敵の数が増え、ハザードの密度が高まり、プラットフォームアクションがより高い精度を要求する。<a href="captain-claw-gameplay.html">探索、戦闘、宝集めというコアゲームプレイループ</a>は各ワールドのレイアウトによって強化されている。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
@@ -148,58 +148,58 @@
         <div class="diagram-caption">図1: Captain Clawの14レベル進行マップ。赤はボス戦、茶色は最終ボス</div>
       </div>
 
-      <h2 id="map-structure">Tile Map Structure and Rendering Layers</h2>
-      <p>Every level in <a href="captain-claw.html">Captain Claw</a> is stored as a WWD (World Widow Data) binary file inside the <a href="rez-file-format.html">CLAW.REZ</a> archive. The WWD format encodes the full map as a two-dimensional grid of tile indices, each tile referencing a 64x64 pixel image in the corresponding world tile set. <a href="openclaw.html">OpenClaw</a>'s level loader parses WWD files at startup, constructing an in-memory tile map that drives both rendering and Box2D collision geometry generation.</p>
-      <p>Each map is organised into multiple named planes (layers) that are composited during rendering to create the illusion of depth:</p>
+      <h2 id="map-structure">タイルマップ構造とレンダリングレイヤー</h2>
+      <p><a href="captain-claw.html">Captain Claw</a>の各レベルは、<a href="rez-file-format.html">CLAW.REZ</a>アーカイブ内にWWD（World Widow Data）バイナリファイルとして格納されている。WWDフォーマットはマップ全体をタイルインデックスの2次元グリッドとしてエンコードし、各タイルは対応するワールドタイルセット内の64×64ピクセル画像を参照する。<a href="openclaw.html">OpenClaw</a>のレベルローダーは起動時にWWDファイルを解析し、レンダリングとBox2Dコリジョンジオメトリ生成の両方を駆動するメモリ内タイルマップを構築する。</p>
+      <p>各マップは奥行き感を演出するためにレンダリング時に合成される複数の名前付きプレーン（レイヤー）で構成されている：</p>
       <ul>
-        <li><b>Background plane:</b> Distant scenery tiles rendered first, with the largest parallax offset. These are purely decorative and carry no collision geometry. In Act 1 they depict open ocean; in Act 4 they show forest canopy.</li>
-        <li><b>Action plane:</b> The primary gameplay layer. Solid platforms, climbable ladders, destructible crates, water surfaces, and interactive objects all reside here. Box2D static bodies are generated exclusively from action-plane collision attributes, so the physics world remains lightweight even for large maps.</li>
-        <li><b>Foreground plane:</b> Tiles composited on top of the player sprite, used for decorative elements that occlude Claw — stalactites, hanging ropes, archway pillars. OpenClaw renders this plane after all entities to preserve correct draw order.</li>
+        <li><b>背景プレーン：</b>最初にレンダリングされる遠景タイルで、最大の視差オフセットを持つ。純粋に装飾的であり、コリジョンジオメトリを持たない。アクト1では大洋を描写し、アクト4では森の樹冠を表示する。</li>
+        <li><b>アクションプレーン：</b>主要なゲームプレイレイヤー。固体の足場、登れるはしご、破壊可能な木箱、水面、インタラクティブなオブジェクトはすべてここに存在する。Box2Dスタティックボディはアクションプレーンのコリジョン属性からのみ生成されるため、大きなマップでも物理演算ワールドは軽量に保たれる。</li>
+        <li><b>前景プレーン：</b>プレイヤースプライトの上に合成されるタイルで、Clawを遮蔽する装飾的要素——鍾乳石、垂れ下がったロープ、アーチの柱——に使用される。OpenClawは正しい描画順序を保つため、すべてのエンティティの後にこのプレーンをレンダリングする。</li>
       </ul>
-      <p>Parallax scrolling is achieved by multiplying each plane's tile offset by a world-specific coefficient defined in the WWD header. Background planes scroll at roughly half the camera speed, producing the classic pseudo-3D depth effect seen throughout the original game.</p>
+      <p>パララックススクロールは、各プレーンのタイルオフセットにWWDヘッダーで定義されたワールド固有の係数を乗じることで実現されている。背景プレーンはカメラ速度の約半分でスクロールし、オリジナルゲーム全体で見られる古典的な疑似3D奥行き効果を生み出す。</p>
 
-      <h2 id="level-themes">The 14 Acts: Themes and Layout</h2>
-      <p>The 14 acts are structured into five thematic worlds followed by a standalone final act. Each world contains two or three non-boss acts and concludes with a boss act. The themed progression is as follows:</p>
+      <h2 id="level-themes">14のアクト：テーマとレイアウト</h2>
+      <p>14のアクトは5つのテーマ別ワールドと最後の単独アクトで構成されている。各ワールドには2〜3つの通常アクトと、最後にボスアクトが含まれる。テーマ的な進行は以下の通りである：</p>
 
-      <h3>Acts 1–3: Maritime World</h3>
-      <p>Act 1 is the game's tutorial act, set aboard a pirate ship. Claw begins imprisoned and must escape the brig, ascend the ship's decks, and fight through a crew of pirate officers. Wide, open horizontal corridors introduce the player to the cutlass, pistol, and double-jump mechanics. Act 2 expands onto the rigging and sea cliffs adjacent to the ship, introducing moving platforms and cannonball hazards. Act 3 culminates in a boss encounter with <b>La Roca</b>, a large pirate captain who attacks with a cutlass charge and hurled explosives.</p>
+      <h3>アクト1〜3：海洋ワールド</h3>
+      <p>アクト1はゲームのチュートリアルアクトで、海賊船を舞台としている。Clawは牢獄から始まり、船倉を脱出し、デッキを登り、海賊士官たちと戦いながら進む。横に広い開けた廊下でプレイヤーはカトラス、ピストル、二段ジャンプのメカニクスを習得する。アクト2では帆のロープや船に隣接する海の崖へと舞台が広がり、移動する足場と砲弾ハザードが登場する。アクト3では大型海賊船長の<b>La Roca</b>とのボス戦が繰り広げられ、カトラスの突進と爆発物の投擲で攻撃してくる。</p>
 
-      <h3>Acts 4–6: Jungle and Forest World</h3>
-      <p>Acts 4 and 5 take Claw through dense jungle terrain and crumbling Aztec ruins. Vines serve as climbable ropes; pitfall traps and spike floors demand careful navigation. Enemy types shift to jungle warriors armed with spears and dart-blowing tribesmen. Act 6 features the boss <b>Katherine</b>, a quick and agile fighter whose high-speed sword combos require the player to use the pistol at range rather than engaging in melee.</p>
+      <h3>アクト4〜6：ジャングル・森ワールド</h3>
+      <p>アクト4と5ではClawが密林とアステカ遺跡の廃墟を進む。ツルはロープとして登れ、落とし穴の罠やスパイクの床には慎重な操作が求められる。敵タイプはヤリを持つジャングル戦士やダーツを吹くトライブスマンへと変わる。アクト6には<b>Katherine</b>とのボス戦が待ち受け、彼女の高速剣コンボに対応するには接近戦ではなくピストルで遠距離から攻撃する必要がある。</p>
 
-      <h3>Acts 7–8: Aquatic Realm</h3>
-      <p>Act 7 introduces underwater sections where buoyancy affects Claw's jump arc and swimming mechanics replace standard movement. Coral reefs and submerged ruins define the tile palette. Shark and eel enemies pursue the player through flooded corridors, while air-pocket intervals regulate how long Claw can remain submerged. Act 8's boss <b>Wolvington</b> is fought on a partially flooded arena, mixing the aquatic hazards with conventional melee combat.</p>
+      <h3>アクト7〜8：水中領域</h3>
+      <p>アクト7では浮力がClawのジャンプ弧に影響する水中区間が登場し、水泳メカニクスが通常移動に取って代わる。サンゴ礁と水没した遺跡がタイルパレットを定義する。サメやウナギの敵が水浸しの回廊でプレイヤーを追い回し、空気ポケットの間隔がClawが水中にいられる時間を調節する。アクト8のボス<b>Wolvington</b>は部分的に水浸しになったアリーナで戦い、水中ハザードと通常の近接戦闘を組み合わせる。</p>
 
-      <h3>Acts 9–10: Ice and Snow World</h3>
-      <p>Acts 9 introduces slippery ice-tile physics, where Claw's deceleration is greatly reduced, requiring anticipation of stopping distances. Snowstorm visual effects reduce effective visibility in outdoor sections. Ice-armoured enemies are more resistant to melee damage and must be softened with explosive ammunition first. Act 10's boss encounter escalates the ice-tile slipperiness into the boss arena itself, demanding the player manage both positioning and the boss's attack patterns simultaneously.</p>
+      <h3>アクト9〜10：氷雪ワールド</h3>
+      <p>アクト9では滑りやすい氷タイル物理が導入され、Clawの減速が大幅に低下するため停止距離を予測する必要がある。屋外区間では吹雪の視覚エフェクトが実効視界を低下させる。氷で鎧われた敵は接近攻撃への耐性が高く、まず爆発性の弾薬で弱らせる必要がある。アクト10のボス戦ではボスアリーナ自体に氷タイルの滑りやすさが組み込まれ、位置取りとボスの攻撃パターンを同時に管理することが求められる。</p>
 
-      <h3>Acts 11–13: Arcane and Castle World</h3>
-      <p>Acts 11 and 12 venture into gothic castle interiors and arcane laboratories, introducing sorcerer enemies capable of ranged magical projectiles that are difficult to dodge in narrow corridors. Conveyor belts, portcullises triggered by pressure plates, and teleporter pads add mechanical variety to these acts. Act 13 features one of the most elaborate boss fights: a two-phase encounter with a sorcerer who teleports around the arena and summons minions before entering a direct melee phase.</p>
+      <h3>アクト11〜13：神秘・城塞ワールド</h3>
+      <p>アクト11と12ではゴシック城の内部と神秘的な実験室に踏み込み、狭い回廊では回避が難しい遠距離魔法の飛び道具を放てる魔法使いの敵が登場する。圧力プレートで作動するコンベアベルト、落とし格子、テレポーターパッドがこれらのアクトに機械的な多様性を加える。アクト13は最も複雑なボス戦の一つを特徴とし、アリーナを瞬間移動しながら手下を召喚した後に直接近接フェーズへ移行する二段階の魔法使いとの戦いとなる。</p>
 
-      <h3>Act 14: Final Confrontation</h3>
-      <p>The final act combines hazard elements from all preceding worlds in a single climactic gauntlet. Players traverse a fortress that incorporates icy floors, underwater passages, jungle-themed traps, and arcane barriers in sequence. The act ends with the final boss of the campaign — the supreme antagonist who holds the Ninth Life Gem. This fight has multiple distinct phases and requires mastery of all mechanics introduced across the previous 13 acts.</p>
+      <h3>アクト14：最終対決</h3>
+      <p>最終アクトは単一の集大成ガントレットに先行するすべてのワールドのハザード要素を組み合わせている。プレイヤーは氷の床、水中通路、ジャングルテーマのトラップ、神秘的なバリアを順に踏破する要塞を進む。アクトはキャンペーンの最終ボス——第九の命の宝石を持つ最強の敵——との戦いで終わる。この戦いには複数の明確なフェーズがあり、前13アクトで導入されたすべてのメカニクスの習熟が要求される。</p>
 
-      <h2 id="checkpoints-secrets">Checkpoints and Secret Areas</h2>
-      <p>Each act contains several <b>checkpoint flagpoles</b> placed at strategic intervals. When Claw touches a flagpole, the game records the act number and the checkpoint index in its save state, so death returns the player to that flagpole rather than the start of the act. In <a href="openclaw.html">OpenClaw</a>, checkpoint state is managed by the level's entity system; each flagpole object tracks its activation status and communicates with the session manager to persist save data between engine restarts.</p>
-      <p>Scattered throughout every act are <b>secret areas</b> — hidden rooms typically accessible by breaking through thin wall sections, by jumping past invisible platforms, or by using a specific item at a marked location. Secret areas contain large caches of coins, gems, and powerups unavailable elsewhere in the act. Experienced players seek these rooms to maximise their treasure score, which is tallied at the level-end summary screen. OpenClaw reproduces the treasure scoring system faithfully, tracking each collectible's pickup state in the act's entity table.</p>
-      <p>A secondary class of hidden content is the <b>treasure cache</b>, a sealed chest that requires finding a matching key earlier in the level. Keys and their corresponding caches are linked by object IDs in the WWD data; OpenClaw's inventory system tracks collected keys and evaluates the match when Claw interacts with a locked chest. This system was one of the more complex entity-interaction patterns to reimplement accurately, as it required preserving the original game's object-reference semantics across level transitions.</p>
+      <h2 id="checkpoints-secrets">チェックポイントと隠しエリア</h2>
+      <p>各アクトには戦略的な間隔で配置された複数の<b>チェックポイント旗竿</b>がある。Clawが旗竿に触れると、ゲームはセーブ状態にアクト番号とチェックポイントインデックスを記録し、死亡時にアクトの最初ではなくその旗竿の位置から再開される。<a href="openclaw.html">OpenClaw</a>では、チェックポイントの状態はレベルのエンティティシステムによって管理され、各旗竿オブジェクトは起動状態を追跡し、エンジン再起動間でセーブデータを永続化するためにセッションマネージャーと通信する。</p>
+      <p>すべてのアクトに散在する<b>隠しエリア</b>は、薄い壁を壊すことで、見えない足場を飛び越えることで、または特定の場所で特定のアイテムを使用することでアクセスできる隠し部屋である。隠しエリアにはアクトの他の場所では入手できない大量のコイン、宝石、パワーアップが含まれている。熟練したプレイヤーはレベルエンド集計画面で集計される宝スコアを最大化するためにこれらの部屋を探す。OpenClawは各コレクタブルのピックアップ状態をアクトのエンティティテーブルで追跡することで宝スコアリングシステムを忠実に再現している。</p>
+      <p>隠しコンテンツの二次クラスは<b>宝箱</b>であり、レベルの以前の部分で対応する鍵を見つける必要がある。鍵と対応する宝箱はWWDデータのオブジェクトIDで結びつけられており、OpenClawのインベントリシステムは収集した鍵を追跡し、Clawが錠前付き宝箱に触れたときにマッチングを評価する。このシステムはレベル遷移をまたいでオリジナルゲームのオブジェクト参照セマンティクスを保持する必要があったため、再実装においてより複雑なエンティティインタラクションパターンの一つであった。</p>
 
-      <h2 id="wwd-loading">WWD File Loading in OpenClaw</h2>
-      <p>OpenClaw's level loading pipeline begins with the <a href="rez-file-format.html">REZ archive reader</a>, which locates and decompresses the relevant WWD file from inside CLAW.REZ. WWD files are binary-encoded and include a file header, a series of plane definitions (each with its own tile index grid), an object list, and a set of world properties such as starting position, music track ID, and ambient sound assignments.</p>
-      <p>The loader translates each plane's tile grid into an SDL2 render batch, using the tile set images extracted from the same REZ archive. Concurrently, the action-plane tiles marked with collision attributes are converted into Box2D static body chains — a process that includes edge smoothing to prevent the character from snagging on adjacent-tile corners, a known edge case in direct tile-based physics implementations.</p>
-      <p>WWD objects — including enemies, pickups, checkpoints, doors, and moving platforms — are instantiated through a factory that maps the WWD object type IDs to OpenClaw's C++ entity classes. Each entity class reads its initial parameters (position, facing direction, patrol range, etc.) from the WWD object record and registers with the entity manager. This data-driven approach means that adding support for a new object type requires only implementing its entity class and registering its type ID in the factory table, without modifying the loader itself.</p>
-      <p>For <a href="captain-claw-gameplay.html">gameplay</a> accuracy, the loader also restores checkpoint state from the save file before activating entities, ensuring that previously triggered flagpoles and consumed pickups remain in their activated state when a level is reloaded after death.</p>
+      <h2 id="wwd-loading">OpenClawにおけるWWDファイルの読み込み</h2>
+      <p>OpenClawのレベル読み込みパイプラインは<a href="rez-file-format.html">REZアーカイブリーダー</a>から始まり、CLAW.REZ内から対象のWWDファイルを特定して解凍する。WWDファイルはバイナリエンコードされており、ファイルヘッダー、一連のプレーン定義（各自のタイルインデックスグリッドを持つ）、オブジェクトリスト、開始位置、音楽トラックID、アンビエントサウンド割り当てなどのワールドプロパティが含まれる。</p>
+      <p>ローダーは同じREZアーカイブから抽出したタイルセット画像を使用して、各プレーンのタイルグリッドをSDL2レンダーバッチに変換する。同時に、コリジョン属性でマークされたアクションプレーンのタイルはBox2Dスタティックボディチェーンに変換される——このプロセスには、タイルベース物理実装における既知のエッジケースであるキャラクターが隣接タイルの角に引っかかるのを防ぐためのエッジスムージングが含まれる。</p>
+      <p>敵、ピックアップ、チェックポイント、ドア、移動プラットフォームを含むWWDオブジェクトは、WWDオブジェクトタイプIDをOpenClawのC++エンティティクラスにマッピングするファクトリを通じてインスタンス化される。各エンティティクラスはWWDオブジェクトレコードから初期パラメータ（位置、向き、パトロール範囲など）を読み込み、エンティティマネージャーに登録する。このデータ駆動型アプローチにより、新しいオブジェクトタイプのサポート追加はそのエンティティクラスの実装とファクトリテーブルへのタイプIDの登録のみを必要とし、ローダー自体を変更する必要はない。</p>
+      <p><a href="captain-claw-gameplay.html">ゲームプレイ</a>の正確性のため、ローダーはエンティティを起動する前にセーブファイルからチェックポイント状態を復元し、以前に起動した旗竿や消費したピックアップが死亡後のレベルリロード時にも起動済み状態のままになることを保証する。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#overview">Overview</a></li>
-          <li><a href="#map-structure">Tile Map Structure and Rendering Layers</a></li>
-          <li><a href="#level-themes">The 14 Acts: Themes and Layout</a></li>
-          <li><a href="#checkpoints-secrets">Checkpoints and Secret Areas</a></li>
-          <li><a href="#wwd-loading">WWD File Loading in OpenClaw</a></li>
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#map-structure">タイルマップ構造とレンダリングレイヤー</a></li>
+          <li><a href="#level-themes">14のアクト：テーマとレイアウト</a></li>
+          <li><a href="#checkpoints-secrets">チェックポイントと隠しエリア</a></li>
+          <li><a href="#wwd-loading">OpenClawにおけるWWDファイルの読み込み</a></li>
         </ul>
       </div>
 

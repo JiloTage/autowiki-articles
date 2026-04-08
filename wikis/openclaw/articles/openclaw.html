@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,15 +28,15 @@
     <main class="wiki-main">
       <h1 class="article-title">OpenClaw</h1>
       <div class="article-meta">最終更新: 2026-04-08</div>
-      <div class="article-summary">OpenClaw is a multiplatform, open-source C++ reimplementation of the classic 1997 platformer game Captain Claw by Monolith Productions, designed to run natively on modern operating systems while preserving the original gameplay experience.</div>
+      <div class="article-summary">OpenClawは、Monolith Productionsが制作した1997年の名作プラットフォームゲーム「Captain Claw」をマルチプラットフォーム対応のオープンソースC++で再実装したプロジェクトであり、オリジナルのゲームプレイ体験を保ちながら現代のOSでネイティブ動作することを目的としています。</div>
 
-      <h2 id="overview">Overview</h2>
-      <p><b>OpenClaw</b> is a fan-made, open-source recreation of the game engine used in <a href="captain-claw.html">Captain Claw</a> (1997), developed by Monolith Productions. The project rewrites the original engine entirely in modern C++, enabling the game to run natively on Windows, macOS, and Linux without relying on emulation or compatibility layers. Unlike playing the original through DOSBox, OpenClaw compiles and executes as a native binary, taking advantage of modern CPU architectures and operating system APIs.</p>
-      <p>The project is led by developer pjasicek and is hosted on GitHub, where contributions from the community have extended its feature parity with the original game. OpenClaw does not bundle any original game assets; players must supply the <a href="rez-file-format.html">CLAW.REZ</a> archive from a legally owned copy of the original game, making it legally and ethically sound as a preservation tool.</p>
+      <h2 id="overview">概要</h2>
+      <p><b>OpenClaw</b>は、Monolith Productionsが開発した<a href="captain-claw.html">Captain Claw</a>（1997年）のゲームエンジンをファンが再現したオープンソースプロジェクトです。オリジナルのエンジンを現代のC++で完全に書き直すことで、エミュレーションや互換レイヤーに頼ることなく、Windows・macOS・Linuxでネイティブ動作を実現しています。DOSBoxを経由してプレイする方法とは異なり、OpenClawはネイティブバイナリとしてコンパイル・実行され、現代のCPUアーキテクチャやOSのAPIを最大限に活用しています。</p>
+      <p>このプロジェクトは開発者pjasicekが主導し、GitHubでホストされています。コミュニティからの貢献により、オリジナルゲームとの機能的な同等性が向上し続けています。OpenClawはオリジナルのゲームアセットを同梱しておらず、プレイヤーは正規に購入したゲームの<a href="rez-file-format.html">CLAW.REZ</a>アーカイブを自分で用意する必要があります。これにより、保存ツールとして法的・倫理的に健全な設計となっています。</p>
 
-      <h2 id="history">History and Background</h2>
-      <p>Captain Claw was released in 1997 and became a beloved cult classic for its swashbuckling pirate cat protagonist, tight platforming mechanics, and memorable level design. However, as operating systems evolved beyond MS-DOS and early Windows, the game became increasingly difficult to run without workarounds. While DOSBox provided one avenue for running the title, native support for modern systems was absent.</p>
-      <p>The OpenClaw project emerged from a desire to breathe new life into this classic without relying on binary compatibility hacks. Development proceeded on GitHub as an open-source effort, making it possible for community members to contribute bug fixes, feature enhancements, and platform-specific improvements. By 2020, the engine had reached a level of completeness allowing all <a href="captain-claw-levels.html">14 original levels</a> to be played through.</p>
+      <h2 id="history">歴史と背景</h2>
+      <p>Captain Clawは1997年にリリースされ、剣を振るう海賊猫の主人公、鋭いプラットフォーム操作、そして印象的なレベルデザインで愛される カルト的名作となりました。しかし、OSがMS-DOSや初期Windowsを超えて進化するにつれ、回避策なしにゲームを動かすことは次第に困難になっていきました。DOSBoxがゲームを実行する一つの手段を提供していましたが、現代のシステムへのネイティブ対応は存在しませんでした。</p>
+      <p>OpenClawプロジェクトは、バイナリ互換性のハックに頼ることなくこのクラシックに新たな命を吹き込みたいという願いから生まれました。オープンソースの取り組みとしてGitHub上で開発が進められ、コミュニティメンバーがバグ修正、機能強化、プラットフォーム固有の改善に貢献することが可能になりました。2020年までに、エンジンは<a href="captain-claw-levels.html">オリジナルの14レベル</a>すべてをプレイできる水準の完成度に達しました。</p>
 
       <div class="diagram-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340" width="700" height="340">
@@ -85,34 +85,34 @@
         <div class="diagram-caption">図1: OpenClawのレイヤー構造 — ゲームロジック、エンジン、ライブラリ、OSプラットフォームの4層</div>
       </div>
 
-      <h2 id="technical-architecture">Technical Architecture</h2>
-      <p>OpenClaw is built on a layered architecture. At the foundation is the platform layer provided by <a href="sdl2-engine.html">SDL2</a> (Simple DirectMedia Layer), which abstracts windowing, rendering, input handling, audio playback, and image loading across operating systems. On top of SDL2, the OpenClaw engine implements a game loop, scene graph, entity-component system, and asset manager.</p>
-      <p>Physics simulation is handled by <a href="box2d-physics.html">Box2D</a>, an open-source 2D rigid body simulation library. Captain Claw's platforming behavior — including character movement, collision response, projectile arcs, and enemy interactions — is implemented using Box2D fixtures and contact listeners, providing physically accurate behaviour that closely mirrors the feel of the original game.</p>
-      <p>Game data (levels, objects, configuration) is loaded from XML files using the TinyXML library, applying a data-driven design that separates game content from engine logic. This makes it easier for modders to alter level layouts and object properties without recompiling the engine.</p>
+      <h2 id="technical-architecture">技術アーキテクチャ</h2>
+      <p>OpenClawは階層型アーキテクチャを基盤としています。最下層には<a href="sdl2-engine.html">SDL2</a>（Simple DirectMedia Layer）によるプラットフォーム層があり、ウィンドウ管理・レンダリング・入力処理・音声再生・画像読み込みをOSを問わず抽象化しています。SDL2の上にOpenClawエンジンがゲームループ、シーングラフ、エンティティコンポーネントシステム、アセットマネージャーを実装しています。</p>
+      <p>物理シミュレーションはオープンソースの2D剛体シミュレーションライブラリ<a href="box2d-physics.html">Box2D</a>が担当しています。Captain Clawのプラットフォーム動作——キャラクターの移動、衝突応答、投射物の弾道、敵との相互作用——はBox2DのフィクスチャとコンタクトリスナーによってJapanese実装されており、オリジナルゲームの感触を忠実に再現する物理的に正確な挙動を提供しています。</p>
+      <p>ゲームデータ（レベル、オブジェクト、設定）はTinyXMLライブラリを使ってXMLファイルから読み込まれ、ゲームコンテンツとエンジンロジックを分離するデータ駆動設計が採用されています。これにより、モッダーはエンジンを再コンパイルすることなくレベルレイアウトやオブジェクトのプロパティを変更しやすくなっています。</p>
 
-      <h2 id="asset-loading">Asset Loading and CLAW.REZ</h2>
-      <p>Captain Claw stored all its assets — sprites, sounds, music, and level data — inside a proprietary archive format with the extension <a href="rez-file-format.html">.REZ</a>. OpenClaw includes a REZ file reader that extracts and loads these assets at runtime, meaning no asset extraction step is needed. The player simply provides the path to CLAW.REZ from a legitimate copy of the game, and OpenClaw handles the rest.</p>
-      <p>This design upholds <a href="game-preservation-ethics.html">game preservation ethics</a>: the engine itself contains no copyrighted content, and the original assets remain under their original license. Only individuals who legally own the original game can play OpenClaw, as the engine cannot function without the official asset archive.</p>
+      <h2 id="asset-loading">アセット読み込みとCLAW.REZ</h2>
+      <p>Captain Clawはスプライト・サウンド・音楽・レベルデータなどすべてのアセットを、拡張子<a href="rez-file-format.html">.REZ</a>を持つ独自アーカイブ形式に格納していました。OpenClawにはREZファイルリーダーが含まれており、実行時にアセットを展開・読み込むため、事前のアセット展開作業は不要です。プレイヤーは正規購入品のCLAW.REZへのパスを指定するだけで、残りはOpenClawが処理します。</p>
+      <p>この設計は<a href="game-preservation-ethics.html">ゲーム保存の倫理</a>を守っています。エンジン自体には著作権で保護されたコンテンツが含まれておらず、オリジナルのアセットはそのオリジナルライセンスのもとに置かれ続けます。公式アセットアーカイブなしにはエンジンが機能しないため、正規にオリジナルゲームを所有している人だけがOpenClawをプレイできます。</p>
 
-      <h2 id="gameplay-coverage">Gameplay Coverage</h2>
-      <p>OpenClaw implements the full original campaign of Captain Claw, including all 14 levels spanning various themed worlds. Enemy AI behaviors, boss encounter scripting, the treasure collection system, power-up mechanics, and the checkpoint save system are all faithfully reproduced. The <a href="captain-claw-gameplay.html">core gameplay loop</a> — exploration, combat with the cutlass and pistol, and platforming — functions as in the original.</p>
-      <p>Certain quality-of-life improvements have been added, such as improved frame rate targeting, resolution scaling, and configurable key bindings, while retaining the core experience. Community contributors have also reported and patched various collision edge cases not present in the original to improve reliability.</p>
+      <h2 id="gameplay-coverage">ゲームプレイの再現範囲</h2>
+      <p>OpenClawはCaptain Clawのオリジナルキャンペーンを完全に実装しており、様々なテーマの世界にまたがる14レベルすべてを収録しています。敵のAI行動、ボス戦のスクリプト、トレジャーコレクションシステム、パワーアップ機能、チェックポイントセーブシステムがすべて忠実に再現されています。<a href="captain-claw-gameplay.html">コアのゲームプレイループ</a>——探索、カトラスとピストルを使った戦闘、プラットフォームアクション——はオリジナルと同様に機能します。</p>
+      <p>フレームレートの改善、解像度スケーリング、キーバインドのカスタマイズなど、コア体験を保ちながらいくつかの利便性向上が加えられています。コミュニティの貢献者たちは、信頼性を高めるためにオリジナルには存在しなかった様々な衝突のエッジケースも報告・修正しています。</p>
 
-      <h2 id="community-development">Community and Development</h2>
-      <p>The project is open-source under the permissive license on GitHub at <code>github.com/pjasicek/OpenClaw</code>. Bug reports, feature discussions, and pull requests are managed through GitHub Issues and the pull request workflow. Community members have contributed ports to additional platforms, performance improvements, and documentation.</p>
-      <p>OpenClaw is often cited as a model example of <a href="game-preservation-methods.html">game preservation through reimplementation</a>, demonstrating how an open-source engine rewrite can extend the lifespan of a beloved title while respecting intellectual property boundaries.</p>
+      <h2 id="community-development">コミュニティと開発</h2>
+      <p>このプロジェクトはGitHubの<code>github.com/pjasicek/OpenClaw</code>においてパーミッシブライセンスのもとオープンソースで公開されています。バグレポート、機能の議論、プルリクエストはGitHub IssuesとPRワークフローを通じて管理されています。コミュニティメンバーは追加プラットフォームへの移植、パフォーマンス改善、ドキュメントの整備などに貢献しています。</p>
+      <p>OpenClawは<a href="game-preservation-methods.html">再実装によるゲーム保存</a>の模範的な事例として頻繁に引用されており、オープンソースエンジンの書き直しが知的財産の境界を尊重しながら愛されたタイトルの寿命を延ばせることを示しています。</p>
     </main>
 
     <aside class="wiki-sidebar">
       <div class="toc">
         <div class="toc-title">目次</div>
         <ul class="toc-list">
-          <li><a href="#overview">Overview</a></li>
-          <li><a href="#history">History and Background</a></li>
-          <li><a href="#technical-architecture">Technical Architecture</a></li>
-          <li><a href="#asset-loading">Asset Loading and CLAW.REZ</a></li>
-          <li><a href="#gameplay-coverage">Gameplay Coverage</a></li>
-          <li><a href="#community-development">Community and Development</a></li>
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#history">歴史と背景</a></li>
+          <li><a href="#technical-architecture">技術アーキテクチャ</a></li>
+          <li><a href="#asset-loading">アセット読み込みとCLAW.REZ</a></li>
+          <li><a href="#gameplay-coverage">ゲームプレイの再現範囲</a></li>
+          <li><a href="#community-development">コミュニティと開発</a></li>
         </ul>
       </div>
 
