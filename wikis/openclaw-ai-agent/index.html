@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIエージェントのOpenClaw - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>AIエージェントのOpenClaw</h1>
+    <p>OpenClawはオープンソースのAIエージェントフレームワーク。ツール使用・マルチエージェント協調・メモリ管理など、現代AIエージェントの設計と実装を体系的に解説するwiki。</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">8</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">39</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="articles/openclaw-ai-agent.html">OpenClaw AIエージェント</a></td><td>OpenClawは、LLMを推論エンジンとして活用し、外部ツールや環境との双方向インタラクションを可能にするオープンソースのAIエージェントフレームワーク。Th...</td><td>2026-04-08</td><td>7</td></tr>
+        <tr><td><a href="articles/ai-agent-overview.html">AIエージェント概論</a></td><td>AIエージェントとは、環境を知覚し、目標達成に向けて自律的に行動を計画・実行するソフトウェアシステムである。大規模言語モデル（LLM）の台頭により、自然言語を介...</td><td>2026-04-08</td><td>5</td></tr>
+        <tr><td><a href="articles/agent-memory-systems.html">エージェントメモリシステム</a></td><td>エージェントメモリシステムとは、AIエージェントが情報を保持・検索・更新するための仕組みの総称であり、短期的なコンテキスト管理から長期的な知識ストアまでを包含す...</td><td>2026-04-08</td><td>4</td></tr>
+        <tr><td><a href="articles/multi-agent-systems.html">マルチエージェントシステム</a></td><td>マルチエージェントシステムとは、複数の自律的なAIエージェントが協調・分散して動作し、単一エージェントでは達成困難なタスクを並列・階層的に解決するアーキテクチャ...</td><td>2026-04-08</td><td>5</td></tr>
+        <tr><td><a href="articles/langchain-overview.html">LangChain概要</a></td><td>LangChainは2022年に創設されたオープンソースフレームワークで、LLMを活用したアプリケーションおよびAIエージェントの開発を効率化する包括的なツール...</td><td>2026-04-08</td><td>5</td></tr>
+        <tr><td><a href="articles/tool-use-architecture.html">ツール使用アーキテクチャ</a></td><td>ツール使用アーキテクチャは、AIエージェントが外部関数やAPIを呼び出す仕組みを定義する設計パターンであり、JSON Schemaによるツール定義、LLMによる...</td><td>2026-04-08</td><td>4</td></tr>
+        <tr><td><a href="articles/agent-architecture.html">エージェントアーキテクチャ設計パターン</a></td><td>エージェントアーキテクチャ設計パターンとは、AIエージェントの推論・計画・行動・自己修正の各フェーズを構造化するための再利用可能な設計手法の体系である。Open...</td><td>2026-04-08</td><td>5</td></tr>
+        <tr><td><a href="articles/mcp-protocol.html">Model Context Protocol（MCP）</a></td><td>Model Context Protocol（MCP）は、Anthropicが2024年11月に発表したオープン標準プロトコルで、AIエージェントと外部ツール・...</td><td>2026-04-08</td><td>4</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>

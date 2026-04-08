@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントメモリシステム - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    エージェントメモリシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">エージェントメモリシステム</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">エージェントメモリシステムとは、AIエージェントが情報を保持・検索・更新するための仕組みの総称であり、短期的なコンテキスト管理から長期的な知識ストアまでを包含する。OpenClawはインコンテキスト記憶・外部ベクトルDB・構造化キャッシュを組み合わせたハイブリッドメモリアーキテクチャを採用し、複雑なタスクにおける継続的な推論を可能にする。</div>
+
+      <!-- Section 1 -->
+      <h2 id="memory-types">メモリの種類</h2>
+      <p>
+        AIエージェントが扱うメモリは大きく3つのカテゴリに分類される。<strong>インコンテキスト記憶</strong>（In-Context Memory）はモデルの入力ウィンドウに直接含まれる情報であり、最も即座にアクセスできる一方、容量はコンテキストウィンドウサイズによって制約される。<strong>外部記憶</strong>（External Memory）はデータベースやファイルシステムなど外部ストアに永続化された情報であり、容量上限がなく長期保存に適している。<strong>キャッシュ記憶</strong>（Cached Memory）は計算コストの高い中間表現をあらかじめ保存しておく仕組みで、応答速度の向上に貢献する。
+      </p>
+      <p>
+        これら3種類のメモリは相互補完的に機能する。<a href="agent-architecture.html">エージェントアーキテクチャ</a>の観点では、タスクの性質やリソース制約に応じて適切なメモリ層を選択・組み合わせることが性能と信頼性の鍵となる。
+      </p>
+
+      <!-- SVG Memory Hierarchy Diagram -->
+      <figure style="margin: 24px 0; text-align: center;">
+        <svg width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg"
+             style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:4px; max-width:100%;">
+          <!-- Title -->
+          <text x="300" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">メモリ階層ダイアグラム</text>
+
+          <!-- Layer 1: In-Context (top, smallest, fastest) -->
+          <rect x="180" y="50" width="240" height="52" rx="4" fill="#ddeeff" stroke="#36c" stroke-width="1.5"/>
+          <text x="300" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">インコンテキスト記憶</text>
+          <text x="300" y="88" text-anchor="middle" font-size="10" fill="#555">速度: 最高 ／ 容量: 小（コンテキスト上限）</text>
+
+          <!-- Arrow down -->
+          <line x1="300" y1="102" x2="300" y2="118" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Layer 2: Cache -->
+          <rect x="120" y="118" width="360" height="52" rx="4" fill="#eef5dd" stroke="#5a5" stroke-width="1.5"/>
+          <text x="300" y="138" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">キャッシュ記憶</text>
+          <text x="300" y="156" text-anchor="middle" font-size="10" fill="#555">速度: 高 ／ 容量: 中（セッション単位）</text>
+
+          <!-- Arrow down -->
+          <line x1="300" y1="170" x2="300" y2="186" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Layer 3: External (bottom, largest, slowest) -->
+          <rect x="60" y="186" width="480" height="52" rx="4" fill="#fff3e0" stroke="#e8a000" stroke-width="1.5"/>
+          <text x="300" y="206" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">外部記憶（ベクトルDB / KV ストア）</text>
+          <text x="300" y="224" text-anchor="middle" font-size="10" fill="#555">速度: 中 ／ 容量: 大（永続・無制限）</text>
+
+          <!-- Labels on sides -->
+          <text x="44" y="76" text-anchor="middle" font-size="9" fill="#36c" transform="rotate(-90 44 76)">高速</text>
+          <text x="44" y="212" text-anchor="middle" font-size="9" fill="#e8a000" transform="rotate(-90 44 212)">大容量</text>
+          <line x1="30" y1="55" x2="30" y2="235" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="3,3"/>
+          <polygon points="30,55 26,65 34,65" fill="#36c"/>
+          <polygon points="30,235 26,225 34,225" fill="#e8a000"/>
+
+          <!-- Arrow marker definition -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L0,8 L8,4 Z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+
+          <!-- Caption -->
+          <text x="300" y="272" text-anchor="middle" font-size="10" fill="#555">図1: エージェントメモリ階層（速度 vs 容量のトレードオフ）</text>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555; margin-top:6px;">図1 — エージェントが利用する3層メモリ階層。上層ほど高速で下層ほど大容量。</figcaption>
+      </figure>
+
+      <!-- Section 2 -->
+      <h2 id="short-term-memory">短期記憶とコンテキストウィンドウ管理</h2>
+      <p>
+        短期記憶の実体はLLMの<strong>コンテキストウィンドウ</strong>である。エージェントはユーザーとのメッセージ履歴、ツール呼び出し結果、思考ステップなどをすべてコンテキストとして保持しながら推論を進める。コンテキストウィンドウには上限があるため、長時間・多ステップのタスクでは管理戦略が不可欠となる。
+      </p>
+      <p>
+        代表的なコンテキスト管理手法には以下がある。
+      </p>
+      <ul>
+        <li><strong>スライディングウィンドウ</strong>: 古いメッセージを順次削除し、直近の会話のみを保持する。</li>
+        <li><strong>要約圧縮</strong>: 古い会話履歴をLLM自身に要約させ、要約テキストとしてコンテキストに組み込む。</li>
+        <li><strong>重要度フィルタリング</strong>: タスク目標に関連性の低いメッセージを優先的に削除する。</li>
+        <li><strong>外部オフロード</strong>: 詳細情報を外部記憶に書き出し、必要時にのみ取り込む。</li>
+      </ul>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a>では、セッションごとにコンテキスト使用率をモニタリングし、閾値（デフォルト80%）を超えた時点で自動的に要約圧縮を実行するメカニズムを持つ。
+      </p>
+
+      <!-- Section 3 -->
+      <h2 id="long-term-memory">長期記憶とベクトルデータベース（RAG）</h2>
+      <p>
+        長期記憶は外部ストアに永続化された知識であり、セッションをまたいで参照可能な情報を提供する。実装の中心となるのが<strong>ベクトルデータベース</strong>と<strong>RAG（Retrieval-Augmented Generation）</strong>パターンである。
+      </p>
+      <p>
+        RAGでは、保存したいテキストをエンベディングモデルで数値ベクトルに変換し、ベクトルDBに格納する。エージェントが情報を必要とした際、クエリを同様にベクトル化して類似度検索を行い、上位k件のチャンクを取得してコンテキストに注入する。この仕組みにより、数百万件を超えるドキュメントから関連情報を数十ミリ秒で検索することが可能となる。
+      </p>
+      <p>
+        OpenClawが対応する主なベクトルDBバックエンドは以下の通りである。
+      </p>
+      <ul>
+        <li><strong>ローカルファイルベース</strong>（デフォルト）: 小規模タスク向け。追加依存なし。</li>
+        <li><strong>Chroma</strong>: 中規模・プロトタイプ向けの軽量OSSベクトルDB。</li>
+        <li><strong>Qdrant</strong>: 高スループット・大規模本番環境向け。フィルタリング機能が豊富。</li>
+        <li><strong>pgvector</strong>: PostgreSQL拡張。既存RDBとの統合が容易。</li>
+      </ul>
+      <p>
+        <a href="multi-agent-systems.html">マルチエージェントシステム</a>では、複数のエージェントが同一ベクトルDBを共有し、互いの知識を活用する構成が一般的に取られる。
+      </p>
+
+      <!-- Section 4 -->
+      <h2 id="episodic-semantic">エピソード記憶とセマンティック記憶</h2>
+      <p>
+        認知科学に由来する区分として、エージェントのメモリは<strong>エピソード記憶</strong>と<strong>セマンティック記憶</strong>に大別される。
+      </p>
+      <p>
+        <strong>エピソード記憶</strong>は「いつ・何をしたか」という具体的な出来事の記録である。エージェントにとっては過去のタスク実行ログ、ツール呼び出し履歴、エラーと回復のパターンなどが該当する。エピソード記憶を参照することで、エージェントは同種のタスクで以前うまくいった戦略を再利用したり、失敗パターンを避けたりできる。
+      </p>
+      <p>
+        <strong>セマンティック記憶</strong>は「何が真実か」という概念・事実・関係性の知識体系である。ドメイン知識ドキュメント、ツール仕様書、ユーザー設定などが含まれる。セマンティック記憶は比較的安定しており、更新頻度は低い。
+      </p>
+      <p>
+        OpenClawはこの区分に対応する2つのストアを持ち、それぞれ異なる検索インデックスと有効期限ポリシーを適用している。エピソード記憶はTTL（Time-To-Live）による自動削除が有効であり、古いエピソードがストアを圧迫しない設計となっている。
+      </p>
+
+      <!-- Section 5 -->
+      <h2 id="openclaw-implementation">OpenClawのメモリ実装</h2>
+      <p>
+        OpenClawのメモリシステムは<code>MemoryManager</code>クラスを中心に構成される。このクラスはインコンテキスト・キャッシュ・外部という3層のメモリを抽象化し、エージェントコアに統一的なAPIを提供する。<a href="agent-architecture.html">エージェントアーキテクチャ</a>における他のコンポーネント（プランナー、ツール実行器など）はすべてこのAPIを通じてメモリにアクセスする。
+      </p>
+      <p>主要なインターフェースを以下に示す。</p>
+      <ul>
+        <li><code>memory.store(key, value, tier="external")</code>: 指定した層に情報を保存する。</li>
+        <li><code>memory.retrieve(query, top_k=5)</code>: セマンティック検索で関連情報を取得する。</li>
+        <li><code>memory.forget(key)</code>: 指定エントリを削除する。</li>
+        <li><code>memory.summarize_context()</code>: 現在のコンテキストを圧縮して短期記憶の使用量を削減する。</li>
+        <li><code>memory.snapshot()</code>: 現在のメモリ状態をシリアライズし、セッションを再開可能にする。</li>
+      </ul>
+      <p>
+        また、OpenClawは<strong>メモリ書き込みツール</strong>をエージェント自身に公開している。エージェントはタスク遂行中に重要な発見や中間結果を自発的に外部メモリに書き込むことができ、これにより長時間タスクでの情報損失が防止される。<a href="ai-agent-overview.html">AIエージェント概論</a>でも述べられているように、メモリへの自律的な書き込みはエージェントの自己組織化能力の基盤となる。
+      </p>
+
+      <!-- Section 6 -->
+      <h2 id="challenges">メモリ管理の課題と最適化</h2>
+      <p>
+        エージェントメモリシステムには複数の技術的課題が存在する。
+      </p>
+      <p>
+        <strong>ハルシネーションによる誤情報の蓄積</strong>: エージェントが誤った情報を外部メモリに書き込むと、以降のセッションでその誤情報が参照され続ける危険がある。OpenClawはメモリ書き込み時に信頼度スコアを記録し、低スコアのエントリは検索結果の優先度を下げる仕組みを採用している。
+      </p>
+      <p>
+        <strong>メモリの整合性維持</strong>: 長期運用の中でメモリ内の情報が陳腐化したり矛盾したりする問題がある。定期的なガベージコレクションと矛盾検出パイプラインによって整合性を保つ設計が求められる。
+      </p>
+      <p>
+        <strong>プライバシーと情報漏洩</strong>: 複数ユーザーが同一エージェントを利用する環境では、ユーザーAの情報がユーザーBに漏洩しないよう、テナント分離とアクセス制御が必須となる。
+      </p>
+      <p>
+        <strong>検索レイテンシの最適化</strong>: 大規模なベクトルDBでは検索レイテンシが問題になる場合がある。階層型インデックス（HNSW）や近似最近傍探索（ANN）を活用し、精度とレイテンシのバランスを調整する。
+      </p>
+      <p>
+        OpenClawはこれらの課題に対して設定可能なポリシーを提供しており、タスクのリスクレベルや性能要件に応じてメモリ戦略をカスタマイズできる。詳細は<a href="agent-architecture.html">エージェントアーキテクチャ</a>を参照。
+      </p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#memory-types">1. メモリの種類</a></li>
+          <li><a href="#short-term-memory">2. 短期記憶とコンテキストウィンドウ管理</a></li>
+          <li><a href="#long-term-memory">3. 長期記憶とベクトルデータベース（RAG）</a></li>
+          <li><a href="#episodic-semantic">4. エピソード記憶とセマンティック記憶</a></li>
+          <li><a href="#openclaw-implementation">5. OpenClawのメモリ実装</a></li>
+          <li><a href="#challenges">6. メモリ管理の課題と最適化</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+          <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+        <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

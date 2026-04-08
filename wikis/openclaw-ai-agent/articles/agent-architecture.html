@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントアーキテクチャ設計パターン - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    エージェントアーキテクチャ設計パターン
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">エージェントアーキテクチャ設計パターン</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">エージェントアーキテクチャ設計パターンとは、AIエージェントの推論・計画・行動・自己修正の各フェーズを構造化するための再利用可能な設計手法の体系である。OpenClawではこれらのパターンを組み合わせ、高い信頼性と拡張性を持つエージェントシステムを構築している。</div>
+
+      <!-- CONTENT START -->
+
+      <h2 id="overview">概要</h2>
+      <p>
+        AIエージェントは単なる言語モデルの呼び出しにとどまらず、外部ツールとのインタラクション、複数ステップにわたる計画立案、記憶の管理、そして自己の行動に対する反省といった複雑なオーケストレーションを必要とする。
+        これらの要求に応えるため、研究コミュニティと産業界では複数の<strong>設計パターン</strong>が提案・実装されてきた。
+      </p>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a> フレームワークは、以下に示す主要パターンを統合的に採用しており、ユースケースに応じて柔軟なパターン選択・組み合わせを可能にする。
+        詳細なエージェントの概念については <a href="ai-agent-overview.html">AIエージェント概論</a> を参照されたい。
+      </p>
+
+      <h2 id="react">ReAct（推論＋行動）パターン</h2>
+      <p>
+        <strong>ReAct（Reasoning + Acting）</strong> パターンは、Yao et al.（2022）が提案した手法であり、言語モデルが「思考（Thought）→ 行動（Action）→ 観察（Observation）」のサイクルを繰り返すことで複雑なタスクを解決する。
+      </p>
+      <p>
+        従来のチェーン・オブ・ソートが推論のみに留まるのに対し、ReActは推論と外部ツール呼び出しを交互に行う点が特徴である。これにより、エージェントは計算、情報検索、コード実行といった外部能力を推論プロセスに統合できる。
+        <a href="tool-use-architecture.html">ツール使用アーキテクチャ</a>との親和性が特に高いパターンである。
+      </p>
+
+      <h3>ReActのフロー</h3>
+      <figure style="margin: 1.2em 0;">
+        <svg viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px;border:1px solid #a2a9b1;background:#f8f9fa;border-radius:4px;display:block;">
+          <!-- Thought box -->
+          <rect x="20" y="50" width="120" height="60" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="80" y="84" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Thought</text>
+          <text x="80" y="100" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">（推論）</text>
+          <!-- arrow -->
+          <line x1="140" y1="80" x2="180" y2="80" stroke="#36c" stroke-width="2" marker-end="url(#arr)"/>
+          <!-- Action box -->
+          <rect x="180" y="50" width="120" height="60" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="240" y="84" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Action</text>
+          <text x="240" y="100" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">（ツール呼出）</text>
+          <!-- arrow -->
+          <line x1="300" y1="80" x2="340" y2="80" stroke="#36c" stroke-width="2" marker-end="url(#arr)"/>
+          <!-- Observation box -->
+          <rect x="340" y="50" width="130" height="60" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="405" y="84" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Observation</text>
+          <text x="405" y="100" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">（結果取得）</text>
+          <!-- loop arrow -->
+          <path d="M470 80 Q550 80 550 30 Q550 10 405 10 Q260 10 260 50" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr2)"/>
+          <text x="480" y="25" font-size="10" fill="#888" font-family="sans-serif">繰り返し</text>
+          <!-- Final -->
+          <rect x="510" y="50" width="110" height="60" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="565" y="84" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Final Answer</text>
+          <line x1="470" y1="80" x2="510" y2="80" stroke="#36c" stroke-width="2" marker-end="url(#arr)"/>
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#888"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.85em;color:#555;margin-top:4px;">図1: ReActパターンにおける推論・行動・観察のサイクル</figcaption>
+      </figure>
+
+      <h3>OpenClawでのReAct実装</h3>
+      <p>
+        OpenClawは各ターンの出力を構造化フォーマット（<code>thought</code>・<code>action</code>・<code>action_input</code>フィールド）でパースし、
+        ツールディスパッチャに渡す。観察結果はプロンプト履歴にフィードバックされ、次の推論ステップへ入力される。
+        短期・長期の記憶統合については <a href="agent-memory-systems.html">エージェント記憶システム</a> を参照。
+      </p>
+
+      <h2 id="plan-and-execute">Plan-and-Execute（計画実行）パターン</h2>
+      <p>
+        <strong>Plan-and-Execute</strong> パターンは、タスクを「計画フェーズ」と「実行フェーズ」に明確に分離する。計画フェーズでは上位モデルが全体のサブタスクリストを生成し、実行フェーズでは各サブタスクを順次（または並列に）実行するエグゼキュータが担当する。
+      </p>
+      <p>
+        ReActが一ステップずつ動的に判断するのに対し、Plan-and-Executeは計画を先行して立案するため、長期的・多ステップタスクへの適性が高い。ただし計画の修正には再計画フェーズが必要になる場合がある。
+      </p>
+
+      <figure style="margin: 1.2em 0;">
+        <svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;border:1px solid #a2a9b1;background:#f8f9fa;border-radius:4px;display:block;">
+          <!-- Planner -->
+          <rect x="20" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="80" y="104" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Planner</text>
+          <text x="80" y="120" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">（計画生成）</text>
+          <!-- arrow to tasks -->
+          <line x1="140" y1="100" x2="180" y2="100" stroke="#36c" stroke-width="2" marker-end="url(#arr3)"/>
+          <!-- Task list box -->
+          <rect x="180" y="55" width="130" height="90" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="245" y="80" text-anchor="middle" font-size="11" fill="#36c" font-family="sans-serif">タスクリスト</text>
+          <text x="245" y="98" text-anchor="middle" font-size="10" fill="#202122" font-family="sans-serif">1. サブタスクA</text>
+          <text x="245" y="112" text-anchor="middle" font-size="10" fill="#202122" font-family="sans-serif">2. サブタスクB</text>
+          <text x="245" y="126" text-anchor="middle" font-size="10" fill="#202122" font-family="sans-serif">3. サブタスクC</text>
+          <!-- arrow to executor -->
+          <line x1="310" y1="100" x2="350" y2="100" stroke="#36c" stroke-width="2" marker-end="url(#arr3)"/>
+          <!-- Executor -->
+          <rect x="350" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="410" y="104" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">Executor</text>
+          <text x="410" y="120" text-anchor="middle" font-size="10" fill="#555" font-family="sans-serif">（逐次実行）</text>
+          <!-- re-plan arrow -->
+          <path d="M410 130 Q410 170 245 170 Q80 170 80 130" fill="none" stroke="#e06c00" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+          <text x="245" y="163" text-anchor="middle" font-size="10" fill="#e06c00" font-family="sans-serif">再計画（必要時）</text>
+          <defs>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#e06c00"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.85em;color:#555;margin-top:4px;">図2: Plan-and-Executeパターン。Plannerがサブタスクを生成し、Executorが実行する</figcaption>
+      </figure>
+
+      <p>
+        <a href="multi-agent-systems.html">マルチエージェントシステム</a> では、このパターンを拡張して複数のエグゼキュータエージェントが並列にサブタスクを処理する構成が一般的である。
+      </p>
+
+      <h2 id="reflexion">Reflexion（自己反省）パターン</h2>
+      <p>
+        <strong>Reflexion</strong>（Shinn et al., 2023）は、エージェントが過去の行動と結果を「反省（reflection）」し、その洞察を言語的フィードバックとしてエピソード記憶に格納する手法である。
+        次のエピソードではその反省が参照されるため、同じ失敗を繰り返さない適応的な行動が可能になる。
+      </p>
+
+      <h3>反省サイクル</h3>
+      <ol>
+        <li><strong>タスク実行</strong>: エージェントが通常のReActループで行動する</li>
+        <li><strong>評価</strong>: 評価モジュールが成功・失敗・部分的成功を判定する</li>
+        <li><strong>反省生成</strong>: 評価結果を受けてLLMが反省テキストを生成する</li>
+        <li><strong>記憶格納</strong>: 反省テキストをエピソード記憶（長期バッファ）に保存する</li>
+        <li><strong>次エピソードへ注入</strong>: 保存された反省を次回のシステムプロンプトに挿入する</li>
+      </ol>
+
+      <p>
+        OpenClawのReflexion実装は <a href="agent-memory-systems.html">エージェント記憶システム</a> のエピソード記憶層と密接に統合されており、反省内容はJSONエントリとして管理されて自動的にコンテキストウィンドウに注入される。
+      </p>
+
+      <h2 id="mrkl">MRKL（Modular Reasoning, Knowledge and Language）</h2>
+      <p>
+        <strong>MRKL（Modular Reasoning, Knowledge and Language）</strong> システム（Karpas et al., 2022）は、LLMをルーターとして複数の専門モジュール（計算機、データベース、APIなど）に問い合わせを振り分けるアーキテクチャである。
+      </p>
+      <p>
+        各モジュールは特定のドメインに特化しており、LLMは自身のパラメトリック知識とモジュールからの離散的な知識（Neuro-Symbolic な情報）を組み合わせて回答を生成する。
+        これはReActの「ツール呼び出し」概念の原型ともいえる。
+      </p>
+
+      <figure style="margin: 1.2em 0;">
+        <svg viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;border:1px solid #a2a9b1;background:#f8f9fa;border-radius:4px;display:block;">
+          <!-- LLM Router center -->
+          <ellipse cx="310" cy="110" rx="70" ry="40" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="310" y="107" text-anchor="middle" font-size="13" fill="#202122" font-family="sans-serif">LLM</text>
+          <text x="310" y="123" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">（ルーター）</text>
+          <!-- Module boxes -->
+          <!-- Calculator -->
+          <rect x="30" y="30" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="58" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">計算モジュール</text>
+          <line x1="140" y1="55" x2="240" y2="90" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <!-- DB -->
+          <rect x="30" y="100" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="128" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">DBモジュール</text>
+          <line x1="140" y1="125" x2="240" y2="115" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <!-- Search -->
+          <rect x="30" y="170" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="85" y="198" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">検索モジュール</text>
+          <line x1="140" y1="195" x2="240" y2="130" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <!-- API -->
+          <rect x="480" y="30" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="58" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">APIモジュール</text>
+          <line x1="480" y1="55" x2="380" y2="90" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <!-- Code -->
+          <rect x="480" y="100" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="128" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">コード実行</text>
+          <line x1="480" y1="125" x2="380" y2="115" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+          <!-- Knowledge -->
+          <rect x="480" y="170" width="110" height="50" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="198" text-anchor="middle" font-size="11" fill="#202122" font-family="sans-serif">知識ベース</text>
+          <line x1="480" y1="195" x2="380" y2="130" stroke="#888" stroke-width="1.2" stroke-dasharray="4,2"/>
+        </svg>
+        <figcaption style="font-size:0.85em;color:#555;margin-top:4px;">図3: MRKLアーキテクチャ。LLMがルーターとして機能し、複数の専門モジュールを呼び出す</figcaption>
+      </figure>
+
+      <h2 id="openclaw-implementation">OpenClawでのパターン実装</h2>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a> は上記パターンを単純に採用するのではなく、各パターンの強みを組み合わせた<strong>ハイブリッドアーキテクチャ</strong>を採用している。
+      </p>
+
+      <h3>ハイブリッドアーキテクチャの構成</h3>
+      <table style="border-collapse:collapse;width:100%;font-size:0.92em;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">レイヤー</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">採用パターン</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">役割</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">戦略層</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">Plan-and-Execute</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">長期タスクの分解と優先度付け</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">実行層</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">ReAct + MRKL</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">ツール選択と逐次的な推論・行動</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">改善層</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">Reflexion</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">失敗からの学習と反省の蓄積</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:1em;">
+        実行層ではReActのダイナミックな推論能力とMRKLのモジュール化設計を統合し、ツール呼び出しを型安全なスキーマ（JSON Schema）で記述することで信頼性を高めている。
+        詳しくは <a href="tool-use-architecture.html">ツール使用アーキテクチャ</a> を参照。
+      </p>
+
+      <h3>パターンの切り替えメカニズム</h3>
+      <p>
+        OpenClawではタスクの複雑度スコアを事前に推定し、スコアに応じてパターンを動的に選択する：
+      </p>
+      <ul>
+        <li><strong>低複雑度（スコア &lt; 0.4）</strong>: シンプルなReActループ</li>
+        <li><strong>中複雑度（0.4 ≤ スコア &lt; 0.75）</strong>: ReAct + MRKL</li>
+        <li><strong>高複雑度（スコア ≥ 0.75）</strong>: Plan-and-Execute + ReAct + Reflexion</li>
+      </ul>
+
+      <h2 id="pattern-selection">パターン選択の指針</h2>
+      <p>
+        実際のシステム設計においてどのパターンを選択するかは、以下の軸で判断することが推奨される。
+      </p>
+
+      <h3>選択マトリクス</h3>
+      <table style="border-collapse:collapse;width:100%;font-size:0.92em;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">判断軸</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">ReAct</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">Plan-and-Execute</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">Reflexion</th>
+            <th style="border:1px solid #a2a9b1;padding:6px 10px;text-align:left;">MRKL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">短期タスク</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">◎</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">長期・複雑タスク</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">◎</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">失敗からの学習</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">◎</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">多様なツール統合</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">◎</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">実装の容易さ</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">◎</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">△</td>
+            <td style="border:1px solid #a2a9b1;padding:6px 10px;">○</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>一般的な推奨事項</h3>
+      <ul>
+        <li>プロトタイプ段階では <strong>ReAct</strong> から始め、要件に応じて拡張する</li>
+        <li>本番環境で信頼性が求められる場合は <strong>Plan-and-Execute</strong> を検討する</li>
+        <li>反復的な改善や自律学習が必要な場合は <strong>Reflexion</strong> を追加する</li>
+        <li>ドメイン特化モジュールが多数存在する場合は <strong>MRKL</strong> ベースのルーティング層を設ける</li>
+        <li><a href="multi-agent-systems.html">マルチエージェントシステム</a> では、Plan-and-ExecuteとMRKLを組み合わせ、各エージェントに特化した役割を割り当てることが効果的である</li>
+      </ul>
+
+      <!-- CONTENT END -->
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">1. 概要</a></li>
+          <li><a href="#react">2. ReAct（推論＋行動）パターン</a></li>
+          <li><a href="#plan-and-execute">3. Plan-and-Execute パターン</a></li>
+          <li><a href="#reflexion">4. Reflexion（自己反省）パターン</a></li>
+          <li><a href="#mrkl">5. MRKL</a></li>
+          <li><a href="#openclaw-implementation">6. OpenClawでのパターン実装</a></li>
+          <li><a href="#pattern-selection">7. パターン選択の指針</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw 概要</a></li>
+          <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+          <li><a href="tool-use-architecture.html">ツール使用アーキテクチャ</a></li>
+          <li><a href="agent-memory-systems.html">エージェント記憶システム</a></li>
+          <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw 概要</a></li>
+        <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+        <li><a href="tool-use-architecture.html">ツール使用アーキテクチャ</a></li>
+        <li><a href="agent-memory-systems.html">エージェント記憶システム</a></li>
+        <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

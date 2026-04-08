@@ -818,6 +818,78 @@
       "color": "#6b7c93",
       "is_root": false,
       "summary": "200以上の研究機関が集積するつくばの研究者コミュニティは、計画都市の孤立化傾向を部分的に補償するが、高い流動性・仮住まい意識・機関内外の断絶という独自の課題も生む。"
+    },
+    {
+      "id": "openclaw-ai-agent:openclaw-ai-agent",
+      "wiki": "openclaw-ai-agent",
+      "title": "OpenClaw AIエージェント",
+      "url": "wikis/openclaw-ai-agent/articles/openclaw-ai-agent.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "OpenClawは、LLMを推論エンジンとして活用し、外部ツールや環境との双方向インタラクションを可能にするオープンソースのAIエージェントフレームワーク。Think-Act-Observeサイクルを基本設計原理に採用し、コード実行・ウェブ検索・マルチエージェント協調などの機能を提供する。"
+    },
+    {
+      "id": "openclaw-ai-agent:ai-agent-overview",
+      "wiki": "openclaw-ai-agent",
+      "title": "AIエージェント概論",
+      "url": "wikis/openclaw-ai-agent/articles/ai-agent-overview.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "AIエージェントとは、環境を知覚し、目標達成に向けて自律的に行動を計画・実行するソフトウェアシステムである。大規模言語モデル（LLM）の台頭により、自然言語を介して複雑なタスクを遂行できる高度なエージェントが実現されつつある。"
+    },
+    {
+      "id": "openclaw-ai-agent:agent-memory-systems",
+      "wiki": "openclaw-ai-agent",
+      "title": "エージェントメモリシステム",
+      "url": "wikis/openclaw-ai-agent/articles/agent-memory-systems.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "エージェントメモリシステムとは、AIエージェントが情報を保持・検索・更新するための仕組みの総称であり、短期的なコンテキスト管理から長期的な知識ストアまでを包含する。OpenClawはインコンテキスト記憶・外部ベクトルDB・構造化キャッシュを組み合わせたハイブリッドメモリアーキテクチャを採用し、複雑なタスクにおける継続的な推論を可能にする。"
+    },
+    {
+      "id": "openclaw-ai-agent:multi-agent-systems",
+      "wiki": "openclaw-ai-agent",
+      "title": "マルチエージェントシステム",
+      "url": "wikis/openclaw-ai-agent/articles/multi-agent-systems.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "マルチエージェントシステムとは、複数の自律的なAIエージェントが協調・分散して動作し、単一エージェントでは達成困難なタスクを並列・階層的に解決するアーキテクチャである。OpenClawはオーケストレーター・ワーカーモデルを採用し、エージェント間通信プロトコルと動的タスク分割によって高いスケーラビリティを実現している。"
+    },
+    {
+      "id": "openclaw-ai-agent:langchain-overview",
+      "wiki": "openclaw-ai-agent",
+      "title": "LangChain概要",
+      "url": "wikis/openclaw-ai-agent/articles/langchain-overview.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "LangChainは2022年に創設されたオープンソースフレームワークで、LLMを活用したアプリケーションおよびAIエージェントの開発を効率化する包括的なツールチェーンを提供する。Chains・Agents・Memory・Tools・Callbacksなどのコンポーネントを組み合わせることで、複雑なLLMパイプラインを宣言的に構築できる。"
+    },
+    {
+      "id": "openclaw-ai-agent:tool-use-architecture",
+      "wiki": "openclaw-ai-agent",
+      "title": "ツール使用アーキテクチャ",
+      "url": "wikis/openclaw-ai-agent/articles/tool-use-architecture.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "ツール使用アーキテクチャは、AIエージェントが外部関数やAPIを呼び出す仕組みを定義する設計パターンであり、JSON Schemaによるツール定義、LLMによるツール選択、ツール実行サイクル、エラーハンドリングを組み合わせて自律的なタスク遂行能力を実現する。"
+    },
+    {
+      "id": "openclaw-ai-agent:agent-architecture",
+      "wiki": "openclaw-ai-agent",
+      "title": "エージェントアーキテクチャ設計パターン",
+      "url": "wikis/openclaw-ai-agent/articles/agent-architecture.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "エージェントアーキテクチャ設計パターンとは、AIエージェントの推論・計画・行動・自己修正の各フェーズを構造化するための再利用可能な設計手法の体系である。OpenClawではReAct、Plan-and-Execute、Reflexion、MRKLといったパターンを組み合わせ、高い信頼性と拡張性を持つハイブリッドアーキテクチャを構築している。"
+    },
+    {
+      "id": "openclaw-ai-agent:mcp-protocol",
+      "wiki": "openclaw-ai-agent",
+      "title": "Model Context Protocol（MCP）",
+      "url": "wikis/openclaw-ai-agent/articles/mcp-protocol.html",
+      "color": "#00796b",
+      "is_root": false,
+      "summary": "Model Context Protocol（MCP）は、Anthropicが2024年11月に発表したオープン標準プロトコルで、AIエージェントと外部ツール・データソースをホスト/クライアント/サーバーの三層アーキテクチャで接続し、LLMアプリケーションのコンテキスト管理とツール統合を標準化する。"
     }
   ],
   "links": [
@@ -3019,6 +3091,201 @@
     {
       "source": "keikaku-toshi-psychology:tsukuba-kenkyu-community",
       "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:tool-use-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:agent-memory-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:multi-agent-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:mcp-protocol",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:openclaw-ai-agent",
+      "target": "openclaw-ai-agent:langchain-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:ai-agent-overview",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:ai-agent-overview",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:ai-agent-overview",
+      "target": "openclaw-ai-agent:tool-use-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:ai-agent-overview",
+      "target": "openclaw-ai-agent:agent-memory-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:ai-agent-overview",
+      "target": "openclaw-ai-agent:multi-agent-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-memory-systems",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-memory-systems",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-memory-systems",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-memory-systems",
+      "target": "openclaw-ai-agent:multi-agent-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:multi-agent-systems",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:multi-agent-systems",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:multi-agent-systems",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:multi-agent-systems",
+      "target": "openclaw-ai-agent:agent-memory-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:multi-agent-systems",
+      "target": "openclaw-ai-agent:mcp-protocol",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:langchain-overview",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:langchain-overview",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:langchain-overview",
+      "target": "openclaw-ai-agent:tool-use-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:langchain-overview",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:langchain-overview",
+      "target": "openclaw-ai-agent:mcp-protocol",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:tool-use-architecture",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:tool-use-architecture",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:tool-use-architecture",
+      "target": "openclaw-ai-agent:agent-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:tool-use-architecture",
+      "target": "openclaw-ai-agent:mcp-protocol",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-architecture",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-architecture",
+      "target": "openclaw-ai-agent:ai-agent-overview",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-architecture",
+      "target": "openclaw-ai-agent:tool-use-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-architecture",
+      "target": "openclaw-ai-agent:agent-memory-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:agent-architecture",
+      "target": "openclaw-ai-agent:multi-agent-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:mcp-protocol",
+      "target": "openclaw-ai-agent:openclaw-ai-agent",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:mcp-protocol",
+      "target": "openclaw-ai-agent:tool-use-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:mcp-protocol",
+      "target": "openclaw-ai-agent:multi-agent-systems",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw-ai-agent:mcp-protocol",
+      "target": "openclaw-ai-agent:langchain-overview",
       "type": "internal"
     },
     {

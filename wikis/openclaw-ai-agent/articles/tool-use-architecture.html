@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ツール使用アーキテクチャ - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    ツール使用アーキテクチャ
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">ツール使用アーキテクチャ</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">ツール使用アーキテクチャは、AIエージェントが外部関数やAPIを呼び出す仕組みを定義する設計パターンであり、JSON Schemaによるツール定義、LLMによるツール選択、ツール実行サイクル、エラーハンドリングを組み合わせて自律的なタスク遂行能力を実現する。</div>
+
+      <!-- Section 1 -->
+      <h2 id="concept-and-history">ツール使用の概念と歴史</h2>
+      <p>
+        AIエージェントにおける「ツール使用」とは、大規模言語モデル（LLM）が自然言語の推論能力を超えて、プログラム的な外部機能（ファイル操作、Web検索、データベースクエリ、APIコールなど）を呼び出す能力を指す。
+        これは、LLM単体では実現できなかったリアルタイム情報取得・副作用を伴うアクション・精密な計算処理を可能にする。
+      </p>
+      <p>
+        初期のLLMは会話生成に特化しており、外部システムとの連携は手動のプロンプトエンジニアリングに依存していた。
+        2023年以降、OpenAIのFunction Callingの公開をきっかけに、LLMが構造化されたツール呼び出しを出力するパラダイムが標準化された。
+        その後、AnthropicのTool Use API、GoogleのFunction Callingなど各社が対応し、現在では主要なLLMプロバイダーの共通機能となっている。
+      </p>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a> は、このツール使用パラダイムを中心に設計された
+        <a href="ai-agent-overview.html">AIエージェント</a>フレームワークであり、
+        型安全なツールレジストリと動的なツール選択メカニズムを特徴とする。
+      </p>
+
+      <!-- Section 2 -->
+      <h2 id="tool-definition">JSON Schemaによるツール定義</h2>
+      <p>
+        ツール使用の基盤となるのが、JSON Schema形式によるツール定義である。
+        各ツールは以下の要素を持つスキーマとして記述される：
+      </p>
+      <ul>
+        <li><strong>name</strong>: ツールの一意な識別子（例: <code>search_web</code>、<code>read_file</code>）</li>
+        <li><strong>description</strong>: ツールの機能説明（LLMがツールを選択する際の参照情報）</li>
+        <li><strong>parameters</strong>: 入力パラメータのJSON Schemaオブジェクト（型・必須フィールド・説明を含む）</li>
+        <li><strong>returns</strong>（省略可）: 出力形式の説明</li>
+      </ul>
+      <p>
+        以下はファイル読み取りツールのスキーマ例である：
+      </p>
+      <pre><code>{
+  "name": "read_file",
+  "description": "指定したパスのファイルを読み込み、内容を返す",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "読み込むファイルの絶対パス"
+      },
+      "encoding": {
+        "type": "string",
+        "enum": ["utf-8", "utf-16", "binary"],
+        "default": "utf-8"
+      }
+    },
+    "required": ["path"]
+  }
+}</code></pre>
+      <p>
+        LLMはこのスキーマ情報をシステムプロンプトまたは専用のAPI引数として受け取り、
+        ユーザーリクエストの文脈に応じて適切なツールと引数を選択する。
+        スキーマの記述精度が高いほどツール選択の精度が向上するため、
+        descriptionフィールドの品質管理がエージェント性能に直結する。
+      </p>
+
+      <!-- Section 3: SVG diagram -->
+      <h2 id="tool-call-flow">ツール呼び出しフロー</h2>
+      <p>
+        Function Calling / Tool Use APIを通じたツール呼び出しの基本サイクルを以下のSVG図に示す。
+      </p>
+
+      <figure style="margin: 1.5em 0; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 420" width="780" height="420"
+             style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:4px; max-width:100%;">
+          <!-- Title -->
+          <text x="390" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">ツール呼び出しフロー（Tool Use Cycle）</text>
+
+          <!-- Boxes -->
+          <!-- User -->
+          <rect x="30" y="55" width="120" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="90" y="81" text-anchor="middle" font-size="13" fill="#202122">ユーザー</text>
+
+          <!-- LLM -->
+          <rect x="310" y="55" width="160" height="44" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="390" y="81" text-anchor="middle" font-size="13" fill="#202122">LLM（推論エンジン）</text>
+
+          <!-- Tool Registry -->
+          <rect x="600" y="55" width="150" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="675" y="75" text-anchor="middle" font-size="12" fill="#202122">ツールレジストリ</text>
+          <text x="675" y="90" text-anchor="middle" font-size="11" fill="#555">(Tool Registry)</text>
+
+          <!-- Executor -->
+          <rect x="600" y="195" width="150" height="44" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="675" y="218" text-anchor="middle" font-size="12" fill="#202122">ツールエグゼキュータ</text>
+          <text x="675" y="233" text-anchor="middle" font-size="11" fill="#555">(Executor)</text>
+
+          <!-- External -->
+          <rect x="600" y="335" width="150" height="44" rx="6" fill="#fff8dc" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="675" y="358" text-anchor="middle" font-size="12" fill="#202122">外部システム</text>
+          <text x="675" y="373" text-anchor="middle" font-size="11" fill="#555">(API / FS / DB)</text>
+
+          <!-- Context/History -->
+          <rect x="310" y="195" width="160" height="44" rx="6" fill="#f0fff0" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="390" y="215" text-anchor="middle" font-size="12" fill="#202122">会話コンテキスト</text>
+          <text x="390" y="230" text-anchor="middle" font-size="11" fill="#555">(Message History)</text>
+
+          <!-- Result back to LLM -->
+          <rect x="310" y="335" width="160" height="44" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="390" y="355" text-anchor="middle" font-size="12" fill="#202122">最終応答生成</text>
+          <text x="390" y="370" text-anchor="middle" font-size="11" fill="#555">(Final Response)</text>
+
+          <!-- Arrows -->
+          <!-- User -> LLM -->
+          <line x1="150" y1="77" x2="308" y2="77" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="229" y="70" text-anchor="middle" font-size="10" fill="#555">① ユーザーリクエスト</text>
+
+          <!-- LLM -> Registry -->
+          <line x1="470" y1="77" x2="598" y2="77" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="534" y="70" text-anchor="middle" font-size="10" fill="#555">② スキーマ参照</text>
+
+          <!-- LLM -> Context -->
+          <line x1="390" y1="99" x2="390" y2="193" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <text x="410" y="150" font-size="10" fill="#555">③ tool_use出力</text>
+
+          <!-- LLM -> Executor (tool_use call) -->
+          <line x1="470" y1="120" x2="598" y2="195" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="548" y="155" text-anchor="middle" font-size="10" fill="#555">④ ツール呼び出し</text>
+
+          <!-- Executor -> External -->
+          <line x1="675" y1="239" x2="675" y2="333" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="700" y="290" font-size="10" fill="#555">⑤ 実行</text>
+
+          <!-- External -> Executor (result) -->
+          <line x1="650" y1="333" x2="650" y2="241" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <text x="610" y="290" text-anchor="end" font-size="10" fill="#555">⑥ 結果</text>
+
+          <!-- Executor -> Context (tool_result) -->
+          <line x1="598" y1="215" x2="472" y2="215" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <text x="535" y="208" text-anchor="middle" font-size="10" fill="#555">⑦ tool_result</text>
+
+          <!-- Context -> Final Response -->
+          <line x1="390" y1="239" x2="390" y2="333" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="410" y="290" font-size="10" fill="#555">⑧ 再推論</text>
+
+          <!-- Final Response -> User -->
+          <line x1="310" y1="357" x2="150" y2="110" stroke="#3366cc" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+          <text x="190" y="250" text-anchor="middle" font-size="10" fill="#555">⑨ 最終応答</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#3366cc"/>
+            </marker>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#888"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.9em; color:#555; margin-top:0.5em;">図1: ツール呼び出しサイクルの全体フロー</figcaption>
+      </figure>
+
+      <p>
+        このサイクルの要点は、LLMが直接外部システムを呼び出すのではなく、
+        構造化された<code>tool_use</code>メッセージを出力し、
+        エージェントランタイムがそれを解釈・実行する点にある。
+        LLMはツールの実行結果を<code>tool_result</code>として受け取り、
+        必要に応じてさらにツールを呼び出すか、最終的な自然言語応答を生成する。
+      </p>
+
+      <!-- Section 4 -->
+      <h2 id="tool-selection">ツール選択メカニズム</h2>
+      <p>
+        LLMがどのツールを呼び出すかを決定するメカニズムは、
+        モデルのトレーニングとプロンプト設計の両方に依存する。
+        主要な選択戦略を以下に示す。
+      </p>
+      <h3 id="forced-vs-auto">強制選択と自動選択</h3>
+      <ul>
+        <li>
+          <strong>auto（自動）</strong>: LLMがタスクの文脈に基づいて、ツールを呼び出すか直接応答するかを自律的に判断する。最も一般的な設定。
+        </li>
+        <li>
+          <strong>any（必須）</strong>: 少なくとも1つのツールを呼び出すことを強制する。検索や計算が必ず必要なユースケースに適用。
+        </li>
+        <li>
+          <strong>tool（指定）</strong>: 特定のツールの呼び出しを強制する。構造化データ抽出など、出力フォーマットを統一したい場合に有効。
+        </li>
+        <li>
+          <strong>none（禁止）</strong>: ツール呼び出しを禁止し、テキスト応答のみを許可する。
+        </li>
+      </ul>
+      <h3 id="parallel-tools">並列ツール呼び出し</h3>
+      <p>
+        多くのモデルは依存関係のない複数のツールを並列で呼び出す能力を持つ。
+        例えば「A市とB市の天気を比較して」という指示に対し、
+        二つの天気取得ツールを同時に呼び出すことで応答時間を短縮できる。
+        OpenClawのエグゼキュータはこの並列呼び出しをネイティブサポートしており、
+        <code>Promise.all</code>ベースの非同期実行プールを採用している。
+      </p>
+      <p>
+        <a href="agent-architecture.html">エージェントアーキテクチャ</a>の観点からは、
+        ツール選択の精度はシステムプロンプトにおけるツール説明の品質と、
+        ツール数の多寡に大きく影響される。
+        ツールが50個を超える場合は動的ツールフィルタリング（タスク文脈に応じたサブセット提供）が推奨される。
+      </p>
+
+      <!-- Section 5 -->
+      <h2 id="execution-cycle">ツール実行サイクルとエラーハンドリング</h2>
+      <p>
+        ツール実行サイクルはエージェントランタイムの中核処理であり、以下のステップで構成される：
+      </p>
+      <ol>
+        <li><strong>パース</strong>: LLMの<code>tool_use</code>ブロックからツール名と引数を抽出する</li>
+        <li><strong>バリデーション</strong>: JSON Schemaに対する引数の型・必須チェック</li>
+        <li><strong>ディスパッチ</strong>: ツールレジストリから対応する実装関数をルックアップして呼び出す</li>
+        <li><strong>タイムアウト制御</strong>: 設定した最大実行時間を超えた場合はキャンセルしエラーを返す</li>
+        <li><strong>結果シリアライズ</strong>: 実行結果をJSON化して<code>tool_result</code>として会話履歴に追記する</li>
+      </ol>
+      <h3 id="error-handling">エラーハンドリングとフォールバック</h3>
+      <p>
+        ツール実行では様々なエラーが発生しうる。OpenClawは以下の4層エラーハンドリング戦略を採用している：
+      </p>
+      <ul>
+        <li>
+          <strong>バリデーションエラー</strong>: スキーマ不適合の引数を受け取った場合、実行前にエラーを<code>tool_result</code>として返し、LLMに再試行を促す。
+        </li>
+        <li>
+          <strong>実行エラー</strong>: ツール内部での例外（ネットワーク障害・権限エラーなど）はキャッチされ、構造化エラーメッセージとしてLLMに通知される。
+        </li>
+        <li>
+          <strong>タイムアウトフォールバック</strong>: タイムアウト時は部分結果があればそれを返し、なければデグレード応答（「情報を取得できませんでした」など）を生成する。
+        </li>
+        <li>
+          <strong>リトライポリシー</strong>: 一時的な障害（レート制限・5xxエラー）に対しては指数バックオフリトライを適用する。最大リトライ回数はツール定義に設定可能。
+        </li>
+      </ul>
+      <p>
+        特に重要なのが「エラーの透過性」の原則である。ツール実行の失敗をランタイムが隠蔽するのではなく、
+        LLMに詳細なエラー情報を伝えることで、モデル自身が代替戦略（別ツールの使用・ユーザーへの確認など）を選択できるようにする。
+      </p>
+
+      <!-- Section 6 -->
+      <h2 id="openclaw-registry">OpenClawのツールレジストリ実装</h2>
+      <p>
+        OpenClawのツールレジストリは、ツールの登録・管理・提供を担う中央コンポーネントである。
+        <a href="mcp-protocol.html">MCPプロトコル</a>との統合により、
+        外部MCPサーバーが提供するツールも同一インターフェースで扱える設計となっている。
+      </p>
+      <h3 id="registry-features">レジストリの主要機能</h3>
+      <ul>
+        <li>
+          <strong>型安全なツール登録</strong>: TypeScriptのジェネリクスを活用し、入力スキーマと実装関数の型整合性をコンパイル時に保証する。
+        </li>
+        <li>
+          <strong>動的ロード</strong>: プラグイン形式でツールモジュールを実行時に追加・削除できる。
+          エージェントを停止せずにツールセットを更新可能。
+        </li>
+        <li>
+          <strong>スコープ管理</strong>: ツールにスコープ（<code>read-only</code>、<code>write</code>、<code>dangerous</code>など）を付与し、
+          エージェントの権限設定に応じてフィルタリングする。
+        </li>
+        <li>
+          <strong>メトリクス収集</strong>: 各ツールの呼び出し回数・平均実行時間・エラー率を自動収集し、
+          パフォーマンスモニタリングに活用する。
+        </li>
+        <li>
+          <strong>LLM向けスキーマ生成</strong>: 登録されたツール群から、各LLMプロバイダーのAPI形式に適したスキーマを動的に生成する（Anthropic形式・OpenAI形式など）。
+        </li>
+      </ul>
+      <p>
+        ツールレジストリのアーキテクチャは、OpenClawが採用する
+        <a href="agent-architecture.html">エージェントアーキテクチャ</a>の拡張性を担保する根幹コンポーネントであり、
+        ユーザーが独自のドメイン固有ツールを追加することで、
+        任意のワークフローに特化したエージェントを構築できる。
+      </p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#concept-and-history">1. ツール使用の概念と歴史</a></li>
+          <li><a href="#tool-definition">2. JSON Schemaによるツール定義</a></li>
+          <li><a href="#tool-call-flow">3. ツール呼び出しフロー</a></li>
+          <li><a href="#tool-selection">4. ツール選択メカニズム</a>
+            <ul>
+              <li><a href="#forced-vs-auto">4.1 強制選択と自動選択</a></li>
+              <li><a href="#parallel-tools">4.2 並列ツール呼び出し</a></li>
+            </ul>
+          </li>
+          <li><a href="#execution-cycle">5. ツール実行サイクルとエラーハンドリング</a>
+            <ul>
+              <li><a href="#error-handling">5.1 エラーハンドリングとフォールバック</a></li>
+            </ul>
+          </li>
+          <li><a href="#openclaw-registry">6. OpenClawのツールレジストリ実装</a>
+            <ul>
+              <li><a href="#registry-features">6.1 レジストリの主要機能</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+          <li><a href="ai-agent-overview.html">AIエージェント概要</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+        <li><a href="ai-agent-overview.html">AIエージェント概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

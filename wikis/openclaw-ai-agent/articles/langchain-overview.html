@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LangChain概要 - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    LangChain概要
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">LangChain概要</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">LangChainは2022年に創設されたオープンソースフレームワークで、大規模言語モデル（LLM）を活用したアプリケーションおよびAIエージェントの開発を効率化するための包括的なツールチェーンを提供する。Chains・Agents・Memory・Tools・Callbacksなどのコンポーネントを組み合わせることで、複雑なLLMパイプラインを宣言的に構築できる。</div>
+
+      <!-- CONTENT -->
+      <h2 id="overview">LangChainとは</h2>
+      <p>
+        LangChainは、Harrison Chase によって2022年10月にオープンソースで公開されたLLMアプリケーション開発フレームワークである。Python版（<code>langchain</code>）とTypeScript/JavaScript版（<code>langchain-js</code>）の双方が提供されており、急速に普及してAIエージェント開発の標準的な選択肢の一つとなった。
+      </p>
+      <p>
+        その設計思想は「コンポーザビリティ」にある。プロンプトテンプレート、LLM呼び出し、ツール実行、メモリ管理などの要素をチェーン（Chain）として繋ぎ合わせ、複雑なワークフローを宣言的に記述できる。<a href="ai-agent-overview.html">AIエージェント概論</a>で述べるエージェントパターンの多くがLangChainのコンポーネントとして実装されている。
+      </p>
+
+      <!-- SVG: LangChain エコシステム概要図 -->
+      <figure style="margin: 1.5em 0; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 340" width="620" height="340"
+             style="max-width:100%; border:1px solid #a2a9b1; background:#f8f9fa; border-radius:4px;">
+          <!-- Title -->
+          <text x="310" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">LangChain エコシステム</text>
+
+          <!-- Core box -->
+          <rect x="190" y="50" width="240" height="50" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="310" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">LangChain Core</text>
+          <text x="310" y="88" text-anchor="middle" font-size="10" fill="#555">Chains / Prompts / LLMs / Output Parsers</text>
+
+          <!-- Components row -->
+          <rect x="30" y="140" width="110" height="45" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="85" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Agents</text>
+          <text x="85" y="174" text-anchor="middle" font-size="9" fill="#555">ReAct / OpenAI Fn</text>
+
+          <rect x="155" y="140" width="110" height="45" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="210" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Memory</text>
+          <text x="210" y="174" text-anchor="middle" font-size="9" fill="#555">Buffer / Summary / Vector</text>
+
+          <rect x="280" y="140" width="110" height="45" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="335" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Tools</text>
+          <text x="335" y="174" text-anchor="middle" font-size="9" fill="#555">Search / Code / APIs</text>
+
+          <rect x="405" y="140" width="110" height="45" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="460" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Callbacks</text>
+          <text x="460" y="174" text-anchor="middle" font-size="9" fill="#555">Logging / Tracing</text>
+
+          <!-- Arrows from Core to components -->
+          <line x1="310" y1="100" x2="85" y2="140" stroke="#3366cc" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="310" y1="100" x2="210" y2="140" stroke="#3366cc" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="310" y1="100" x2="335" y2="140" stroke="#3366cc" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="310" y1="100" x2="460" y2="140" stroke="#3366cc" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Extended products row -->
+          <rect x="80" y="240" width="140" height="45" rx="5" fill="#e6ffe6" stroke="#2a9d2a" stroke-width="1.5"/>
+          <text x="150" y="258" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">LangGraph</text>
+          <text x="150" y="274" text-anchor="middle" font-size="9" fill="#555">マルチエージェント / グラフ実行</text>
+
+          <rect x="240" y="240" width="140" height="45" rx="5" fill="#fff5e6" stroke="#d4820a" stroke-width="1.5"/>
+          <text x="310" y="258" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">LangSmith</text>
+          <text x="310" y="274" text-anchor="middle" font-size="9" fill="#555">トレース / 評価 / デバッグ</text>
+
+          <rect x="400" y="240" width="140" height="45" rx="5" fill="#f0e6ff" stroke="#8833cc" stroke-width="1.5"/>
+          <text x="470" y="258" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">LangServe</text>
+          <text x="470" y="274" text-anchor="middle" font-size="9" fill="#555">FastAPI / REST デプロイ</text>
+
+          <!-- Arrows from Core to extended -->
+          <line x1="215" y1="185" x2="150" y2="240" stroke="#888" stroke-width="1"/>
+          <line x1="310" y1="185" x2="310" y2="240" stroke="#888" stroke-width="1"/>
+          <line x1="405" y1="185" x2="470" y2="240" stroke="#888" stroke-width="1"/>
+
+          <!-- Caption -->
+          <text x="310" y="320" text-anchor="middle" font-size="9" fill="#555">図1: LangChainエコシステムの主要構成要素</text>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555; margin-top:4px;">図1 — LangChainエコシステムの主要コンポーネントと拡張製品群</figcaption>
+      </figure>
+
+      <h2 id="components">主要コンポーネント</h2>
+      <p>
+        LangChainの中核を成すコンポーネントは以下の5つに大別される。これらを組み合わせることで、単純な質問応答から複雑な<a href="agent-architecture.html">エージェントアーキテクチャ</a>まで幅広いシステムを実装できる。
+      </p>
+
+      <h3 id="chains">Chains（チェーン）</h3>
+      <p>
+        Chainはプロンプトテンプレート・LLM呼び出し・出力パーサなどの処理ステップを順序立てて接続するパイプライン抽象である。LangChain Expression Language（LCEL）の導入以降は、パイプ演算子（<code>|</code>）を用いた宣言的な記述が主流となっている。シーケンシャルなチェーンから、条件分岐や並列実行を含む複合的なチェーンまで対応する。
+      </p>
+
+      <h3 id="agents">Agents（エージェント）</h3>
+      <p>
+        AgentコンポーネントはLLMがどのツールをいつ呼び出すかを自律的に判断するループ機構を提供する。代表的な実装としてReActパターン（思考→行動→観察を繰り返す）とOpenAI Function Callingベースのエージェントがある。<a href="tool-use-architecture.html">ツール利用アーキテクチャ</a>で詳述するように、ツールは検索エンジン・コードインタプリタ・外部APIなど多様な形態をとる。
+      </p>
+
+      <h3 id="memory">Memory（メモリ）</h3>
+      <p>
+        Memoryコンポーネントは会話履歴や長期的な文脈情報をLLMの入力に組み込む仕組みを提供する。バッファメモリ（全履歴保持）・サマリーメモリ（要約圧縮）・ベクトルストアメモリ（類似度検索）など複数の実装が用意されており、アプリケーションの要件に応じて選択できる。
+      </p>
+
+      <h3 id="tools-callbacks">Tools と Callbacks</h3>
+      <p>
+        Toolsは外部機能（Web検索・計算・データベース照会など）をエージェントが呼び出せる形に標準化したインターフェースである。<a href="mcp-protocol.html">MCPプロトコル</a>との統合も進んでおり、ツール定義の相互運用性が高まっている。Callbacksはチェーン・エージェント実行の各フックにロギングやトレース処理を差し込む仕組みで、LangSmithとの連携に活用される。
+      </p>
+
+      <h2 id="langgraph-langsmith">LangGraph と LangSmith</h2>
+      <p>
+        LangChainエコシステムの拡張として、マルチエージェント向けの<strong>LangGraph</strong>と観測性ツールの<strong>LangSmith</strong>が提供されている。
+      </p>
+
+      <h3>LangGraph</h3>
+      <p>
+        LangGraphは有向グラフ（DAG/サイクルグラフ）としてエージェントの状態遷移を定義するフレームワークである。ノードとエッジで構成されたグラフ上でLLM呼び出しとツール実行を管理し、複数エージェントが協調するマルチエージェントシステムを構築できる。各ノードは状態（State）を入出力とし、条件付きエッジによって動的なルーティングが可能となる。これはOpenClawが採用する<a href="agent-architecture.html">エージェントアーキテクチャ</a>のアプローチとも概念的に近い。
+      </p>
+
+      <h3>LangSmith</h3>
+      <p>
+        LangSmithはLLMアプリケーションのトレース・評価・デバッグを支援するSaaSプラットフォームである。実行ログの可視化、プロンプトのバージョン管理、自動評価パイプラインの構築を一元的に行える。エージェントの挙動を詳細に追跡できることから、本番運用における観測性（Observability）の確保に広く利用される。
+      </p>
+
+      <h2 id="comparison-openclaw">OpenClawとの比較・使い分け</h2>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a>はLLMエージェントをゲームエンジン的なオープンソースランタイムとして実装しているのに対し、LangChainはLLMパイプライン構築のための汎用ライブラリという位置づけである。両者の主要な相違点を以下に整理する。
+      </p>
+
+      <table style="width:100%; border-collapse:collapse; margin:1em 0; font-size:0.92em;">
+        <thead>
+          <tr style="background:#e8e8e8;">
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">観点</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">LangChain</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">OpenClaw</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">主な用途</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">汎用LLMアプリ・RAG・チャットボット</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">自律エージェントの長期実行・タスク自動化</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">エージェント制御</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">LangGraphで柔軟に定義</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">組み込みループ・計画実行エンジン</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">ツール連携</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">独自ToolインターフェースおよびMCP対応</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">MCP標準準拠（<a href="mcp-protocol.html">MCPプロトコル</a>）</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">観測性</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">LangSmith（SaaS）</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">オープンソース中心・組み込みログ</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">学習コスト</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">中〜高（多数の抽象レイヤー）</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">中（統一APIで直感的）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        実際の開発では両者を組み合わせることも可能であり、LangChainのツールエコシステムをOpenClawのエージェントランタイムから呼び出す構成も実現できる。RAGパイプラインや既存のLangChain製コンポーネントを活用しつつ、エージェントのオーケストレーション部分にOpenClawを採用するアプローチが有効な場面も多い。
+      </p>
+
+      <h2 id="ecosystem">LangChainエコシステムとコミュニティ</h2>
+      <p>
+        LangChainは広大なインテグレーションエコシステムを持ち、主要なLLMプロバイダ（OpenAI・Anthropic・Google・Mistralなど）、ベクトルデータベース（Chroma・Pinecone・pgvector・Weaviateなど）、およびドキュメントローダ（PDF・Web・データベースなど）への公式コネクタが提供されている。
+      </p>
+      <p>
+        コミュニティは活発で、GitHubスター数はリリースから急速に増加し、LLMフレームワークの中でも最大規模のユーザーベースを形成している。一方で急速な開発に伴うAPI変更の多さや抽象レイヤーの複雑さがしばしば批判の対象となっており、シンプルなユースケースではより軽量なフレームワークが選ばれることもある。
+      </p>
+
+      <h2 id="usecases">ユースケースと事例</h2>
+      <p>
+        LangChainは以下のような幅広いユースケースで実績がある。
+      </p>
+      <ul>
+        <li><strong>RAG（Retrieval-Augmented Generation）</strong>: ドキュメントのベクトル化・検索・LLM回答生成を一体化したパイプライン構築。企業内ナレッジベースへの質問応答システムに多く採用される。</li>
+        <li><strong>コード生成エージェント</strong>: コードインタプリタツールと組み合わせ、自然言語指示からコード生成・実行・デバッグを反復するエージェントの実装。</li>
+        <li><strong>カスタマーサポートボット</strong>: 製品マニュアルやFAQをRAGで参照し、文脈を保持しながら顧客対応を行う会話型エージェント。</li>
+        <li><strong>データ分析エージェント</strong>: SQLデータベースやPandasデータフレームへのツールアクセスを通じて、自然言語でデータ分析を実行するエージェント。<a href="ai-agent-overview.html">AIエージェント概論</a>で解説するタスク指向エージェントの典型例である。</li>
+        <li><strong>マルチエージェントワークフロー</strong>: LangGraphを用いて、調査・執筆・レビューなど役割の異なる複数エージェントが協調してドキュメントを生成するシステム。</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">1. LangChainとは</a></li>
+          <li><a href="#components">2. 主要コンポーネント</a>
+            <ul>
+              <li><a href="#chains">2.1 Chains</a></li>
+              <li><a href="#agents">2.2 Agents</a></li>
+              <li><a href="#memory">2.3 Memory</a></li>
+              <li><a href="#tools-callbacks">2.4 Tools と Callbacks</a></li>
+            </ul>
+          </li>
+          <li><a href="#langgraph-langsmith">3. LangGraph と LangSmith</a></li>
+          <li><a href="#comparison-openclaw">4. OpenClawとの比較・使い分け</a></li>
+          <li><a href="#ecosystem">5. エコシステムとコミュニティ</a></li>
+          <li><a href="#usecases">6. ユースケースと事例</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClawとは</a></li>
+          <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-use-architecture.html">ツール利用アーキテクチャ</a></li>
+          <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClawとは</a></li>
+        <li><a href="ai-agent-overview.html">AIエージェント概論</a></li>
+        <li><a href="tool-use-architecture.html">ツール利用アーキテクチャ</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マルチエージェントシステム - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    マルチエージェントシステム
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">マルチエージェントシステム</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">マルチエージェントシステムとは、複数の自律的なAIエージェントが協調・分散して動作し、単一エージェントでは達成困難なタスクを並列・階層的に解決するアーキテクチャである。OpenClawはオーケストレーター・ワーカーモデルを採用し、エージェント間通信プロトコルと動的タスク分割によって高いスケーラビリティを実現している。</div>
+
+      <!-- Section 1 -->
+      <h2 id="overview">マルチエージェントの概念と利点</h2>
+      <p>
+        <a href="ai-agent-overview.html">AIエージェント</a>が単独でループを回す「シングルエージェント」モデルに対し、<strong>マルチエージェントシステム（MAS: Multi-Agent System）</strong>は複数の専門エージェントを組み合わせることで、より複雑で長期的なタスクに対応する。個々のエージェントは独自の<a href="agent-memory-systems.html">メモリ</a>・ツールセット・コンテキストウィンドウを持ち、それぞれが独立して推論しながら全体の目標へ向けて協働する。
+      </p>
+      <p>主な利点は以下のとおりである：</p>
+      <ul>
+        <li><strong>並列処理</strong> — 独立したサブタスクを同時実行し、全体の所要時間を短縮する。</li>
+        <li><strong>専門化</strong> — 各エージェントが得意領域に特化することで、個別精度が向上する。</li>
+        <li><strong>コンテキスト分離</strong> — 大きな問題を小さなスコープに分割し、コンテキストウィンドウの制約を回避する。</li>
+        <li><strong>フォールトトレランス</strong> — 一部エージェントが失敗してもシステム全体が継続できる。</li>
+        <li><strong>スケーラビリティ</strong> — 負荷に応じてワーカーを動的に増減できる。</li>
+      </ul>
+
+      <!-- Topology SVG Diagram -->
+      <figure style="margin: 1.5em 0; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 320" width="620" height="320"
+             style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:4px; max-width:100%;">
+          <!-- Title -->
+          <text x="310" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">OpenClaw マルチエージェントトポロジー</text>
+
+          <!-- Orchestrator box -->
+          <rect x="220" y="44" width="180" height="52" rx="6" fill="#ddeeff" stroke="#36c" stroke-width="1.5"/>
+          <text x="310" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">オーケストレーター</text>
+          <text x="310" y="83" text-anchor="middle" font-size="11" fill="#36c">タスク分割 / 調整 / 集約</text>
+
+          <!-- Arrows from orchestrator to workers -->
+          <line x1="180" y1="96" x2="90" y2="154" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="240" y1="96" x2="210" y2="154" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="310" y1="96" x2="310" y2="154" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="380" y1="96" x2="410" y2="154" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="440" y1="96" x2="530" y2="154" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Worker boxes -->
+          <rect x="30" y="154" width="120" height="48" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="90" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Worker A</text>
+          <text x="90" y="190" text-anchor="middle" font-size="10" fill="#555">検索エージェント</text>
+
+          <rect x="160" y="154" width="120" height="48" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="220" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Worker B</text>
+          <text x="220" y="190" text-anchor="middle" font-size="10" fill="#555">コード生成エージェント</text>
+
+          <rect x="250" y="154" width="120" height="48" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="310" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Worker C</text>
+          <text x="310" y="190" text-anchor="middle" font-size="10" fill="#555">テスト・検証エージェント</text>
+
+          <rect x="350" y="154" width="120" height="48" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="410" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Worker D</text>
+          <text x="410" y="190" text-anchor="middle" font-size="10" fill="#555">ドキュメントエージェント</text>
+
+          <rect x="470" y="154" width="120" height="48" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="530" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Worker E</text>
+          <text x="530" y="190" text-anchor="middle" font-size="10" fill="#555">監視エージェント</text>
+
+          <!-- Return arrows -->
+          <line x1="90" y1="202" x2="200" y2="248" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowGray)"/>
+          <line x1="220" y1="202" x2="260" y2="248" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowGray)"/>
+          <line x1="310" y1="202" x2="310" y2="248" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowGray)"/>
+          <line x1="410" y1="202" x2="360" y2="248" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowGray)"/>
+          <line x1="530" y1="202" x2="420" y2="248" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowGray)"/>
+
+          <!-- Aggregation box -->
+          <rect x="200" y="248" width="220" height="44" rx="6" fill="#eeffee" stroke="#3a3" stroke-width="1.5"/>
+          <text x="310" y="267" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">結果集約レイヤー</text>
+          <text x="310" y="284" text-anchor="middle" font-size="10" fill="#3a3">マージ / 整合性チェック / 最終出力</text>
+
+          <!-- Shared memory bar -->
+          <rect x="60" y="306" width="500" height="10" rx="3" fill="#ffe8c0" stroke="#c80" stroke-width="1"/>
+          <text x="310" y="316" text-anchor="middle" font-size="9" fill="#963">共有ステートストア（エージェント間通信バス）</text>
+
+          <!-- Legend / Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555; margin-top:6px;">図1: OpenClawにおけるマルチエージェントトポロジー（オーケストレーター・ワーカー・集約レイヤー）</figcaption>
+      </figure>
+
+      <!-- Section 2 -->
+      <h2 id="orchestrator-worker">オーケストレーター・ワーカーパターン</h2>
+      <p>
+        OpenClawの中心的なマルチエージェント設計は<strong>オーケストレーター・ワーカーパターン</strong>である。<a href="openclaw-ai-agent.html">OpenClaw</a>はこのパターンを採用し、高レベルの目標計画と低レベルの実行を明確に分離している。
+      </p>
+      <h3>オーケストレーターの役割</h3>
+      <p>
+        オーケストレーターは全体の計画立案・タスク分解・優先度管理・結果統合を担う「指揮者」である。ユーザーの入力を受け取り、それを独立した（または依存関係のある）サブタスクへ分割し、適切なワーカーエージェントへ割り当てる。また、各ワーカーの進捗を監視し、失敗時には再試行や代替戦略を採用する。
+      </p>
+      <h3>ワーカーエージェントの役割</h3>
+      <p>
+        ワーカーは割り当てられたサブタスクの実行に特化し、オーケストレーターへ結果・ステータス・エラーを返す。ワーカーはステートレスに設計されることが多く、再利用性と並列起動のしやすさを高める。ただし必要に応じて<a href="agent-memory-systems.html">短期メモリ</a>を保持する場合もある。
+      </p>
+      <h3>階層型マルチエージェント</h3>
+      <p>
+        複雑なタスクでは、ワーカー自身がサブオーケストレーターとなり、さらに下位のワーカーを管理する「階層型MAS」が有効である。OpenClawはこのネスト構造をサポートし、再帰的なタスク分割が可能である。
+      </p>
+
+      <!-- Section 3 -->
+      <h2 id="communication">エージェント間通信プロトコル</h2>
+      <p>
+        エージェント間の通信品質がシステム全体のパフォーマンスを左右する。OpenClawは<a href="mcp-protocol.html">MCPプロトコル</a>をベースに、エージェント間メッセージングの標準化を図っている。
+      </p>
+      <h3>メッセージ形式</h3>
+      <p>
+        エージェント間のメッセージはJSON構造化フォーマットで送受信される。各メッセージには次のフィールドが含まれる：
+      </p>
+      <ul>
+        <li><code>task_id</code> — タスクのユニーク識別子（親子関係のトレースに使用）</li>
+        <li><code>sender</code> — 送信エージェントのID</li>
+        <li><code>receiver</code> — 受信エージェントのID（ブロードキャスト時は <code>*</code>）</li>
+        <li><code>payload</code> — タスク定義・結果・ステータスなどの本文</li>
+        <li><code>priority</code> — 優先度スコア（0.0〜1.0）</li>
+        <li><code>timestamp</code> — ISO 8601形式のタイムスタンプ</li>
+      </ul>
+      <h3>共有ステートストア</h3>
+      <p>
+        エージェント同士が直接通信するだけでなく、<strong>共有ステートストア</strong>（インメモリKVS）を介した非同期通信も利用される。これにより疎結合なイベント駆動通信が実現し、エージェントの追加・削除が容易になる。
+      </p>
+      <h3>非同期・同期モード</h3>
+      <p>
+        タスクの性質に応じて同期RPC（即時応答が必要な場合）と非同期メッセージキュー（結果待ち合わせなし）を使い分ける。ファイアアンドフォーゲット型の並列実行には非同期モードが適し、依存関係のある処理には同期バリアが用いられる。
+      </p>
+
+      <!-- Section 4 -->
+      <h2 id="parallel-execution">並列タスク実行と調整</h2>
+      <p>
+        マルチエージェントシステムの主要な価値は<strong>並列実行</strong>にある。OpenClawはタスクグラフ（DAG）を構築し、依存関係のないノードを同時に実行するスケジューラを内蔵している。
+      </p>
+      <h3>タスクグラフ（DAG）スケジューリング</h3>
+      <p>
+        オーケストレーターはタスクを有向非循環グラフ（DAG）として表現し、前段タスクの完了を待つ後段タスクへの依存エッジを管理する。依存性のないタスクは即座にワーカープールへディスパッチされ、完了したタスクの結果は後続タスクの入力へ自動的に結合される。
+      </p>
+      <h3>同期バリアと結果マージ</h3>
+      <p>
+        並列ワーカーの結果を収集・統合する<strong>同期バリア</strong>は、全ワーカーの完了を待ち合わせた後、結果をマージして次の処理へ渡す。競合する結果（例：複数エージェントが異なる答えを返した場合）は、多数決・スコアリング・オーケストレーターによる再評価で解決される。
+      </p>
+      <h3>タイムアウトとフォールバック</h3>
+      <p>
+        長時間応答しないワーカーに対してはタイムアウト機構が働き、別のワーカーへの再割り当てまたはタスクのスキップが行われる。クリティカルパスにないタスクの失敗はシステム全体をブロックせず、部分的な結果で進行可能な設計となっている。
+      </p>
+
+      <!-- Section 5 -->
+      <h2 id="openclaw-implementation">OpenClawのマルチエージェント実装</h2>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a>は<a href="agent-architecture.html">エージェントアーキテクチャ</a>をマルチエージェント対応に拡張した実装を持つ。以下に主要なコンポーネントを示す。
+      </p>
+      <h3>AgentPoolとワーカー管理</h3>
+      <p>
+        <code>AgentPool</code>クラスはワーカーエージェントのライフサイクル（生成・実行・回収）を管理する。プールサイズは設定で制御でき、高負荷時には動的にスケールアウトする。各ワーカーはイベントループを持ち、タスクキューからジョブを取り出して実行する。
+      </p>
+      <h3>SubAgentとサンドボックス</h3>
+      <p>
+        サブエージェント（<code>SubAgent</code>）は親エージェントのコンテキストから分離されたサンドボックス環境で動作する。これにより、あるワーカーのクラッシュが他のワーカーや親エージェントへ伝播することを防ぐ。ツールアクセス権限も子エージェントごとに限定できる。
+      </p>
+      <h3>タスクシリアライゼーション</h3>
+      <p>
+        タスクとその状態はJSON形式でシリアライズされ、永続化ストレージに保存される。これにより、システム再起動後もタスクの再開が可能であり、長時間の処理にも対応できる。
+      </p>
+
+      <!-- Section 6 -->
+      <h2 id="conflict-debug">競合・協調の制御とデバッグ・監視</h2>
+      <h3>競合の検出と解決</h3>
+      <p>
+        複数エージェントが同一リソース（ファイル・API・DB）へ同時アクセスする場合、競合（レースコンディション）が発生しうる。OpenClawは以下の手法で競合を防止する：
+      </p>
+      <ul>
+        <li><strong>楽観的ロック</strong> — バージョン番号付きリソースで上書き競合を検出し、エラー時に再試行する。</li>
+        <li><strong>リソースアクワイアキュー</strong> — 共有リソースへのアクセスをキューイングし、順序付きで処理する。</li>
+        <li><strong>タスク分割による回避</strong> — 競合が予測される場合はタスクを直列化するようDAGを設計する。</li>
+      </ul>
+      <h3>協調パターン</h3>
+      <p>
+        競合制御とは逆に、エージェント同士が積極的に成果物を共有・参照する協調パターンも重要である。<strong>ブラックボード方式</strong>（共有メモリに全エージェントが書き込み・読み取りする）と<strong>コントラクトネット方式</strong>（ジョブをオークション形式でワーカーに割り当てる）が代表的である。
+      </p>
+      <h3>デバッグと監視</h3>
+      <p>
+        マルチエージェントシステムは非決定的動作が多く、シングルエージェントよりもデバッグが複雑である。OpenClawが提供する可観測性ツールには以下のものがある：
+      </p>
+      <ul>
+        <li><strong>分散トレーシング</strong> — 各タスクに <code>trace_id</code> を付与し、エージェント間をまたいだ処理フローを可視化する。</li>
+        <li><strong>構造化ログ</strong> — エージェントIDと <code>task_id</code> を含む構造化ログで絞り込み検索が容易。</li>
+        <li><strong>リプレイデバッグ</strong> — タスク履歴を記録しておき、問題のある実行を再現・デバッグできる。</li>
+        <li><strong>エージェントダッシュボード</strong> — 各エージェントのステータス・スループット・エラー率をリアルタイムで監視する。</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">1. マルチエージェントの概念と利点</a></li>
+          <li><a href="#orchestrator-worker">2. オーケストレーター・ワーカーパターン</a></li>
+          <li><a href="#communication">3. エージェント間通信プロトコル</a></li>
+          <li><a href="#parallel-execution">4. 並列タスク実行と調整</a></li>
+          <li><a href="#openclaw-implementation">5. OpenClawのマルチエージェント実装</a></li>
+          <li><a href="#conflict-debug">6. 競合・協調の制御とデバッグ・監視</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+          <li><a href="ai-agent-overview.html">AIエージェント概要</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="agent-memory-systems.html">エージェントメモリシステム</a></li>
+          <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+        <li><a href="ai-agent-overview.html">AIエージェント概要</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="agent-memory-systems.html">エージェントメモリシステム</a></li>
+        <li><a href="mcp-protocol.html">MCPプロトコル</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

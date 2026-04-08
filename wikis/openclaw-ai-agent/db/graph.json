@@ -1,0 +1,218 @@
+{
+  "nodes": [
+    {
+      "id": "openclaw-ai-agent",
+      "title": "OpenClaw AIエージェント",
+      "url": "articles/openclaw-ai-agent.html",
+      "summary": "OpenClawは、LLMを推論エンジンとして活用し、外部ツールや環境との双方向インタラクションを可能にするオープンソースのAIエージェントフレームワーク。Think-Act-Observeサイクルを基本設計原理に採用し、コード実行・ウェブ検索・マルチエージェント協調などの機能を提供する。",
+      "is_root": false
+    },
+    {
+      "id": "ai-agent-overview",
+      "title": "AIエージェント概論",
+      "url": "articles/ai-agent-overview.html",
+      "summary": "AIエージェントとは、環境を知覚し、目標達成に向けて自律的に行動を計画・実行するソフトウェアシステムである。大規模言語モデル（LLM）の台頭により、自然言語を介して複雑なタスクを遂行できる高度なエージェントが実現されつつある。",
+      "is_root": false
+    },
+    {
+      "id": "agent-memory-systems",
+      "title": "エージェントメモリシステム",
+      "url": "articles/agent-memory-systems.html",
+      "summary": "エージェントメモリシステムとは、AIエージェントが情報を保持・検索・更新するための仕組みの総称であり、短期的なコンテキスト管理から長期的な知識ストアまでを包含する。OpenClawはインコンテキスト記憶・外部ベクトルDB・構造化キャッシュを組み合わせたハイブリッドメモリアーキテクチャを採用し、複雑なタスクにおける継続的な推論を可能にする。",
+      "is_root": false
+    },
+    {
+      "id": "multi-agent-systems",
+      "title": "マルチエージェントシステム",
+      "url": "articles/multi-agent-systems.html",
+      "summary": "マルチエージェントシステムとは、複数の自律的なAIエージェントが協調・分散して動作し、単一エージェントでは達成困難なタスクを並列・階層的に解決するアーキテクチャである。OpenClawはオーケストレーター・ワーカーモデルを採用し、エージェント間通信プロトコルと動的タスク分割によって高いスケーラビリティを実現している。",
+      "is_root": false
+    },
+    {
+      "id": "langchain-overview",
+      "title": "LangChain概要",
+      "url": "articles/langchain-overview.html",
+      "summary": "LangChainは2022年に創設されたオープンソースフレームワークで、LLMを活用したアプリケーションおよびAIエージェントの開発を効率化する包括的なツールチェーンを提供する。Chains・Agents・Memory・Tools・Callbacksなどのコンポーネントを組み合わせることで、複雑なLLMパイプラインを宣言的に構築できる。",
+      "is_root": false
+    },
+    {
+      "id": "tool-use-architecture",
+      "title": "ツール使用アーキテクチャ",
+      "url": "articles/tool-use-architecture.html",
+      "summary": "ツール使用アーキテクチャは、AIエージェントが外部関数やAPIを呼び出す仕組みを定義する設計パターンであり、JSON Schemaによるツール定義、LLMによるツール選択、ツール実行サイクル、エラーハンドリングを組み合わせて自律的なタスク遂行能力を実現する。",
+      "is_root": false
+    },
+    {
+      "id": "agent-architecture",
+      "title": "エージェントアーキテクチャ設計パターン",
+      "url": "articles/agent-architecture.html",
+      "summary": "エージェントアーキテクチャ設計パターンとは、AIエージェントの推論・計画・行動・自己修正の各フェーズを構造化するための再利用可能な設計手法の体系である。OpenClawではReAct、Plan-and-Execute、Reflexion、MRKLといったパターンを組み合わせ、高い信頼性と拡張性を持つハイブリッドアーキテクチャを構築している。",
+      "is_root": false
+    },
+    {
+      "id": "mcp-protocol",
+      "title": "Model Context Protocol（MCP）",
+      "url": "articles/mcp-protocol.html",
+      "summary": "Model Context Protocol（MCP）は、Anthropicが2024年11月に発表したオープン標準プロトコルで、AIエージェントと外部ツール・データソースをホスト/クライアント/サーバーの三層アーキテクチャで接続し、LLMアプリケーションのコンテキスト管理とツール統合を標準化する。",
+      "is_root": false
+    }
+  ],
+  "links": [
+    {
+      "source": "openclaw-ai-agent",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "tool-use-architecture"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "agent-memory-systems"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "multi-agent-systems"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "mcp-protocol"
+    },
+    {
+      "source": "openclaw-ai-agent",
+      "target": "langchain-overview"
+    },
+    {
+      "source": "ai-agent-overview",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "ai-agent-overview",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "ai-agent-overview",
+      "target": "tool-use-architecture"
+    },
+    {
+      "source": "ai-agent-overview",
+      "target": "agent-memory-systems"
+    },
+    {
+      "source": "ai-agent-overview",
+      "target": "multi-agent-systems"
+    },
+    {
+      "source": "agent-memory-systems",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "agent-memory-systems",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "agent-memory-systems",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "agent-memory-systems",
+      "target": "multi-agent-systems"
+    },
+    {
+      "source": "multi-agent-systems",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "multi-agent-systems",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "multi-agent-systems",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "multi-agent-systems",
+      "target": "agent-memory-systems"
+    },
+    {
+      "source": "multi-agent-systems",
+      "target": "mcp-protocol"
+    },
+    {
+      "source": "langchain-overview",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "langchain-overview",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "langchain-overview",
+      "target": "tool-use-architecture"
+    },
+    {
+      "source": "langchain-overview",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "langchain-overview",
+      "target": "mcp-protocol"
+    },
+    {
+      "source": "tool-use-architecture",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "tool-use-architecture",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "tool-use-architecture",
+      "target": "agent-architecture"
+    },
+    {
+      "source": "tool-use-architecture",
+      "target": "mcp-protocol"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "ai-agent-overview"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "tool-use-architecture"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "agent-memory-systems"
+    },
+    {
+      "source": "agent-architecture",
+      "target": "multi-agent-systems"
+    },
+    {
+      "source": "mcp-protocol",
+      "target": "openclaw-ai-agent"
+    },
+    {
+      "source": "mcp-protocol",
+      "target": "tool-use-architecture"
+    },
+    {
+      "source": "mcp-protocol",
+      "target": "multi-agent-systems"
+    },
+    {
+      "source": "mcp-protocol",
+      "target": "langchain-overview"
+    }
+  ]
+}

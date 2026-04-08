@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Context Protocol（MCP） - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    Model Context Protocol（MCP）
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Model Context Protocol（MCP）</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Model Context Protocol（MCP）は、Anthropicが2024年11月に発表したオープン標準プロトコルで、AIエージェントと外部ツール・データソースをホスト/クライアント/サーバーの三層アーキテクチャで接続し、LLMアプリケーションのコンテキスト管理とツール統合を標準化する。</div>
+
+      <!-- CONTENT START -->
+
+      <h2 id="overview">概要と目的</h2>
+      <p>
+        Model Context Protocol（MCP）は、<a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a>をはじめとするAIエージェントフレームワークと外部ツール・データソースを接続するための標準化されたインタフェース仕様である。Anthropicが2024年11月に公開し、オープンソースとして提供された。
+      </p>
+      <p>
+        それ以前のLLMアプリケーションは、各ツールやサービスとの統合を独自のアダプタやAPIラッパーで実装しており、ツールが増えるほど統合コストが指数的に増大するという課題があった。MCPはこの問題を「USB-Cポート」に例えられる統一インタフェースで解決することを目指す。開発者がMCP準拠のサーバーを一度実装すれば、MCP対応の任意のホスト（エージェントや統合開発環境など）から利用できるようになる。
+      </p>
+      <p>
+        MCPの主な目的は次の三点に集約される。第一に、LLMとコンテキストプロバイダー間の通信プロトコルの標準化。第二に、ツール・リソース・プロンプトの発見（ディスカバリー）と呼び出しの均一化。第三に、セキュリティモデルとアクセス制御の一元化である。
+      </p>
+
+      <h2 id="architecture">MCPアーキテクチャ</h2>
+      <p>
+        MCPは「ホスト」「クライアント」「サーバー」の三層から構成される。以下の図はその関係を示す。
+      </p>
+
+      <!-- SVG Diagram: MCP Architecture -->
+      <figure style="margin: 1.5em 0; text-align: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" style="max-width:100%; border:1px solid #a2a9b1; background:#f8f9fa; border-radius:4px;">
+          <!-- Title -->
+          <text x="360" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">MCPアーキテクチャ概要</text>
+
+          <!-- Host box -->
+          <rect x="20" y="50" width="200" height="240" rx="8" ry="8" fill="#eaf3fb" stroke="#36c" stroke-width="2"/>
+          <text x="120" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="#36c">ホスト (Host)</text>
+          <text x="120" y="90" text-anchor="middle" font-size="10" fill="#555">例: Claude Desktop / OpenClaw</text>
+
+          <!-- LLM inside Host -->
+          <rect x="40" y="102" width="160" height="44" rx="6" ry="6" fill="#cce0f5" stroke="#36c" stroke-width="1.5"/>
+          <text x="120" y="122" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">LLM</text>
+          <text x="120" y="138" text-anchor="middle" font-size="10" fill="#555">推論エンジン</text>
+
+          <!-- Client inside Host -->
+          <rect x="40" y="162" width="160" height="44" rx="6" ry="6" fill="#cce0f5" stroke="#36c" stroke-width="1.5"/>
+          <text x="120" y="182" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">MCPクライアント</text>
+          <text x="120" y="198" text-anchor="middle" font-size="10" fill="#555">プロトコル仲介層</text>
+
+          <!-- Arrow: LLM to Client -->
+          <line x1="120" y1="146" x2="120" y2="162" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Transport zone -->
+          <rect x="250" y="130" width="100" height="80" rx="6" ry="6" fill="#f3f3f3" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="300" y="165" text-anchor="middle" font-size="11" fill="#555">トランスポート</text>
+          <text x="300" y="180" text-anchor="middle" font-size="10" fill="#888">stdio / HTTP</text>
+          <text x="300" y="196" text-anchor="middle" font-size="10" fill="#888">SSE / WebSocket</text>
+
+          <!-- Arrow: Client to Transport -->
+          <line x1="200" y1="184" x2="250" y2="184" stroke="#36c" stroke-width="2" marker-end="url(#arrow)"/>
+          <!-- Arrow: Transport to Servers -->
+          <line x1="350" y1="184" x2="400" y2="184" stroke="#36c" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- Server 1 -->
+          <rect x="400" y="60" width="180" height="70" rx="6" ry="6" fill="#e8f5e9" stroke="#2a7" stroke-width="2"/>
+          <text x="490" y="83" text-anchor="middle" font-size="12" font-weight="bold" fill="#2a7">MCPサーバー A</text>
+          <text x="490" y="100" text-anchor="middle" font-size="10" fill="#555">ファイルシステム</text>
+          <text x="490" y="116" text-anchor="middle" font-size="10" fill="#555">Resources / Tools</text>
+
+          <!-- Server 2 -->
+          <rect x="400" y="150" width="180" height="70" rx="6" ry="6" fill="#e8f5e9" stroke="#2a7" stroke-width="2"/>
+          <text x="490" y="173" text-anchor="middle" font-size="12" font-weight="bold" fill="#2a7">MCPサーバー B</text>
+          <text x="490" y="190" text-anchor="middle" font-size="10" fill="#555">データベース / API</text>
+          <text x="490" y="206" text-anchor="middle" font-size="10" fill="#555">Resources / Tools</text>
+
+          <!-- Server 3 -->
+          <rect x="400" y="240" width="180" height="70" rx="6" ry="6" fill="#e8f5e9" stroke="#2a7" stroke-width="2"/>
+          <text x="490" y="263" text-anchor="middle" font-size="12" font-weight="bold" fill="#2a7">MCPサーバー C</text>
+          <text x="490" y="280" text-anchor="middle" font-size="10" fill="#555">外部サービス / Git</text>
+          <text x="490" y="296" text-anchor="middle" font-size="10" fill="#555">Prompts / Tools</text>
+
+          <!-- Vertical connector lines from transport to each server -->
+          <line x1="380" y1="184" x2="380" y2="95" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <line x1="380" y1="95" x2="400" y2="95" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+          <line x1="380" y1="184" x2="400" y2="184" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="380" y1="184" x2="380" y2="275" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <line x1="380" y1="275" x2="400" y2="275" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+          <!-- Legend -->
+          <rect x="600" y="60" width="100" height="60" rx="4" ry="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="650" y="78" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">凡例</text>
+          <line x1="610" y1="92" x2="635" y2="92" stroke="#36c" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="680" y="96" text-anchor="middle" font-size="9" fill="#202122">MCPフロー</text>
+          <line x1="610" y1="108" x2="635" y2="108" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow-gray)"/>
+          <text x="680" y="112" text-anchor="middle" font-size="9" fill="#202122">ルーティング</text>
+
+          <!-- Arrow markers -->
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arrow-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555; margin-top:6px;">図1: MCPの三層アーキテクチャ（ホスト・クライアント・サーバー）</figcaption>
+      </figure>
+
+      <h3 id="host">ホスト (Host)</h3>
+      <p>
+        ホストはLLMと対話するアプリケーション本体を指す。Claude Desktopや<a href="openclaw-ai-agent.html">OpenClaw</a>のようなエージェントフレームワーク、あるいは統合開発環境（IDE）がホストに相当する。ホストはユーザーからの入力を受け取り、LLMに推論を依頼しながら、内部のMCPクライアントを通じてサーバーとやり取りする。
+      </p>
+
+      <h3 id="client">クライアント (Client)</h3>
+      <p>
+        MCPクライアントはホスト内部に組み込まれ、MCPサーバーとの一対一接続を管理するプロトコル仲介コンポーネントである。クライアントはサーバーとの能力ネゴシエーション（ハンドシェイク）を行い、利用可能なリソース・ツール・プロンプトを発見する。LLMがツール呼び出しを要求した際、クライアントがリクエストを適切なサーバーに中継し、応答をLLMに返す。
+      </p>
+
+      <h3 id="server">サーバー (Server)</h3>
+      <p>
+        MCPサーバーは実際の機能（ファイル読み書き、データベースクエリ、外部API呼び出しなど）を提供する軽量プロセスである。サーバーはリソース・ツール・プロンプトの三種類のプリミティブを公開し、クライアントからの要求に応じて処理を実行して結果を返す。サーバーとクライアントの通信は<strong>stdio</strong>（ローカルプロセス間通信）または<strong>HTTP+SSE</strong>（リモート接続）で行われる。
+      </p>
+
+      <h2 id="components">主要コンポーネント</h2>
+      <p>
+        MCPサーバーが公開できるプリミティブには三種類ある。これらを組み合わせることで、LLMは外部環境を読み取り、操作し、一貫したプロンプトで誘導されることが可能になる。
+      </p>
+
+      <h3 id="resources">Resources（リソース）</h3>
+      <p>
+        Resourcesは、LLMのコンテキストウィンドウに読み込むことができるデータや情報を表す。ファイル内容、データベースのレコード、ウェブページのスナップショット、アプリケーションのログなどが該当する。リソースはURIで識別され、テキストまたはバイナリ形式で提供される。LLMはリソースを「読む」ことで最新の外部情報をコンテキストに取り込める。
+      </p>
+
+      <h3 id="tools">Tools（ツール）</h3>
+      <p>
+        Toolsは、LLMが副作用を伴う操作を実行するためのインタフェースである。<a href="tool-use-architecture.html">ツールユース（Tool Use）アーキテクチャ</a>に対応し、ファイルの書き込み、APIへのPOSTリクエスト、コードの実行、データベースへの書き込みなどが含まれる。各ツールはJSON Schemaで入力仕様が定義されており、LLMはスキーマを参照して適切な引数を生成できる。
+      </p>
+
+      <h3 id="prompts">Prompts（プロンプト）</h3>
+      <p>
+        Promptsはサーバーが定義する再利用可能なプロンプトテンプレートである。ユーザーや開発者が特定のタスクに最適化されたプロンプトをサーバー側で管理し、クライアントに提供できる。これにより、複数のアプリケーション間でプロンプトエンジニアリングの成果を共有・再利用することが容易になる。
+      </p>
+
+      <h2 id="implementation">MCPサーバーの実装例</h2>
+      <p>
+        MCPサーバーはPython・TypeScript・Rust等の言語で実装できる。以下はPython SDKを使ったファイル読み取りツールの概念的な例である。
+      </p>
+      <pre style="background:#f8f9fa; border:1px solid #a2a9b1; padding:1em; border-radius:4px; overflow-x:auto; font-size:0.9em;"><code>from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+server = Server("file-server")
+
+@server.list_tools()
+async def list_tools():
+    return [
+        Tool(
+            name="read_file",
+            description="ファイルの内容を読み取る",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "ファイルパス"}
+                },
+                "required": ["path"]
+            }
+        )
+    ]
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "read_file":
+        with open(arguments["path"]) as f:
+            content = f.read()
+        return [TextContent(type="text", text=content)]
+
+# stdio トランスポートで起動
+server.run_stdio()</code></pre>
+
+      <p>
+        公式SDKの他に、コミュニティが提供するMCPサーバーも多数存在し、GitHub・Slack・PostgreSQL・Puppeteer（ウェブ操作）など主要なサービス向けのサーバーが公開されている。
+      </p>
+
+      <h2 id="usecases">MCPのユースケース</h2>
+      <p>
+        MCPは幅広いユースケースに適用できる。代表的なシナリオを以下に示す。
+      </p>
+      <ul>
+        <li><strong>開発支援エージェント</strong>: IDEに組み込まれたエージェントがMCP経由でコードベース・ターミナル・デバッガを操作し、自律的にバグを修正する。</li>
+        <li><strong>データ分析</strong>: LLMがMCP越しにデータベースをクエリし、結果を解釈してレポートを生成する。</li>
+        <li><strong>マルチエージェント協調</strong>: <a href="multi-agent-systems.html">マルチエージェントシステム</a>において、各エージェントがMCPサーバー経由で共有リソースにアクセスし、情報を一貫して参照・更新する。</li>
+        <li><strong>ナレッジ管理</strong>: 社内文書をリソースとして公開するMCPサーバーを構築し、複数のエージェントが最新情報を参照できる環境を整備する。</li>
+      </ul>
+
+      <h2 id="openclaw-integration">OpenClawとMCPの統合</h2>
+      <p>
+        <a href="openclaw-ai-agent.html">OpenClaw</a>はMCPをネイティブサポートし、設定ファイルにMCPサーバーのエンドポイントを列挙するだけで複数のサーバーを同時に利用できる。OpenClawのエージェントループ（Think-Act-Observe）において、MCPツールは組み込みツールと同等の扱いを受け、<a href="tool-use-architecture.html">ツールユースアーキテクチャ</a>の標準フローで呼び出される。
+      </p>
+      <p>
+        OpenClawとMCPの統合で特筆すべき点として、コンテキスト継続性がある。MCPのリソースはエージェントの作業メモリに統合され、長期にわたるタスクでも外部状態を常に参照可能にする。また、<a href="multi-agent-systems.html">マルチエージェント構成</a>では、親エージェントと子エージェントが同一のMCPサーバーを共有することで、分散した作業の結果を一貫した形で集約できる。
+      </p>
+      <p>
+        なお、<a href="langchain-overview.html">LangChain</a>もMCPサポートを追加しており、LangChainベースのアプリケーションとOpenClawとの間で同一のMCPサーバーを共用することが可能である。これにより、エコシステム横断での再利用性が向上している。
+      </p>
+
+      <h2 id="comparison">他のツール統合規格との比較</h2>
+      <p>
+        MCPの位置付けを理解するために、既存の統合手法と比較する。
+      </p>
+      <table style="border-collapse:collapse; width:100%; font-size:0.9em;">
+        <thead>
+          <tr style="background:#eaf3fb;">
+            <th style="border:1px solid #a2a9b1; padding:8px;">規格・手法</th>
+            <th style="border:1px solid #a2a9b1; padding:8px;">標準化</th>
+            <th style="border:1px solid #a2a9b1; padding:8px;">双方向性</th>
+            <th style="border:1px solid #a2a9b1; padding:8px;">コンテキスト管理</th>
+            <th style="border:1px solid #a2a9b1; padding:8px;">主な用途</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:8px;"><strong>MCP</strong></td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">オープン標準</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">あり（双方向）</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">リソース+ツール+プロンプト</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">汎用AIエージェント統合</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:8px;">OpenAPI / REST</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">業界標準</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">なし（リクエスト/レスポンス）</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">なし</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">ウェブサービスAPI</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:8px;">Function Calling（OpenAI）</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">プロプライエタリ</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">一方向（LLM→ツール）</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">限定的</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">OpenAIモデル専用統合</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:8px;">LangChain Tool</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">フレームワーク固有</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">一方向</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">チェーン内のみ</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">LangChainエコシステム</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:8px;">Plugins（旧OpenAI）</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">廃止済み</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">なし</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">なし</td>
+            <td style="border:1px solid #a2a9b1; padding:8px;">ChatGPTプラグイン</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.8em;">
+        MCPの最大の強みは、リソース・ツール・プロンプトを一つのプロトコルで統合し、サーバーとクライアントの両方向で情報を流せる双方向性にある。また、特定のLLMやフレームワークに依存しないオープン標準として設計されているため、<a href="langchain-overview.html">LangChain</a>や<a href="openclaw-ai-agent.html">OpenClaw</a>など複数のフレームワークが採用している。
+      </p>
+
+      <!-- CONTENT END -->
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">1. 概要と目的</a></li>
+          <li><a href="#architecture">2. MCPアーキテクチャ</a>
+            <ul>
+              <li><a href="#host">2.1 ホスト</a></li>
+              <li><a href="#client">2.2 クライアント</a></li>
+              <li><a href="#server">2.3 サーバー</a></li>
+            </ul>
+          </li>
+          <li><a href="#components">3. 主要コンポーネント</a>
+            <ul>
+              <li><a href="#resources">3.1 Resources</a></li>
+              <li><a href="#tools">3.2 Tools</a></li>
+              <li><a href="#prompts">3.3 Prompts</a></li>
+            </ul>
+          </li>
+          <li><a href="#implementation">4. MCPサーバーの実装例</a></li>
+          <li><a href="#usecases">5. MCPのユースケース</a></li>
+          <li><a href="#openclaw-integration">6. OpenClawとMCPの統合</a></li>
+          <li><a href="#comparison">7. 他のツール統合規格との比較</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+          <li><a href="tool-use-architecture.html">ツールユースアーキテクチャ</a></li>
+          <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+          <li><a href="langchain-overview.html">LangChain概要</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+        <li><a href="tool-use-architecture.html">ツールユースアーキテクチャ</a></li>
+        <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+        <li><a href="langchain-overview.html">LangChain概要</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+{
+  "queue": [
+    {
+      "proposed_slug": "react-pattern",
+      "proposed_title": "ReActパターン：推論と行動の統合",
+      "source_id": "ai-agent-overview",
+      "rationale": "記事内でReActパターンに言及したが、推論ステップと行動ステップを交互に行うこの重要なプロンプティング手法を独立した記事で詳解する価値がある",
+      "interestingness_score": 0.88,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "langgraph-multiagent",
+      "proposed_title": "LangGraphによるマルチエージェントシステム",
+      "source_id": "langchain-overview",
+      "rationale": "LangGraphはLangChainの拡張として急速に普及しているマルチエージェントフレームワークであり、グラフベースの状態管理とOpenClawのエージェントアーキテクチャとの比較は読者の関心が高い",
+      "interestingness_score": 0.88,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-safety-sandboxing",
+      "proposed_title": "エージェント安全性とサンドボックス設計",
+      "source_id": "ai-agent-overview",
+      "rationale": "ツール実行の安全性・権限管理への言及があったが、エージェントの誤動作や悪用を防ぐためのサンドボックス・ガードレール技術は重要かつ独立した記事として深める価値がある",
+      "interestingness_score": 0.87,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-evaluation-benchmarks",
+      "proposed_title": "エージェント評価ベンチマーク",
+      "source_id": "ai-agent-overview",
+      "rationale": "課題と展望セクションで評価・ベンチマーク整備の途上であることに言及したが、WebArena・AgentBench・SWE-benchなど主要ベンチマークの比較分析は実用的な記事となる",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "vector-database-for-agents",
+      "proposed_title": "エージェント向けベクトルデータベース",
+      "source_id": "agent-memory-systems",
+      "rationale": "RAGとベクトルDB選択はエージェントの長期記憶品質を左右する重要トピックであり、Chroma・Qdrant・pgvectorの詳細比較や導入事例を掘り下げた独立記事として需要が高い。",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-task-scheduling",
+      "proposed_title": "エージェントタスクスケジューリング",
+      "source_id": "multi-agent-systems",
+      "rationale": "マルチエージェントシステムにおけるDAGベースのタスクスケジューリングと優先度管理の詳細は独立した記事として深掘りする価値がある",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "rag-architecture",
+      "proposed_title": "RAGアーキテクチャと実装パターン",
+      "source_id": "langchain-overview",
+      "rationale": "Retrieval-Augmented GenerationはLangChainの最も主要なユースケースであり、ベクトルストア・チャンクング・リランキングなどの実装詳細はAIエージェント開発者にとって実用的な記事になる",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "parallel-tool-execution",
+      "proposed_title": "並列ツール実行と非同期エージェント",
+      "source_id": "tool-use-architecture",
+      "rationale": "並列ツール呼び出しはエージェントのパフォーマンスに直結する重要なトピックであり、非同期実行モデル・競合状態・デッドロック回避など実装上の課題を体系的に解説できる",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "self-correcting-agents",
+      "proposed_title": "自己修正エージェントの設計",
+      "source_id": "agent-architecture",
+      "rationale": "Reflexionパターンの深掘り記事として、自己評価・自己修正メカニズムの実装詳細、評価関数の設計、メタ認知的フィードバックループを解説する需要が高い",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-tool-security",
+      "proposed_title": "エージェントのツールセキュリティとアクセス制御",
+      "source_id": "mcp-protocol",
+      "rationale": "MCP記事でアクセス制御・セキュリティモデルに触れたため、エージェントがツールを実行する際のサンドボックス・権限管理・プロンプトインジェクション対策を扱う記事が発展的。",
+      "interestingness_score": 0.85,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "bdi-architecture",
+      "proposed_title": "BDIアーキテクチャ：信念・欲求・意図モデル",
+      "source_id": "ai-agent-overview",
+      "rationale": "Deliberativeエージェントの理論的枠組みとして言及したBDI（Belief-Desire-Intention）モデルは、エージェント設計の古典的かつ現在も影響力ある理論であり深掘りに値する",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "context-window-management",
+      "proposed_title": "コンテキストウィンドウ管理戦略",
+      "source_id": "agent-memory-systems",
+      "rationale": "長時間タスクでの要約圧縮・スライディングウィンドウ・重要度フィルタリングの具体的アルゴリズムと実装は実践的に重要であり、単独記事として詳述する価値がある。",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "distributed-agent-debugging",
+      "proposed_title": "分散エージェントのデバッグと可観測性",
+      "source_id": "multi-agent-systems",
+      "rationale": "分散トレーシング・構造化ログ・リプレイデバッグなど、マルチエージェント特有のデバッグ手法は実用的な詳細記事として需要が高い",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "tool-registry-plugin-system",
+      "proposed_title": "ツールレジストリのプラグインシステム",
+      "source_id": "tool-use-architecture",
+      "rationale": "OpenClawのツールレジストリは動的プラグインロードをサポートするが、その実装詳細（プラグインAPI設計、バージョン管理、依存関係解決）は独立した記事として深掘りする価値がある",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-orchestration-patterns",
+      "proposed_title": "エージェントオーケストレーションパターン",
+      "source_id": "agent-architecture",
+      "rationale": "Plan-and-Executeとマルチエージェントシステムをつなぐオーケストレータパターンの詳細、タスク分解アルゴリズム、並列実行制御の設計について扱う記事として有用",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "mcp-server-ecosystem",
+      "proposed_title": "MCPサーバーエコシステム",
+      "source_id": "mcp-protocol",
+      "rationale": "MCPプロトコル記事でMCPサーバーの実装例・コミュニティサーバー（GitHub/Slack/PostgreSQL等）に言及したため、エコシステム全体を俯瞰する記事が有用。",
+      "interestingness_score": 0.82,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "self-improving-agents",
+      "proposed_title": "自己改善エージェント",
+      "source_id": "ai-agent-overview",
+      "rationale": "展望として自己改善ループに言及したが、エージェントが自らのコードやプロンプトを修正して能力を向上させるメタ学習的アプローチは未来志向の重要トピックである",
+      "interestingness_score": 0.8,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "memory-hallucination-mitigation",
+      "proposed_title": "メモリハルシネーション対策",
+      "source_id": "agent-memory-systems",
+      "rationale": "エージェントが誤情報を外部メモリに蓄積するリスクとその緩和手法（信頼度スコアリング・矛盾検出・ガベージコレクション）は安全性観点から重要なテーマ。",
+      "interestingness_score": 0.8,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "llm-observability",
+      "proposed_title": "LLMオブザーバビリティとLangSmith",
+      "source_id": "langchain-overview",
+      "rationale": "本番LLMシステムの監視・デバッグ・評価は現場の課題であり、LangSmithを中心に他のオブザーバビリティツールとの比較も含めた記事はエンジニアの需要が高い",
+      "interestingness_score": 0.8,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "tool-schema-best-practices",
+      "proposed_title": "ツールスキーマ設計のベストプラクティス",
+      "source_id": "tool-use-architecture",
+      "rationale": "ツール選択精度はスキーマ品質に大きく左右されるため、descriptionの書き方・パラメータ粒度・enumの活用など実践的ガイドラインをまとめた記事が有用",
+      "interestingness_score": 0.79,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "agent-coordination-patterns",
+      "proposed_title": "エージェント協調パターン",
+      "source_id": "multi-agent-systems",
+      "rationale": "ブラックボード方式・コントラクトネット・オークションなどのエージェント協調パターンを体系的にまとめた記事はマルチエージェント設計の参照資料になる",
+      "interestingness_score": 0.78,
+      "status": "queued"
+    },
+    {
+      "proposed_slug": "llm-router-design",
+      "proposed_title": "LLMルーター設計とツール選択戦略",
+      "source_id": "agent-architecture",
+      "rationale": "MRKLアーキテクチャを実装する際のルーティング戦略、ツール選択の信頼スコアリング、フォールバック機構の設計パターンを詳解する記事として価値がある",
+      "interestingness_score": 0.78,
+      "status": "queued"
+    }
+  ],
+  "history": [
+    {
+      "proposed_slug": "ai-agent-overview",
+      "proposed_title": "AIエージェント概論",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "OpenClawを理解するための基礎概念。AIエージェントとは何か、LLMベースエージェントの歴史と発展を解説",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "tool-use-architecture",
+      "proposed_title": "ツール使用アーキテクチャ",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "OpenClawのコア機能であるツール呼び出しの仕組みを詳説。JSON Schemaによるツール定義とLLMの選択プロセス",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "agent-architecture",
+      "proposed_title": "エージェントアーキテクチャ設計パターン",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "ReAct・Plan-and-Execute・Reflexionなど主要なエージェントアーキテクチャパターンの比較と適用事例",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "agent-memory-systems",
+      "proposed_title": "エージェントメモリシステム",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "短期・長期・エピソード記憶の実装方法。ベクトルDBを用いた意味記憶とコンテキスト管理の手法",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "multi-agent-systems",
+      "proposed_title": "マルチエージェントシステム",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "複数AIエージェントが協調してタスクを解く仕組み。オーケストレーター・ワーカーパターンと通信プロトコル",
+      "interestingness_score": 0.86,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "mcp-protocol",
+      "proposed_title": "Model Context Protocol（MCP）",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "Anthropicが提唱するツール統合標準プロトコル。AIエージェントとツール間の相互運用性を実現",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "langchain-overview",
+      "proposed_title": "LangChain概要",
+      "source_id": "openclaw-ai-agent",
+      "rationale": "最もポピュラーなLLMオーケストレーションフレームワーク。OpenClawとの比較・使い分けを解説",
+      "interestingness_score": 0.78,
+      "status": "processing"
+    }
+  ]
+}

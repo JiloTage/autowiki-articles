@@ -75,6 +75,15 @@
       "article_count": 19,
       "color": "#e65100",
       "status": "archived"
+    },
+    "openclaw-ai-agent": {
+      "id": "openclaw-ai-agent",
+      "title": "AIエージェントのOpenClaw",
+      "root_topic": "AIエージェントのOpenclawについて",
+      "created_at": "2026-04-08T13:21:12.822131+00:00",
+      "article_count": 8,
+      "color": "#00796b",
+      "status": "active"
     }
   }
 }

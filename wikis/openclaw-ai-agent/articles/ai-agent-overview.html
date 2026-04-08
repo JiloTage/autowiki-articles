@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIエージェント概論 - AIエージェントのOpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">AIエージェントのOpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">AIエージェントのOpenClaw</a> &gt;
+    AIエージェント概論
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">AIエージェント概論</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">AIエージェントとは、環境を知覚し、目標達成に向けて自律的に行動を計画・実行するソフトウェアシステムである。大規模言語モデル（LLM）の台頭により、自然言語を介して複雑なタスクを遂行できる高度なエージェントが実現されつつある。</div>
+
+      <!-- CONTENT START -->
+
+      <h2 id="definition">AIエージェントの定義</h2>
+      <p>
+        AIエージェント（AI Agent）とは、<strong>環境（Environment）</strong>から情報を知覚し、内部状態と目標に基づいて行動を選択・実行するソフトウェア的主体（agent）を指す。
+        哲学的には「何かを行う力をもつ存在」という意味をもち、計算機科学においては Russell &amp; Norvig の古典的教科書
+        <em>Artificial Intelligence: A Modern Approach</em> で体系化された概念が広く参照される。
+      </p>
+      <p>
+        エージェントの核心は「知覚→推論→行動」のループにある。単発の問い合わせ（query–response）に留まる通常のプログラムと異なり、
+        エージェントは <strong>継続的なフィードバックループ</strong> の中でタスクを完遂するまで自律的に動作し続ける点が本質的な差異である。
+      </p>
+
+      <!-- SVG: 知覚→推論→行動ループ -->
+      <figure style="text-align:center; margin: 1.8em 0;">
+        <svg viewBox="0 0 560 180" width="560" height="180" xmlns="http://www.w3.org/2000/svg"
+             style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:4px; max-width:100%;">
+          <!-- 環境ボックス -->
+          <rect x="10" y="60" width="120" height="60" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="70" y="94" text-anchor="middle" font-size="14" fill="#202122" font-family="sans-serif">環境</text>
+          <!-- 知覚ボックス -->
+          <rect x="170" y="60" width="100" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="220" y="94" text-anchor="middle" font-size="14" fill="#202122" font-family="sans-serif">知覚</text>
+          <!-- 推論ボックス -->
+          <rect x="310" y="60" width="100" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="360" y="94" text-anchor="middle" font-size="14" fill="#202122" font-family="sans-serif">推論</text>
+          <!-- 行動ボックス -->
+          <rect x="450" y="60" width="100" height="60" rx="6" fill="#e8f0fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="500" y="94" text-anchor="middle" font-size="14" fill="#202122" font-family="sans-serif">行動</text>
+          <!-- 矢印: 環境→知覚 -->
+          <line x1="130" y1="90" x2="168" y2="90" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <!-- 矢印: 知覚→推論 -->
+          <line x1="270" y1="90" x2="308" y2="90" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <!-- 矢印: 推論→行動 -->
+          <line x1="410" y1="90" x2="448" y2="90" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr)"/>
+          <!-- フィードバック矢印（下側） -->
+          <path d="M500,120 Q500,155 280,155 Q60,155 70,120" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrg)"/>
+          <text x="280" y="170" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">フィードバック（環境の変化）</text>
+          <!-- マーカー定義 -->
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#3366cc"/>
+            </marker>
+            <marker id="arrg" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#888"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555;">図1: AIエージェントの基本ループ（知覚→推論→行動→環境変化→知覚…）</figcaption>
+      </figure>
+
+      <h2 id="llm-agents">LLMベースエージェントの登場</h2>
+      <p>
+        2020年代前半に大規模言語モデル（LLM: Large Language Model）が飛躍的に進化したことで、
+        AIエージェントの実装パラダイムが大きく変化した。従来のエージェントは特定タスクに特化したルールや強化学習ポリシーを用いていたが、
+        LLMを中核とするエージェントは <strong>自然言語による指示理解・計画生成・ツール呼び出し</strong> を単一モデルで行える。
+      </p>
+      <p>
+        特に2023年以降、<em>ReAct</em>（Reasoning + Acting）パターン、<em>Chain-of-Thought</em> プロンプティング、
+        そして <em>Function Calling / Tool Use</em> API の標準化が進んだことにより、LLMを「頭脳」として既存システムやAPIを操作する
+        汎用エージェントが急速に普及した。<a href="openclaw-ai-agent.html">OpenClaw</a> はこの流れの中で生まれた
+        オープンソースフレームワークのひとつである。
+      </p>
+
+      <h2 id="components">主要コンポーネント</h2>
+      <p>
+        現代のLLMベースエージェントは一般に4つの中核コンポーネントから構成される。
+        これらの相互作用の詳細については <a href="agent-architecture.html">エージェントアーキテクチャ</a> を参照。
+      </p>
+
+      <!-- SVG: 4コンポーネント図 -->
+      <figure style="text-align:center; margin: 1.8em 0;">
+        <svg viewBox="0 0 480 300" width="480" height="300" xmlns="http://www.w3.org/2000/svg"
+             style="background:#f8f9fa; border:1px solid #a2a9b1; border-radius:4px; max-width:100%;">
+          <!-- 中心: LLMコア -->
+          <ellipse cx="240" cy="150" rx="65" ry="45" fill="#3366cc" opacity="0.15" stroke="#3366cc" stroke-width="2"/>
+          <text x="240" y="146" text-anchor="middle" font-size="13" fill="#3366cc" font-weight="bold" font-family="sans-serif">LLMコア</text>
+          <text x="240" y="162" text-anchor="middle" font-size="11" fill="#3366cc" font-family="sans-serif">（推論エンジン）</text>
+          <!-- Perception -->
+          <rect x="20" y="30" width="120" height="55" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="54" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold" font-family="sans-serif">Perception</text>
+          <text x="80" y="72" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">入力処理・知覚</text>
+          <!-- Memory -->
+          <rect x="340" y="30" width="120" height="55" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="400" y="54" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold" font-family="sans-serif">Memory</text>
+          <text x="400" y="72" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">記憶・文脈管理</text>
+          <!-- Planning -->
+          <rect x="20" y="215" width="120" height="55" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="80" y="239" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold" font-family="sans-serif">Planning</text>
+          <text x="80" y="257" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">目標分解・計画</text>
+          <!-- Action -->
+          <rect x="340" y="215" width="120" height="55" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="400" y="239" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold" font-family="sans-serif">Action</text>
+          <text x="400" y="257" text-anchor="middle" font-size="11" fill="#555" font-family="sans-serif">ツール実行・出力</text>
+          <!-- 接続線 -->
+          <line x1="140" y1="57" x2="175" y2="125" stroke="#a2a9b1" stroke-width="1.2" stroke-dasharray="4,3"/>
+          <line x1="340" y1="57" x2="305" y2="125" stroke="#a2a9b1" stroke-width="1.2" stroke-dasharray="4,3"/>
+          <line x1="140" y1="242" x2="175" y2="175" stroke="#a2a9b1" stroke-width="1.2" stroke-dasharray="4,3"/>
+          <line x1="340" y1="242" x2="305" y2="175" stroke="#a2a9b1" stroke-width="1.2" stroke-dasharray="4,3"/>
+        </svg>
+        <figcaption style="font-size:0.85em; color:#555;">図2: LLMエージェントの4主要コンポーネントとLLMコアの関係</figcaption>
+      </figure>
+
+      <dl>
+        <dt><strong>Perception（知覚）</strong></dt>
+        <dd>テキスト・画像・音声・センサーデータなど多様な入力を受け取り、LLMが処理できる形式に変換するモジュール。
+        RAG（Retrieval-Augmented Generation）パイプラインや埋め込みモデルがここに含まれることが多い。</dd>
+
+        <dt><strong>Memory（記憶）</strong></dt>
+        <dd>短期記憶（コンテキストウィンドウ内の会話履歴）と長期記憶（ベクトルDBや外部ストレージ）の両方を管理する。
+        詳細は <a href="agent-memory-systems.html">エージェントメモリシステム</a> を参照。</dd>
+
+        <dt><strong>Planning（計画）</strong></dt>
+        <dd>与えられた目標を達成するためにサブタスクへ分解し、実行順序を決定する。
+        ReAct、Tree-of-Thoughts、MCTS などの手法が使われる。
+        <a href="agent-architecture.html">エージェントアーキテクチャ</a> ではこの詳細を論じる。</dd>
+
+        <dt><strong>Action（行動）</strong></dt>
+        <dd>外部ツール（Web検索、コード実行、APIコール、ファイル操作など）を呼び出す実行レイヤー。
+        <a href="tool-use-architecture.html">ツールユースアーキテクチャ</a> で詳述する。</dd>
+      </dl>
+
+      <h2 id="classification">エージェントの分類</h2>
+      <p>
+        AIエージェントはその意思決定メカニズムに基づき、大きく3つに分類できる。
+      </p>
+
+      <h3 id="reactive">Reactiveエージェント（反応型）</h3>
+      <p>
+        内部モデルや計画を持たず、現在の知覚入力に対して直接応答ルールを適用する最もシンプルな形態。
+        実装が軽量で応答が高速な反面、過去の履歴を参照できないため複雑な目標追跡には不向きである。
+        ルールベースのチャットボットや単純なゲームAIがその典型例である。
+      </p>
+
+      <h3 id="deliberative">Deliberativeエージェント（熟慮型）</h3>
+      <p>
+        世界の明示的なモデルを維持し、計画を立案してから行動する。BDI（Belief-Desire-Intention）モデルがその代表的な理論的枠組みであり、
+        ロボティクスや自律システムで採用されてきた。LLMは計画生成において強力な熟慮型要素として機能する。
+      </p>
+
+      <h3 id="hybrid">Hybridエージェント（ハイブリッド型）</h3>
+      <p>
+        Reactive と Deliberative を階層的に組み合わせたアーキテクチャ。緊急性の高い刺激には反応型層が即応し、
+        長期的目標達成は熟慮型層が担う。現代の高性能LLMエージェントの多くはこのハイブリッド型に分類される。
+        <a href="multi-agent-systems.html">マルチエージェントシステム</a> ではさらに複数エージェントの協調について扱う。
+      </p>
+
+      <h2 id="frameworks">代表的なエージェントフレームワーク</h2>
+      <p>
+        2023〜2026年の間に多数のLLMエージェントフレームワークが登場した。以下に代表的なものの概観を示す。
+      </p>
+
+      <table style="width:100%; border-collapse:collapse; font-size:0.92em; margin: 1em 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">フレームワーク</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">特徴</th>
+            <th style="border:1px solid #a2a9b1; padding:6px 10px; text-align:left;">主な用途</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">LangChain / LangGraph</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">チェーン・グラフ型ワークフロー。豊富なインテグレーション</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">汎用エージェント・RAGパイプライン</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">AutoGen</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">マルチエージェント会話フレームワーク（Microsoft）</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">複数エージェント協調・コード生成</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">CrewAI</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">役割ベースのマルチエージェントチーム編成</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">タスク自動化・業務ワークフロー</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">Anthropic Agent SDK</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">Claude特化・シンプルなAgent/Tool API</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">Claude APIを使ったエージェント開発</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;"><a href="openclaw-ai-agent.html">OpenClaw</a></td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">オープンソース・モジュラー設計・プラグイン型ツール</td>
+            <td style="border:1px solid #a2a9b1; padding:6px 10px;">研究・カスタムエージェント構築</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        各フレームワークはメモリ管理・ツール統合・マルチエージェント調整の三点において独自の設計哲学をもつ。
+        <a href="tool-use-architecture.html">ツールユースアーキテクチャ</a> ではツール統合の実装パターンを比較検討する。
+      </p>
+
+      <h2 id="challenges">課題と展望</h2>
+      <p>
+        LLMベースエージェントの実用化にあたっては、いくつかの根本的な課題が残されている。
+      </p>
+      <ul>
+        <li><strong>信頼性とハルシネーション</strong>: LLMは事実に反する情報を生成することがあり、エージェントが誤った計画を立てるリスクがある。</li>
+        <li><strong>長期コンテキスト管理</strong>: コンテキストウィンドウの制限とコスト最適化の間のトレードオフ。<a href="agent-memory-systems.html">エージェントメモリシステム</a> が解決策を提供する。</li>
+        <li><strong>ツールの安全な実行</strong>: 外部APIやコード実行を伴うため、サンドボックスや権限管理が不可欠。</li>
+        <li><strong>マルチエージェント調整</strong>: 複数エージェントが協調する際の競合・デッドロック・整合性問題。<a href="multi-agent-systems.html">マルチエージェントシステム</a> で詳述。</li>
+        <li><strong>評価・ベンチマーク</strong>: エージェント性能の定量評価は未成熟であり、標準ベンチマークの整備が進んでいる途上である。</li>
+      </ul>
+      <p>
+        これらの課題への対処とともに、エージェントは今後も急速に進化を続けると予測される。
+        特にマルチモーダル知覚・自己改善ループ・分散型マルチエージェント協調は注目の研究領域である。
+      </p>
+
+      <!-- CONTENT END -->
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#definition">1. AIエージェントの定義</a></li>
+          <li><a href="#llm-agents">2. LLMベースエージェントの登場</a></li>
+          <li><a href="#components">3. 主要コンポーネント</a></li>
+          <li><a href="#classification">4. エージェントの分類</a>
+            <ul>
+              <li><a href="#reactive">4.1 Reactiveエージェント</a></li>
+              <li><a href="#deliberative">4.2 Deliberativeエージェント</a></li>
+              <li><a href="#hybrid">4.3 Hybridエージェント</a></li>
+            </ul>
+          </li>
+          <li><a href="#frameworks">5. 代表的なエージェントフレームワーク</a></li>
+          <li><a href="#challenges">6. 課題と展望</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+          <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+          <li><a href="tool-use-architecture.html">ツールユースアーキテクチャ</a></li>
+          <li><a href="agent-memory-systems.html">エージェントメモリシステム</a></li>
+          <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw-ai-agent.html">OpenClaw AIエージェント</a></li>
+        <li><a href="agent-architecture.html">エージェントアーキテクチャ</a></li>
+        <li><a href="tool-use-architecture.html">ツールユースアーキテクチャ</a></li>
+        <li><a href="agent-memory-systems.html">エージェントメモリシステム</a></li>
+        <li><a href="multi-agent-systems.html">マルチエージェントシステム</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>
