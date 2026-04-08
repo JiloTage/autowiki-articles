@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Claw Level Design - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Captain Claw Level Design
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Captain Claw Level Design</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Captain Claw Level Design covers the structure, themes, and progression of the 14 acts that make up the original Captain Claw campaign, and how OpenClaw faithfully reconstructs them from WWD level data embedded in the CLAW.REZ archive.</div>
+
+      <h2 id="overview">Overview</h2>
+      <p><b>Captain Claw Level Design</b> refers to the architecture and thematic organisation of the 14 acts (commonly called levels) that comprise the single-player campaign of <a href="captain-claw.html">Captain Claw</a> (1997). Each act is a self-contained scrolling platformer stage with a distinct visual palette, enemy roster, and hazard set. <a href="openclaw.html">OpenClaw</a> loads and renders these acts directly from the WWD (World Widow Data) format files bundled inside the <a href="rez-file-format.html">CLAW.REZ</a> archive, faithfully reproducing every tile layout, object placement, and scripted event without any hand-authored replacements.</p>
+      <p>The 14 acts are grouped into thematic worlds — broadly characterised as maritime, jungle, aquatic, frozen, and arcane environments — with the final act reserved for the ultimate boss confrontation. Difficulty escalates progressively across acts: enemy counts increase, hazard density rises, and platforming sequences demand greater precision. The <a href="captain-claw-gameplay.html">core gameplay loop</a> of exploration, combat, and treasure collection is reinforced by each world's layout.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
+          <!-- Background -->
+          <rect width="720" height="420" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Captain Claw — 14-Level Progression Map</text>
+
+          <!-- World labels on the left -->
+          <text x="16" y="74" font-size="10" fill="#36c" font-weight="bold">Maritime</text>
+          <text x="16" y="136" font-size="10" fill="#36c" font-weight="bold">Jungle</text>
+          <text x="16" y="196" font-size="10" fill="#36c" font-weight="bold">Aquatic</text>
+          <text x="16" y="256" font-size="10" fill="#36c" font-weight="bold">Frozen</text>
+          <text x="16" y="316" font-size="10" fill="#36c" font-weight="bold">Arcane</text>
+          <text x="16" y="376" font-size="10" fill="#36c" font-weight="bold">Final</text>
+
+          <!-- Row band backgrounds -->
+          <rect x="80" y="54" width="624" height="36" rx="4" fill="#dbeafe" opacity="0.45"/>
+          <rect x="80" y="114" width="624" height="36" rx="4" fill="#dcfce7" opacity="0.45"/>
+          <rect x="80" y="174" width="624" height="36" rx="4" fill="#e0f2fe" opacity="0.45"/>
+          <rect x="80" y="234" width="624" height="36" rx="4" fill="#f0f9ff" opacity="0.45"/>
+          <rect x="80" y="294" width="624" height="36" rx="4" fill="#fdf4ff" opacity="0.45"/>
+          <rect x="80" y="354" width="624" height="36" rx="4" fill="#fff7ed" opacity="0.45"/>
+
+          <!-- Level nodes — row 1 (Maritime): Acts 1, 2, 3 -->
+          <!-- Act 1 -->
+          <rect x="88" y="58" width="88" height="28" rx="5" fill="#3366cc" stroke="#1a3a7a" stroke-width="1.2"/>
+          <text x="132" y="76" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 1</text>
+          <!-- Act 2 -->
+          <rect x="192" y="58" width="88" height="28" rx="5" fill="#3366cc" stroke="#1a3a7a" stroke-width="1.2"/>
+          <text x="236" y="76" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 2</text>
+          <!-- Act 3 (boss) -->
+          <rect x="296" y="58" width="88" height="28" rx="5" fill="#c0392b" stroke="#7b1a1a" stroke-width="1.2"/>
+          <text x="340" y="76" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 3 ★</text>
+
+          <!-- Row 2 (Jungle): Acts 4, 5, 6 -->
+          <rect x="88" y="118" width="88" height="28" rx="5" fill="#2e7d32" stroke="#1a4a1a" stroke-width="1.2"/>
+          <text x="132" y="136" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 4</text>
+          <rect x="192" y="118" width="88" height="28" rx="5" fill="#2e7d32" stroke="#1a4a1a" stroke-width="1.2"/>
+          <text x="236" y="136" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 5</text>
+          <rect x="296" y="118" width="88" height="28" rx="5" fill="#c0392b" stroke="#7b1a1a" stroke-width="1.2"/>
+          <text x="340" y="136" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 6 ★</text>
+
+          <!-- Row 3 (Aquatic): Acts 7, 8 -->
+          <rect x="88" y="178" width="88" height="28" rx="5" fill="#0369a1" stroke="#023f66" stroke-width="1.2"/>
+          <text x="132" y="196" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 7</text>
+          <rect x="192" y="178" width="88" height="28" rx="5" fill="#c0392b" stroke="#7b1a1a" stroke-width="1.2"/>
+          <text x="236" y="196" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 8 ★</text>
+
+          <!-- Row 4 (Frozen): Acts 9, 10 -->
+          <rect x="88" y="238" width="88" height="28" rx="5" fill="#6b7280" stroke="#374151" stroke-width="1.2"/>
+          <text x="132" y="256" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 9</text>
+          <rect x="192" y="238" width="88" height="28" rx="5" fill="#c0392b" stroke="#7b1a1a" stroke-width="1.2"/>
+          <text x="236" y="256" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 10 ★</text>
+
+          <!-- Row 5 (Arcane): Acts 11, 12, 13 -->
+          <rect x="88" y="298" width="88" height="28" rx="5" fill="#6d28d9" stroke="#3b1a7a" stroke-width="1.2"/>
+          <text x="132" y="316" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 11</text>
+          <rect x="192" y="298" width="88" height="28" rx="5" fill="#6d28d9" stroke="#3b1a7a" stroke-width="1.2"/>
+          <text x="236" y="316" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 12</text>
+          <rect x="296" y="298" width="88" height="28" rx="5" fill="#c0392b" stroke="#7b1a1a" stroke-width="1.2"/>
+          <text x="340" y="316" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 13 ★</text>
+
+          <!-- Row 6 (Final): Act 14 -->
+          <rect x="88" y="358" width="88" height="28" rx="5" fill="#b45309" stroke="#7c2d12" stroke-width="1.4"/>
+          <text x="132" y="376" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Act 14 ★</text>
+
+          <!-- Connecting arrows: row transitions -->
+          <!-- Act 3 -> Act 4 -->
+          <line x1="340" y1="86" x2="340" y2="100" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="340" y1="100" x2="132" y2="100" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="132" y1="100" x2="132" y2="118" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <!-- Act 6 -> Act 7 -->
+          <line x1="340" y1="146" x2="340" y2="160" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="340" y1="160" x2="132" y2="160" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="132" y1="160" x2="132" y2="178" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <!-- Act 8 -> Act 9 -->
+          <line x1="236" y1="206" x2="236" y2="220" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="236" y1="220" x2="132" y2="220" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="132" y1="220" x2="132" y2="238" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <!-- Act 10 -> Act 11 -->
+          <line x1="236" y1="266" x2="236" y2="280" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="236" y1="280" x2="132" y2="280" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="132" y1="280" x2="132" y2="298" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <!-- Act 13 -> Act 14 -->
+          <line x1="340" y1="326" x2="340" y2="340" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="340" y1="340" x2="132" y2="340" stroke="#a2a9b1" stroke-width="1.2"/>
+          <line x1="132" y1="340" x2="132" y2="358" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+
+          <!-- Within-row arrows -->
+          <line x1="176" y1="72" x2="192" y2="72" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="280" y1="72" x2="296" y2="72" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="176" y1="132" x2="192" y2="132" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="280" y1="132" x2="296" y2="132" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="176" y1="192" x2="192" y2="192" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="176" y1="252" x2="192" y2="252" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="176" y1="312" x2="192" y2="312" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+          <line x1="280" y1="312" x2="296" y2="312" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arrL)"/>
+
+          <!-- Legend -->
+          <rect x="430" y="116" width="14" height="14" rx="3" fill="#3366cc" stroke="#1a3a7a" stroke-width="1"/>
+          <text x="450" y="127" font-size="10" fill="#202122">Standard act</text>
+          <rect x="430" y="138" width="14" height="14" rx="3" fill="#c0392b" stroke="#7b1a1a" stroke-width="1"/>
+          <text x="450" y="149" font-size="10" fill="#202122">Boss act  (★)</text>
+          <rect x="430" y="160" width="14" height="14" rx="3" fill="#b45309" stroke="#7c2d12" stroke-width="1"/>
+          <text x="450" y="171" font-size="10" fill="#202122">Final boss act</text>
+
+          <defs>
+            <marker id="arrL" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+              <polygon points="0 0, 7 2.5, 0 5" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Captain Clawの14レベル進行マップ。赤はボス戦、茶色は最終ボス</div>
+      </div>
+
+      <h2 id="map-structure">Tile Map Structure and Rendering Layers</h2>
+      <p>Every level in <a href="captain-claw.html">Captain Claw</a> is stored as a WWD (World Widow Data) binary file inside the <a href="rez-file-format.html">CLAW.REZ</a> archive. The WWD format encodes the full map as a two-dimensional grid of tile indices, each tile referencing a 64x64 pixel image in the corresponding world tile set. <a href="openclaw.html">OpenClaw</a>'s level loader parses WWD files at startup, constructing an in-memory tile map that drives both rendering and Box2D collision geometry generation.</p>
+      <p>Each map is organised into multiple named planes (layers) that are composited during rendering to create the illusion of depth:</p>
+      <ul>
+        <li><b>Background plane:</b> Distant scenery tiles rendered first, with the largest parallax offset. These are purely decorative and carry no collision geometry. In Act 1 they depict open ocean; in Act 4 they show forest canopy.</li>
+        <li><b>Action plane:</b> The primary gameplay layer. Solid platforms, climbable ladders, destructible crates, water surfaces, and interactive objects all reside here. Box2D static bodies are generated exclusively from action-plane collision attributes, so the physics world remains lightweight even for large maps.</li>
+        <li><b>Foreground plane:</b> Tiles composited on top of the player sprite, used for decorative elements that occlude Claw — stalactites, hanging ropes, archway pillars. OpenClaw renders this plane after all entities to preserve correct draw order.</li>
+      </ul>
+      <p>Parallax scrolling is achieved by multiplying each plane's tile offset by a world-specific coefficient defined in the WWD header. Background planes scroll at roughly half the camera speed, producing the classic pseudo-3D depth effect seen throughout the original game.</p>
+
+      <h2 id="level-themes">The 14 Acts: Themes and Layout</h2>
+      <p>The 14 acts are structured into five thematic worlds followed by a standalone final act. Each world contains two or three non-boss acts and concludes with a boss act. The themed progression is as follows:</p>
+
+      <h3>Acts 1–3: Maritime World</h3>
+      <p>Act 1 is the game's tutorial act, set aboard a pirate ship. Claw begins imprisoned and must escape the brig, ascend the ship's decks, and fight through a crew of pirate officers. Wide, open horizontal corridors introduce the player to the cutlass, pistol, and double-jump mechanics. Act 2 expands onto the rigging and sea cliffs adjacent to the ship, introducing moving platforms and cannonball hazards. Act 3 culminates in a boss encounter with <b>La Roca</b>, a large pirate captain who attacks with a cutlass charge and hurled explosives.</p>
+
+      <h3>Acts 4–6: Jungle and Forest World</h3>
+      <p>Acts 4 and 5 take Claw through dense jungle terrain and crumbling Aztec ruins. Vines serve as climbable ropes; pitfall traps and spike floors demand careful navigation. Enemy types shift to jungle warriors armed with spears and dart-blowing tribesmen. Act 6 features the boss <b>Katherine</b>, a quick and agile fighter whose high-speed sword combos require the player to use the pistol at range rather than engaging in melee.</p>
+
+      <h3>Acts 7–8: Aquatic Realm</h3>
+      <p>Act 7 introduces underwater sections where buoyancy affects Claw's jump arc and swimming mechanics replace standard movement. Coral reefs and submerged ruins define the tile palette. Shark and eel enemies pursue the player through flooded corridors, while air-pocket intervals regulate how long Claw can remain submerged. Act 8's boss <b>Wolvington</b> is fought on a partially flooded arena, mixing the aquatic hazards with conventional melee combat.</p>
+
+      <h3>Acts 9–10: Ice and Snow World</h3>
+      <p>Acts 9 introduces slippery ice-tile physics, where Claw's deceleration is greatly reduced, requiring anticipation of stopping distances. Snowstorm visual effects reduce effective visibility in outdoor sections. Ice-armoured enemies are more resistant to melee damage and must be softened with explosive ammunition first. Act 10's boss encounter escalates the ice-tile slipperiness into the boss arena itself, demanding the player manage both positioning and the boss's attack patterns simultaneously.</p>
+
+      <h3>Acts 11–13: Arcane and Castle World</h3>
+      <p>Acts 11 and 12 venture into gothic castle interiors and arcane laboratories, introducing sorcerer enemies capable of ranged magical projectiles that are difficult to dodge in narrow corridors. Conveyor belts, portcullises triggered by pressure plates, and teleporter pads add mechanical variety to these acts. Act 13 features one of the most elaborate boss fights: a two-phase encounter with a sorcerer who teleports around the arena and summons minions before entering a direct melee phase.</p>
+
+      <h3>Act 14: Final Confrontation</h3>
+      <p>The final act combines hazard elements from all preceding worlds in a single climactic gauntlet. Players traverse a fortress that incorporates icy floors, underwater passages, jungle-themed traps, and arcane barriers in sequence. The act ends with the final boss of the campaign — the supreme antagonist who holds the Ninth Life Gem. This fight has multiple distinct phases and requires mastery of all mechanics introduced across the previous 13 acts.</p>
+
+      <h2 id="checkpoints-secrets">Checkpoints and Secret Areas</h2>
+      <p>Each act contains several <b>checkpoint flagpoles</b> placed at strategic intervals. When Claw touches a flagpole, the game records the act number and the checkpoint index in its save state, so death returns the player to that flagpole rather than the start of the act. In <a href="openclaw.html">OpenClaw</a>, checkpoint state is managed by the level's entity system; each flagpole object tracks its activation status and communicates with the session manager to persist save data between engine restarts.</p>
+      <p>Scattered throughout every act are <b>secret areas</b> — hidden rooms typically accessible by breaking through thin wall sections, by jumping past invisible platforms, or by using a specific item at a marked location. Secret areas contain large caches of coins, gems, and powerups unavailable elsewhere in the act. Experienced players seek these rooms to maximise their treasure score, which is tallied at the level-end summary screen. OpenClaw reproduces the treasure scoring system faithfully, tracking each collectible's pickup state in the act's entity table.</p>
+      <p>A secondary class of hidden content is the <b>treasure cache</b>, a sealed chest that requires finding a matching key earlier in the level. Keys and their corresponding caches are linked by object IDs in the WWD data; OpenClaw's inventory system tracks collected keys and evaluates the match when Claw interacts with a locked chest. This system was one of the more complex entity-interaction patterns to reimplement accurately, as it required preserving the original game's object-reference semantics across level transitions.</p>
+
+      <h2 id="wwd-loading">WWD File Loading in OpenClaw</h2>
+      <p>OpenClaw's level loading pipeline begins with the <a href="rez-file-format.html">REZ archive reader</a>, which locates and decompresses the relevant WWD file from inside CLAW.REZ. WWD files are binary-encoded and include a file header, a series of plane definitions (each with its own tile index grid), an object list, and a set of world properties such as starting position, music track ID, and ambient sound assignments.</p>
+      <p>The loader translates each plane's tile grid into an SDL2 render batch, using the tile set images extracted from the same REZ archive. Concurrently, the action-plane tiles marked with collision attributes are converted into Box2D static body chains — a process that includes edge smoothing to prevent the character from snagging on adjacent-tile corners, a known edge case in direct tile-based physics implementations.</p>
+      <p>WWD objects — including enemies, pickups, checkpoints, doors, and moving platforms — are instantiated through a factory that maps the WWD object type IDs to OpenClaw's C++ entity classes. Each entity class reads its initial parameters (position, facing direction, patrol range, etc.) from the WWD object record and registers with the entity manager. This data-driven approach means that adding support for a new object type requires only implementing its entity class and registering its type ID in the factory table, without modifying the loader itself.</p>
+      <p>For <a href="captain-claw-gameplay.html">gameplay</a> accuracy, the loader also restores checkpoint state from the save file before activating entities, ensuring that previously triggered flagpoles and consumed pickups remain in their activated state when a level is reloaded after death.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#map-structure">Tile Map Structure and Rendering Layers</a></li>
+          <li><a href="#level-themes">The 14 Acts: Themes and Layout</a></li>
+          <li><a href="#checkpoints-secrets">Checkpoints and Secret Areas</a></li>
+          <li><a href="#wwd-loading">WWD File Loading in OpenClaw</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+          <li><a href="rez-file-format.html">REZ File Format</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        <li><a href="rez-file-format.html">REZ File Format</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

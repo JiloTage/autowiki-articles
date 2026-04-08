@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDL2 as a Game Engine Framework - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    SDL2 as a Game Engine Framework
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">SDL2 as a Game Engine Framework</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">SDL2 (Simple DirectMedia Layer 2) serves as the foundational multimedia library in OpenClaw, providing cross-platform abstractions for 2D rendering, audio playback, font rendering, and input handling that allow the engine to run natively on Windows, macOS, and Linux.</div>
+
+      <p><b>SDL2 as a Game Engine Framework</b> describes how <a href="openclaw.html">OpenClaw</a> leverages the Simple DirectMedia Layer 2 (SDL2) library as its core multimedia backend. SDL2 is a free, open-source C library that provides a unified API for windowing, 2D hardware-accelerated rendering, audio output, keyboard and gamepad input, and image loading across all major desktop and mobile operating systems. Rather than building a platform-specific rendering pipeline, OpenClaw delegates all low-level platform concerns to SDL2 and its companion libraries, allowing the engine source code to remain portable and maintainable. This document covers SDL2's subsystem architecture, how each subsystem is applied within OpenClaw, the game loop pattern SDL2 encourages, performance techniques such as sprite batching and texture atlases, audio channel management, and a brief comparison with alternative frameworks that were considered or are commonly discussed alongside SDL2.</p>
+
+      <h2 id="overview">Overview of SDL2</h2>
+      <p>SDL2 is the second major revision of the Simple DirectMedia Layer library, originally created by Sam Lantinga in 1998 and now maintained by the SDL community and Valve Corporation. It exposes a C API covering five primary domains: video (window management and 2D rendering), audio, input (keyboard, mouse, gamepad, touch), threading, and timer utilities. Because the API is pure C, it is trivially bindable from C++ — as <a href="openclaw.html">OpenClaw</a> uses — and from dozens of other languages through community bindings.</p>
+      <p>SDL2's 2D rendering backend (SDL_Renderer) can target OpenGL, OpenGL ES, Direct3D 9, Direct3D 11, Direct3D 12, Vulkan, or a software fallback, all selected transparently at runtime. For a game like <a href="captain-claw.html">Captain Claw</a> that relies on 2D sprites, tilemaps, and simple particle effects rather than 3D geometry, SDL_Renderer provides all required capabilities without the boilerplate of writing a raw OpenGL pipeline. Hardware acceleration is engaged by requesting the <code>SDL_RENDERER_ACCELERATED</code> flag, which routes draw calls through the platform's GPU driver, delivering smooth frame rates even at high resolutions.</p>
+      <p>SDL2 is licensed under the zlib license, a permissive open-source license that permits use in commercial and non-commercial projects without source disclosure requirements. This made it an unambiguous choice for an open-source engine like OpenClaw.</p>
+
+      <h2 id="subsystems">SDL2 Subsystems Used by OpenClaw</h2>
+      <p>OpenClaw makes use of several SDL2 companion libraries in addition to the core library. Each companion extends SDL2 with a specific capability while integrating cleanly with the SDL_Renderer and SDL_Surface types at the core.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400">
+          <!-- Background -->
+          <rect width="720" height="400" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="360" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">SDL2 Subsystem Relationships in OpenClaw</text>
+
+          <!-- Central SDL2 Core box -->
+          <rect x="260" y="155" width="200" height="60" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="2"/>
+          <text x="360" y="180" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">SDL2 Core</text>
+          <text x="360" y="200" text-anchor="middle" font-size="10" fill="#202122">Window · Events · SDL_Renderer</text>
+
+          <!-- SDL_Image -->
+          <rect x="50" y="60" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="130" y="83" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">SDL_Image</text>
+          <text x="130" y="101" text-anchor="middle" font-size="10" fill="#202122">PNG/JPEG sprite loading</text>
+
+          <!-- SDL_Mixer -->
+          <rect x="50" y="165" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="130" y="188" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">SDL_Mixer</text>
+          <text x="130" y="206" text-anchor="middle" font-size="10" fill="#202122">SFX channels · Music</text>
+
+          <!-- SDL_TTF -->
+          <rect x="50" y="270" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="130" y="293" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">SDL_TTF</text>
+          <text x="130" y="311" text-anchor="middle" font-size="10" fill="#202122">TrueType font rendering</text>
+
+          <!-- SDL2_gfx -->
+          <rect x="510" y="60" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="590" y="83" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">SDL2_gfx</text>
+          <text x="590" y="101" text-anchor="middle" font-size="10" fill="#202122">Circles · Lines · Polygons</text>
+
+          <!-- SDL_Renderer detail -->
+          <rect x="510" y="165" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="590" y="188" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">SDL_Renderer</text>
+          <text x="590" y="206" text-anchor="middle" font-size="10" fill="#202122">HW-accelerated 2D</text>
+
+          <!-- Platform backends -->
+          <rect x="510" y="270" width="160" height="55" rx="6" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="590" y="288" text-anchor="middle" font-size="12" font-weight="bold" fill="#3366cc">Platform Backends</text>
+          <text x="590" y="306" text-anchor="middle" font-size="10" fill="#202122">OpenGL · D3D · Metal</text>
+
+          <!-- Arrows from SDL2 Core to companions -->
+          <line x1="260" y1="175" x2="210" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <line x1="260" y1="185" x2="210" y2="192" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <line x1="260" y1="200" x2="210" y2="295" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <line x1="460" y1="175" x2="510" y2="100" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <line x1="460" y1="185" x2="510" y2="192" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <line x1="460" y1="200" x2="510" y2="295" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+          <!-- OpenClaw Engine box -->
+          <rect x="210" y="330" width="300" height="48" rx="6" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="360" y="350" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">OpenClaw Engine (C++)</text>
+          <text x="360" y="368" text-anchor="middle" font-size="10" fill="#202122">Game Loop · Scene Graph · Asset Manager</text>
+
+          <!-- Arrow from engine to SDL2 Core -->
+          <line x1="360" y1="330" x2="360" y2="215" stroke="#3366cc" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead-blue)"/>
+
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arrowhead-blue" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#3366cc"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: SDL2のサブシステム関係図 — コアライブラリが各コンパニオンライブラリとOpenClawエンジンの中心ハブとして機能する</div>
+      </div>
+
+      <h3>SDL_Renderer (2D Graphics)</h3>
+      <p>SDL_Renderer is the primary rendering interface. OpenClaw creates a single renderer attached to the game window with hardware acceleration enabled. All sprite draw calls — including the tile layer, animated characters, projectiles, HUD elements, and parallax backgrounds — pass through <code>SDL_RenderCopy</code> and <code>SDL_RenderCopyEx</code>, the latter handling rotation for spinning projectiles and flipped sprites. Render-to-texture is used for off-screen compositing of layered scenes before the final blit to the window framebuffer.</p>
+
+      <h3>SDL_Image (Sprite Loading)</h3>
+      <p>SDL_Image extends SDL2 with support for loading PNG, JPEG, BMP, WebP, and other image formats, returning an <code>SDL_Surface</code> that can be converted to an <code>SDL_Texture</code> for GPU-resident storage. OpenClaw uses SDL_Image to decode sprite sheets and tile set images extracted from the <code>CLAW.REZ</code> archive. Once loaded onto the GPU as textures, these surfaces are freed from system memory, keeping the memory footprint modest.</p>
+
+      <h3>SDL_Mixer (Audio)</h3>
+      <p>SDL_Mixer provides a channel-based audio mixer with support for OGG, MP3, FLAC, and WAV files. OpenClaw allocates a fixed pool of mixing channels for sound effects (footsteps, sword strikes, gunshots, enemy vocalizations) and a separate streaming channel for background music. The mixer runs on a dedicated audio thread managed internally by SDL2, preventing audio stuttering during CPU-intensive game logic frames.</p>
+
+      <h3>SDL_TTF (Font Rendering)</h3>
+      <p>SDL_TTF wraps the FreeType library behind an SDL-compatible API, enabling OpenClaw to render TrueType and OpenType fonts to SDL surfaces. In-game text elements — score counters, life indicators, dialogue banners, and the level title card — are rendered through SDL_TTF. Glyphs are cached as textures after first render to avoid re-rasterizing the same characters on every frame.</p>
+
+      <h3>SDL2_gfx (Geometric Primitives)</h3>
+      <p>SDL2_gfx is a community extension providing anti-aliased line, circle, ellipse, and polygon drawing routines. OpenClaw uses SDL2_gfx for debug visualization overlays: collision shape outlines from the <a href="box2d-physics.html">Box2D</a> physics simulation are drawn as colored rectangles and circles during development builds, making it straightforward to diagnose physics fixture misalignments without a separate debug renderer.</p>
+
+      <h2 id="cross-platform">Cross-Platform Abstraction</h2>
+      <p>One of SDL2's core design goals is to present an identical API surface regardless of the host operating system. On Windows, SDL2 initializes a Direct3D 11 renderer by default, falling back to Direct3D 9 or OpenGL if the primary backend is unavailable. On macOS, it uses a Metal-backed renderer (since SDL 2.0.14) with an OpenGL fallback for older hardware. On Linux, the OpenGL backend is standard, with Wayland and X11 window integration handled transparently by SDL2's platform layer.</p>
+      <p>For OpenClaw, this means the engine source contains no <code>#ifdef _WIN32</code> or platform-specific rendering code in the game logic. The entire platform surface area is encapsulated by SDL2's initialization, event, and rendering calls. File path handling is the only remaining platform consideration, addressed separately with a thin abstraction in the asset manager.</p>
+      <p>Input handling similarly benefits from SDL2's abstraction. Keyboard scancodes (physical key positions) and keycodes (logical character values) are both exposed, and the gamepad subsystem provides a standardized mapping for Xbox, PlayStation, and generic controllers across all platforms, enabling OpenClaw to support gamepad play without writing platform-specific HID code.</p>
+
+      <h2 id="game-loop">The SDL2 Game Loop Pattern</h2>
+      <p>SDL2 does not impose a game loop structure; instead, it provides the primitives that a canonical fixed-timestep game loop requires. OpenClaw implements the following loop structure, a common pattern in SDL2-based games:</p>
+      <ol>
+        <li><strong>Event polling:</strong> <code>SDL_PollEvent</code> drains the OS event queue, dispatching keyboard, mouse, window resize, and quit events to the input subsystem. This must run on the main thread as most operating systems require UI event processing there.</li>
+        <li><strong>Update logic:</strong> The game state advances by a fixed timestep (typically 16 ms for 60 Hz). Entity positions, animations, AI decision trees, physics via <a href="box2d-physics.html">Box2D</a>, and the camera are all updated here. If the real elapsed time exceeds one timestep, the update phase runs multiple times to catch up, a technique known as the accumulator pattern.</li>
+        <li><strong>Render step:</strong> <code>SDL_RenderClear</code> clears the back buffer, draw calls are issued in depth order (background tiles, entities, foreground tiles, HUD), and <code>SDL_RenderPresent</code> swaps the back buffer to the display. SDL2 can be configured to sync this swap to the display's vertical blanking interval (VSync) to eliminate screen tearing.</li>
+      </ol>
+      <p>The separation of the update and render phases is important for predictable physics simulation. Because <a href="box2d-physics.html">Box2D</a> advances at a fixed substep, decoupling it from the render rate prevents the simulation from running faster or slower depending on frame rate, which would change the feel of <a href="captain-claw.html">Captain Claw</a>'s platforming.</p>
+
+      <h2 id="performance">Sprite Batching, Texture Atlases, and Audio Management</h2>
+      <h3>Texture Atlases</h3>
+      <p>Each call to <code>SDL_RenderCopy</code> carries a small overhead even with hardware acceleration, because each call may require a GPU state change if the source texture differs from the previous call. OpenClaw reduces this overhead by packing multiple sprite frames into a single large texture atlas (also called a sprite sheet). When rendering a sequence of animation frames, all frames share the same GPU texture object; only the source rectangle differs between calls, eliminating texture rebinds between sprites from the same atlas. SDL_Image loads the atlas as a single texture at startup, and a lookup table maps (sprite name, frame index) pairs to atlas coordinates.</p>
+
+      <h3>Sprite Batching</h3>
+      <p>SDL2 2.0.18 introduced a render geometry batching API (<code>SDL_RenderGeometry</code>), but OpenClaw's architecture predates this and achieves batching implicitly through atlas-first texture management. By sorting draw calls by source texture before submission — grouping all tile layer calls together, then character sprites, then HUD — the number of GPU texture switches per frame is minimized, yielding a measurable throughput improvement on lower-end integrated graphics hardware.</p>
+
+      <h3>Audio Channel Management</h3>
+      <p>SDL_Mixer assigns each concurrent sound effect to a numbered channel. OpenClaw categorises channels into logical groups: movement sounds (footsteps, landing impacts), combat sounds (sword swings, gunshots, enemy hit reactions), environmental sounds (ambient loops, collectible pickups), and UI sounds (menu navigation, level clear fanfare). By assigning priority weights to each group, the engine can halt a low-priority ambient sound to free a channel for a high-priority combat effect, preventing silent gameplay moments when all channels are saturated. Background music is streamed from a dedicated music channel that bypasses the channel pool entirely, ensuring continuous playback regardless of sound effect activity.</p>
+
+      <h2 id="alternatives">Comparison with Alternatives</h2>
+      <p>When selecting a multimedia library for a game engine targeting Windows, macOS, and Linux, the principal alternatives to SDL2 are SFML, Allegro 5, and a raw OpenGL approach. Each has different trade-offs relevant to a project like OpenClaw.</p>
+
+      <h3>SFML (Simple and Fast Multimedia Library)</h3>
+      <p>SFML is a C++ library with an object-oriented API, providing window management, 2D rendering (on top of OpenGL), audio (via OpenAL), and networking. Its C++ design integrates more naturally with OpenClaw's codebase style than SDL2's C API. However, SFML's rendering model exposes OpenGL state more directly, and its audio subsystem lacks the channel mixing granularity of SDL_Mixer. SDL2 was preferred partly because of its wider community, broader platform support including web via Emscripten, and closer alignment with the original developer's existing expertise.</p>
+
+      <h3>Allegro 5</h3>
+      <p>Allegro 5 is a C multimedia library with a history reaching back to the 1990s, making it conceptually familiar to developers of that era. Its API surface overlaps substantially with SDL2, covering display, input, audio, and image loading. Allegro's add-on system mirrors SDL2's companion library ecosystem. For <a href="captain-claw.html">Captain Claw</a>-era game reimplementation, either library would have been technically adequate; SDL2 was chosen due to its larger ecosystem, broader platform targets, and strong backing from Valve.</p>
+
+      <h3>Raw OpenGL</h3>
+      <p>Using OpenGL directly — with a window management library such as GLFW — would provide maximum control over the rendering pipeline, enabling effects such as shader-based lighting, custom blending modes, and GPU-side geometry transforms. However, for a 2D platformer matching the visual style of a 1997 game, this additional complexity yields no visible benefit. SDL_Renderer already routes through OpenGL internally on Linux; the difference is that SDL2 manages the OpenGL context, shader compilation, and vertex buffer lifecycle on the engine's behalf, saving substantial development effort. A raw OpenGL approach would also require handling the compatibility matrix between OpenGL 3.3 core, OpenGL ES 2.0, and WebGL manually — work that SDL2 already encapsulates.</p>
+
+      <p>In summary, SDL2's balance of portability, ease of integration, permissive licensing, and active maintenance made it the definitive choice for <a href="openclaw.html">OpenClaw</a>'s multimedia backend, supporting all required capabilities for faithfully recreating the <a href="captain-claw.html">Captain Claw</a> experience across modern platforms.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview of SDL2</a></li>
+          <li><a href="#subsystems">SDL2 Subsystems Used by OpenClaw</a></li>
+          <li><a href="#cross-platform">Cross-Platform Abstraction</a></li>
+          <li><a href="#game-loop">The SDL2 Game Loop Pattern</a></li>
+          <li><a href="#performance">Sprite Batching &amp; Audio Management</a></li>
+          <li><a href="#alternatives">Comparison with Alternatives</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="box2d-physics.html">Box2D Physics</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="rez-file-format.html">REZ File Format</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="box2d-physics.html">Box2D Physics</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

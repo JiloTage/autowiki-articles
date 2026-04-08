@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box2D Physics in Platform Games - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Box2D Physics in Platform Games
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Box2D Physics in Platform Games</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Box2D is an open-source 2D rigid body simulation library by Erin Catto that powers the physics engine in <a href="openclaw.html">OpenClaw</a>, handling character movement, collision detection, projectile arcs, and environmental interactions in a faithful recreation of classic platformer behaviour.</div>
+
+      <h2 id="overview">Overview of Box2D</h2>
+      <p><b>Box2D Physics in Platform Games</b> refers to the application of Box2D — a widely-used, open-source 2D rigid body simulation library originally written by Erin Catto — in the context of side-scrolling platformer games. Box2D was introduced at the 2006 Game Developers Conference and has since become one of the most influential physics engines in the independent and hobbyist game-development ecosystem, underpinning engines and games such as Angry Birds and many Ludum Dare entries.</p>
+      <p>In <a href="openclaw.html">OpenClaw</a>, Box2D serves as the authoritative physics layer for the entire simulation. The engine creates a Box2D <em>world</em> object that advances one fixed time step per game tick, keeping physics updates decoupled from the rendering frame rate. All collidable entities — Captain Claw, enemies, platforms, ladders, springs, and projectiles — are represented as Box2D bodies. This separation of physics from rendering allows the <a href="sdl2-engine.html">SDL2 rendering layer</a> to interpolate draw positions between physics steps, producing smooth motion even when the physics rate and display refresh rate differ.</p>
+      <p>Box2D's coordinate system uses metres as its unit of length and operates independently of pixel coordinates. OpenClaw therefore maintains a scale factor (pixels per metre) and transforms between physics space and screen space at both input and output boundaries of the physics step.</p>
+
+      <h2 id="core-concepts">Core Concepts: Bodies, Fixtures, and Joints</h2>
+      <p>Box2D models the physical world through three principal abstractions: <strong>rigid bodies</strong>, <strong>fixtures</strong>, and <strong>joints</strong>.</p>
+      <p>A <em>rigid body</em> (<code>b2Body</code>) represents a point mass with position, velocity, angular velocity, and mass properties. Bodies may be <em>static</em> (infinite mass, never moves — used for terrain), <em>kinematic</em> (moves under direct velocity control but is not pushed by forces — used for moving platforms), or <em>dynamic</em> (fully simulated under forces, gravity, and collisions — used for the player character and enemies).</p>
+      <p>A <em>fixture</em> (<code>b2Fixture</code>) attaches a collision shape to a body and carries material properties: density (which influences mass), friction coefficient, and restitution (bounciness). Multiple fixtures can be attached to one body, enabling composite collision hulls. The available shape types are:</p>
+      <ul>
+        <li><strong>Polygon</strong> (<code>b2PolygonShape</code>) — a convex polygon; the axis-aligned box is the most common specialisation.</li>
+        <li><strong>Circle</strong> (<code>b2CircleShape</code>) — a disc defined by centre offset and radius; cheap to compute and useful for rolling objects.</li>
+        <li><strong>Edge</strong> (<code>b2EdgeShape</code>) — a single line segment, used for individual terrain edges.</li>
+        <li><strong>Chain</strong> (<code>b2ChainShape</code>) — a connected sequence of line segments sharing ghost vertices to prevent internal edge collisions; the standard choice for level terrain in OpenClaw.</li>
+      </ul>
+      <p><em>Joints</em> (<code>b2Joint</code> subclasses) constrain relative motion between two bodies. A distance joint keeps two anchor points a fixed length apart, a revolute joint allows rotation around a shared pivot, and a prismatic joint permits sliding along one axis. In platformers these are used for pendulum traps, conveyor mechanisms, and hinged doors.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 370" width="720" height="370">
+          <!-- Background -->
+          <rect width="720" height="370" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="360" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Box2D Body and Fixture Hierarchy</text>
+
+          <!-- b2World box -->
+          <rect x="240" y="48" width="240" height="44" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="360" y="66" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4ed8">b2World</text>
+          <text x="360" y="82" text-anchor="middle" font-size="11" fill="#1e3a8a">gravity · time step · broad phase</text>
+
+          <!-- Arrow world -> body -->
+          <line x1="360" y1="92" x2="360" y2="116" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- b2Body static -->
+          <rect x="50" y="116" width="180" height="44" rx="6" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="140" y="134" text-anchor="middle" font-size="12" font-weight="bold" fill="#166534">b2Body (static)</text>
+          <text x="140" y="150" text-anchor="middle" font-size="10" fill="#14532d">terrain · walls · floors</text>
+
+          <!-- b2Body dynamic -->
+          <rect x="270" y="116" width="180" height="44" rx="6" fill="#fce7f3" stroke="#9d174d" stroke-width="1.5"/>
+          <text x="360" y="134" text-anchor="middle" font-size="12" font-weight="bold" fill="#9d174d">b2Body (dynamic)</text>
+          <text x="360" y="150" text-anchor="middle" font-size="10" fill="#831843">player · enemies · projectiles</text>
+
+          <!-- b2Body kinematic -->
+          <rect x="490" y="116" width="180" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="580" y="134" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">b2Body (kinematic)</text>
+          <text x="580" y="150" text-anchor="middle" font-size="10" fill="#78350f">moving platforms · conveyors</text>
+
+          <!-- Arrows world -> each body type -->
+          <line x1="300" y1="108" x2="170" y2="116" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <line x1="420" y1="108" x2="550" y2="116" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+          <!-- Fixtures row -->
+          <text x="360" y="192" text-anchor="middle" font-size="11" fill="#555" font-style="italic">b2Fixture (shape + material properties)</text>
+
+          <!-- Arrow dynamic body -> fixtures -->
+          <line x1="360" y1="160" x2="360" y2="202" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+          <!-- Shape boxes -->
+          <rect x="50" y="210" width="140" height="50" rx="5" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="120" y="232" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">b2PolygonShape</text>
+          <text x="120" y="250" text-anchor="middle" font-size="10" fill="#4c1d95">box · convex hull</text>
+
+          <rect x="210" y="210" width="140" height="50" rx="5" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="280" y="232" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">b2CircleShape</text>
+          <text x="280" y="250" text-anchor="middle" font-size="10" fill="#4c1d95">disc · rolling bodies</text>
+
+          <rect x="370" y="210" width="140" height="50" rx="5" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="440" y="232" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">b2EdgeShape</text>
+          <text x="440" y="250" text-anchor="middle" font-size="10" fill="#4c1d95">single segment</text>
+
+          <rect x="530" y="210" width="140" height="50" rx="5" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="600" y="232" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">b2ChainShape</text>
+          <text x="600" y="250" text-anchor="middle" font-size="10" fill="#4c1d95">terrain outline</text>
+
+          <!-- Arrows to shapes -->
+          <line x1="310" y1="202" x2="155" y2="210" stroke="#a2a9b1" stroke-width="1" marker-end="url(#arr2)"/>
+          <line x1="340" y1="202" x2="290" y2="210" stroke="#a2a9b1" stroke-width="1" marker-end="url(#arr2)"/>
+          <line x1="380" y1="202" x2="430" y2="210" stroke="#a2a9b1" stroke-width="1" marker-end="url(#arr2)"/>
+          <line x1="410" y1="202" x2="575" y2="210" stroke="#a2a9b1" stroke-width="1" marker-end="url(#arr2)"/>
+
+          <!-- Properties row -->
+          <rect x="150" y="295" width="420" height="48" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+          <text x="360" y="315" text-anchor="middle" font-size="12" font-weight="bold" fill="#334155">Fixture Properties</text>
+          <text x="360" y="333" text-anchor="middle" font-size="10" fill="#475569">density · friction · restitution · isSensor · categoryBits / maskBits</text>
+
+          <line x1="360" y1="260" x2="360" y2="295" stroke="#a2a9b1" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Box2D の主要オブジェクト階層 — b2World が b2Body を管理し、各 Body が形状と材質プロパティを持つ b2Fixture を保持する</div>
+      </div>
+
+      <h2 id="contact-listener">Contact Listener Pattern in OpenClaw</h2>
+      <p>Box2D provides a callback-based interface, <code>b2ContactListener</code>, that notifies application code when two fixtures begin or end contact, and when contact impulses are computed. OpenClaw subclasses this listener to drive game logic that depends on what is touching what.</p>
+      <p>The four virtual methods available are:</p>
+      <ul>
+        <li><code>BeginContact(b2Contact*)</code> — fires when two fixtures first overlap. OpenClaw uses this to detect when Claw lands on solid ground (setting an <em>isGrounded</em> flag), when a projectile touches an enemy, and when the player enters a water volume.</li>
+        <li><code>EndContact(b2Contact*)</code> — fires when the overlap ceases. Used to clear the <em>isGrounded</em> flag when Claw walks off an edge, and to end water-physics mode when the character exits a water body.</li>
+        <li><code>PreSolve(b2Contact*, const b2Manifold*)</code> — called before the impulse is computed, allowing the application to disable contact entirely. This is where one-way platform logic lives: if Claw is moving upward or his feet are above the platform surface, the contact is disabled for that step.</li>
+        <li><code>PostSolve(b2Contact*, const b2ContactImpulse*)</code> — called after impulse resolution, providing the actual impulse magnitude. Useful for impact-damage calculations and sound-effect triggering based on collision force.</li>
+      </ul>
+      <p>Fixtures carry a <em>user data</em> pointer (a raw <code>void*</code> or a typed pointer in newer Box2D versions) that OpenClaw sets to a pointer to the owning game entity. Inside contact callbacks, OpenClaw casts this pointer to its internal <code>ActorComponent</code> type to identify which game object was involved, then dispatches the appropriate game event through the event system.</p>
+
+      <h2 id="platform-challenges">Platform-Specific Physics Challenges</h2>
+      <p>Platformer games impose requirements on physics that are unusual in other genres. Several challenges arise directly in <a href="captain-claw-gameplay.html">Captain Claw's gameplay</a> and must be handled carefully on top of Box2D's general-purpose simulation.</p>
+      <p><strong>One-way platforms</strong> (platforms the character can jump up through but lands on top of) are implemented via the <code>PreSolve</code> callback. A fixture category flag marks a surface as one-directional. Each frame, the callback checks the contact normal direction and the player's vertical velocity; if the player is moving upward or the contact normal points downward from the platform's perspective, the contact is disabled. Because <code>PreSolve</code> is called every sub-step, the platform feels solid the moment the player's trajectory inverts.</p>
+      <p><strong>Slopes</strong> create a problem known as <em>ghost collisions</em>: when a body slides along a chain of edge shapes, internal vertices can catch the shape and impart unexpected upward impulses. Box2D's chain shape addresses this by storing ghost vertices — the previous and next segment endpoints — so the solver treats adjacent edges as smoothly connected, preventing snagging.</p>
+      <p><strong>Moving platforms</strong> are kinematic bodies whose velocity is set each frame by a scripted path. Because kinematic bodies transfer momentum, a character standing on a moving platform inherits its horizontal velocity via friction. OpenClaw supplements this by directly adding the platform's velocity delta to the character's velocity when the contact listener confirms the player is grounded on a kinematic surface, preventing the subtle slipping that pure friction sometimes introduces at low frame rates.</p>
+      <p><strong>Conveyor belts</strong> are static bodies (they don't move themselves) whose surface friction is overridden in <code>PreSolve</code> using <code>b2Contact::SetTangentSpeed</code>, which injects a target tangential velocity into the contact, effectively dragging the player character in one direction without requiring the tile geometry to move.</p>
+
+      <h2 id="character-controller">Character Controller Design</h2>
+      <p>The player character's physics body in OpenClaw uses a <em>capsule</em> approximation: a rectangular box fixture for the main body combined with a small circle fixture at the bottom. The circle acts as a foot sensor — its rounded edge allows the character to smoothly ride over small bumps in terrain without catching. A separate, slightly narrower box fixture tagged as a sensor (no collision response) detects the ground below the character, providing the <em>isGrounded</em> state without requiring the main body to be resting on a surface.</p>
+      <p>Direct velocity manipulation replaces force-based movement for a responsive feel. Instead of applying horizontal forces and relying on friction to decelerate, OpenClaw reads the player's input each frame and sets <code>b2Body::SetLinearVelocity</code> for the horizontal component directly, leaving the vertical component under Box2D's gravity. This produces the snappy, precise feel expected of a traditional platformer without the floaty overshoot that pure force application creates.</p>
+      <p>Two timing tricks common in quality platformers are also present:</p>
+      <ul>
+        <li><strong>Coyote time</strong>: after Claw walks off a ledge, a small timer (typically 6–10 frames) continues to allow a jump input to trigger a jump. The <em>isGrounded</em> flag is not immediately cleared when <code>EndContact</code> fires; instead it is cleared only after the coyote window expires without a new ground contact. This makes edge-traversal feel forgiving.</li>
+        <li><strong>Jump buffering</strong>: if the player presses the jump button a few frames before landing, the jump fires immediately on landing rather than being dropped. A jump-buffer timer is set on the button press; if the character becomes grounded while the timer is still active, the jump is executed.</li>
+      </ul>
+      <p>Enemy characters follow a simpler pattern: most patrol enemies use kinematic bodies whose velocity is reversed when a terrain-edge sensor detects a cliff or wall ahead, while airborne enemies and bosses use dynamic bodies with scripted force impulses.</p>
+
+      <h2 id="performance-sdl2">Performance and SDL2 Integration</h2>
+      <p>Box2D's collision detection pipeline runs in two stages. The <em>broad phase</em> uses a dynamic AABB tree (<code>b2DynamicTree</code>) to find pairs of bodies whose axis-aligned bounding boxes overlap; this reduces the O(n²) naive pair-testing cost to roughly O(n log n). Only overlapping pairs advance to the <em>narrow phase</em>, where the GJK and EPA algorithms compute exact contact points and penetration depths. Bodies that have been stationary for several steps are put to <em>sleep</em> by the solver, removing them from the simulation until a nearby event wakes them, which substantially reduces CPU cost in large levels.</p>
+      <p>OpenClaw integrates Box2D with the <a href="sdl2-engine.html">SDL2 rendering layer</a> through a coordinate-mapping utility. The physics world uses a scale of approximately 50 pixels per metre so that character dimensions map to realistic Box2D units (a character roughly 1.8 m tall corresponds to about 90 pixels). Each frame, the rendering system reads <code>b2Body::GetPosition()</code> and <code>b2Body::GetAngle()</code>, converts from metre-space to pixel-space, and passes the result to the SDL2 sprite renderer.</p>
+      <p>The physics step is run at a fixed rate (typically 60 Hz) inside the game loop, while SDL2's rendering may run at a different rate on high-refresh displays. OpenClaw computes an <em>alpha</em> interpolation factor from the time accumulated since the last physics step and blends the previous and current physics positions to derive a smooth draw position, preventing the jitter that occurs when the render rate is not a perfect multiple of the physics rate. Debug rendering — drawing Box2D shape outlines directly via SDL2's line-drawing primitives — is available through a compile-time flag, useful for tuning hitboxes and diagnosing collision edge cases.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview of Box2D</a></li>
+          <li><a href="#core-concepts">Core Concepts: Bodies, Fixtures, and Joints</a></li>
+          <li><a href="#contact-listener">Contact Listener Pattern in OpenClaw</a></li>
+          <li><a href="#platform-challenges">Platform-Specific Physics Challenges</a></li>
+          <li><a href="#character-controller">Character Controller Design</a></li>
+          <li><a href="#performance-sdl2">Performance and SDL2 Integration</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

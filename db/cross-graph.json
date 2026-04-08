@@ -818,6 +818,87 @@
       "color": "#6b7c93",
       "is_root": false,
       "summary": "200以上の研究機関が集積するつくばの研究者コミュニティは、計画都市の孤立化傾向を部分的に補償するが、高い流動性・仮住まい意識・機関内外の断絶という独自の課題も生む。"
+    },
+    {
+      "id": "openclaw:openclaw",
+      "wiki": "openclaw",
+      "title": "OpenClaw",
+      "url": "wikis/openclaw/articles/openclaw.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "OpenClaw is a multiplatform, open-source C++ reimplementation of Captain Claw (1997), enabling the classic platformer to run natively on modern operating systems."
+    },
+    {
+      "id": "openclaw:captain-claw",
+      "wiki": "openclaw",
+      "title": "Captain Claw (1997)",
+      "url": "wikis/openclaw/articles/captain-claw.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "Captain Claw is a 1997 side-scrolling platformer developed and published by Monolith Productions, starring a swashbuckling pirate cat on a quest to reassemble the legendary Amulet of Nine Lives across 14 distinct levels."
+    },
+    {
+      "id": "openclaw:captain-claw-gameplay",
+      "wiki": "openclaw",
+      "title": "Captain Claw Gameplay Mechanics",
+      "url": "wikis/openclaw/articles/captain-claw-gameplay.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "Captain Claw Gameplay Mechanics covers the core systems of the 1997 Monolith Productions platformer — combat, movement, enemy AI, treasure scoring, and health — and describes how OpenClaw faithfully reimplements each system using modern C++ and Box2D physics."
+    },
+    {
+      "id": "openclaw:sdl2-engine",
+      "wiki": "openclaw",
+      "title": "SDL2 as a Game Engine Framework",
+      "url": "wikis/openclaw/articles/sdl2-engine.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "SDL2 (Simple DirectMedia Layer 2) serves as the foundational multimedia library in OpenClaw, providing cross-platform abstractions for 2D rendering, audio playback, font rendering, and input handling that allow the engine to run natively on Windows, macOS, and Linux."
+    },
+    {
+      "id": "openclaw:box2d-physics",
+      "wiki": "openclaw",
+      "title": "Box2D Physics in Platform Games",
+      "url": "wikis/openclaw/articles/box2d-physics.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "Box2D is an open-source 2D rigid body simulation library by Erin Catto that powers the physics engine in OpenClaw, handling character movement, collision detection, projectile arcs, and environmental interactions in a faithful recreation of classic platformer behaviour."
+    },
+    {
+      "id": "openclaw:game-preservation-methods",
+      "wiki": "openclaw",
+      "title": "Game Preservation Through Engine Reimplementation",
+      "url": "wikis/openclaw/articles/game-preservation-methods.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "Game preservation through engine reimplementation is the practice of recreating a game's original software engine from scratch, allowing classic titles to run natively on modern hardware without emulation, as exemplified by OpenClaw's faithful recreation of Captain Claw."
+    },
+    {
+      "id": "openclaw:rez-file-format",
+      "wiki": "openclaw",
+      "title": "REZ File Format and Asset Packaging",
+      "url": "wikis/openclaw/articles/rez-file-format.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "The REZ format is a proprietary archive container developed by Monolith Productions for their RIOT engine, used to package all game assets in Captain Claw into a single distributable file. OpenClaw's REZ reader parses this archive at runtime, enabling copyright-safe engine distribution without bundled assets."
+    },
+    {
+      "id": "openclaw:captain-claw-levels",
+      "wiki": "openclaw",
+      "title": "Captain Claw Level Design",
+      "url": "wikis/openclaw/articles/captain-claw-levels.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "Captain Claw Level Design covers the structure, themes, and progression of the 14 acts that make up the original Captain Claw campaign, and how OpenClaw faithfully reconstructs them from WWD level data embedded in the CLAW.REZ archive."
+    },
+    {
+      "id": "openclaw:game-preservation-ethics",
+      "wiki": "openclaw",
+      "title": "Ethics of Game Preservation",
+      "url": "wikis/openclaw/articles/game-preservation-ethics.html",
+      "color": "#e65100",
+      "is_root": false,
+      "summary": "The ethics of game preservation examines the tension between intellectual property law and the cultural imperative to protect interactive media, exploring where legal boundaries, community norms, and moral obligations converge."
     }
   ],
   "links": [
@@ -3019,6 +3100,191 @@
     {
       "source": "keikaku-toshi-psychology:tsukuba-kenkyu-community",
       "target": "keikaku-toshi-psychology:kankyou-to-seishin-kenkou",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:sdl2-engine",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:box2d-physics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:rez-file-format",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:captain-claw-gameplay",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:game-preservation-methods",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:captain-claw-levels",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:openclaw",
+      "target": "openclaw:game-preservation-ethics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw",
+      "target": "openclaw:captain-claw-gameplay",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw",
+      "target": "openclaw:captain-claw-levels",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw",
+      "target": "openclaw:game-preservation-methods",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw",
+      "target": "openclaw:sdl2-engine",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-gameplay",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-gameplay",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-gameplay",
+      "target": "openclaw:captain-claw-levels",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-gameplay",
+      "target": "openclaw:box2d-physics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:sdl2-engine",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:sdl2-engine",
+      "target": "openclaw:box2d-physics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:sdl2-engine",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:box2d-physics",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:box2d-physics",
+      "target": "openclaw:sdl2-engine",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:box2d-physics",
+      "target": "openclaw:captain-claw-gameplay",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-methods",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-methods",
+      "target": "openclaw:game-preservation-ethics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-methods",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:rez-file-format",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:rez-file-format",
+      "target": "openclaw:game-preservation-ethics",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:rez-file-format",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-levels",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-levels",
+      "target": "openclaw:captain-claw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-levels",
+      "target": "openclaw:captain-claw-gameplay",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:captain-claw-levels",
+      "target": "openclaw:rez-file-format",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-ethics",
+      "target": "openclaw:openclaw",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-ethics",
+      "target": "openclaw:game-preservation-methods",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-ethics",
+      "target": "openclaw:rez-file-format",
+      "type": "internal"
+    },
+    {
+      "source": "openclaw:game-preservation-ethics",
+      "target": "openclaw:captain-claw",
       "type": "internal"
     },
     {

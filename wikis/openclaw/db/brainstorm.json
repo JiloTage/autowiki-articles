@@ -1,0 +1,69 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "captain-claw",
+      "proposed_title": "Captain Claw (1997)",
+      "source_id": "openclaw",
+      "rationale": "The original game that OpenClaw reimplements — essential historical and gameplay context",
+      "interestingness_score": 0.97,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "captain-claw-gameplay",
+      "proposed_title": "Captain Claw Gameplay Mechanics",
+      "source_id": "openclaw",
+      "rationale": "Detailed exploration of the gameplay systems faithfully recreated in OpenClaw",
+      "interestingness_score": 0.93,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "sdl2-engine",
+      "proposed_title": "SDL2 as a Game Engine Framework",
+      "source_id": "openclaw",
+      "rationale": "Core library powering OpenClaw rendering, audio, and input — deep technical interest",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "game-preservation-methods",
+      "proposed_title": "Game Preservation Through Engine Reimplementation",
+      "source_id": "openclaw",
+      "rationale": "OpenClaw as a case study in the broader game preservation movement",
+      "interestingness_score": 0.91,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "box2d-physics",
+      "proposed_title": "Box2D Physics in Platform Games",
+      "source_id": "openclaw",
+      "rationale": "How Box2D enables accurate platforming physics in OpenClaw",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "rez-file-format",
+      "proposed_title": "REZ File Format and Asset Packaging",
+      "source_id": "openclaw",
+      "rationale": "The proprietary archive format OpenClaw must read to access game assets",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "captain-claw-levels",
+      "proposed_title": "Captain Claw Level Design",
+      "source_id": "openclaw",
+      "rationale": "The 14 levels and their themed worlds recreated in OpenClaw",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "game-preservation-ethics",
+      "proposed_title": "Ethics of Game Preservation",
+      "source_id": "openclaw",
+      "rationale": "Legal and ethical dimensions of fan-made engine recreations like OpenClaw",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    }
+  ]
+}

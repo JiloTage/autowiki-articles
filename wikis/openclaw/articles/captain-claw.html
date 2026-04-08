@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Claw (1997) - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Captain Claw (1997)
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Captain Claw (1997)</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Captain Claw is a 1997 side-scrolling platformer developed and published by Monolith Productions, starring a swashbuckling pirate cat on a quest to reassemble the legendary Amulet of Nine Lives across 14 distinct levels.</div>
+
+      <p><b>Captain Claw</b> (also marketed as <b>Claw</b>) is a 2D side-scrolling platformer game developed and published by Monolith Productions and released in 1997 for MS-DOS and Windows. The game casts the player as <b>Captain Nathaniel Joseph Claw</b>, an anthropomorphic pirate cat who escapes imprisonment and embarks on a globe-spanning adventure to collect all nine gems of the mystical Amulet of Nine Lives before the villainous Le Rauxe and his forces can stop him. Known for its hand-painted sprite art, exuberant swashbuckling atmosphere, and demanding platforming challenges, the title earned a devoted cult following despite modest commercial performance. Decades later, its engine was faithfully reimplemented in the open-source <a href="openclaw.html">OpenClaw</a> project, ensuring the game lives on for modern players.</p>
+
+      <h2 id="overview">Overview</h2>
+      <p>Captain Claw belongs to the golden era of 2D PC platformers and draws clear stylistic inspiration from classic console titles of the early 1990s while establishing a distinctive identity through its pirate-adventure setting. Players guide Captain Claw through 14 levels spread across varied themed environments: a prison hold and galleon decks, lush jungles, ancient temples, aquatic realms, and volcanic fortresses. Each world layer builds upon the one before it, escalating in complexity and enemy density as Claw advances toward the final confrontation.</p>
+      <p>The game received praise for its lively character animation, catchy musical score, and cohesive artistic direction. Level design rewards both cautious exploration and speedier playthroughs, hiding treasure chests, power-ups, and secret passages throughout each stage. The difficulty curve is steep by modern standards, but the checkpoint system and limited continues soften the challenge enough to keep the experience engaging rather than punishing.</p>
+
+      <h2 id="development">Development and Release</h2>
+      <p>Monolith Productions, founded in 1994 in Kirkland, Washington, was best known at the time for action titles such as Blood (1997) and would later go on to create franchises including No One Lives Forever and F.E.A.R. Captain Claw represented a deliberate departure from the studio's first-person shooter focus — an attempt to craft a polished 2D platformer for the PC market at a time when the genre was increasingly considered the domain of consoles.</p>
+      <p>Development teams created the game's sprites using a hand-painted approach, giving characters and environments a warm, illustrated quality unusual for the medium. The original engine was written in C++ targeting MS-DOS with Windows 95 compatibility, making heavy use of DirectDraw for hardware-accelerated sprite rendering. The proprietary <b>REZ</b> archive format was developed internally to bundle all game assets — sprites, audio, music, and level data — into a single distributable file.</p>
+      <p>The game was released in 1997 and published by Monolith Productions under its own label. Marketing positioned it primarily at the PC gaming market with tie-ins to gaming magazines of the era. Despite favorable critical reception, the title did not achieve significant commercial success in a market increasingly fixated on 3D gaming, contributing to its eventual status as an underappreciated gem.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 310" width="680" height="310">
+          <!-- Background -->
+          <rect width="680" height="310" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="340" y="26" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Captain Claw: Quest for the Amulet of Nine Lives</text>
+
+          <!-- Amulet circle -->
+          <circle cx="340" cy="170" r="52" fill="#fff8e1" stroke="#3366cc" stroke-width="2"/>
+          <text x="340" y="163" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Amulet of</text>
+          <text x="340" y="179" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Nine Lives</text>
+
+          <!-- Gem nodes -->
+          <!-- Top -->
+          <circle cx="340" cy="80" r="18" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="340" y="85" text-anchor="middle" font-size="11" fill="#202122">Gem 1</text>
+          <line x1="340" y1="98" x2="340" y2="118" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Top-right -->
+          <circle cx="440" cy="105" r="18" fill="#dcfce7" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="440" y="110" text-anchor="middle" font-size="11" fill="#202122">Gem 2</text>
+          <line x1="424" y1="116" x2="389" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Right -->
+          <circle cx="460" cy="170" r="18" fill="#fce7f3" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="460" y="175" text-anchor="middle" font-size="11" fill="#202122">Gem 3</text>
+          <line x1="442" y1="170" x2="392" y2="170" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Bottom-right -->
+          <circle cx="440" cy="235" r="18" fill="#ede9fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="440" y="240" text-anchor="middle" font-size="11" fill="#202122">Gem 4</text>
+          <line x1="424" y1="224" x2="389" y2="200" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Bottom -->
+          <circle cx="340" cy="260" r="18" fill="#fff3e0" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="340" y="265" text-anchor="middle" font-size="11" fill="#202122">Gem 5</text>
+          <line x1="340" y1="242" x2="340" y2="222" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Bottom-left -->
+          <circle cx="240" cy="235" r="18" fill="#e0f2fe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="240" y="240" text-anchor="middle" font-size="11" fill="#202122">Gem 6</text>
+          <line x1="256" y1="224" x2="291" y2="200" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Left -->
+          <circle cx="220" cy="170" r="18" fill="#fef9c3" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="220" y="175" text-anchor="middle" font-size="11" fill="#202122">Gem 7</text>
+          <line x1="238" y1="170" x2="288" y2="170" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Top-left -->
+          <circle cx="240" cy="105" r="18" fill="#fde8d8" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="240" y="110" text-anchor="middle" font-size="11" fill="#202122">Gem 8</text>
+          <line x1="256" y1="116" x2="291" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Gem 9 separate label -->
+          <circle cx="340" cy="170" r="12" fill="#3366cc" stroke="#202122" stroke-width="1"/>
+          <text x="340" y="174" text-anchor="middle" font-size="9" font-weight="bold" fill="#fff">9</text>
+
+          <text x="340" y="295" text-anchor="middle" font-size="11" fill="#555">Claw must collect all nine gems to reassemble the amulet and defeat Le Rauxe</text>
+        </svg>
+        <div class="diagram-caption">図1: The nine gems of the Amulet of Nine Lives — Captain Claw's central objective across 14 levels</div>
+      </div>
+
+      <h2 id="gameplay">Gameplay</h2>
+      <p>The core <a href="captain-claw-gameplay.html">gameplay loop</a> of Captain Claw revolves around three interconnected activities: platforming traversal, combat, and treasure collection. Captain Claw is armed with a cutlass for close-quarters melee attacks and a flintlock pistol for ranged engagements. Both weapons consume limited ammunition in the case of the pistol, while the cutlass is always available as a fallback. Players must read enemy patterns and choose the appropriate response — charging in with the blade or picking off foes from a distance.</p>
+      <p>Exploration is richly rewarded. Hidden rooms accessible through breakable walls or precise jumps contain treasure caches, extra lives, and rare power-ups. Magic gems scattered through levels contribute to the game's primary objective, while coins, rings, and ornaments purely boost the player's score. The scoring system encourages thorough level exploration rather than rushing to the exit.</p>
+      <p>Power-ups found during play include a magic catnip that temporarily grants invincibility, explosive dynamite bundles for area-clearing combat, and health-restoring food items. Checkpoints placed throughout each level allow players to respawn at a mid-level point rather than restarting the entire stage upon death, a concession to the game's challenging enemy placement and platforming sequences.</p>
+      <p>Combat follows simple but satisfying rules: basic pirate enemies can be dispatched with one or two cutlass strikes, while elite guards and bosses require more sustained effort. Boss encounters end each thematic world cluster and test the skills acquired during the preceding levels.</p>
+
+      <h2 id="game-world">Game World and Level Design</h2>
+      <p>Captain Claw's <a href="captain-claw-levels.html">14 levels</a> are organized into themed clusters that together form a journey from imprisonment to final victory. The opening levels aboard Le Rauxe's galleon establish the game's pirate aesthetic before the adventure expands outward into exotic and increasingly hostile environments.</p>
+      <p>The level themes progress as follows:</p>
+      <ul>
+        <li><b>Levels 1–2:</b> Pirate ship hull and deck — wooden planking, cannons, and rope rigging define the opening world, introducing enemies such as pirate sailors and trained attack parrots.</li>
+        <li><b>Levels 3–4:</b> Tropical jungle and ancient ruins — dense foliage, vine-draped stone structures, and jungle cats challenge the player amid a lush green palette.</li>
+        <li><b>Level 5:</b> Aquatic realm — underwater passages and fish-men enemies require mastery of Captain Claw's swimming controls.</li>
+        <li><b>Levels 6–8:</b> Ice and snow fortress — frozen platforms, slippery surfaces, and armored guards add environmental hazards on top of enemy threat.</li>
+        <li><b>Levels 9–10:</b> Arabian palace and bazaar — ornate tilework and nimble sword-wielding enemies create a mid-game spike in difficulty.</li>
+        <li><b>Levels 11–12:</b> Lava caves and volcanic fortresses — environmental hazards proliferate as pools of molten rock punish mistimed jumps.</li>
+        <li><b>Levels 13–14:</b> The final fortress and Le Rauxe's inner sanctum — the culmination of the adventure, with the densest enemy placement and the climactic boss battle.</li>
+      </ul>
+      <p>Level geometry is constructed from hand-crafted tile sets, each themed world possessing unique visual assets. Parallax scrolling backgrounds add depth to the scenes, and ambient animations — waving torches, flowing water, shifting cloud layers — give each world a sense of life independent of the action in the foreground.</p>
+
+      <h2 id="reception-legacy">Reception and Legacy</h2>
+      <p>Upon release, Captain Claw received generally positive reviews from PC gaming publications. Critics highlighted the game's visual charm, tight controls, and musical score as standout qualities. The game's steep difficulty was noted as a potential barrier for casual players, though genre enthusiasts welcomed the challenge. However, the title released into a PC market dominated by 3D games and first-person shooters, limiting its mainstream reach.</p>
+      <p>In the years following its release, Captain Claw accumulated a dedicated cult following. Fans maintained community websites, distributed patches to improve compatibility with newer versions of Windows, and shared level editors to extend the game with custom content. The game's reputation grew steadily through word-of-mouth recommendation within retro gaming communities.</p>
+      <p>The most significant preservation milestone came with the <a href="openclaw.html">OpenClaw</a> project: a complete open-source reimplementation of the game engine in modern C++. OpenClaw enables the game to run natively on contemporary hardware across Windows, macOS, and Linux, using the original CLAW.REZ asset archive from a legally owned copy of the game. This approach, highlighted as a model example of <a href="game-preservation-methods.html">game preservation through reimplementation</a>, has introduced Captain Claw to a new generation of players while maintaining full fidelity to the original experience. The OpenClaw engine is built on <a href="sdl2-engine.html">SDL2</a> for platform abstraction, illustrating how modern open tooling can breathe new life into classic titles.</p>
+      <p>Captain Claw stands today as a testament to the creative ambitions of mid-1990s PC gaming — a hand-crafted adventure that, despite modest commercial fortunes at launch, endures through the passion of its community and the dedication of preservation-focused developers.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#development">Development and Release</a></li>
+          <li><a href="#gameplay">Gameplay</a></li>
+          <li><a href="#game-world">Game World and Level Design</a></li>
+          <li><a href="#reception-legacy">Reception and Legacy</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+          <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+          <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+        <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+        <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

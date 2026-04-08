@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REZ File Format and Asset Packaging - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    REZ File Format and Asset Packaging
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">REZ File Format and Asset Packaging</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">The REZ format is a proprietary archive container developed by Monolith Productions for their RIOT engine, used to package all game assets in Captain Claw into a single distributable file. OpenClaw's REZ reader parses this archive at runtime, enabling copyright-safe engine distribution without bundled assets.</div>
+
+      <h2 id="overview">Overview</h2>
+      <p><b>REZ File Format and Asset Packaging</b> refers to the binary archive container and associated runtime asset pipeline used by <a href="captain-claw.html">Captain Claw</a> (1997) and other games built on Monolith Productions' RIOT engine. The <code>.REZ</code> extension denotes a self-contained archive that stores all game resources — sprites, audio, music, level data, and fonts — in a hierarchical directory structure embedded within a single binary file. This design mirrors the packaging conventions of the era, in which game data was consolidated into one large file rather than distributed as a flat folder of loose files.</p>
+      <p>For the <a href="openclaw.html">OpenClaw</a> project, the REZ format is the essential bridge between the open-source reimplemented engine and the original copyrighted content. OpenClaw ships without any game assets; players must supply <code>CLAW.REZ</code> from a legally owned copy of the game. The engine then parses this archive at startup, extracting assets into memory without writing anything to disk. This approach upholds <a href="game-preservation-ethics.html">game preservation ethics</a> by keeping engine code and game data strictly separated.</p>
+      <p>The REZ format was reverse-engineered by community developers examining the binary structure of <code>CLAW.REZ</code>, cross-referencing known file signatures (PCX headers, WAV RIFF chunks, MIDI headers) to identify individual assets within the archive. The resulting specification drove OpenClaw's native parser implementation.</p>
+
+      <h2 id="file-structure">File Structure</h2>
+      <p>A REZ archive is a flat binary file organised into four logical regions: the file header, the directory tree, individual file entry descriptors, and the raw data payloads. All multi-byte integer fields are stored in little-endian byte order, consistent with the x86 architecture of the original DOS/Windows target platform.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" width="680" height="420">
+          <!-- Background -->
+          <rect width="680" height="420" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="340" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">REZ Archive: Binary File Layout</text>
+
+          <!-- File Header block -->
+          <rect x="60" y="52" width="560" height="58" rx="5" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="340" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">File Header (fixed size)</text>
+          <text x="340" y="97" text-anchor="middle" font-size="11" fill="#202122">Magic bytes "REZ" · Version · Directory offset · Directory size · Creation timestamp</text>
+
+          <!-- Arrow 1 -->
+          <line x1="340" y1="110" x2="340" y2="130" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#rez-arr)"/>
+
+          <!-- Directory Tree block -->
+          <rect x="60" y="130" width="560" height="62" rx="5" fill="#dcfce7" stroke="#36c" stroke-width="1.5"/>
+          <text x="340" y="155" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Directory Tree (variable size)</text>
+          <text x="340" y="173" text-anchor="middle" font-size="11" fill="#202122">Nested folder nodes (SOUNDS/, SPRITES/, LEVEL/, FONTS/) · Each node: name + child count + child offsets</text>
+
+          <!-- Arrow 2 -->
+          <line x1="340" y1="192" x2="340" y2="212" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#rez-arr)"/>
+
+          <!-- File Entry Descriptors -->
+          <rect x="60" y="212" width="560" height="62" rx="5" fill="#fef3c7" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="237" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">File Entry Descriptors (one per asset)</text>
+          <text x="340" y="255" text-anchor="middle" font-size="11" fill="#202122">Filename · Virtual path · Data offset · Compressed/raw size · File type tag · Checksum</text>
+
+          <!-- Arrow 3 -->
+          <line x1="340" y1="274" x2="340" y2="294" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#rez-arr)"/>
+
+          <!-- Data Payloads -->
+          <rect x="60" y="294" width="560" height="100" rx="5" fill="#ede9fe" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="316" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Raw Data Payloads (contiguous, variable size)</text>
+
+          <!-- Sub-blocks inside payloads -->
+          <rect x="76" y="326" width="116" height="52" rx="4" fill="#fce7f3" stroke="#3366cc" stroke-width="1"/>
+          <text x="134" y="347" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">PCX Sprites</text>
+          <text x="134" y="362" text-anchor="middle" font-size="9" fill="#202122">RLE-encoded</text>
+          <text x="134" y="374" text-anchor="middle" font-size="9" fill="#202122">256-colour</text>
+
+          <rect x="204" y="326" width="116" height="52" rx="4" fill="#fce7f3" stroke="#3366cc" stroke-width="1"/>
+          <text x="262" y="347" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">WAV Audio</text>
+          <text x="262" y="362" text-anchor="middle" font-size="9" fill="#202122">RIFF/PCM</text>
+          <text x="262" y="374" text-anchor="middle" font-size="9" fill="#202122">SFX &amp; voice</text>
+
+          <rect x="332" y="326" width="116" height="52" rx="4" fill="#fce7f3" stroke="#3366cc" stroke-width="1"/>
+          <text x="390" y="347" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">MIDI Music</text>
+          <text x="390" y="362" text-anchor="middle" font-size="9" fill="#202122">Standard .mid</text>
+          <text x="390" y="374" text-anchor="middle" font-size="9" fill="#202122">per-level BGM</text>
+
+          <rect x="460" y="326" width="144" height="52" rx="4" fill="#fce7f3" stroke="#3366cc" stroke-width="1"/>
+          <text x="532" y="347" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">WWD Level Data</text>
+          <text x="532" y="362" text-anchor="middle" font-size="9" fill="#202122">Tile maps, objects</text>
+          <text x="532" y="374" text-anchor="middle" font-size="9" fill="#202122">scripting data</text>
+
+          <!-- Byte offset labels on left -->
+          <text x="50" y="81" text-anchor="end" font-size="10" fill="#3366cc">0x0000</text>
+          <text x="50" y="161" text-anchor="end" font-size="10" fill="#3366cc">0x0100</text>
+          <text x="50" y="243" text-anchor="end" font-size="10" fill="#3366cc">variable</text>
+          <text x="50" y="326" text-anchor="end" font-size="10" fill="#3366cc">variable</text>
+
+          <defs>
+            <marker id="rez-arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: REZアーカイブのバイナリ構造 — ヘッダ・ディレクトリツリー・ファイルエントリ・データペイロードの4領域</div>
+      </div>
+
+      <p>The <strong>file header</strong> occupies a fixed block at the start of the file. It begins with a magic byte sequence that identifies the file as a REZ archive, followed by a version field, a 32-bit offset pointing to the start of the directory tree, the total size of the directory region, and a timestamp recording when the archive was assembled by Monolith's toolchain.</p>
+      <p>The <strong>directory tree</strong> mirrors a virtual filesystem hierarchy. Top-level directories such as <code>SOUNDS</code>, <code>SPRITES</code>, <code>LEVEL</code>, and <code>FONTS</code> are represented as named directory nodes. Each node records a count of its children and relative offsets to child entries, allowing a recursive descent parser to reconstruct the virtual path for every asset.</p>
+      <p><strong>File entry descriptors</strong> appear after the directory tree. Each descriptor binds a filename and virtual path string to a data offset and size within the payload region, along with a short type tag and a checksum. The type tag allows the loader to quickly classify an asset (image, audio, level, font) without inspecting the payload.</p>
+      <p>The <strong>raw data payloads</strong> are stored contiguously from the offset recorded in the header, with individual assets laid out sequentially in the order they appear in the directory. No padding alignment is enforced between entries, so a parser must use the stored offset and size values precisely.</p>
+
+      <h2 id="asset-types">Types of Assets Stored</h2>
+      <p>CLAW.REZ bundles every resource required to run Captain Claw without any external files. The archive contains five primary asset categories:</p>
+      <ul>
+        <li><strong>PCX sprite sheets</strong> — The primary image format. PCX is a run-length-encoded 8-bit (256-colour) bitmap format originating from the ZSoft PC Paintbrush application. Each sprite sheet encodes one or more animation frames on a fixed-width canvas. Captain Claw uses a magenta colour (RGB 255, 0, 255) as the transparency key, which is stripped during loading to produce surfaces with per-pixel alpha.</li>
+        <li><strong>WAV audio files</strong> — Sound effects and voice clips are stored as standard RIFF/WAV files with PCM-encoded 16-bit samples at 22 050 Hz or 44 100 Hz. These files carry their own RIFF header within the REZ payload, so extraction requires only copying the payload bytes verbatim.</li>
+        <li><strong>MIDI music</strong> — Per-level background music tracks are stored as standard Type-0 or Type-1 MIDI files. Because MIDI carries only note event data rather than sampled audio, the files are compact (typically 20–80 KB each). Playback relies on the host system's MIDI synthesiser or a software renderer.</li>
+        <li><strong>WWD level data</strong> — World/level definitions use a proprietary binary format called WWD (described in the following section). Each of the 14 levels in Captain Claw is represented by one <code>.WWD</code> file inside the <code>LEVEL</code> directory subtree.</li>
+        <li><strong>Font files</strong> — Bitmap fonts used for HUD elements, menus, and dialogue are stored as PCX images paired with character-map metadata. The font PCX encodes each glyph in a fixed grid, and the metadata defines character widths and Unicode mappings.</li>
+      </ul>
+      <p>Beyond these five types, the archive also contains XML-like configuration files (using Monolith's proprietary dialect) that define object properties, animation state machines, and gameplay tuning parameters. These are text data embedded as raw ASCII payloads within the REZ structure.</p>
+
+      <h2 id="wwd-format">WWD Level Format</h2>
+      <p>The WWD (World/Wap Data) format is the binary encoding used by the RIOT engine to describe a complete game level. Each <code>.WWD</code> file inside CLAW.REZ encodes a tilemap, an object placement list, and a scripting event table in a compact sequential binary layout.</p>
+      <p>A WWD file opens with a header that records the level name, the number of tile planes, the dimensions of the primary tile plane (in tiles), and a pointer table to the three major data blocks: the tile plane data, the object list, and the image set reference strings.</p>
+      <p>The <strong>tile plane block</strong> stores the map as a flat array of 16-bit tile indices, row-major, where each index references a slot in the level's image set. Captain Claw levels typically feature two to four tile planes stacked for parallax scrolling: a foreground collision plane, one or two decorative midground planes, and a background sky plane. Each plane header specifies its scroll factor relative to the camera, enabling the engine to derive parallax offsets directly from player position.</p>
+      <p>The <strong>object list block</strong> is a variable-length sequence of object records. Each record encodes: an object type identifier, pixel-precise x/y coordinates, initial state flags, and a string-indexed property bag for type-specific parameters (for example, the patrol path length for a guard enemy, or the destination level for a level-exit trigger). Type identifiers map to C++ entity class names in OpenClaw's entity registry.</p>
+      <p>The <strong>scripting event table</strong> pairs trigger conditions (player entering a region, object being destroyed) with action sequences encoded as a compact bytecode. This bytecode drives cutscene animations, dialogue boxes, and timed spawning events. OpenClaw reimplements the bytecode interpreter faithfully to ensure that all in-game sequences fire at the correct moments.</p>
+
+      <h2 id="openclaw-implementation">OpenClaw's REZ Reader Implementation</h2>
+      <p>OpenClaw implements a dedicated REZ parser in C++ that processes the archive in two phases: an index phase at startup and an on-demand extraction phase during gameplay. The parser is structured to avoid loading the entire archive into memory; instead it memory-maps or seeks into the file based on the offsets recorded in the directory.</p>
+      <p>During the <strong>index phase</strong>, the parser reads the file header to locate the directory tree, then recursively descends the directory tree, building an in-memory map from virtual path strings (e.g., <code>SOUNDS/LEVEL1/MUSIC.MID</code>) to pairs of (file offset, file size). This map is stored as a <code>std::unordered_map</code> keyed on the lowercased virtual path string, enabling case-insensitive lookups that match the original engine's behaviour under Windows.</p>
+      <p>During the <strong>extraction phase</strong>, the asset manager calls into the REZ reader with a virtual path. The reader seeks to the recorded offset, reads exactly the recorded number of bytes into a heap-allocated buffer, and returns ownership of that buffer to the caller. The caller — typically the image loader or audio manager — then interprets the bytes according to the asset type.</p>
+      <p>For PCX sprites, the extracted buffer is decoded into an <code>SDL_Surface</code> by a custom PCX decoder. The transparency key colour is remapped to <code>SDL_ALPHA_TRANSPARENT</code>, producing a surface with a per-pixel alpha channel. The surface is then converted to an <code>SDL_Texture</code> via the SDL renderer, at which point the surface is freed. Textures remain cached in a texture atlas keyed by virtual path until the level unloads.</p>
+      <p>For WAV audio, the buffer is passed directly to SDL_mixer's <code>Mix_LoadWAV_RW</code> using an <code>SDL_RWops</code> wrapper around the in-memory buffer, avoiding any intermediate disk I/O. MIDI files are similarly piped through SDL_mixer's MIDI playback subsystem using in-memory <code>SDL_RWops</code>.</p>
+      <p>WWD level data is consumed by a dedicated <code>WwdReader</code> class that deserialises the binary layout into a rich C++ object graph: a <code>LevelData</code> struct containing a vector of <code>TilePlane</code> objects and a vector of <code>ActorDef</code> objects. This object graph drives the level loader, which instantiates Box2D bodies and OpenClaw entity objects accordingly.</p>
+
+      <h2 id="era-context">Comparison to Contemporary Archive Formats</h2>
+      <p>The REZ format belongs to a family of proprietary game archive containers that proliferated in the mid-1990s, when distributing hundreds of individual asset files on CD-ROM was impractical given filesystem overhead and access latency. Several contemporary formats pursued similar goals with varying design choices:</p>
+      <ul>
+        <li><strong>WAD files (id Software, 1993–)</strong> — Used by Doom and Quake, WAD (Where's All the Data) archives store a flat list of named lumps. There is no directory hierarchy; lump names are limited to eight characters. WAD files were split into IWAD (game-provided) and PWAD (user-provided patch) files, establishing an influential modding convention.</li>
+        <li><strong>PAK files (Quake, 1996)</strong> — Quake's PAK format introduced a simple flat directory with null-terminated filenames up to 56 characters and a contiguous data region, trading WAD's lump flexibility for longer, more descriptive paths. PAK became a template for many engines of the late 1990s.</li>
+        <li><strong>GRP files (Duke Nukem 3D, 1996)</strong> — The BUILD engine's GRP format is essentially a flat concatenation of named files with a minimal directory block. GRP is notable for its simplicity: the entire directory fits in the first few kilobytes, and extraction is trivial to implement.</li>
+        <li><strong>RES/HOG files (Descent, 1994)</strong> — Parallax Software's HOG format similarly concatenated named files with a leading directory, targeting the same DOS platform constraints.</li>
+      </ul>
+      <p>REZ distinguishes itself from these alternatives primarily through its hierarchical virtual directory tree, which more closely resembles a miniature FAT filesystem than the flat lump models of WAD or GRP. This hierarchy made Monolith's internal asset pipeline more tractable — artists could organise resources into logical subfolders — at the cost of a more complex parser. For OpenClaw's purposes, the hierarchical structure is a feature: virtual paths are self-documenting, making asset lookups straightforward without needing to maintain a separate manifest.</p>
+      <p>The decision to preserve the REZ-based asset pipeline in OpenClaw rather than converting assets to a modern format (such as ZIP or a custom SQLite store) was deliberate. Converting assets would require distributing a conversion tool, potentially transforming copyrighted content in ways that complicate the legal standing of the project. Loading CLAW.REZ verbatim ensures that OpenClaw is purely a clean-room reimplementation, as discussed in <a href="game-preservation-ethics.html">Game Preservation Ethics</a>.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#file-structure">File Structure</a></li>
+          <li><a href="#asset-types">Types of Assets Stored</a></li>
+          <li><a href="#wwd-format">WWD Level Format</a></li>
+          <li><a href="#openclaw-implementation">OpenClaw's REZ Reader Implementation</a></li>
+          <li><a href="#era-context">Comparison to Contemporary Archive Formats</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

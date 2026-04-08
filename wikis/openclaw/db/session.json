@@ -1,0 +1,11 @@
+{
+  "last_phase": "sync",
+  "expansion_frontier": [],
+  "settings": {
+    "max_total_articles": 50,
+    "score_threshold": 0.5,
+    "language": "ja"
+  },
+  "created_at": "2026-04-08T11:49:54.726791+00:00",
+  "updated_at": "2026-04-08T11:49:57.359417+00:00"
+}

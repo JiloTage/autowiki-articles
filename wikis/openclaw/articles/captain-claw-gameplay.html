@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Claw Gameplay Mechanics - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Captain Claw Gameplay Mechanics
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Captain Claw Gameplay Mechanics</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Captain Claw Gameplay Mechanics covers the core systems of the 1997 Monolith Productions platformer — combat, movement, enemy AI, treasure scoring, and health — and describes how <a href="openclaw.html">OpenClaw</a> faithfully reimplements each system using modern C++ and Box2D physics.</div>
+
+      <h2 id="core-loop">Core Gameplay Loop</h2>
+      <p><b>Captain Claw Gameplay Mechanics</b> describes the interlocking systems that define how <a href="captain-claw.html">Captain Claw</a> (1997) plays, and how the open-source reimplementation <a href="openclaw.html">OpenClaw</a> reproduces them. At its heart, Captain Claw is a 2D side-scrolling action platformer built around a simple but satisfying loop: explore a level, collect scattered treasure, defeat enemies blocking your path, and reach the exit portal to advance to the next stage.</p>
+      <p>Each of the <a href="captain-claw-levels.html">14 levels</a> presents a self-contained themed world — pirate ships, jungle ruins, an ice fortress, a haunted graveyard — and challenges the player to traverse it horizontally and vertically while accumulating points from treasure. A level score is tallied at the exit, rewarding thorough exploration over a straight rush to the goal. The loop is reinforced by a checkpoint system that saves progress at waypoints within each level, softening the penalty of death without removing tension entirely.</p>
+      <p>OpenClaw preserves this loop precisely: level completion triggers the same score-summary screen, checkpoints restore the player to the same waypoint positions, and the exit portal animation plays correctly on level clear.</p>
+
+      <h2 id="combat">Combat System</h2>
+      <p>Combat in Captain Claw revolves around two primary attack modes — melee and ranged — augmented by collectible magic power-ups that temporarily transform either weapon. The combination of close-quarters slashing and long-distance shooting gives the player flexibility when approaching the varied enemy roster.</p>
+
+      <h3>Melee: The Cutlass</h3>
+      <p>Claw's default melee attack swings a cutlass in a short arc in front of him. The engine distinguishes between a standard <em>slash</em> (horizontal sweep) and a <em>stab</em> (forward thrust with slightly longer reach), each dealing different amounts of damage and possessing different hitbox geometries. Skilled players use the stab to poke enemies just outside their own attack range. OpenClaw recreates these hitboxes as Box2D sensor fixtures that activate for the duration of the swing animation frame, firing damage callbacks on contact.</p>
+
+      <h3>Ranged: The Pistol</h3>
+      <p>The secondary weapon fires a pistol shot in a straight horizontal line. Shots travel at a fixed speed and despawn on contact with an enemy, a solid tile, or the level boundary. The pistol consumes ammunition stored as a finite resource, requiring the player to collect bullet pickups throughout the level. OpenClaw models each bullet as a kinematic Box2D body with a contact listener that resolves hits and removes the body from the simulation.</p>
+
+      <h3>Magic Power-Ups</h3>
+      <p>Three collectible magic states temporarily enhance Claw's attacks:</p>
+      <ul>
+        <li><strong>Fire Sword</strong> — The cutlass wraps in flame, extending its hitbox and igniting enemies, dealing bonus damage over time.</li>
+        <li><strong>Ice</strong> — Shots and melee hits freeze enemies momentarily, immobilising them and allowing follow-up attacks without retaliation.</li>
+        <li><strong>Catnip Invincibility</strong> — Claw becomes briefly invulnerable and deals increased damage, represented by a glowing aura animation.</li>
+      </ul>
+      <p>Each power-up has a timed duration tracked by the engine; OpenClaw reproduces the countdown timers and state transitions using the same entity-component system that drives all other actor state machines.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" width="700" height="360">
+          <!-- Background -->
+          <rect width="700" height="360" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="350" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">Captain Claw Combat System</text>
+
+          <!-- Player node -->
+          <rect x="275" y="48" width="150" height="44" rx="8" fill="#dbeafe" stroke="#3366cc" stroke-width="2"/>
+          <text x="350" y="66" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">Captain Claw</text>
+          <text x="350" y="82" text-anchor="middle" font-size="10" fill="#202122">Player Character</text>
+
+          <!-- Melee node -->
+          <rect x="60" y="145" width="150" height="44" rx="8" fill="#dcfce7" stroke="#36c" stroke-width="1.5"/>
+          <text x="135" y="163" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Melee (Cutlass)</text>
+          <text x="135" y="179" text-anchor="middle" font-size="10" fill="#202122">Slash · Stab</text>
+
+          <!-- Ranged node -->
+          <rect x="490" y="145" width="150" height="44" rx="8" fill="#fce7f3" stroke="#36c" stroke-width="1.5"/>
+          <text x="565" y="163" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Ranged (Pistol)</text>
+          <text x="565" y="179" text-anchor="middle" font-size="10" fill="#202122">Bullet · Ammo pickup</text>
+
+          <!-- Magic node -->
+          <rect x="275" y="145" width="150" height="44" rx="8" fill="#fef3c7" stroke="#36c" stroke-width="1.5"/>
+          <text x="350" y="163" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Magic Power-Ups</text>
+          <text x="350" y="179" text-anchor="middle" font-size="10" fill="#202122">Fire · Ice · Catnip</text>
+
+          <!-- Arrows from player to attacks -->
+          <line x1="300" y1="92" x2="175" y2="145" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="350" y1="92" x2="350" y2="145" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="400" y1="92" x2="525" y2="145" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- Enemy types row -->
+          <text x="350" y="228" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Affected Enemies</text>
+
+          <rect x="40" y="242" width="120" height="40" rx="6" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="100" y="257" text-anchor="middle" font-size="11" fill="#202122">Guards</text>
+          <text x="100" y="272" text-anchor="middle" font-size="10" fill="#475569">Melee &amp; Ranged</text>
+
+          <rect x="180" y="242" width="120" height="40" rx="6" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="240" y="257" text-anchor="middle" font-size="11" fill="#202122">Soldiers</text>
+          <text x="240" y="272" text-anchor="middle" font-size="10" fill="#475569">Melee &amp; Ranged</text>
+
+          <rect x="320" y="242" width="120" height="40" rx="6" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="380" y="257" text-anchor="middle" font-size="11" fill="#202122">Sharks / Mermaids</text>
+          <text x="380" y="272" text-anchor="middle" font-size="10" fill="#475569">Aquatic zone</text>
+
+          <rect x="460" y="242" width="120" height="40" rx="6" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="520" y="257" text-anchor="middle" font-size="11" fill="#202122">Bosses</text>
+          <text x="520" y="272" text-anchor="middle" font-size="10" fill="#475569">Phase-based HP</text>
+
+          <rect x="600" y="242" width="60" height="40" rx="6" fill="#f1f5f9" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="630" y="265" text-anchor="middle" font-size="10" fill="#475569">+more</text>
+
+          <!-- Arrows from attack nodes to enemy row -->
+          <line x1="135" y1="189" x2="250" y2="242" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+          <line x1="350" y1="189" x2="380" y2="242" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+          <line x1="565" y1="189" x2="520" y2="242" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+          <!-- Box2D note -->
+          <rect x="200" y="310" width="300" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.2"/>
+          <text x="350" y="328" text-anchor="middle" font-size="11" fill="#4c1d95">OpenClaw: Box2D sensor fixtures model all hitboxes</text>
+
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Captain Clawの戦闘システム構造 — プレイヤーの3種類の攻撃と敵タイプへの作用、OpenClawのBox2D実装</div>
+      </div>
+
+      <h2 id="movement">Movement Mechanics</h2>
+      <p>Precise, responsive movement is essential to Captain Claw's feel as a platformer. The original game ships with tight controls that OpenClaw replicates via <a href="box2d-physics.html">Box2D</a> dynamic bodies and carefully tuned velocity impulses.</p>
+
+      <h3>Ground Movement and Jumping</h3>
+      <p>Claw runs left and right at a fixed speed, with a slight acceleration ramp at the start of movement to prevent instant-stop snappiness. Jumping applies an upward impulse; holding the jump button does not extend jump height (the jump arc is fixed), so timing is determined solely by when the button is pressed. OpenClaw's Box2D implementation sets the character body's linear velocity directly each frame for horizontal movement, while vertical motion is governed by gravity and the initial jump impulse.</p>
+
+      <h3>Climbing: Ropes and Ladders</h3>
+      <p>Levels are full of ropes hanging from ceilings and ladders fixed to walls. When Claw grabs a rope or ladder, his physics body transitions to a kinematic mode: gravity is suppressed and the player controls vertical position directly. The rope can also be swung sideways by pressing horizontal movement keys, allowing Claw to leap off with horizontal momentum. OpenClaw models this transition with a separate physics state that disables gravity on the body and caps horizontal velocity during the swing arc.</p>
+
+      <h3>Swimming</h3>
+      <p>Water areas use buoyancy mechanics: Claw moves more slowly in water, jumps are replaced with a swim-up action, and falling speed is reduced. Enemies like sharks and mermaids are exclusive to these zones. OpenClaw implements water volumes as Box2D sensor bodies that set a "in-water" flag on any actor overlapping them, triggering the alternate movement parameter set.</p>
+
+      <h2 id="enemies">Enemy Types and AI Behaviors</h2>
+      <p>Captain Claw features a varied roster of enemies, each defined by distinct movement patterns, detection radii, and attack behaviors. OpenClaw recreates each AI archetype using a state-machine model, where enemies transition between Patrol, Alert, Attack, Hurt, and Death states.</p>
+
+      <h3>Guards and Soldiers</h3>
+      <p>Standard guards patrol a fixed horizontal segment, turning at edges or walls. When Claw enters their detection range they switch to an Alert state, stopping their patrol, and then transition to Attack once within strike distance. Soldiers may carry pistols, adding a ranged attack that fires when Claw is on the same platform and within a maximum horizontal distance. OpenClaw uses Box2D sensor circles as detection zones; a contact listener fires the state transition callback when the player body enters the sensor.</p>
+
+      <h3>Aquatic Enemies: Sharks and Mermaids</h3>
+      <p>Sharks patrol underwater segments continuously, often moving in loops between horizontal boundaries. They deal contact damage, incentivising the player to shoot them from above the waterline before diving in. Mermaids serve as ranged attackers within water zones, firing projectiles horizontally. Both enemies are tagged for the water physics context and do not appear on land tiles.</p>
+
+      <h3>Bosses</h3>
+      <p>Each world culminates in a multi-phase boss encounter. Boss health is segmented: after losing a defined fraction of total HP, the boss transitions to a new attack pattern — faster projectiles, new movement telegraphs, or a summoned wave of regular enemies. OpenClaw scripts boss phases via XML-driven event triggers, keeping boss logic data-driven rather than hard-coded, consistent with the engine's general design philosophy.</p>
+
+      <h2 id="treasure-scoring">Treasure and Scoring System</h2>
+      <p>Scattered throughout every level is a variety of collectible treasure, each type worth a different point value. The scoring system encourages thorough exploration and rewards players who search hidden rooms and defeat optional enemies for dropped loot.</p>
+      <p>The treasure hierarchy from lowest to highest value is:</p>
+      <ul>
+        <li><strong>Coins</strong> — Copper, silver, and gold variants with escalating values; the most common pickup.</li>
+        <li><strong>Gems</strong> — Rubies, sapphires, and diamonds; moderately rare and worth substantially more than coins.</li>
+        <li><strong>Crosses</strong> — Religious relics scattered in locked side rooms, high value.</li>
+        <li><strong>Chalices</strong> — Golden cups, usually guarded by strong enemies or hidden behind destructible terrain.</li>
+        <li><strong>Crowns</strong> — The rarest pickup, typically one per level, worth a large point bonus.</li>
+      </ul>
+      <p>Enemies defeated mid-level also drop small coin pickups, linking combat performance to score. A bonus multiplier applies at level exit if certain thresholds (e.g., 100% treasure collected) are met. OpenClaw stores each item as an entity with a pickup component; when Claw's body overlaps the item's Box2D sensor, the item is destroyed, its score value is added to the session total, and a floating score number is spawned as a temporary particle effect.</p>
+
+      <h2 id="health-checkpoints">Health System and Checkpoints</h2>
+      <p>Claw's health is represented by a numeric life-point bar displayed in the HUD. Different enemy attacks and environmental hazards deal varying amounts of damage: a sword slash deals more than a claw scratch, spike traps drain health instantly on contact, and drowning (staying submerged too long) deals periodic tick damage. Health pickups — labelled health cross items — restore a fixed amount of HP and are placed at strategic points in each level.</p>
+      <p>When HP reaches zero, Claw dies and respawns at the most recently activated checkpoint. Checkpoints appear as glowing gem pedestals; stepping on one activates it (changing its visual state) and records the player's position and current score for respawn. Lives are tracked separately: losing all lives sends the player to a continue screen.</p>
+      <p>OpenClaw implements checkpoints as trigger entities with a persistent activated flag stored in the session state. On death, the engine reads the last checkpoint's stored data — position, score at the time of activation — and resets the player body to that position. The health bar, checkpoint system, and lives counter all interact through a single GameLogic component, mirroring the centralised state management used in the original game's source structure.</p>
+      <p>For a deeper look at how the physics layer underpins all of these mechanics, see the article on <a href="box2d-physics.html">Box2D Physics in OpenClaw</a>.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#core-loop">Core Gameplay Loop</a></li>
+          <li><a href="#combat">Combat System</a></li>
+          <li><a href="#movement">Movement Mechanics</a></li>
+          <li><a href="#enemies">Enemy Types and AI Behaviors</a></li>
+          <li><a href="#treasure-scoring">Treasure and Scoring System</a></li>
+          <li><a href="#health-checkpoints">Health System and Checkpoints</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+          <li><a href="box2d-physics.html">Box2D Physics</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+        <li><a href="box2d-physics.html">Box2D Physics</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

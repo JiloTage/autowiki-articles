@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    OpenClaw
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">OpenClaw</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">OpenClaw is a multiplatform, open-source C++ reimplementation of the classic 1997 platformer game Captain Claw by Monolith Productions, designed to run natively on modern operating systems while preserving the original gameplay experience.</div>
+
+      <h2 id="overview">Overview</h2>
+      <p><b>OpenClaw</b> is a fan-made, open-source recreation of the game engine used in <a href="captain-claw.html">Captain Claw</a> (1997), developed by Monolith Productions. The project rewrites the original engine entirely in modern C++, enabling the game to run natively on Windows, macOS, and Linux without relying on emulation or compatibility layers. Unlike playing the original through DOSBox, OpenClaw compiles and executes as a native binary, taking advantage of modern CPU architectures and operating system APIs.</p>
+      <p>The project is led by developer pjasicek and is hosted on GitHub, where contributions from the community have extended its feature parity with the original game. OpenClaw does not bundle any original game assets; players must supply the <a href="rez-file-format.html">CLAW.REZ</a> archive from a legally owned copy of the original game, making it legally and ethically sound as a preservation tool.</p>
+
+      <h2 id="history">History and Background</h2>
+      <p>Captain Claw was released in 1997 and became a beloved cult classic for its swashbuckling pirate cat protagonist, tight platforming mechanics, and memorable level design. However, as operating systems evolved beyond MS-DOS and early Windows, the game became increasingly difficult to run without workarounds. While DOSBox provided one avenue for running the title, native support for modern systems was absent.</p>
+      <p>The OpenClaw project emerged from a desire to breathe new life into this classic without relying on binary compatibility hacks. Development proceeded on GitHub as an open-source effort, making it possible for community members to contribute bug fixes, feature enhancements, and platform-specific improvements. By 2020, the engine had reached a level of completeness allowing all <a href="captain-claw-levels.html">14 original levels</a> to be played through.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340" width="700" height="340">
+          <!-- Background -->
+          <rect width="700" height="340" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="350" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">OpenClaw Architecture Overview</text>
+
+          <!-- Game Layer -->
+          <rect x="40" y="50" width="620" height="52" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="350" y="72" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4ed8">Game Logic Layer</text>
+          <text x="350" y="91" text-anchor="middle" font-size="11" fill="#1e3a8a">Captain Claw Game Rules · Level Loader · Entity System · AI</text>
+
+          <!-- Engine Layer -->
+          <rect x="40" y="120" width="620" height="52" rx="6" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="350" y="142" text-anchor="middle" font-size="13" font-weight="bold" fill="#166534">OpenClaw Engine (C++)</text>
+          <text x="350" y="161" text-anchor="middle" font-size="11" fill="#14532d">Game Loop · Renderer · Audio Manager · Input Handler · Scene Graph</text>
+
+          <!-- Libraries Layer -->
+          <rect x="40" y="190" width="190" height="55" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="135" y="213" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">SDL2</text>
+          <text x="135" y="232" text-anchor="middle" font-size="10" fill="#78350f">Graphics · Audio · Input</text>
+
+          <rect x="255" y="190" width="190" height="55" rx="6" fill="#fce7f3" stroke="#9d174d" stroke-width="1.5"/>
+          <text x="350" y="213" text-anchor="middle" font-size="12" font-weight="bold" fill="#9d174d">Box2D</text>
+          <text x="350" y="232" text-anchor="middle" font-size="10" fill="#831843">Physics Simulation</text>
+
+          <rect x="470" y="190" width="190" height="55" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.5"/>
+          <text x="565" y="213" text-anchor="middle" font-size="12" font-weight="bold" fill="#5b21b6">TinyXML</text>
+          <text x="565" y="232" text-anchor="middle" font-size="10" fill="#4c1d95">Config &amp; Data Parsing</text>
+
+          <!-- OS / Platform Layer -->
+          <rect x="40" y="265" width="620" height="52" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+          <text x="350" y="287" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">Platform Layer</text>
+          <text x="350" y="306" text-anchor="middle" font-size="11" fill="#475569">Windows · macOS · Linux</text>
+
+          <!-- Arrows -->
+          <line x1="350" y1="102" x2="350" y2="120" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="350" y1="172" x2="350" y2="190" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="350" y1="245" x2="350" y2="265" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr)"/>
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: OpenClawのレイヤー構造 — ゲームロジック、エンジン、ライブラリ、OSプラットフォームの4層</div>
+      </div>
+
+      <h2 id="technical-architecture">Technical Architecture</h2>
+      <p>OpenClaw is built on a layered architecture. At the foundation is the platform layer provided by <a href="sdl2-engine.html">SDL2</a> (Simple DirectMedia Layer), which abstracts windowing, rendering, input handling, audio playback, and image loading across operating systems. On top of SDL2, the OpenClaw engine implements a game loop, scene graph, entity-component system, and asset manager.</p>
+      <p>Physics simulation is handled by <a href="box2d-physics.html">Box2D</a>, an open-source 2D rigid body simulation library. Captain Claw's platforming behavior — including character movement, collision response, projectile arcs, and enemy interactions — is implemented using Box2D fixtures and contact listeners, providing physically accurate behaviour that closely mirrors the feel of the original game.</p>
+      <p>Game data (levels, objects, configuration) is loaded from XML files using the TinyXML library, applying a data-driven design that separates game content from engine logic. This makes it easier for modders to alter level layouts and object properties without recompiling the engine.</p>
+
+      <h2 id="asset-loading">Asset Loading and CLAW.REZ</h2>
+      <p>Captain Claw stored all its assets — sprites, sounds, music, and level data — inside a proprietary archive format with the extension <a href="rez-file-format.html">.REZ</a>. OpenClaw includes a REZ file reader that extracts and loads these assets at runtime, meaning no asset extraction step is needed. The player simply provides the path to CLAW.REZ from a legitimate copy of the game, and OpenClaw handles the rest.</p>
+      <p>This design upholds <a href="game-preservation-ethics.html">game preservation ethics</a>: the engine itself contains no copyrighted content, and the original assets remain under their original license. Only individuals who legally own the original game can play OpenClaw, as the engine cannot function without the official asset archive.</p>
+
+      <h2 id="gameplay-coverage">Gameplay Coverage</h2>
+      <p>OpenClaw implements the full original campaign of Captain Claw, including all 14 levels spanning various themed worlds. Enemy AI behaviors, boss encounter scripting, the treasure collection system, power-up mechanics, and the checkpoint save system are all faithfully reproduced. The <a href="captain-claw-gameplay.html">core gameplay loop</a> — exploration, combat with the cutlass and pistol, and platforming — functions as in the original.</p>
+      <p>Certain quality-of-life improvements have been added, such as improved frame rate targeting, resolution scaling, and configurable key bindings, while retaining the core experience. Community contributors have also reported and patched various collision edge cases not present in the original to improve reliability.</p>
+
+      <h2 id="community-development">Community and Development</h2>
+      <p>The project is open-source under the permissive license on GitHub at <code>github.com/pjasicek/OpenClaw</code>. Bug reports, feature discussions, and pull requests are managed through GitHub Issues and the pull request workflow. Community members have contributed ports to additional platforms, performance improvements, and documentation.</p>
+      <p>OpenClaw is often cited as a model example of <a href="game-preservation-methods.html">game preservation through reimplementation</a>, demonstrating how an open-source engine rewrite can extend the lifespan of a beloved title while respecting intellectual property boundaries.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#history">History and Background</a></li>
+          <li><a href="#technical-architecture">Technical Architecture</a></li>
+          <li><a href="#asset-loading">Asset Loading and CLAW.REZ</a></li>
+          <li><a href="#gameplay-coverage">Gameplay Coverage</a></li>
+          <li><a href="#community-development">Community and Development</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+          <li><a href="box2d-physics.html">Box2D Physics</a></li>
+          <li><a href="rez-file-format.html">REZ File Format</a></li>
+          <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+          <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+          <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+          <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+        <li><a href="sdl2-engine.html">SDL2 Game Engine</a></li>
+        <li><a href="box2d-physics.html">Box2D Physics</a></li>
+        <li><a href="rez-file-format.html">REZ File Format</a></li>
+        <li><a href="captain-claw-gameplay.html">Captain Claw Gameplay</a></li>
+        <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+        <li><a href="captain-claw-levels.html">Captain Claw Levels</a></li>
+        <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

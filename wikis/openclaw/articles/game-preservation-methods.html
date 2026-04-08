@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Preservation Through Engine Reimplementation - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Game Preservation Through Engine Reimplementation
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Game Preservation Through Engine Reimplementation</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">Game preservation through engine reimplementation is the practice of recreating a game's original software engine from scratch using modern programming techniques, allowing classic titles to run natively on contemporary hardware without relying on emulation or compatibility layers.</div>
+
+      <p><b>Game Preservation Through Engine Reimplementation</b> is a category of software archaeology and cultural conservation in which developers study the behavior of original game engines and rewrite them entirely using modern languages and toolchains. Unlike emulation, which reproduces the hardware environment a game originally ran on, engine reimplementation targets the game's logic and rendering behavior directly, producing a clean native binary that can run on current operating systems. Projects like <a href="openclaw.html">OpenClaw</a> exemplify this approach, demonstrating how communities can extend the lifespan of games that would otherwise be lost to technical obsolescence.</p>
+
+      <h2 id="why-preservation-matters">Why Game Preservation Matters</h2>
+      <p>Video games represent one of the most significant cultural and artistic media of the late twentieth and early twenty-first centuries. They encode the technical achievements, aesthetic sensibilities, and interactive storytelling conventions of their era in ways that no other medium can replicate. Allowing them to become inaccessible — due to hardware failure, operating system incompatibility, or the discontinuation of distribution channels — is equivalent to losing a generation of films or literature.</p>
+      <p>Beyond cultural heritage, games constitute a historical record of software engineering practice. The techniques used to squeeze performance from early hardware, the design compromises made under memory constraints, and the inventive workarounds pioneered by developers of the 1980s and 1990s are embedded in game code and behavior. Preservation ensures that researchers, educators, and future engineers can study these artefacts.</p>
+      <p>Economic and legal factors compound the technical challenges. Publishers frequently go out of business, franchises change ownership multiple times, and licensing agreements for music or third-party middleware can prevent legitimate re-release. Many games enter a state of commercial unavailability — sometimes called abandonware — where no legal purchase channel exists and no active steward maintains the codebase. For these titles, community-led preservation efforts are the only viable path to continued accessibility.</p>
+
+      <h2 id="preservation-methods">Survey of Preservation Methods</h2>
+      <p>Several distinct technical strategies have been employed by the preservation community, each with different trade-offs in fidelity, legality, and accessibility.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420">
+          <!-- Background -->
+          <rect width="720" height="420" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.5" rx="8"/>
+          <text x="360" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Game Preservation Method Taxonomy</text>
+
+          <!-- Root node -->
+          <rect x="260" y="52" width="200" height="40" rx="6" fill="#3366cc" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="360" y="77" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffffff">Game Preservation</text>
+
+          <!-- Level 1 branches -->
+          <!-- Hardware Emulation -->
+          <rect x="30" y="140" width="160" height="40" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="110" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">Hardware Emulation</text>
+
+          <!-- Source/Binary Compat -->
+          <rect x="220" y="140" width="160" height="40" rx="6" fill="#dbeafe" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="300" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Source Code</text>
+          <text x="300" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Port / Compatibility</text>
+
+          <!-- Engine Reimplementation -->
+          <rect x="410" y="140" width="160" height="40" rx="6" fill="#dcfce7" stroke="#2e7d32" stroke-width="2"/>
+          <text x="490" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Engine</text>
+          <text x="490" y="174" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Reimplementation</text>
+
+          <!-- Abandonware Dist -->
+          <rect x="600" y="140" width="100" height="40" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="650" y="158" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">Abandonware</text>
+          <text x="650" y="174" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">Distribution</text>
+
+          <!-- Connector lines from root to level 1 -->
+          <line x1="360" y1="92" x2="110" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="92" x2="300" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="92" x2="490" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+          <line x1="360" y1="92" x2="650" y2="140" stroke="#a2a9b1" stroke-width="1.5"/>
+
+          <!-- Level 2: Hardware Emulation examples -->
+          <rect x="10" y="240" width="90" height="36" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="55" y="260" text-anchor="middle" font-size="10" fill="#202122">DOSBox</text>
+          <text x="55" y="272" text-anchor="middle" font-size="10" fill="#555">(x86 / DOS)</text>
+
+          <rect x="112" y="240" width="90" height="36" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="157" y="260" text-anchor="middle" font-size="10" fill="#202122">MAME</text>
+          <text x="157" y="272" text-anchor="middle" font-size="10" fill="#555">(arcade HW)</text>
+
+          <line x1="110" y1="180" x2="55" y2="240" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="110" y1="180" x2="157" y2="240" stroke="#a2a9b1" stroke-width="1"/>
+
+          <!-- Level 2: Source / Compat examples -->
+          <rect x="215" y="240" width="90" height="36" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="260" y="260" text-anchor="middle" font-size="10" fill="#202122">Chocolate</text>
+          <text x="260" y="272" text-anchor="middle" font-size="10" fill="#555">Doom</text>
+
+          <rect x="317" y="240" width="90" height="36" rx="5" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1.2"/>
+          <text x="362" y="260" text-anchor="middle" font-size="10" fill="#202122">ioquake3</text>
+          <text x="362" y="272" text-anchor="middle" font-size="10" fill="#555">(Q3 source)</text>
+
+          <line x1="300" y1="180" x2="260" y2="240" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="300" y1="180" x2="362" y2="240" stroke="#a2a9b1" stroke-width="1"/>
+
+          <!-- Level 2: Engine Reimpl examples -->
+          <rect x="405" y="240" width="90" height="36" rx="5" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="450" y="258" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">OpenClaw</text>
+          <text x="450" y="272" text-anchor="middle" font-size="10" fill="#555">(Capt. Claw)</text>
+
+          <rect x="507" y="240" width="90" height="36" rx="5" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="552" y="258" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">ScummVM</text>
+          <text x="552" y="272" text-anchor="middle" font-size="10" fill="#555">(adventure)</text>
+
+          <rect x="456" y="308" width="90" height="36" rx="5" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="501" y="326" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">OpenMW</text>
+          <text x="501" y="340" text-anchor="middle" font-size="10" fill="#555">(Morrowind)</text>
+
+          <rect x="558" y="308" width="90" height="36" rx="5" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="603" y="326" text-anchor="middle" font-size="10" font-weight="bold" fill="#202122">OpenRCT2</text>
+          <text x="603" y="340" text-anchor="middle" font-size="10" fill="#555">(RollerCoaster)</text>
+
+          <line x1="490" y1="180" x2="450" y2="240" stroke="#2e7d32" stroke-width="1.2"/>
+          <line x1="490" y1="180" x2="552" y2="240" stroke="#2e7d32" stroke-width="1.2"/>
+          <line x1="490" y1="276" x2="501" y2="308" stroke="#2e7d32" stroke-width="1.2"/>
+          <line x1="552" y1="276" x2="603" y2="308" stroke="#2e7d32" stroke-width="1.2"/>
+
+          <!-- Level 2: Abandonware -->
+          <rect x="600" y="240" width="100" height="36" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1.2"/>
+          <text x="650" y="258" text-anchor="middle" font-size="10" fill="#202122">Archive.org</text>
+          <text x="650" y="272" text-anchor="middle" font-size="10" fill="#555">ROM archives</text>
+
+          <line x1="650" y1="180" x2="650" y2="240" stroke="#a2a9b1" stroke-width="1"/>
+
+          <!-- Legend -->
+          <rect x="18" y="378" width="14" height="14" rx="2" fill="#dcfce7" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="38" y="390" font-size="10" fill="#202122">Engine reimplementation (primary focus)</text>
+          <rect x="220" y="378" width="14" height="14" rx="2" fill="#dbeafe" stroke="#3366cc" stroke-width="1.2"/>
+          <text x="240" y="390" font-size="10" fill="#202122">Other preservation methods</text>
+        </svg>
+        <div class="diagram-caption">図1: ゲーム保存手法のタクソノミー — エミュレーション、ソースポート、エンジン再実装、放棄ソフト配布の4分類</div>
+      </div>
+
+      <p><strong>Hardware emulation</strong> replicates the CPU, memory bus, and peripheral hardware of the original platform in software, running the original machine code unchanged. DOSBox provides an x86 processor and DOS environment for PC games, while MAME (Multiple Arcade Machine Emulator) targets arcade hardware. Emulation achieves the highest behavioral fidelity since it runs the original binary, but introduces a performance overhead and inherits any original bugs or compatibility quirks.</p>
+      <p><strong>Source code ports</strong> apply when the original source code has been released or leaked, allowing developers to recompile it against modern libraries. Projects like Chocolate Doom compile id Software's released Doom source against SDL2. These ports are constrained by the original code's architecture and may carry forward its technical debt.</p>
+      <p><strong>Engine reimplementation</strong> — the focus of this article — involves writing an entirely new engine that reproduces the behavior of the original without access to its source code. This is the most demanding approach but yields the cleanest long-term result.</p>
+      <p><strong>Abandonware distribution</strong> refers to making original binaries available through archival sites. While accessible, it offers no improvement in compatibility and carries the most significant legal risk, as it involves distributing copyrighted binaries regardless of their commercial availability.</p>
+
+      <h2 id="engine-reimplementation-approach">The Engine Reimplementation Approach</h2>
+      <p>Engine reimplementation begins with systematic behavioral study of the original game. Developers play through the title exhaustively, documenting every observable mechanic: character movement physics, collision response, enemy AI state transitions, audio trigger conditions, and rendering properties. This process is sometimes called <em>behavioral reverse engineering</em> — rather than disassembling binary code, it studies inputs and outputs to infer the underlying rules.</p>
+      <p>A disciplined approach to reimplementation is the <em>clean-room implementation</em> technique, in which the team is divided between those who study the original (the specification team) and those who write the new code (the implementation team), with no direct contact between the two groups. This method, historically used in commercial reverse engineering, minimizes the risk that implementation is a derivative work of the original code.</p>
+      <p>The resulting engine is architecturally independent of the original. It uses contemporary data structures, modern memory management, and current graphics APIs. This separation from the original codebase has several advantages: the new engine can be compiled for any platform that supports its dependencies, optimized independently of the original's constraints, and extended with features the original author never anticipated.</p>
+      <p>Crucially, engine reimplementation differs from emulation in one key respect: it does not attempt to recreate hardware behavior. Instead, it recreates <em>game behavior</em> at a higher level of abstraction. Where DOSBox simulates the IBM PC hardware that originally ran a game, an engine reimplementation like <a href="openclaw.html">OpenClaw</a> simulates the rules of the game itself, using modern platform-abstraction libraries to handle the underlying hardware interaction.</p>
+
+      <h2 id="openclaw-as-model">OpenClaw as a Model Case</h2>
+      <p>The <a href="openclaw.html">OpenClaw</a> project, a reimplementation of the engine behind <a href="captain-claw.html">Captain Claw</a> (Monolith Productions, 1997), illustrates several best practices that distinguish a principled preservation effort from legally or technically problematic alternatives.</p>
+      <p><strong>Legal asset separation</strong> is the first and most important principle. OpenClaw contains no game assets — no sprites, sounds, music, or level data. All content is loaded at runtime from the original CLAW.REZ archive, which players must supply from a legitimate copy of the game. The engine is thus a tool for running a game you already own, not a mechanism for distributing content you do not. This mirrors the model used by ScummVM, which has maintained the same policy for decades and has consequently received explicit endorsements and asset donations from multiple game publishers.</p>
+      <p><strong>Open-source development</strong> ensures that the preservation effort is auditable and communal. The full source code of OpenClaw is published on GitHub under a permissive license, allowing security review, platform porting, and continued maintenance by anyone in the community even if the original author steps back. This is essential for long-term survival: a preservation project that depends on a single maintainer is itself at risk of becoming inaccessible.</p>
+      <p><strong>Community collaboration</strong> accelerates completeness. Because the reimplementation target is a publicly playable game, any community member can identify behavioral discrepancies by comparing the reimplementation against the original. Bug reports and pull requests from players who know the original game intimately have been among the most valuable contributions to OpenClaw's development.</p>
+      <p>The project also demonstrates the importance of <a href="game-preservation-ethics.html">ethical dimensions of preservation</a> — acknowledging the intellectual property of original creators, maintaining clear documentation of what the project is and is not, and enabling players to legally acquire the original assets when possible.</p>
+
+      <h2 id="other-examples">Other Notable Engine Reimplementations</h2>
+      <p>Engine reimplementation has a long history in the gaming community. Several projects have achieved wide adoption and, in some cases, recognition from the original rights holders.</p>
+      <p><strong>ScummVM</strong> is arguably the most successful engine reimplementation project in existence. Founded in 2001, it initially targeted LucasArts adventure games using the SCUMM scripting engine (hence the name), but has since expanded to cover hundreds of game engines spanning decades. ScummVM has received asset donations and explicit licenses from publishers including LucasArts, Revolution Software, and Sierra On-Line, transforming from a grey-area project into a formally endorsed preservation tool.</p>
+      <p><strong>OpenMW</strong> reimplements the engine underlying The Elder Scrolls III: Morrowind (Bethesda Softworks, 2002). Like OpenClaw, it requires the player to own the original game data. OpenMW extends the original engine's capabilities significantly, adding support for higher-resolution rendering, improved scripting, and modding tools that surpass those available in the official release — a common secondary benefit of reimplementation.</p>
+      <p><strong>OpenRCT2</strong> reimplements RollerCoaster Tycoon 2 (Chris Sawyer Productions, 2002), a game whose original engine was written almost entirely in assembly language. The technical challenge of documenting assembly-level behavior and reproducing it in C++ was considerable, but the project achieved full compatibility with the original's save files and scenarios. OpenRCT2 also incorporates quality-of-life improvements and multiplayer support not present in the original.</p>
+      <p><strong>OpenTTD</strong> began as a reimplementation of Transport Tycoon Deluxe (MicroProse, 1994) and eventually replaced all original assets with open-licensed replacements, achieving a fully self-contained open-source game. This progression — from reimplementation requiring original assets to a standalone project — represents the most complete form of preservation, though it is only possible when community artists can recreate equivalent assets.</p>
+      <p><strong>FreeCiv</strong>, while not strictly a reimplementation (it was built from scratch as a Civilization-inspired game rather than a recreation of the original engine), influenced the reimplementation community as an early demonstration that open-source recreation of commercial game experiences was technically and legally viable.</p>
+
+      <h2 id="challenges">Challenges and Limitations</h2>
+      <p>Engine reimplementation is among the most technically demanding forms of software development. Several categories of challenge must be addressed by any serious project.</p>
+      <p><strong>Incomplete documentation.</strong> Commercial games from the 1990s and early 2000s were rarely documented beyond their user manuals. Internal data formats, scripting semantics, and physics parameters must be inferred entirely from observation. Edge cases in AI behavior or physics interactions may go unnoticed until a player encounters them years into a project's development.</p>
+      <p><strong>Reverse-engineering difficulty.</strong> Some behaviors are difficult to observe directly. Floating-point arithmetic subtleties, random number generator states, and timing-dependent interactions may only manifest in specific circumstances. Where emulation can defer to the original binary for any ambiguous case, reimplementation must commit to a specific interpretation of every behavior.</p>
+      <p><strong>Legal grey areas.</strong> Despite the clean-room approach and asset separation employed by well-designed projects, engine reimplementation occupies contested legal territory. Reproducing the behavior of a proprietary system can be construed as creating a derivative work even without copying source code. Jurisdictional variation in copyright law further complicates the picture. Projects must make explicit the boundaries of what they do and do not include, and must be prepared to respond to takedown requests from rights holders. The <a href="game-preservation-ethics.html">ethical and legal dimensions</a> of preservation work require ongoing attention throughout a project's lifecycle.</p>
+      <p><strong>Maintenance burden.</strong> A reimplemented engine must track updates in its dependency libraries, respond to breaking changes in operating system APIs, and fix issues introduced by new hardware. Commercial games are released once and then largely static; a reimplementation is a living software project that requires sustained maintenance to remain functional.</p>
+
+      <h2 id="community-role">The Role of Fan Developers and Archive Organizations</h2>
+      <p>Engine reimplementation projects are almost universally community-driven. They emerge from the enthusiasm of developers who loved particular games and possess the technical skill to reconstruct them. This grassroots origin gives reimplementation projects their strength — contributors are highly motivated and deeply familiar with the games they are preserving — but also their vulnerability: project continuity depends on the availability of volunteer time.</p>
+      <p>Archive organizations provide complementary infrastructure. The Internet Archive maintains a large collection of software, including browser-playable versions of many classic games using emulation. These organizations document the existence of games, provide a repository for physical media, and advocate for legal reforms that would facilitate preservation work, such as exemptions to anti-circumvention provisions of copyright law for research and preservation purposes.</p>
+      <p>Libraries and museums with digital preservation mandates have begun to engage with games as cultural artefacts deserving the same attention as films or printed works. Some institutions have established formal relationships with engine reimplementation projects, providing hosting, legal counsel, or archival assistance. This institutionalization of what was once purely informal activity represents a maturation of the field.</p>
+      <p>The <a href="openclaw.html">OpenClaw</a> project and others like it demonstrate that motivated individuals, armed with modern tools and collaborative platforms, can accomplish preservation work that no commercial entity is currently performing. As long as games from the 1990s continue to be technically inaccessible on modern hardware, the community of fan developers will remain an essential part of the cultural preservation ecosystem.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#why-preservation-matters">Why Game Preservation Matters</a></li>
+          <li><a href="#preservation-methods">Survey of Preservation Methods</a></li>
+          <li><a href="#engine-reimplementation-approach">The Engine Reimplementation Approach</a></li>
+          <li><a href="#openclaw-as-model">OpenClaw as a Model Case</a></li>
+          <li><a href="#other-examples">Other Notable Engine Reimplementations</a></li>
+          <li><a href="#challenges">Challenges and Limitations</a></li>
+          <li><a href="#community-role">The Role of Fan Developers and Archive Organizations</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+          <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="game-preservation-ethics.html">Game Preservation Ethics</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

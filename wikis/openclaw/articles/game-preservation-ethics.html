@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethics of Game Preservation - OpenClaw</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">OpenClaw</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">OpenClaw</a> &gt;
+    Ethics of Game Preservation
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Ethics of Game Preservation</h1>
+      <div class="article-meta">最終更新: 2026-04-08</div>
+      <div class="article-summary">The ethics of game preservation examines the tension between intellectual property law and the cultural imperative to protect interactive media, exploring where legal boundaries, community norms, and moral obligations converge.</div>
+
+      <p><b>Ethics of Game Preservation</b> is a field of inquiry at the intersection of copyright law, cultural heritage, and community practice. As video games age and the commercial infrastructure supporting them disappears, a persistent question emerges: who bears responsibility for ensuring that these works survive? Copyright regimes designed to protect living commercial products sit uneasily alongside the archival impulse that treats games as cultural artifacts worthy of long-term access. Projects such as <a href="openclaw.html">OpenClaw</a> have emerged as practical responses to this tension, navigating legal and moral constraints to keep older titles playable without infringing on the rights of original creators.</p>
+
+      <h2 id="legal-landscape">The Legal Landscape of Game Preservation</h2>
+      <p>Copyright law in most jurisdictions grants authors and rights holders exclusive control over reproduction, distribution, and derivative works for an extended period — in the United States, the life of the author plus 70 years for works created after 1978, and up to 95 years from publication for works made for hire. For video games, this means that virtually every commercial title released since the medium's inception in the 1970s remains under copyright, often long after the publisher or developer has ceased operations.</p>
+      <p>The practical consequence is that making a playable copy of a game without authorization — even for personal archival purposes — is a potential infringement. However, most jurisdictions carve out narrow exceptions. In the United States, Section 108 of the Copyright Act permits libraries and archives to reproduce works for preservation under specific conditions, including that the work not be commercially available and that distribution be limited to on-premises access.</p>
+      <p>The Digital Millennium Copyright Act (DMCA) introduces further complexity through Section 1201, which prohibits circumvention of technological protection measures (TPMs) — copy protection mechanisms — regardless of whether the underlying act of copying would otherwise be permitted. The U.S. Copyright Office periodically grants temporary exemptions via a triennial rulemaking process; since 2015, exemptions have been extended to allow preservation institutions to circumvent TPMs on certain abandoned online games and games requiring server authentication, though these exemptions remain narrow and subject to renewal.</p>
+      <p>Jurisdictional differences are significant. The European Union's Copyright Directive includes provisions more favorable to cultural heritage institutions, allowing preservation activities that would be impermissible under U.S. law. Canada, Australia, and Japan each maintain different fair dealing or fair use standards that affect what preservation actors can legally do without licensing.</p>
+
+      <h2 id="reimplementation-vs-distribution">Engine Reimplementation vs. Asset Distribution</h2>
+      <p>A critical legal distinction separates two categories of preservation activity: reimplementing a game's engine from scratch, and distributing the original binary or asset files. This distinction underpins the ethical architecture of many preservation projects, including <a href="openclaw.html">OpenClaw</a>.</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320">
+          <!-- Background -->
+          <rect width="720" height="320" fill="#f8f9fa" stroke="#a2a9b1" stroke-width="1" rx="8"/>
+          <text x="360" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#202122">Legal Spectrum of Game Preservation Methods</text>
+
+          <!-- Spectrum bar -->
+          <defs>
+            <linearGradient id="spectrum" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4caf50;stop-opacity:1"/>
+              <stop offset="40%" style="stop-color:#ffeb3b;stop-opacity:1"/>
+              <stop offset="70%" style="stop-color:#ff9800;stop-opacity:1"/>
+              <stop offset="100%" style="stop-color:#f44336;stop-opacity:1"/>
+            </linearGradient>
+            <marker id="arr2" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#a2a9b1"/>
+            </marker>
+          </defs>
+          <rect x="40" y="50" width="640" height="28" rx="6" fill="url(#spectrum)" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="40" y="96" text-anchor="start" font-size="11" fill="#202122">Legally safe</text>
+          <text x="680" y="96" text-anchor="end" font-size="11" fill="#202122">Legally risky</text>
+
+          <!-- Method boxes -->
+          <!-- Clean-room reimplementation -->
+          <rect x="40" y="108" width="148" height="70" rx="6" fill="#e8f5e9" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="114" y="128" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Clean-room</text>
+          <text x="114" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Reimplementation</text>
+          <text x="114" y="161" text-anchor="middle" font-size="10" fill="#336633">No original code.</text>
+          <text x="114" y="174" text-anchor="middle" font-size="10" fill="#336633">User supplies assets.</text>
+          <line x1="114" y1="108" x2="114" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Emulator + legally owned ROM -->
+          <rect x="204" y="108" width="148" height="70" rx="6" fill="#fff9c4" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="278" y="128" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Emulator +</text>
+          <text x="278" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Owned ROM</text>
+          <text x="278" y="161" text-anchor="middle" font-size="10" fill="#665500">Emulator legal;</text>
+          <text x="278" y="174" text-anchor="middle" font-size="10" fill="#665500">ROM legality varies.</text>
+          <line x1="278" y1="108" x2="278" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Institutional archive -->
+          <rect x="368" y="108" width="148" height="70" rx="6" fill="#fff3e0" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="442" y="128" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Institutional</text>
+          <text x="442" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Archive Access</text>
+          <text x="442" y="161" text-anchor="middle" font-size="10" fill="#7a3a00">Permitted for libraries</text>
+          <text x="442" y="174" text-anchor="middle" font-size="10" fill="#7a3a00">under §108; on-premises.</text>
+          <line x1="442" y1="108" x2="442" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- ROM/ISO public distribution -->
+          <rect x="532" y="108" width="148" height="70" rx="6" fill="#ffebee" stroke="#3366cc" stroke-width="1.5"/>
+          <text x="606" y="128" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">ROM/ISO Public</text>
+          <text x="606" y="143" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Distribution</text>
+          <text x="606" y="161" text-anchor="middle" font-size="10" fill="#990000">Infringes copyright</text>
+          <text x="606" y="174" text-anchor="middle" font-size="10" fill="#990000">and distribution rights.</text>
+          <line x1="606" y1="108" x2="606" y2="78" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- OpenClaw label -->
+          <rect x="50" y="198" width="128" height="30" rx="4" fill="#3366cc"/>
+          <text x="114" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">OpenClaw model</text>
+          <line x1="114" y1="198" x2="114" y2="178" stroke="#3366cc" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Legend note -->
+          <text x="360" y="258" text-anchor="middle" font-size="11" fill="#555555">Color indicates legal risk: green = low · yellow = moderate · orange = higher · red = high</text>
+          <text x="360" y="278" text-anchor="middle" font-size="11" fill="#555555">OpenClaw sits at the safest end: clean-room engine, no bundled assets, original purchase required.</text>
+        </svg>
+        <div class="diagram-caption">図1: ゲーム保存手法の法的リスクスペクトラム — クリーンルーム再実装が最も法的リスクが低い</div>
+      </div>
+
+      <p>Original game binaries and asset archives are protected by copyright as literary and audiovisual works respectively. Distributing them without a license — even when the game is no longer commercially sold — is infringement. By contrast, an independent reimplementation of a game's engine does not reproduce copyrighted expression; it recreates the functional behavior of the software using entirely new code. Copyright does not protect ideas, algorithms, or gameplay mechanics — only their specific expression. A new program that produces the same observable behavior without copying source code or binaries is generally not infringing.</p>
+      <p>This distinction has legal precedent in software more broadly. In <em>Sega v. Accolade</em> (1992) and <em>Sony Computer Entertainment v. Connectix</em> (2000), courts recognized that reverse engineering for interoperability purposes could constitute fair use. These decisions have shaped how preservation projects structure their work: by reimplementing engines rather than copying them, and by requiring users to supply their own legitimate copies of original assets.</p>
+      <p>See also <a href="game-preservation-methods.html">Game Preservation Methods</a> for a broader survey of techniques including emulation, source port development, and hardware preservation.</p>
+
+      <h2 id="openclaw-model">OpenClaw's Ethical Model</h2>
+      <p><a href="openclaw.html">OpenClaw</a>, the open-source reimplementation of the <a href="captain-claw.html">Captain Claw</a> engine, represents what the preservation community often describes as the "clean" approach. The project distributes only new code — the engine — and explicitly does not bundle any assets from the original game. To run OpenClaw, a user must provide the <a href="rez-file-format.html">CLAW.REZ</a> archive from a legitimately purchased copy of Captain Claw (1997).</p>
+      <p>This design carries several ethical implications. First, it preserves the economic relationship between creator and consumer for anyone seeking to play the game: a legitimate purchase is still required. Monolith Productions' creative work remains gated behind the original transaction. Second, it separates the engine — which is entirely new intellectual property authored by the OpenClaw contributors — from the assets, which remain the property of the original rights holders. Third, it allows the engine to be released under an open-source license without licensing issues, enabling community review and contribution.</p>
+      <p>The model also addresses a frequently cited concern about preservation projects: that they substitute for commercial sales and harm the market for the original. When a game is commercially available (such as through digital storefronts like GOG.com or Steam), the "require original purchase" model reinforces rather than undermines that market. When it is not commercially available, the model still maintains the principle of respecting the original rights holder's work, even in the absence of an active market to protect.</p>
+      <p>OpenClaw's contributors have also chosen not to monetize the project. The engine is provided free of charge, hosted as open-source code, with no revenue stream. This aligns with community norms that distinguish between preservation as a cultural act and commercial exploitation of others' intellectual property.</p>
+
+      <h2 id="clean-room">The Clean-Room Implementation Approach</h2>
+      <p>A "clean-room" implementation is one developed without direct access to, or use of, the original source code. The term originates from hardware reverse engineering practice, where engineers working from specifications alone — rather than from another company's code — could demonstrate that any similarity in result arose from functional necessity rather than copying. In software preservation, the same principle applies: an engine rewritten from behavioral observation and documentation is legally distinct from one produced by decompiling and modifying original binaries.</p>
+      <p>For OpenClaw, the clean-room approach means that the C++ source code was written by observing the behavior of the original Captain Claw executable, studying the game's data formats (including the <a href="rez-file-format.html">REZ archive structure</a>), and reproducing the game logic independently. No decompiled code from the original was incorporated. This is critical: decompiled binaries are considered derivative works, and incorporating them into a new project would make that project an unauthorized derivative work.</p>
+      <p>Maintaining clean-room discipline requires procedural safeguards within a development team. Contributors who have had access to original source code — through leaks, employment, or other means — are typically excluded from writing equivalent modules in a clean-room project. Documentation of the development process helps demonstrate independence if legal challenges arise. The clean-room methodology transforms a project from potential infringement into independent creation, even when the end result closely mirrors the original in function.</p>
+
+      <h2 id="abandonware-responsibility">Abandonware and Publisher Responsibility</h2>
+      <p>The term "abandonware" describes software that is no longer sold or supported by its rights holder. While the term carries moral weight — the idea that a rights holder has effectively abandoned their stewardship of a work — it has no formal legal status. Copyright does not lapse because a work is commercially neglected; the rights holder retains full legal authority whether or not they choose to exercise it commercially.</p>
+      <p>Captain Claw occupies a nuanced position in this landscape. While the game went out of print for many years, it has periodically been made available through digital platforms, meaning it is not unambiguously abandoned. OpenClaw's decision to still require original asset files is well-suited to this ambiguity: it respects the possibility of commercial availability rather than assuming abandonment.</p>
+      <p>The abandonware concept raises genuine ethical questions about publisher responsibility. When a publisher holds copyright over a culturally significant work but takes no steps to make it accessible — neither selling it nor licensing it to archives — they effectively prevent preservation while also not benefiting commercially. Critics argue that rights holders in this position incur a moral obligation either to make the work available or to grant preservation licenses. Proponents of strong copyright counter that the rights holder's inaction is their prerogative, and that circumventing it — even for preservation — undermines the incentive structure that copyright is designed to protect.</p>
+      <p>Organizations such as the Internet Archive, the Strong National Museum of Play, and various university digital humanities programs have advocated for expanded preservation exemptions, arguing that the public interest in cultural access should constrain copyright enforcement for works with no active commercial presence. These arguments have had partial success in the DMCA exemption process, particularly for server-dependent games that have become unplayable due to infrastructure shutdowns.</p>
+
+      <h2 id="community-norms">Community Ethics and Norms</h2>
+      <p>Beyond legal compliance, the game preservation community has developed a set of informal ethical norms that shape how projects are conducted and received. These norms represent a negotiated consensus about what constitutes responsible preservation activity, even in the absence of formal legal guidance.</p>
+      <p>Credit and attribution are central values. Preservation projects are expected to clearly acknowledge the original creators — studios, composers, artists, designers — whose work forms the cultural basis being preserved. OpenClaw's documentation and project materials consistently credit Monolith Productions and the original Captain Claw development team. This acknowledgment serves both ethical and practical purposes: it signals good faith to rights holders and to the broader public that the project is motivated by appreciation rather than exploitation.</p>
+      <p>Non-monetization is another widely held norm. Projects that sell preserved games — or that use preservation as a vehicle to generate ad revenue or subscriptions — are viewed with suspicion. The community distinguishes between accepting donations to cover hosting costs and treating preservation as a business. OpenClaw adheres to this norm by operating as a cost-free open-source project with no commercial structure.</p>
+      <p>Transparency in methodology also matters. Projects that document their development process, their legal reasoning, and their technical approach allow the community and rights holders to evaluate their conduct. The open-source nature of OpenClaw's codebase on GitHub exemplifies this transparency: the entire implementation is publicly visible and auditable.</p>
+      <p>Finally, community norms generally hold that preservation projects should not function as a substitute for legitimate commercial access when such access exists. If a game is currently sold on a digital storefront, directing users to pirate it rather than purchase it is viewed as contrary to preservation ethics, regardless of how inconvenient the official channel might be.</p>
+
+      <h2 id="legal-cases">Notable Cases and Conflicts</h2>
+      <p>The history of game preservation includes several cases where preservation activity directly conflicted with IP rights enforcement, clarifying both the legal limits and the ethical stakes of the field.</p>
+      <p>The 2018 lawsuit by Nintendo of America against ROM hosting sites RomUniverse and LoveROMs resulted in multi-million dollar judgments under the Copyright Act and Lanham Act, affirming that hosting and distributing game ROMs without authorization — even for games no longer commercially available — constitutes infringement. These cases drew a clear legal line that the preservation community had to navigate around, reinforcing the importance of the engine-only model.</p>
+      <p>The Internet Archive's legal battles over its digital lending practices, while centered on books rather than games, raised parallel questions about whether institutional archives can host and lend digitized commercial media. The courts' skepticism of unrestricted digital lending has implications for game preservation institutions seeking to provide broad public access to archived titles.</p>
+      <p>Conversely, the ongoing DMCA exemption proceedings have produced preservation-friendly outcomes in narrower contexts. The 2015 and 2018 triennial rulemakings expanded exemptions for video game preservation by libraries and archives, permitting circumvention of TPMs for games that require online authentication and are no longer supported. These exemptions, though limited, signal regulatory recognition that pure copyright enforcement without preservation accommodation fails the cultural interest.</p>
+      <p>Fan-made engine projects have generally avoided litigation when they maintain the clean-room, no-assets model. The long-running ScummVM project — which reimplements the engines of dozens of point-and-click adventure games from the 1980s and 1990s — has operated without legal challenge for over two decades. Its approach, closely analogous to OpenClaw's, is widely cited as evidence that the engine-reimplementation model is both legally defensible and ethically sound as a preservation practice.</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#legal-landscape">The Legal Landscape</a></li>
+          <li><a href="#reimplementation-vs-distribution">Reimplementation vs. Distribution</a></li>
+          <li><a href="#openclaw-model">OpenClaw's Ethical Model</a></li>
+          <li><a href="#clean-room">The Clean-Room Approach</a></li>
+          <li><a href="#abandonware-responsibility">Abandonware and Publisher Responsibility</a></li>
+          <li><a href="#community-norms">Community Ethics and Norms</a></li>
+          <li><a href="#legal-cases">Notable Cases and Conflicts</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="openclaw.html">OpenClaw</a></li>
+          <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+          <li><a href="rez-file-format.html">REZ File Format</a></li>
+          <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="openclaw.html">OpenClaw</a></li>
+        <li><a href="game-preservation-methods.html">Game Preservation Methods</a></li>
+        <li><a href="rez-file-format.html">REZ File Format</a></li>
+        <li><a href="captain-claw.html">Captain Claw (1997)</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

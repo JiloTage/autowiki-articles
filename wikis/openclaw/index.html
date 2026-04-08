@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>OpenClaw</h1>
+    <p>OpenClaw — open-source C++ reimplementation of the 1997 platformer Captain Claw by Monolith Productions, covering its engine architecture, gameplay systems, level design, and game preservation significance.</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">9</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">37</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="articles/openclaw.html">OpenClaw</a></td>
+          <td>OpenClaw is a multiplatform, open-source C++ reimplementation of Captain Claw (1997), enabling the classic platformer to run natively on modern operating systems.</td>
+          <td>2026-04-08</td>
+          <td>16</td>
+        </tr>
+        <tr>
+          <td><a href="articles/captain-claw.html">Captain Claw (1997)</a></td>
+          <td>Captain Claw is a 1997 side-scrolling platformer developed and published by Monolith Productions, starring a swashbuckling pirate cat on a quest to reassemble the legendary Amulet of Nine Lives across 14 distinct levels.</td>
+          <td>2026-04-08</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td><a href="articles/captain-claw-gameplay.html">Captain Claw Gameplay Mechanics</a></td>
+          <td>Captain Claw Gameplay Mechanics covers the core systems of the 1997 Monolith Productions platformer — combat, movement, enemy AI, treasure scoring, and health — and describes how OpenClaw faithfully reimplements each system using modern C++ and Box2D physics.</td>
+          <td>2026-04-08</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td><a href="articles/sdl2-engine.html">SDL2 as a Game Engine Framework</a></td>
+          <td>SDL2 (Simple DirectMedia Layer 2) serves as the foundational multimedia library in OpenClaw, providing cross-platform abstractions for 2D rendering, audio playback, font rendering, and input handling that allow the engine to run natively on Windows, macOS, and Linux.</td>
+          <td>2026-04-08</td>
+          <td>6</td>
+        </tr>
+        <tr>
+          <td><a href="articles/box2d-physics.html">Box2D Physics in Platform Games</a></td>
+          <td>Box2D is an open-source 2D rigid body simulation library by Erin Catto that powers the physics engine in OpenClaw, handling character movement, collision detection, projectile arcs, and environmental interactions in a faithful recreation of classic platformer behaviour.</td>
+          <td>2026-04-08</td>
+          <td>6</td>
+        </tr>
+        <tr>
+          <td><a href="articles/game-preservation-methods.html">Game Preservation Through Engine Reimplementation</a></td>
+          <td>Game preservation through engine reimplementation is the practice of recreating a game's original software engine from scratch, allowing classic titles to run natively on modern hardware without emulation, as exemplified by OpenClaw's faithful recreation of Captain Claw.</td>
+          <td>2026-04-08</td>
+          <td>6</td>
+        </tr>
+        <tr>
+          <td><a href="articles/rez-file-format.html">REZ File Format and Asset Packaging</a></td>
+          <td>The REZ format is a proprietary archive container developed by Monolith Productions for their RIOT engine, used to package all game assets in Captain Claw into a single distributable file. OpenClaw's REZ reader parses this archive at runtime, enabling copyright-safe engine distribution without bundled assets.</td>
+          <td>2026-04-08</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td><a href="articles/captain-claw-levels.html">Captain Claw Level Design</a></td>
+          <td>Captain Claw Level Design covers the structure, themes, and progression of the 14 acts that make up the original Captain Claw campaign, and how OpenClaw faithfully reconstructs them from WWD level data embedded in the CLAW.REZ archive.</td>
+          <td>2026-04-08</td>
+          <td>7</td>
+        </tr>
+        <tr>
+          <td><a href="articles/game-preservation-ethics.html">Ethics of Game Preservation</a></td>
+          <td>The ethics of game preservation examines the tension between intellectual property law and the cultural imperative to protect interactive media, exploring where legal boundaries, community norms, and moral obligations converge.</td>
+          <td>2026-04-08</td>
+          <td>7</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>
