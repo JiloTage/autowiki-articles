@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マルチワークスペース管理 - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    マルチワークスペース管理
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">マルチワークスペース管理</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">Multicaのマルチワークスペース機能は、複数チームや組織が独立した作業環境を持てるようにする仕組みで、データベースレベルのアイソレーション・メンバーシップモデル・ヘッダーベースルーティングによって実現される。</div>
+
+      <p><b>マルチワークスペース管理</b>は、<a href="multica.html">Multica</a>プラットフォームが提供するマルチテナント機能であり、複数のチームや組織が同一インスタンス上で互いに干渉することなく独立した作業環境を運用できる仕組みである。各ワークスペースはエージェント・Issue・設定を個別に管理し、データベースレベルの厳格なアイソレーションと<code>X-Workspace-ID</code>ヘッダーによるルーティングによってセキュリティを確保する。</p>
+
+      <h2 id="overview">概要</h2>
+      <p>Multicaにおけるワークスペースは、プロジェクト管理・エージェント管理・スキル蓄積を行う最上位の組織単位である。単一の<a href="multica-architecture.html">Multicaアーキテクチャ</a>のデプロイ上で複数ワークスペースを同時に稼働させることができ、それぞれが完全に独立した環境として機能する。</p>
+      <p>ワークスペース間のアイソレーションは主に以下の3層で実現される。</p>
+      <ul>
+        <li><strong>データ層</strong> — 全テーブルに<code>workspace_id</code>カラムを持ち、すべてのクエリでフィルタリングを実施する</li>
+        <li><strong>API層</strong> — <code>X-Workspace-ID</code>ヘッダーでリクエストを正しいワークスペースにルーティングする</li>
+        <li><strong>認可層</strong> — メンバーシップチェックによってワークスペースリソースへのアクセスを制御する</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" width="700" height="360">
+          <rect width="700" height="360" fill="#f8f9fa" rx="8"/>
+
+          <!-- Title -->
+          <text x="350" y="30" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">ワークスペースアイソレーション概略図</text>
+
+          <!-- Workspace A box -->
+          <rect x="30" y="55" width="290" height="210" rx="8" fill="#eaf3fb" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="175" y="78" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Workspace A</text>
+
+          <!-- Workspace A internals -->
+          <rect x="50" y="90" width="110" height="42" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="105" y="108" text-anchor="middle" font-size="11" fill="#202122">エージェント</text>
+          <text x="105" y="124" text-anchor="middle" font-size="10" fill="#555">Agent A-1, A-2</text>
+
+          <rect x="180" y="90" width="110" height="42" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="235" y="108" text-anchor="middle" font-size="11" fill="#202122">Issue</text>
+          <text x="235" y="124" text-anchor="middle" font-size="10" fill="#555">workspace_id=A</text>
+
+          <rect x="50" y="150" width="240" height="42" rx="4" fill="#fff" stroke="#36c" stroke-width="1.2"/>
+          <text x="170" y="168" text-anchor="middle" font-size="11" fill="#36c" font-weight="bold">DB: workspace_id = 'ws-a'</text>
+          <text x="170" y="184" text-anchor="middle" font-size="10" fill="#555">agents / issues / tasks / skills</text>
+
+          <rect x="50" y="208" width="240" height="34" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="170" y="228" text-anchor="middle" font-size="11" fill="#202122">メンバーシップ設定 (独立)</text>
+
+          <!-- Workspace B box -->
+          <rect x="380" y="55" width="290" height="210" rx="8" fill="#fef9ec" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="525" y="78" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Workspace B</text>
+
+          <!-- Workspace B internals -->
+          <rect x="400" y="90" width="110" height="42" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="455" y="108" text-anchor="middle" font-size="11" fill="#202122">エージェント</text>
+          <text x="455" y="124" text-anchor="middle" font-size="10" fill="#555">Agent B-1, B-2</text>
+
+          <rect x="530" y="90" width="110" height="42" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="585" y="108" text-anchor="middle" font-size="11" fill="#202122">Issue</text>
+          <text x="585" y="124" text-anchor="middle" font-size="10" fill="#555">workspace_id=B</text>
+
+          <rect x="400" y="150" width="240" height="42" rx="4" fill="#fff" stroke="#36c" stroke-width="1.2"/>
+          <text x="520" y="168" text-anchor="middle" font-size="11" fill="#36c" font-weight="bold">DB: workspace_id = 'ws-b'</text>
+          <text x="520" y="184" text-anchor="middle" font-size="10" fill="#555">agents / issues / tasks / skills</text>
+
+          <rect x="400" y="208" width="240" height="34" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="520" y="228" text-anchor="middle" font-size="11" fill="#202122">メンバーシップ設定 (独立)</text>
+
+          <!-- API Layer -->
+          <rect x="200" y="290" width="300" height="44" rx="6" fill="#fff" stroke="#36c" stroke-width="1.8"/>
+          <text x="350" y="309" text-anchor="middle" font-size="12" fill="#36c" font-weight="bold">Go バックエンド API</text>
+          <text x="350" y="326" text-anchor="middle" font-size="10" fill="#555">X-Workspace-ID ヘッダーでルーティング</text>
+
+          <!-- Arrows from API to workspaces -->
+          <defs>
+            <marker id="arrowA" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+          </defs>
+          <line x1="280" y1="290" x2="200" y2="265" stroke="#36c" stroke-width="1.4" marker-end="url(#arrowA)"/>
+          <line x1="420" y1="290" x2="490" y2="265" stroke="#36c" stroke-width="1.4" marker-end="url(#arrowA)"/>
+
+          <!-- Isolation barrier label -->
+          <line x1="350" y1="55" x2="350" y2="265" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <text x="350" y="50" text-anchor="middle" font-size="10" fill="#a2a9b1">アイソレーション境界</text>
+        </svg>
+        <div class="diagram-caption">図1: マルチワークスペースのアイソレーション構造。各ワークスペースはDBレベルで分離され、APIレイヤーがX-Workspace-IDヘッダーでルーティングを行う。</div>
+      </div>
+
+      <h2 id="workspace-isolation">データベースレベルのアイソレーション</h2>
+      <p>Multicaのマルチワークスペースは、<a href="multica-architecture.html">アーキテクチャ</a>の基盤となるPostgreSQLデータベースにおいて、すべてのテーブルに<code>workspace_id</code>カラムを付与することでアイソレーションを実現している。agents・issues・tasks・skills・members など、ワークスペースに帰属するすべてのリソースはこのカラムを持ち、クエリ時に必ずフィルタリングが適用される。</p>
+      <p>sqlcによって自動生成されたGoコードでは、ワークスペースを横断するクエリが原則として存在しない設計になっており、誤ったデータ参照をコンパイル時の型検査レベルで防止している。</p>
+      <pre><code>-- テーブル定義例（マイグレーション）
+CREATE TABLE issues (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id UUID NOT NULL REFERENCES workspaces(id),
+  title       TEXT NOT NULL,
+  status      TEXT NOT NULL,
+  -- ...
+);
+
+-- sqlc生成クエリ例
+-- name: ListIssuesByWorkspace :many
+SELECT * FROM issues
+WHERE workspace_id = $1
+ORDER BY created_at DESC;</code></pre>
+      <p>このアプローチにより、アプリケーションコードの実装漏れによるデータリークリスクを最小化している。全クエリで<code>workspace_id</code>フィルタリングを強制することは、Multicaのマルチテナント設計における最重要原則の一つである。</p>
+
+      <h2 id="membership-model">メンバーシップモデル</h2>
+      <p>ワークスペースへのアクセス制御は、メンバーシップチェックによって実現される。ユーザーは複数のワークスペースに所属できるが、各ワークスペースのリソースにアクセスするには、そのワークスペースのメンバーシップが必要となる。</p>
+      <p>メンバーシップの確認はGoバックエンドのミドルウェア層で行われ、APIリクエストごとに現在認証されているユーザーが対象ワークスペースのメンバーであるかを検証する。メンバーでない場合は403レスポンスが返され、リソースの存在すら開示されない。</p>
+      <ul>
+        <li><strong>ワークスペースメンバー</strong> — 通常のアクセス権を持つメンバー</li>
+        <li><strong>ワークスペース管理者</strong> — メンバー管理・設定変更・エージェント登録などの管理操作が可能</li>
+      </ul>
+      <p><a href="multica-cli.html">multica CLI</a>でログインすると、ユーザーが所属するすべてのワークスペースが自動的に検出され、デーモンのウォッチリストに追加される。これにより複数ワークスペースのタスクを単一のデーモンプロセスで並列処理できる。</p>
+      <pre><code># CLIによるログインとワークスペース自動検出
+multica login
+# 所属ワークスペースを自動検出してデーモンに登録
+multica daemon start</code></pre>
+
+      <h2 id="workspace-routing">X-Workspace-IDヘッダーによるルーティング</h2>
+      <p>Multicaのフロントエンドとバックエンド間の通信では、<code>X-Workspace-ID</code>カスタムHTTPヘッダーを使ってリクエストを正しいワークスペースにルーティングする。すべてのAPIリクエストにこのヘッダーが含まれており、GoバックエンドのChi routerミドルウェアがこれを読み取って現在のワークスペースコンテキストを確立する。</p>
+      <p>フロントエンド（Next.js）はZustandの<code>workspace</code>ストアで現在アクティブなワークスペースIDを管理し、APIクライアントのリクエストインターセプターが自動的に<code>X-Workspace-ID</code>ヘッダーを付加する仕組みになっている。</p>
+      <pre><code>// フロントエンド: APIクライアントのリクエストインターセプター例
+api.interceptors.request.use((config) => {
+  const workspaceId = useWorkspaceStore.getState().currentWorkspaceId;
+  if (workspaceId) {
+    config.headers['X-Workspace-ID'] = workspaceId;
+  }
+  return config;
+});</code></pre>
+      <p>バックエンドのミドルウェアはヘッダーからワークスペースIDを取得し、リクエストコンテキストに格納する。以降のハンドラーはこのコンテキストからワークスペースIDを参照してDBクエリを構築する。ヘッダーが欠落または不正な場合は400または401エラーを返す。</p>
+      <p>WebSocket接続においても同様に、接続確立時のハンドシェイクリクエストに<code>X-Workspace-ID</code>ヘッダーが含まれ、<a href="task-lifecycle.html">タスクライフサイクル</a>イベントのブロードキャストはワークスペースごとに分離されたチャンネルで行われる。</p>
+
+      <h2 id="development-worktrees">開発用ワークツリーサポート</h2>
+      <p>Multicaの開発環境では、Gitのworktree機能を活用した並列開発をサポートしている。worktreeサポートもデータベースレベルのアイソレーションを活用しており、各worktreeに固有のDB名とポート番号が<code>.env.worktree</code>ファイルによって割り当てられる。</p>
+      <pre><code># .env.worktree の例（worktreeごとに自動生成）
+DATABASE_URL=postgresql://user:pass@localhost:5433/multica_worktree_feature-branch
+PORT=8081
+NEXT_PUBLIC_API_URL=http://localhost:8081</code></pre>
+      <p>この仕組みにより、複数のfeatureブランチを同一マシン上で独立して動作させることができ、ポートや接続先の競合を避けながら並列開発が可能になる。本番環境のマルチワークスペースアイソレーションと同じ設計原則をローカル開発環境にも適用している点が特徴的である。</p>
+      <p>worktree環境のセットアップは<a href="multica-cli.html">multica CLI</a>が管理し、<code>make worktree</code>コマンドで必要な設定ファイルの生成・DBの初期化・マイグレーション実行を自動化している。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#workspace-isolation">データベースレベルのアイソレーション</a></li>
+          <li><a href="#membership-model">メンバーシップモデル</a></li>
+          <li><a href="#workspace-routing">X-Workspace-IDヘッダーによるルーティング</a></li>
+          <li><a href="#development-worktrees">開発用ワークツリーサポート</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="multica-architecture.html">Multicaアーキテクチャ</a></li>
+          <li><a href="multica-cli.html">multica CLI</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="multica-architecture.html">Multicaアーキテクチャ</a></li>
+        <li><a href="multica-cli.html">multica CLI</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

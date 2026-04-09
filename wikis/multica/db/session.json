@@ -1,0 +1,11 @@
+{
+  "last_phase": "phase_2",
+  "expansion_frontier": [],
+  "settings": {
+    "max_total_articles": 50,
+    "score_threshold": 0.5,
+    "language": "ja"
+  },
+  "created_at": "2026-04-09T16:24:19.469097+00:00",
+  "updated_at": "2026-04-09T16:26:48.644105+00:00"
+}

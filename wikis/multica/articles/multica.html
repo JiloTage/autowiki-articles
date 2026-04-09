@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multica - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    Multica
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Multica</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">MulticaはAIコーディングエージェントをチームメンバーとして管理するオープンソースプラットフォームで、タスク割り当て・進捗管理・スキル蓄積を通じて人間とAIの協働を実現する。</div>
+
+      <p><b>Multica</b>（マルティカ）は、AIコーディングエージェントをチームメンバーとして統合・管理するためのオープンソース・マネージドエージェントプラットフォームである。<a href="agent-daemon.html">エージェントデーモン</a>をローカルマシンで動作させ、Claude Code・Codex・OpenClaw・OpenCodeなどのAI CLIとプロジェクト管理ボードを連携させる。GitHub上で約4,000スターを獲得しており（2026年4月時点）、TypeScript（フロントエンド）とGo（バックエンド）で実装されている。</p>
+
+      <h2 id="overview">概要と設計思想</h2>
+      <p>Multicaは「あなたの次の10人の採用はヒトではない（Your next 10 hires won't be human）」というビジョンを掲げ、AIエージェントをコード修正・レビュー・デプロイなどのタスクに「同僚のように」割り当てられる環境を提供する。従来のAIアシスタントとの違いは以下の通りである。</p>
+      <ul>
+        <li><strong>チームメンバーとしてのエージェント</strong> — エージェントはボード上に表示され、コメントを投稿し、ブロッカーを能動的に報告する</li>
+        <li><strong>自律的なタスク実行</strong> — エンキュー→クレーム→開始→完了/失敗という完全なライフサイクルをWebSocketリアルタイム通知付きで管理する</li>
+        <li><strong>スキルの複利効果</strong> — エージェントが解決した問題は<a href="reusable-skills.html">再利用可能スキル</a>として蓄積され、チーム全体の能力が向上する</li>
+        <li><strong>ベンダー中立</strong> — 複数のAI CLIを統一ダッシュボードで管理し、特定ベンダーに依存しない</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" width="700" height="320">
+          <rect width="700" height="320" fill="#f8f9fa" rx="8"/>
+          <!-- Frontend -->
+          <rect x="30" y="40" width="160" height="70" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="110" y="72" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Next.js Frontend</text>
+          <text x="110" y="90" text-anchor="middle" font-size="11" fill="#555">App Router (port 3000)</text>
+          <!-- Backend -->
+          <rect x="270" y="40" width="160" height="70" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="350" y="72" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Go Backend</text>
+          <text x="350" y="90" text-anchor="middle" font-size="11" fill="#555">Chi + WebSocket (port 8080)</text>
+          <!-- DB -->
+          <rect x="510" y="40" width="160" height="70" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="590" y="72" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">PostgreSQL</text>
+          <text x="590" y="90" text-anchor="middle" font-size="11" fill="#555">pgvector (port 5432)</text>
+          <!-- Daemon -->
+          <rect x="270" y="190" width="160" height="90" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="350" y="222" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Agent Daemon</text>
+          <text x="350" y="242" text-anchor="middle" font-size="11" fill="#555">Claude / Codex /</text>
+          <text x="350" y="258" text-anchor="middle" font-size="11" fill="#555">OpenClaw / OpenCode</text>
+          <!-- Arrows -->
+          <line x1="190" y1="75" x2="270" y2="75" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="270" y1="75" x2="190" y2="75" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow2)"/>
+          <line x1="430" y1="75" x2="510" y2="75" stroke="#36c" stroke-width="1.5" marker-end="url(#arrow3)"/>
+          <line x1="350" y1="110" x2="350" y2="190" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow4)"/>
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrow4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+          </defs>
+          <text x="350" y="155" text-anchor="middle" font-size="11" fill="#7c3aed">タスク配信</text>
+          <text x="220" y="68" text-anchor="middle" font-size="10" fill="#36c">REST/WS</text>
+          <text x="470" y="68" text-anchor="middle" font-size="10" fill="#36c">sqlc</text>
+        </svg>
+        <div class="diagram-caption">図1: Multicaのアーキテクチャ概略図。フロントエンド・バックエンド・DB・エージェントデーモンの関係を示す。</div>
+      </div>
+
+      <h2 id="architecture">システムアーキテクチャ</h2>
+      <p>Multicaは4層のアーキテクチャで構成されている。</p>
+
+      <h3 id="frontend">フロントエンド（Next.js）</h3>
+      <p>フロントエンドはNext.js 16（App Router）で実装され、<code>apps/web/</code>に配置される。<strong>feature-based architecture</strong>を採用しており、<code>app/</code>（ルーティング層）・<code>features/</code>（ドメインビジネスロジック）・<code>shared/</code>（横断ユーティリティ）の3層で構成される。状態管理にはZustandを使用し、ドメインごとに1ストア（auth/workspace/issues/inbox）を持つ。WebSocket接続は<a href="realtime-websocket.html">リアルタイム同期</a>機能として<code>features/realtime/</code>が担う。</p>
+
+      <h3 id="backend">バックエンド（Go）</h3>
+      <p><code>server/</code>ディレクトリに配置されたGoバックエンドはChi routerを使用する。<a href="task-lifecycle.html">タスクライフサイクル</a>の管理は<code>internal/service/task.go</code>が担い、エンキュー→クレーム→開始→完了/失敗の各遷移でWebSocketイベントをブロードキャストする。データベースアクセスはsqlcで自動生成されたGoコードを経由し、PostgreSQLのpgvector拡張も活用する。</p>
+
+      <h3 id="database">データベース（PostgreSQL + pgvector）</h3>
+      <p>PostgreSQL 17にpgvector拡張を加えた構成を採用する。スキーマはすべてマイグレーション管理され、<code>migrations/</code>に配置される。マルチテナント対応のため、全クエリで<code>workspace_id</code>によるフィルタリングを行う。</p>
+
+      <h3 id="daemon">エージェントデーモン</h3>
+      <p>ローカルマシン上で動作する<a href="agent-daemon.html">エージェントデーモン</a>（<code>multica daemon start</code>で起動）は、PATH上のAI CLI（claude・codex等）を自動検出してRuntimeとして登録する。デフォルト3秒間隔でサーバーをポーリングし、割り当てられたタスクを実行する。最大同時実行数はデフォルト20件で設定可能。</p>
+
+      <h2 id="features">主要機能</h2>
+      <h3 id="agents-as-teammates">エージェントをチームメンバーとして扱う</h3>
+      <p>Issueのアサイニーは多態型（<code>assignee_type</code> + <code>assignee_id</code>）で、人間メンバーとエージェントの両方を受け付ける。エージェントはボード上で紫背景・ロボットアイコンで表示され、コメントの投稿やIssue作成も可能である。マルチワークスペース対応により、チームごとに独立したエージェント・Issue環境を持てる。</p>
+
+      <h3 id="skill-system">スキルシステム</h3>
+      <p>エージェントが解決した問題は<a href="reusable-skills.html">再利用可能スキル</a>として保存される。スキルはデプロイ・マイグレーション・コードレビューといった反復タスクを自動化し、チームの能力を時間とともに複利的に高める。スキルの定義は<code>skills-lock.json</code>で管理される。</p>
+
+      <h2 id="getting-started">導入方法</h2>
+      <h3 id="cloud">Multica Cloud</h3>
+      <p>最速の導入方法はManaged Cloudサービス（<code>multica.ai</code>）を利用することで、セットアップ不要ですぐに使い始められる。</p>
+
+      <h3 id="self-hosting">セルフホスティング</h3>
+      <p>Dockerを使ったセルフホスティングも提供されている。詳細は<a href="self-hosting.html">セルフホスティングガイド</a>を参照。</p>
+      <pre><code>git clone https://github.com/multica-ai/multica.git
+cd multica
+cp .env.example .env
+docker compose up -d
+cd server &amp;&amp; go run ./cmd/migrate up &amp;&amp; cd ..
+make start</code></pre>
+
+      <h3 id="cli">CLI（multica コマンド）</h3>
+      <p><a href="multica-cli.html">multica CLI</a>はローカルマシンとMulticaサーバーを接続するコマンドラインツールである。Homebrew（macOS/Linux）でインストールできる。</p>
+      <pre><code>brew tap multica-ai/tap
+brew install multica
+multica login
+multica daemon start</code></pre>
+
+      <h2 id="tech-stack">技術スタック</h2>
+      <p>Multicaで採用されている主要技術スタックを以下に示す。</p>
+      <ul>
+        <li><strong>フロントエンド</strong>: TypeScript, Next.js 16 (App Router), Zustand, shadcn/ui</li>
+        <li><strong>バックエンド</strong>: Go, Chi router, sqlc, gorilla/websocket</li>
+        <li><strong>データベース</strong>: PostgreSQL 17 + pgvector</li>
+        <li><strong>CI/CD</strong>: GitHub Actions（Node 22 / Go 1.24）</li>
+        <li><strong>ビルド</strong>: Turborepo + pnpm workspaces</li>
+        <li><strong>E2Eテスト</strong>: Playwright</li>
+      </ul>
+
+      <h2 id="comparison">他ツールとの比較</h2>
+      <p>Multicaは「LinearのAIエージェント版」と位置づけられる。<a href="../../claude-code-analysis/articles/claude-code-overview.html">Claude Code</a>のような単体エージェントツールと異なり、タスク管理ボード・マルチエージェント対応・スキル蓄積機能を統合した点が特徴である。またAutoGenやLangGraphのようなマルチエージェントフレームワークと比べ、ソフトウェア開発チームのワークフローに特化した実用的な設計となっている。</p>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要と設計思想</a></li>
+          <li><a href="#architecture">システムアーキテクチャ</a></li>
+          <li class="toc-h3"><a href="#frontend">フロントエンド（Next.js）</a></li>
+          <li class="toc-h3"><a href="#backend">バックエンド（Go）</a></li>
+          <li class="toc-h3"><a href="#database">データベース</a></li>
+          <li class="toc-h3"><a href="#daemon">エージェントデーモン</a></li>
+          <li><a href="#features">主要機能</a></li>
+          <li class="toc-h3"><a href="#agents-as-teammates">エージェントをチームメンバーとして扱う</a></li>
+          <li class="toc-h3"><a href="#skill-system">スキルシステム</a></li>
+          <li><a href="#getting-started">導入方法</a></li>
+          <li class="toc-h3"><a href="#cloud">Multica Cloud</a></li>
+          <li class="toc-h3"><a href="#self-hosting">セルフホスティング</a></li>
+          <li class="toc-h3"><a href="#cli">CLI</a></li>
+          <li><a href="#tech-stack">技術スタック</a></li>
+          <li><a href="#comparison">他ツールとの比較</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+          <li><a href="reusable-skills.html">再利用可能スキル</a></li>
+          <li><a href="multica-cli.html">multica CLI</a></li>
+          <li><a href="self-hosting.html">セルフホスティング</a></li>
+          <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        <li><a href="reusable-skills.html">再利用可能スキル</a></li>
+        <li><a href="multica-cli.html">multica CLI</a></li>
+        <li><a href="self-hosting.html">セルフホスティング</a></li>
+        <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>再利用可能スキル - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    再利用可能スキル
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">再利用可能スキル</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">再利用可能スキルはMulticaプラットフォームのコア機能で、エージェントが問題を解決するたびにその解法がチーム全体のスキルとして蓄積・再利用され、チームの能力を複利的に高める仕組みである。</div>
+
+      <p><b>再利用可能スキル</b>（Reusable Skills）とは、<a href="multica.html">Multica</a>プラットフォームにおいて、AIエージェントが解決した問題の解法を自動的にスキルとして保存し、将来のタスクで再利用できるようにする仕組みである。デプロイ・マイグレーション・コードレビューなどの反復的なタスクをスキルとして定義することで、チームの能力が時間とともに複利的に成長する。スキルの定義は<code>skills-lock.json</code>ファイルで管理され、フロントエンドの<code>features/skills/</code>モジュールから操作できる。</p>
+
+      <h2 id="overview">概要</h2>
+      <p>ソフトウェア開発チームにおける多くの作業は反復的である。デプロイ手順、データベースマイグレーション、コードレビューのチェックリスト——こうした定型的な作業を毎回エージェントが一から学習するのは非効率であり、品質にもばらつきが生じる。Multicaの再利用可能スキルシステムはこの課題を解決するために設計されている。</p>
+      <p>核心的なアイデアは「問題解決の結果をナレッジとして永続化する」ことである。<a href="agent-daemon.html">エージェントデーモン</a>がタスクを完了するたびに、その解法がスキルとして登録される。次に同類のタスクが発生したときには、登録済みスキルを参照することで、エージェントはより速く・より正確に問題を解決できる。この積み重ねがチームの能力を「複利のように」増大させるという設計思想がMulticaのスキルシステムの根幹にある。</p>
+
+      <h2 id="skill-creation">スキルの生成プロセス</h2>
+      <p><a href="task-lifecycle.html">タスクライフサイクル</a>の完了フェーズにおいて、エージェントデーモンはタスクの解法を分析し、再利用可能なパターンを抽出してスキルとして登録する。スキル生成は以下の手順で行われる。</p>
+      <ol>
+        <li><strong>タスク完了の検出</strong> — エージェントデーモンがタスクを <code>completed</code> 状態に遷移させる際、解決内容をサーバーへ送信する</li>
+        <li><strong>パターン抽出</strong> — バックエンドがタスクの種別・入力・出力・適用した手順を解析し、再利用可能なスキルの雛形を生成する</li>
+        <li><strong>スキル定義の保存</strong> — 生成されたスキル定義が <code>skills-lock.json</code> に追記される</li>
+        <li><strong>インデックス更新</strong> — フロントエンドのスキル一覧が自動的に更新され、チームメンバー全員から参照可能になる</li>
+      </ol>
+      <p>スキルは一意のID・名称・適用条件・実行ステップ・作成日時などのメタデータを持つ。既存のスキルと類似した解法が発見された場合は、新規登録ではなく既存スキルの更新（バージョンアップ）として処理される。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 380" width="680" height="380">
+          <rect width="680" height="380" fill="#f8f9fa" rx="8"/>
+          <defs>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#2a9d3f"/>
+            </marker>
+          </defs>
+
+          <!-- Title -->
+          <text x="340" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#202122">スキル蓄積サイクル</text>
+
+          <!-- Step 1: Task assigned -->
+          <rect x="40" y="55" width="150" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="115" y="81" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">タスク割り当て</text>
+          <text x="115" y="99" text-anchor="middle" font-size="10" fill="#555">エージェントへ配信</text>
+
+          <!-- Arrow 1->2 -->
+          <line x1="190" y1="85" x2="250" y2="85" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+          <!-- Step 2: Agent solves -->
+          <rect x="250" y="55" width="160" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="330" y="81" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">エージェント解決</text>
+          <text x="330" y="99" text-anchor="middle" font-size="10" fill="#555">デーモンがタスクを実行</text>
+
+          <!-- Arrow 2->3 -->
+          <line x1="410" y1="85" x2="470" y2="85" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+          <!-- Step 3: Skill extracted -->
+          <rect x="470" y="55" width="170" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="555" y="81" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">スキル抽出・保存</text>
+          <text x="555" y="99" text-anchor="middle" font-size="10" fill="#555">skills-lock.json に追記</text>
+
+          <!-- Arrow 3 down -->
+          <line x1="555" y1="115" x2="555" y2="175" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+          <!-- Step 4: Skill library -->
+          <rect x="390" y="175" width="330" height="65" rx="6" fill="#e8f5e9" stroke="#2a9d3f" stroke-width="1.5"/>
+          <text x="555" y="201" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">スキルライブラリ</text>
+          <text x="555" y="220" text-anchor="middle" font-size="10" fill="#555">チーム全体で共有・バージョン管理</text>
+
+          <!-- Arrow library -> future agent -->
+          <line x1="390" y1="207" x2="310" y2="207" stroke="#2a9d3f" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+          <!-- Step 5: Future agent -->
+          <rect x="120" y="175" width="190" height="65" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="215" y="201" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">次のエージェント</text>
+          <text x="215" y="220" text-anchor="middle" font-size="10" fill="#555">スキルを参照して実行</text>
+
+          <!-- Arrow future agent -> result -->
+          <line x1="215" y1="240" x2="215" y2="295" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+          <!-- Step 6: Compound effect -->
+          <rect x="40" y="295" width="600" height="60" rx="6" fill="#fff3cd" stroke="#f0ad4e" stroke-width="1.5"/>
+          <text x="340" y="320" text-anchor="middle" font-size="13" font-weight="bold" fill="#202122">複利効果: チームの能力が継続的に向上</text>
+          <text x="340" y="340" text-anchor="middle" font-size="11" fill="#555">解決した問題が増えるほど、将来のエージェントがより速く・より正確に動く</text>
+
+          <!-- Labels on arrows -->
+          <text x="220" y="78" text-anchor="middle" font-size="9" fill="#36c">配信</text>
+          <text x="440" y="78" text-anchor="middle" font-size="9" fill="#36c">完了</text>
+          <text x="570" y="152" text-anchor="middle" font-size="9" fill="#36c">登録</text>
+          <text x="350" y="200" text-anchor="middle" font-size="9" fill="#2a9d3f">参照</text>
+        </svg>
+        <div class="diagram-caption">図1: 再利用可能スキルの蓄積サイクル。タスク完了のたびにスキルが蓄積され、チームの能力が複利的に向上する。</div>
+      </div>
+
+      <h2 id="skill-storage">skills-lock.json によるスキル管理</h2>
+      <p>スキルの定義は <code>skills-lock.json</code> というロックファイルで一元管理される。このファイルは <code>package-lock.json</code> や <code>Pipfile.lock</code> と同様の役割を持ち、チームで共有するスキルの「確定版」を記録する。</p>
+      <p><code>skills-lock.json</code> の主な構造は以下の通りである。</p>
+      <pre><code>{
+  "version": 1,
+  "skills": [
+    {
+      "id": "deploy-production-v2",
+      "name": "本番環境デプロイ",
+      "version": "2.1.0",
+      "type": "deployment",
+      "trigger_patterns": ["deploy to production", "本番デプロイ"],
+      "steps": [ ... ],
+      "created_at": "2026-03-15T10:23:00Z",
+      "updated_at": "2026-04-01T08:00:00Z",
+      "usage_count": 42
+    }
+  ]
+}</code></pre>
+      <p>ロックファイルはGitリポジトリにコミットされ、チームメンバー全員が同一のスキル定義を参照する。スキルが更新されるとバージョン番号がインクリメントされ、変更履歴をGit上で追跡できる。フロントエンドの <code>features/skills/</code> モジュールはこのファイルを読み込み、スキル一覧の表示・検索・手動実行のUIを提供する。</p>
+      <p>スキルの衝突（同一タスクに複数のスキルが適合する場合）は、スコアリングアルゴリズムによって最適なスキルが自動選択される。スコアは使用回数・成功率・最終使用日時などの指標に基づいて計算される。</p>
+
+      <h2 id="skill-application">エージェントによるスキルの適用</h2>
+      <p><a href="agent-daemon.html">エージェントデーモン</a>は<a href="task-lifecycle.html">タスクライフサイクル</a>の開始フェーズで <code>skills-lock.json</code> を参照し、現在のタスクに適合するスキルを検索する。スキルが見つかった場合、エージェントはスキルに定義された手順を実行の出発点として利用する。</p>
+      <p>スキルの適用フローは以下の通りである。</p>
+      <ul>
+        <li><strong>スキルマッチング</strong> — タスクの説明文・種別・コンテキストを <code>trigger_patterns</code> と照合する</li>
+        <li><strong>スキルの読み込み</strong> — 適合するスキルのステップ定義をエージェントに渡す</li>
+        <li><strong>実行と監視</strong> — エージェントがスキルの手順に従って作業を進め、サーバーへ進捗をリアルタイム送信する</li>
+        <li><strong>フィードバックループ</strong> — 実行結果（成功/失敗・実行時間・変更点）がスキルのメタデータに反映され、次回の精度向上に活用される</li>
+      </ul>
+      <p>スキルが存在しない新規タスクの場合、エージェントはゼロから問題を解決した後、その解法を新しいスキルとして登録する。これによりスキルライブラリは継続的に拡張される。</p>
+      <p>スキル適用の透明性も重視されており、フロントエンドのタスク詳細画面では「このタスクにはスキル <em>deploy-production-v2</em> が適用されました」と表示される。チームメンバーはどのスキルがいつ・どのタスクで使われたかをトレースできる。</p>
+
+      <h2 id="compound-effect">スキルの複利効果</h2>
+      <p>Multicaのビジョンである「あなたの次の10人の採用はヒトではない」を支える最も重要なコンセプトが、スキルの複利効果（Compound Effect）である。</p>
+      <p>複利（Compound Interest）の比喩が示す通り、初期のスキル数が少なくても、時間が経つにつれて蓄積されたスキルが新たなタスクを効率化し、その効率化がさらに多くのスキルを生む好循環が生まれる。具体的には以下のような相乗効果が発生する。</p>
+      <ul>
+        <li><strong>実行時間の短縮</strong> — スキルが蓄積されるにつれて、デプロイや設定変更などのタスクが数分から数十秒に短縮される</li>
+        <li><strong>エラー率の低下</strong> — 実績あるスキルを再利用することで、同じミスが繰り返されにくくなる</li>
+        <li><strong>オンボーディングの加速</strong> — 新しいエージェントが既存スキルライブラリを活用することで、即戦力として機能できる</li>
+        <li><strong>知識の外部化</strong> — 特定のエージェントや人間メンバーのみが知っていた手順が、チームの共有知識として永続化される</li>
+      </ul>
+      <p><a href="multica-architecture.html">Multicaのアーキテクチャ</a>全体がスキルの複利効果を最大化するよう設計されており、PostgreSQLのpgvector拡張を活用したベクトル類似度検索によってスキルマッチングの精度を高め、スキルの再利用機会を最大化している。</p>
+
+      <h2 id="skill-types">スキルの種類と具体例</h2>
+      <p>現在Multicaで定義されているスキルは大きく以下のカテゴリに分類される。</p>
+
+      <h3 id="deployment-skills">デプロイメント系スキル</h3>
+      <p>最も一般的かつ高頻度で利用されるスキル群である。本番環境・ステージング環境・プレビュー環境へのデプロイ手順を定義し、環境変数の確認・ヘルスチェック・ロールバック手順を含む。</p>
+      <ul>
+        <li><code>deploy-production</code> — 本番環境への安全なデプロイ（ゼロダウンタイム）</li>
+        <li><code>deploy-staging</code> — ステージング環境へのデプロイと動作確認</li>
+        <li><code>deploy-preview</code> — PRごとのプレビュー環境の作成と削除</li>
+        <li><code>rollback-production</code> — 直前バージョンへの緊急ロールバック</li>
+      </ul>
+
+      <h3 id="migration-skills">マイグレーション系スキル</h3>
+      <p>データベーススキーマの変更を安全に行うためのスキル群である。マイグレーションファイルの作成・実行・ロールバックの標準手順を定義する。</p>
+      <ul>
+        <li><code>db-migration-apply</code> — ペンディングマイグレーションの適用と検証</li>
+        <li><code>db-migration-rollback</code> — 直前マイグレーションの安全なロールバック</li>
+        <li><code>db-migration-create</code> — 新規マイグレーションファイルのテンプレート生成</li>
+      </ul>
+
+      <h3 id="review-skills">コードレビュー系スキル</h3>
+      <p>Pull Requestのレビューを標準化するスキル群である。セキュリティチェック・パフォーマンス分析・コーディング規約への準拠確認などを自動化する。</p>
+      <ul>
+        <li><code>review-security</code> — 依存パッケージの脆弱性・SQLインジェクション・XSSリスクの検出</li>
+        <li><code>review-performance</code> — N+1クエリ・不要なレンダリング・メモリリークの検出</li>
+        <li><code>review-style</code> — プロジェクト固有のコーディング規約・命名規則への準拠確認</li>
+      </ul>
+
+      <h3 id="test-skills">テスト・品質保証系スキル</h3>
+      <p>テストの実行・カバレッジ計測・品質レポート生成を自動化するスキル群である。</p>
+      <ul>
+        <li><code>run-e2e-tests</code> — Playwrightによるエンドツーエンドテストの実行</li>
+        <li><code>coverage-report</code> — テストカバレッジのレポート生成と閾値チェック</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#skill-creation">スキルの生成プロセス</a></li>
+          <li><a href="#skill-storage">skills-lock.json によるスキル管理</a></li>
+          <li><a href="#skill-application">エージェントによるスキルの適用</a></li>
+          <li><a href="#compound-effect">スキルの複利効果</a></li>
+          <li><a href="#skill-types">スキルの種類と具体例</a></li>
+          <li class="toc-h3"><a href="#deployment-skills">デプロイメント系スキル</a></li>
+          <li class="toc-h3"><a href="#migration-skills">マイグレーション系スキル</a></li>
+          <li class="toc-h3"><a href="#review-skills">コードレビュー系スキル</a></li>
+          <li class="toc-h3"><a href="#test-skills">テスト・品質保証系スキル</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+          <li><a href="multica-architecture.html">Multicaアーキテクチャ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        <li><a href="multica-architecture.html">Multicaアーキテクチャ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

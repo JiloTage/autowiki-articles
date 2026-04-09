@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リアルタイムWebSocket同期 - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    リアルタイムWebSocket同期
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">リアルタイムWebSocket同期</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">MulticaのリアルタイムWebSocket同期は、バックエンドのHubとフロントエンドのWSClient/WSProviderを組み合わせ、タスク状態遷移をブラウザへ即座に反映するプッシュ通知基盤である。</div>
+
+      <p><b>リアルタイムWebSocket同期</b>は、<a href="multica.html">Multica</a>プラットフォームがタスク状態の変化をブラウザへリアルタイムに配信するための通信基盤である。Goバックエンドの<code>internal/realtime/</code>パッケージに実装されたHubが全クライアント接続を管理し、<a href="task-lifecycle.html">タスクライフサイクル</a>の各遷移（エンキュー・クレーム・開始・完了・失敗）でイベントをブロードキャストする。フロントエンドはTypeScriptで実装されたWSClient・WSProvider・<code>useRealtimeSync</code>フックの三層構造でこれを受け取り、UIを即座に更新する。ポーリングを排除したプッシュ型アーキテクチャにより、エージェントの進捗が人間メンバーのダッシュボードに遅延なく反映される。</p>
+
+      <h2 id="overview">概要</h2>
+      <p>Multicaが管理するAIエージェントは非同期にタスクを実行するため、タスク状態の変化をフロントエンドへ効率的に伝える仕組みが不可欠である。WebSocketによるプッシュ型通知は、RESTポーリングと比較して以下の利点を持つ。</p>
+      <ul>
+        <li><strong>低レイテンシ</strong> — タスク状態の変化がほぼ即座（数十ms以内）にブラウザへ届く</li>
+        <li><strong>サーバー負荷の軽減</strong> — ポーリングによる無駄なHTTPリクエストが不要になる</li>
+        <li><strong>双方向通信の基盤</strong> — 現在は受信専用（サーバー→クライアント）だが、将来的なインバウンドメッセージルーティングに対応できる設計となっている</li>
+        <li><strong>ワークスペース分離</strong> — 接続確立時にワークスペースIDで認証・フィルタリングを行い、テナント間のイベント混在を防ぐ</li>
+      </ul>
+
+      <p>WebSocket接続はHTTP経由のアップグレードハンドシェイクで確立され、バックエンドのエンドポイント（<code>/ws</code>）に接続した各ブラウザタブがクライアントとして登録される。<a href="multica-architecture.html">システムアーキテクチャ</a>上では、Next.jsフロントエンドとGoバックエンドの間の常時接続チャネルを形成する。</p>
+
+      <h2 id="backend-hub">バックエンドHub（gorilla/websocket）</h2>
+      <p>バックエンドのリアルタイム通信は<code>internal/realtime/</code>パッケージが担当する。中核となるのは<strong>Hub</strong>構造体で、全WebSocketクライアントのライフサイクルを管理する。</p>
+
+      <h3 id="hub-structure">Hub構造体</h3>
+      <p>HubはGoのgoroutineとchannelを組み合わせた並行処理モデルで設計されている。主要フィールドは以下の通りである。</p>
+      <ul>
+        <li><code>clients map[*Client]bool</code> — 接続中の全クライアントセット</li>
+        <li><code>broadcast chan []byte</code> — ブロードキャスト対象のメッセージキュー</li>
+        <li><code>register chan *Client</code> — 新規クライアントの登録チャネル</li>
+        <li><code>unregister chan *Client</code> — 切断クライアントの登録解除チャネル</li>
+      </ul>
+      <p>Hubは<code>Run()</code>メソッドをgoroutineで実行し続け、select文で各チャネルのイベントを処理する。クライアントの追加・削除・ブロードキャストはすべてこのgoroutineで直列処理されるため、マップへの競合アクセスが発生しない。</p>
+
+      <h3 id="gorilla-websocket">gorilla/websocket</h3>
+      <p>WebSocketプロトコルの実装にはGoの定番ライブラリである<strong>gorilla/websocket</strong>を使用する。HTTPハンドラ内でUpgraderを呼び出すことでHTTP接続をWebSocketにアップグレードし、接続ごとにgoroutineを起動してメッセージの読み書きを処理する。</p>
+      <pre><code>var upgrader = websocket.Upgrader{
+    CheckOrigin: func(r *http.Request) bool {
+        return true // 開発環境では全オリジンを許可
+    },
+}
+
+func (h *Hub) ServeWS(w http.ResponseWriter, r *http.Request) {
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        return
+    }
+    client := &amp;Client{hub: h, conn: conn, send: make(chan []byte, 256)}
+    h.register &lt;- client
+    go client.writePump()
+    go client.readPump()
+}</code></pre>
+
+      <h3 id="broadcast">Broadcast メカニズム</h3>
+      <p>サービス層（TaskService・各種ハンドラ）からイベントを受け取ったHubは、<code>Broadcast()</code>メソッドを通じて全クライアントへメッセージを送信する。メッセージはJSON形式でシリアライズされ、<code>broadcast</code>チャネルに投入される。Hubのメインループはこれを受け取り、登録済みの全クライアントの<code>send</code>チャネルに配信する。送信バッファが満杯のクライアントは遅延クライアントとみなされ、切断処理が行われる。</p>
+
+      <p>なお、クライアントから Hub への<strong>インバウンドメッセージルーティング</strong>（例：クライアントがコマンドを送信する機能）は現時点でTODOとして残されており、将来の拡張対象である。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360">
+          <rect width="720" height="360" fill="#f8f9fa" rx="8"/>
+          <defs>
+            <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/>
+            </marker>
+            <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36a"/>
+            </marker>
+          </defs>
+
+          <!-- TaskService box -->
+          <rect x="20" y="130" width="140" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="90" y="152" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">TaskService</text>
+          <text x="90" y="168" text-anchor="middle" font-size="10" fill="#555">internal/service/</text>
+
+          <!-- Hub box -->
+          <rect x="230" y="110" width="150" height="90" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="305" y="145" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Hub</text>
+          <text x="305" y="163" text-anchor="middle" font-size="10" fill="#555">internal/realtime/</text>
+          <text x="305" y="179" text-anchor="middle" font-size="10" fill="#555">gorilla/websocket</text>
+
+          <!-- Arrow TaskService -> Hub -->
+          <line x1="160" y1="155" x2="228" y2="155" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <text x="193" y="148" text-anchor="middle" font-size="10" fill="#36c">Broadcast()</text>
+
+          <!-- Client 1 -->
+          <rect x="470" y="50" width="130" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="72" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">WSClient</text>
+          <text x="535" y="88" text-anchor="middle" font-size="10" fill="#555">Browser Tab 1</text>
+
+          <!-- Client 2 -->
+          <rect x="470" y="155" width="130" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="177" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">WSClient</text>
+          <text x="535" y="193" text-anchor="middle" font-size="10" fill="#555">Browser Tab 2</text>
+
+          <!-- Client 3 -->
+          <rect x="470" y="260" width="130" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="535" y="282" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">WSClient</text>
+          <text x="535" y="298" text-anchor="middle" font-size="10" fill="#555">Browser Tab 3</text>
+
+          <!-- Arrows Hub -> Clients -->
+          <line x1="380" y1="145" x2="468" y2="80" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="380" y1="155" x2="468" y2="180" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <line x1="380" y1="165" x2="468" y2="280" stroke="#36c" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+          <!-- broadcast label -->
+          <text x="430" y="130" text-anchor="middle" font-size="10" fill="#36c">WebSocket</text>
+          <text x="430" y="143" text-anchor="middle" font-size="10" fill="#36c">broadcast</text>
+
+          <!-- Register/Unregister note -->
+          <rect x="230" y="240" width="150" height="50" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="305" y="261" text-anchor="middle" font-size="10" fill="#555">register / unregister</text>
+          <text x="305" y="277" text-anchor="middle" font-size="10" fill="#555">チャネルで管理</text>
+
+          <!-- Inbound TODO note -->
+          <rect x="20" y="240" width="140" height="50" rx="4" fill="#fff8e1" stroke="#e6a817" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="90" y="261" text-anchor="middle" font-size="10" fill="#b07000">Inbound routing</text>
+          <text x="90" y="277" text-anchor="middle" font-size="10" fill="#b07000">TODO（未実装）</text>
+
+          <!-- Title -->
+          <text x="360" y="26" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">図1: WebSocketブロードキャストのデータフロー</text>
+        </svg>
+        <div class="diagram-caption">図1: TaskServiceがHub.Broadcast()を呼び出し、Hubが全接続クライアントへWebSocketメッセージを配信する。インバウンドルーティングは将来実装予定。</div>
+      </div>
+
+      <h2 id="frontend-client">フロントエンドクライアント</h2>
+      <p>フロントエンドはThreeLayerで構成される。<code>shared/api/</code>の<strong>WSClient</strong>が低レベルのWebSocket管理を担い、<code>features/realtime/</code>の<strong>WSProvider</strong>がReactコンテキストとして接続を提供し、<strong>useRealtimeSync</strong>フックが各コンポーネントへイベントを分配する。</p>
+
+      <h3 id="wsclient">WSClient（shared/api/）</h3>
+      <p>WSClientはブラウザネイティブの<code>WebSocket</code> APIをラップしたTypeScriptクラスである。主な責務は以下の通りである。</p>
+      <ul>
+        <li>WebSocket接続の確立・維持・切断</li>
+        <li>接続失敗時の指数バックオフ再接続（デフォルト最大5回）</li>
+        <li>受信メッセージのJSONパースと型安全なイベントオブジェクトへの変換</li>
+        <li>イベントリスナー管理（addEventListener / removeEventListener パターン）</li>
+        <li>認証トークンをクエリパラメータまたはサブプロトコルで送付</li>
+      </ul>
+
+      <h3 id="wsprovider">WSProvider（features/realtime/）</h3>
+      <p>WSProviderはWSClientのシングルトンインスタンスをReact Contextで提供するコンポーネントである。アプリケーションのルートレイアウトでマウントされ、以下を管理する。</p>
+      <ul>
+        <li>認証状態の変化（ログイン・ログアウト・ワークスペース切替）に応じたWSClient接続の再初期化</li>
+        <li>接続状態（<code>connected</code> / <code>reconnecting</code> / <code>disconnected</code>）のReact状態への反映</li>
+        <li>コンポーネントアンマウント時のリソース解放</li>
+      </ul>
+
+      <h3 id="userealtimesync">useRealtimeSync フック</h3>
+      <p><code>useRealtimeSync</code>はWSProviderのコンテキストを消費し、受信したWebSocketイベントをZustandストアへ書き込むカスタムフックである。タスク関連のイベントを受け取るとIssue/Inboxストアを直接更新し、Reactの再レンダリングをトリガーする。</p>
+      <pre><code>// features/realtime/hooks/useRealtimeSync.ts（概略）
+export function useRealtimeSync() {
+  const { client } = useWSContext();
+  const { updateTask } = useIssueStore();
+
+  useEffect(() =&gt; {
+    if (!client) return;
+    const handler = (event: TaskEvent) =&gt; {
+      updateTask(event.payload);
+    };
+    client.addEventListener('task', handler);
+    return () =&gt; client.removeEventListener('task', handler);
+  }, [client, updateTask]);
+}</code></pre>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
+          <rect width="680" height="280" fill="#f8f9fa" rx="8"/>
+          <defs>
+            <marker id="arr2-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+          </defs>
+
+          <!-- Browser box -->
+          <rect x="10" y="20" width="660" height="240" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="340" y="44" text-anchor="middle" font-size="12" fill="#888" font-style="italic">Browser</text>
+
+          <!-- WSClient -->
+          <rect x="30" y="60" width="130" height="60" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="95" y="85" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">WSClient</text>
+          <text x="95" y="103" text-anchor="middle" font-size="10" fill="#555">shared/api/</text>
+
+          <!-- WSProvider -->
+          <rect x="230" y="60" width="150" height="60" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="305" y="85" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">WSProvider</text>
+          <text x="305" y="103" text-anchor="middle" font-size="10" fill="#555">features/realtime/</text>
+
+          <!-- useRealtimeSync -->
+          <rect x="460" y="60" width="170" height="60" rx="6" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="545" y="83" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">useRealtimeSync</text>
+          <text x="545" y="101" text-anchor="middle" font-size="10" fill="#555">features/realtime/</text>
+
+          <!-- Arrows top row -->
+          <line x1="160" y1="90" x2="228" y2="90" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2-blue)"/>
+          <text x="194" y="83" text-anchor="middle" font-size="9" fill="#36c">Context</text>
+          <line x1="380" y1="90" x2="458" y2="90" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2-blue)"/>
+          <text x="419" y="83" text-anchor="middle" font-size="9" fill="#36c">useContext</text>
+
+          <!-- Zustand Store -->
+          <rect x="345" y="175" width="160" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="425" y="200" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Zustand Store</text>
+          <text x="425" y="218" text-anchor="middle" font-size="10" fill="#555">issues / inbox</text>
+
+          <!-- UI Components -->
+          <rect x="540" y="175" width="110" height="60" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="595" y="200" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">UI Components</text>
+          <text x="595" y="218" text-anchor="middle" font-size="10" fill="#555">再レンダリング</text>
+
+          <!-- useRealtimeSync -> Zustand -->
+          <line x1="545" y1="120" x2="455" y2="173" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2-blue)"/>
+          <text x="512" y="150" text-anchor="middle" font-size="9" fill="#36c">updateTask()</text>
+
+          <!-- Zustand -> UI -->
+          <line x1="505" y1="205" x2="538" y2="205" stroke="#36c" stroke-width="1.5" marker-end="url(#arr2-blue)"/>
+
+          <!-- WebSocket from outside -->
+          <line x1="30" y1="90" x2="10" y2="90" stroke="#36c" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="20" y="108" text-anchor="middle" font-size="9" fill="#36c" transform="rotate(-90,20,108)">WebSocket</text>
+
+          <!-- Title -->
+          <text x="340" y="258" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">図2: フロントエンドのWebSocketデータフロー</text>
+        </svg>
+        <div class="diagram-caption">図2: WSClientが受信したWebSocketメッセージはWSProvider経由でuseRealtimeSyncフックに届き、Zustandストアを更新してUIを再レンダリングする。</div>
+      </div>
+
+      <h2 id="event-types">イベント種別とタスク状態遷移</h2>
+      <p>WebSocketを通じてブロードキャストされるイベントは、<a href="task-lifecycle.html">タスクライフサイクル</a>の各遷移フェーズに対応している。各イベントはJSON形式で送信され、<code>type</code>フィールドでイベント種別を識別する。</p>
+
+      <h3 id="task-events">タスクイベント一覧</h3>
+      <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="padding:8px 12px;text-align:left;border:1px solid #a2a9b1;font-size:13px;">イベント type</th>
+            <th style="padding:8px 12px;text-align:left;border:1px solid #a2a9b1;font-size:13px;">タスク遷移</th>
+            <th style="padding:8px 12px;text-align:left;border:1px solid #a2a9b1;font-size:13px;">発火元</th>
+            <th style="padding:8px 12px;text-align:left;border:1px solid #a2a9b1;font-size:13px;">主なペイロード</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-family:monospace;font-size:12px;">task.enqueued</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">pending → queued</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">EnqueueHandler</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">task_id, issue_id, workspace_id</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-family:monospace;font-size:12px;">task.claimed</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">queued → claimed</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">TaskService.Claim()</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">task_id, agent_id, claimed_at</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-family:monospace;font-size:12px;">task.started</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">claimed → in_progress</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">TaskService.Start()</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">task_id, started_at</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-family:monospace;font-size:12px;">task.completed</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">in_progress → done</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">TaskService.Complete()</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">task_id, result_summary, completed_at</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-family:monospace;font-size:12px;">task.failed</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">in_progress → failed</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">TaskService.Fail()</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;font-size:12px;">task_id, error_message, failed_at</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>イベントペイロードの基本構造は以下のJSONスキーマに従う。</p>
+      <pre><code>{
+  "type": "task.started",
+  "workspace_id": "ws_abc123",
+  "payload": {
+    "task_id": "task_xyz",
+    "issue_id": "issue_001",
+    "agent_id": "agent_claude",
+    "started_at": "2026-04-09T12:34:56Z"
+  }
+}</code></pre>
+      <p><code>workspace_id</code>フィールドはフロントエンド側でフィルタリングに使用され、自分のワークスペース以外のイベントは無視される。これによりマルチテナント環境での情報漏洩を防ぐ。</p>
+
+      <h2 id="connection-lifecycle">接続ライフサイクル</h2>
+      <p>WebSocket接続はブラウザセッション開始から終了までの全過程を通じて管理される。以下に接続確立から切断・再接続までのフローを示す。</p>
+
+      <h3 id="handshake">接続確立（ハンドシェイク）</h3>
+      <ol>
+        <li>ユーザーがログインし、認証トークンを取得する</li>
+        <li>WSProviderがWSClientを初期化し、<code>wss://api.multica.ai/ws?token=JWT&amp;workspace_id=WS_ID</code>へ接続を試みる</li>
+        <li>バックエンドがJWTを検証し、<code>workspace_id</code>をクライアントメタデータとして保存する</li>
+        <li>アップグレードハンドシェイク完了後、HubがClientを<code>register</code>チャネルで受け付ける</li>
+        <li>WSClientの接続状態が<code>connected</code>に更新され、UIに接続インジケータが表示される</li>
+      </ol>
+
+      <h3 id="reconnect">再接続戦略</h3>
+      <p>ネットワーク障害やサーバー再起動などで接続が切断された場合、WSClientは指数バックオフ（初回1秒、最大30秒）で自動再接続を試みる。再接続中はUIに警告バナーが表示され、再接続成功後は最新のタスク状態をREST APIで再取得してUIを同期する。この「再接続後のRESTフォールバック」により、WebSocket切断中のイベント欠損が補完される。</p>
+
+      <h3 id="disconnection">切断処理</h3>
+      <p>ブラウザタブのクローズやナビゲーションによって接続が閉じられると、WSClientはWebSocketの<code>close</code>イベントを受け取り、Hubの<code>unregister</code>チャネルへClientを送信する。HubはClientを<code>clients</code>マップから削除し、<code>send</code>チャネルをcloseすることでgoroutineをクリーンアップする。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <rect width="680" height="340" fill="#f8f9fa" rx="8"/>
+          <defs>
+            <marker id="arr3-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#36c"/>
+            </marker>
+            <marker id="arr3-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#c00"/>
+            </marker>
+            <marker id="arr3-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#080"/>
+            </marker>
+          </defs>
+
+          <!-- Timeline labels -->
+          <text x="340" y="22" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">図3: WebSocket接続ライフサイクル</text>
+
+          <!-- Column headers -->
+          <text x="100" y="48" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Browser / WSClient</text>
+          <text x="340" y="48" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Go Backend / Hub</text>
+          <text x="570" y="48" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">TaskService</text>
+
+          <!-- Vertical lifelines -->
+          <line x1="100" y1="55" x2="100" y2="320" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="340" y1="55" x2="340" y2="320" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="570" y1="55" x2="570" y2="320" stroke="#a2a9b1" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Step 1: HTTP Upgrade -->
+          <line x1="100" y1="80" x2="338" y2="80" stroke="#36c" stroke-width="1.5" marker-end="url(#arr3-blue)"/>
+          <text x="220" y="74" text-anchor="middle" font-size="10" fill="#36c">HTTP Upgrade Request</text>
+
+          <!-- Step 2: 101 Switching Protocols -->
+          <line x1="340" y1="100" x2="102" y2="100" stroke="#080" stroke-width="1.5" marker-end="url(#arr3-green)"/>
+          <text x="220" y="94" text-anchor="middle" font-size="10" fill="#080">101 Switching Protocols</text>
+
+          <!-- Hub register -->
+          <rect x="300" y="112" width="80" height="20" rx="3" fill="#e8f0fe" stroke="#36c" stroke-width="1"/>
+          <text x="340" y="126" text-anchor="middle" font-size="10" fill="#36c">register ← Client</text>
+
+          <!-- Step 3: Task event broadcast -->
+          <line x1="570" y1="165" x2="342" y2="165" stroke="#36c" stroke-width="1.5" marker-end="url(#arr3-blue)"/>
+          <text x="460" y="159" text-anchor="middle" font-size="10" fill="#36c">Broadcast(task.started)</text>
+
+          <line x1="340" y1="185" x2="102" y2="185" stroke="#36c" stroke-width="1.5" marker-end="url(#arr3-blue)"/>
+          <text x="220" y="179" text-anchor="middle" font-size="10" fill="#36c">WS Message (JSON)</text>
+
+          <!-- Client processes event -->
+          <rect x="60" y="197" width="80" height="20" rx="3" fill="#e8f0fe" stroke="#36c" stroke-width="1"/>
+          <text x="100" y="211" text-anchor="middle" font-size="10" fill="#36c">updateTask()</text>
+
+          <!-- Step 4: Disconnect -->
+          <line x1="100" y1="250" x2="338" y2="250" stroke="#c00" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr3-red)"/>
+          <text x="220" y="244" text-anchor="middle" font-size="10" fill="#c00">Connection Close</text>
+
+          <!-- Hub unregister -->
+          <rect x="300" y="262" width="80" height="20" rx="3" fill="#fde8e8" stroke="#c00" stroke-width="1"/>
+          <text x="340" y="276" text-anchor="middle" font-size="10" fill="#c00">unregister ← Client</text>
+
+          <!-- Reconnect arrow -->
+          <path d="M100,290 Q60,300 100,310" stroke="#36c" stroke-width="1.5" fill="none" stroke-dasharray="3,2" marker-end="url(#arr3-blue)"/>
+          <text x="28" y="306" text-anchor="middle" font-size="9" fill="#36c">再接続</text>
+          <text x="28" y="316" text-anchor="middle" font-size="9" fill="#36c">バックオフ</text>
+        </svg>
+        <div class="diagram-caption">図3: WebSocket接続のライフサイクル。ハンドシェイク→イベント受信→切断→再接続のシーケンスを示す。</div>
+      </div>
+
+      <h3 id="future-work">今後の課題</h3>
+      <p>現在のWebSocket実装はサーバーからクライアントへの一方向ブロードキャストに特化している。将来的な拡張として以下が検討されている。</p>
+      <ul>
+        <li><strong>インバウンドメッセージルーティング</strong> — クライアントからサーバーへのコマンド送信（現在TODO）</li>
+        <li><strong>ルームベース配信</strong> — ワークスペースIDに加え、Issueレベルのルームへの絞り込みブロードキャスト</li>
+        <li><strong>接続数スケーリング</strong> — 複数Goインスタンス間でのHubメッセージ共有（Redis Pub/Subなど）</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#backend-hub">バックエンドHub</a></li>
+          <li class="toc-h3"><a href="#hub-structure">Hub構造体</a></li>
+          <li class="toc-h3"><a href="#gorilla-websocket">gorilla/websocket</a></li>
+          <li class="toc-h3"><a href="#broadcast">Broadcastメカニズム</a></li>
+          <li><a href="#frontend-client">フロントエンドクライアント</a></li>
+          <li class="toc-h3"><a href="#wsclient">WSClient</a></li>
+          <li class="toc-h3"><a href="#wsprovider">WSProvider</a></li>
+          <li class="toc-h3"><a href="#userealtimesync">useRealtimeSync</a></li>
+          <li><a href="#event-types">イベント種別と状態遷移</a></li>
+          <li class="toc-h3"><a href="#task-events">タスクイベント一覧</a></li>
+          <li><a href="#connection-lifecycle">接続ライフサイクル</a></li>
+          <li class="toc-h3"><a href="#handshake">接続確立</a></li>
+          <li class="toc-h3"><a href="#reconnect">再接続戦略</a></li>
+          <li class="toc-h3"><a href="#disconnection">切断処理</a></li>
+          <li class="toc-h3"><a href="#future-work">今後の課題</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+          <li><a href="multica-architecture.html">システムアーキテクチャ</a></li>
+          <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        <li><a href="multica-architecture.html">システムアーキテクチャ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

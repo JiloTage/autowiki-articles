@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>セルフホスティング - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    セルフホスティング
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">セルフホスティング</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">MulticaをDockerおよびローカル環境で自己ホストするための手順・前提条件・環境変数設定を解説する。</div>
+
+      <p><b>セルフホスティング</b>（self-hosting）とは、<a href="multica.html">Multica</a>プラットフォームをクラウドマネージドサービスに頼らず、自社または個人のインフラ上で運用する方式である。MulticaはオープンソースでGitHubに公開されており、DockerおよびDocker Composeを利用した手軽な構成から、worktree機能を活用した複数チェックアウトの並行動作まで柔軟に対応している。セルフホスティングによって、データを自組織の管理下に置き、ネットワーク環境やセキュリティポリシーに合わせたカスタマイズが可能となる。</p>
+
+      <h2 id="overview">概要</h2>
+      <p>Multicaのセルフホスティング構成は大きく2通りある。一つはDockerを用いた最小構成で、数コマンドで本番に近い環境を立ち上げられる。もう一つは手動セットアップ（Manual Setup）で、Node.js・Go・PostgreSQLを個別に準備しフロントエンド・バックエンドを直接起動する開発者向けの方式である。いずれの方式でも<a href="multica-architecture.html">アーキテクチャ</a>上の構成要素（Next.jsフロントエンド、Goバックエンド、PostgreSQL + pgvector）は共通である。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340">
+          <rect width="680" height="340" fill="#f8f9fa" rx="8"/>
+          <!-- Title -->
+          <text x="340" y="28" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Multicaセルフホスティング構成図</text>
+
+          <!-- Docker Host box -->
+          <rect x="20" y="50" width="380" height="240" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="210" y="74" text-anchor="middle" font-size="11" fill="#555">Docker Host</text>
+
+          <!-- PostgreSQL container -->
+          <rect x="40" y="86" width="150" height="64" rx="6" fill="#e8f4fd" stroke="#36c" stroke-width="1.5"/>
+          <text x="115" y="113" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">PostgreSQL 17</text>
+          <text x="115" y="131" text-anchor="middle" font-size="10" fill="#555">pgvector/pg17 (port 5432)</text>
+
+          <!-- App (make start) -->
+          <rect x="220" y="86" width="160" height="64" rx="6" fill="#e8f9f0" stroke="#2a9d5c" stroke-width="1.5"/>
+          <text x="300" y="109" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">make start</text>
+          <text x="300" y="127" text-anchor="middle" font-size="10" fill="#555">frontend :3000 / backend :8080</text>
+
+          <!-- Migration -->
+          <rect x="80" y="190" width="220" height="50" rx="6" fill="#fff8e1" stroke="#e6a817" stroke-width="1.5"/>
+          <text x="190" y="211" text-anchor="middle" font-size="11" fill="#202122" font-weight="bold">go run ./cmd/migrate up</text>
+          <text x="190" y="229" text-anchor="middle" font-size="10" fill="#555">DBスキーマ初期化 (server/)</text>
+
+          <!-- Arrow: PostgreSQL → migrate -->
+          <line x1="115" y1="150" x2="155" y2="190" stroke="#36c" stroke-width="1.5" marker-end="url(#arr1)"/>
+          <!-- Arrow: migrate → app -->
+          <line x1="230" y1="190" x2="280" y2="150" stroke="#2a9d5c" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <!-- Local Machine box -->
+          <rect x="430" y="50" width="230" height="240" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="545" y="74" text-anchor="middle" font-size="11" fill="#555">Local Machine</text>
+
+          <!-- Agent Daemon -->
+          <rect x="450" y="86" width="190" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="545" y="109" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">Agent Daemon</text>
+          <text x="545" y="127" text-anchor="middle" font-size="10" fill="#555">multica daemon start</text>
+
+          <!-- CLI -->
+          <rect x="450" y="190" width="190" height="64" rx="6" fill="#f0f4ff" stroke="#36c" stroke-width="1.5"/>
+          <text x="545" y="213" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">multica CLI</text>
+          <text x="545" y="231" text-anchor="middle" font-size="10" fill="#555">multica login / task push</text>
+
+          <!-- Arrow: app → daemon -->
+          <line x1="400" y1="118" x2="450" y2="118" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <text x="424" y="113" text-anchor="middle" font-size="9" fill="#7c3aed">WebSocket</text>
+
+          <defs>
+            <marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2a9d5c"/></marker>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: Multicaセルフホスティング構成図。Dockerホスト上でPostgreSQL・アプリが動作し、ローカルマシンからエージェントデーモンとCLIで接続する。</div>
+      </div>
+
+      <h2 id="prerequisites">前提条件</h2>
+      <p>セルフホスティングを行うには以下のソフトウェアが必要である。Dockerを使用する場合でも、初回セットアップやマイグレーションのためにNode.jsとGoが必要になる。</p>
+      <ul>
+        <li><strong>Node.js v20以上</strong> — フロントエンドのビルドおよびpnpmの動作に必要</li>
+        <li><strong>pnpm v10.28以上</strong> — モノレポのパッケージ管理に使用。<code>npm install -g pnpm</code>または<code>corepack enable</code>でインストール</li>
+        <li><strong>Go v1.26以上</strong> — バックエンドのビルドおよびマイグレーション実行に必要</li>
+        <li><strong>Docker（Docker Compose含む）</strong> — PostgreSQLコンテナの起動に必要。Docker Desktop v4以降推奨</li>
+        <li><strong>Make</strong> — <code>make start</code>・<code>make setup</code>コマンドの実行に必要</li>
+        <li><strong>Git</strong> — リポジトリのクローンに必要</li>
+      </ul>
+      <p>macOSおよびLinuxが主要な動作環境である。WindowsではWSL2（Windows Subsystem for Linux 2）上での動作が推奨される。</p>
+
+      <h2 id="docker-setup">Dockerを使ったセットアップ</h2>
+      <p>最短でMulticaを起動する手順を以下に示す。これがもっとも推奨される導入方式であり、PostgreSQLをDockerコンテナで管理することで環境差異を最小限に抑えられる。</p>
+
+      <h3 id="docker-clone">リポジトリのクローン</h3>
+      <pre><code>git clone https://github.com/multica-ai/multica.git
+cd multica</code></pre>
+
+      <h3 id="docker-env">環境変数の設定</h3>
+      <p>リポジトリには<code>.env.example</code>が同梱されており、これをコピーして編集する。最低限<code>JWT_SECRET</code>を設定しなければならない。</p>
+      <pre><code>cp .env.example .env
+# .env を開き JWT_SECRET を編集する</code></pre>
+
+      <h3 id="docker-compose">PostgreSQLの起動</h3>
+      <p>Docker Composeを使ってPostgreSQLコンテナを起動する。イメージには<code>pgvector/pg17</code>が使用される。</p>
+      <pre><code>docker compose up -d</code></pre>
+      <p>コンテナが正常に起動したことを確認するには<code>docker compose ps</code>を実行する。</p>
+
+      <h3 id="docker-migrate">マイグレーションの実行</h3>
+      <p>データベーススキーマを初期化するため、Goのマイグレーションコマンドを実行する。</p>
+      <pre><code>cd server &amp;&amp; go run ./cmd/migrate up &amp;&amp; cd ..</code></pre>
+
+      <h3 id="docker-start">アプリケーションの起動</h3>
+      <p><code>make start</code>でフロントエンドとバックエンドを同時に起動する。フロントエンドはポート3000、バックエンドはポート8080でリッスンする。</p>
+      <pre><code>make start</code></pre>
+      <p>起動後、ブラウザで<code>http://localhost:3000</code>にアクセスするとMulticaのUIが表示される。<a href="multica-cli.html">multica CLI</a>の<code>multica login</code>コマンドでログインし、エージェントデーモンを接続できる。</p>
+
+      <h2 id="manual-setup">手動セットアップ（開発者向け）</h2>
+      <p>Dockerを使わずに全コンポーネントをローカルで管理したい開発者向けの手順である。</p>
+
+      <h3 id="manual-install">依存パッケージのインストール</h3>
+      <pre><code>pnpm install</code></pre>
+      <p>Turborepoが<code>apps/web</code>・<code>packages/</code>配下の全パッケージを一括インストールする。</p>
+
+      <h3 id="manual-setup-cmd">初回セットアップコマンド</h3>
+      <p><code>make setup</code>は初回に1度だけ実行するコマンドで、以下の処理を自動的に行う。</p>
+      <ul>
+        <li>共有PostgreSQLコンテナが起動していることを確認</li>
+        <li>アプリ用データベースを新規作成</li>
+        <li>マイグレーションを実行してスキーマを初期化</li>
+      </ul>
+      <pre><code>make setup</code></pre>
+      <p>2回目以降は<code>make start</code>のみで起動できる。</p>
+
+      <h3 id="manual-start">アプリの起動</h3>
+      <pre><code>make start</code></pre>
+      <p>内部では<code>pnpm dev</code>（フロントエンド）と<code>go run ./cmd/server</code>（バックエンド）が並行して起動する。</p>
+
+      <h2 id="env-configuration">環境変数の設定</h2>
+      <p>Multicaの動作は<code>.env</code>ファイルで制御される。以下に主要な環境変数を示す。</p>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f0f4ff;">
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">変数名</th>
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">必須</th>
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">説明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>JWT_SECRET</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">必須</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">JWTトークン署名用シークレット。32文字以上の乱数文字列を推奨</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>DATABASE_URL</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">必須</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">PostgreSQL接続文字列（例: <code>postgres://user:pass@localhost:5432/multica</code>）</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>NEXT_PUBLIC_API_URL</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">任意</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">フロントエンドからバックエンドへのAPIエンドポイント。デフォルト: <code>http://localhost:8080</code></td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>PORT</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">任意</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">バックエンドのリッスンポート。デフォルト: <code>8080</code></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>FRONTEND_PORT</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">任意</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">フロントエンドのリッスンポート。デフォルト: <code>3000</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>本番環境では<code>JWT_SECRET</code>に<code>openssl rand -base64 48</code>などで生成した十分な長さの乱数を使用することが強く推奨される。</p>
+
+      <h2 id="worktree-support">Worktreeサポート</h2>
+      <p>Multicaはgit worktreeを活用した複数チェックアウトの並行動作をサポートしている。これにより、1台のマシン上で異なるブランチを複数の独立したMulticaインスタンスとして同時に起動できる。</p>
+
+      <h3 id="worktree-concept">Worktreeとは</h3>
+      <p>通常、<code>git clone</code>は単一の作業ディレクトリを作成する。<code>git worktree add</code>を使うと、同一リポジトリの別ブランチを別ディレクトリに展開でき、それぞれが独立した<code>.env</code>を持てる。Multicaではこの仕組みを利用して、1つのPostgreSQLコンテナを共有しながら各worktreeが異なるデータベース名とポートを使用する。</p>
+
+      <h3 id="worktree-env">Worktree用環境変数ファイル</h3>
+      <p>各worktreeのルートに<code>.env.worktree</code>を作成し、そのチェックアウト固有の設定を記述する。</p>
+      <pre><code># .env.worktree の例（feature/new-ui ブランチ用）
+DATABASE_NAME=multica_feature_new_ui
+PORT=8082
+FRONTEND_PORT=3002</code></pre>
+      <p><code>.env.worktree</code>の値は<code>.env</code>の同名キーを上書きするため、共通設定（<code>JWT_SECRET</code>など）は<code>.env</code>に、worktree固有設定は<code>.env.worktree</code>に分離して管理できる。</p>
+
+      <h3 id="worktree-db">共有PostgreSQLコンテナ</h3>
+      <p>postgresコンテナは最初のworktreeで<code>docker compose up -d</code>を実行した際に起動し、以降のworktreeはすでに起動中のコンテナを再利用する。各worktreeは<code>DATABASE_NAME</code>で指定した別々のデータベースを使用するため、データが混在することなく独立して動作する。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280">
+          <rect width="640" height="280" fill="#f8f9fa" rx="8"/>
+          <text x="320" y="26" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Worktree共有構成</text>
+
+          <!-- Shared PostgreSQL -->
+          <rect x="220" y="44" width="200" height="60" rx="6" fill="#e8f4fd" stroke="#36c" stroke-width="2"/>
+          <text x="320" y="69" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">PostgreSQL (共有)</text>
+          <text x="320" y="87" text-anchor="middle" font-size="10" fill="#555">port 5432 / Docker</text>
+
+          <!-- DB icons -->
+          <ellipse cx="200" cy="180" rx="60" ry="18" fill="#dbeafe" stroke="#36c" stroke-width="1.2"/>
+          <text x="200" y="185" text-anchor="middle" font-size="10" fill="#36c">multica_main</text>
+          <ellipse cx="320" cy="180" rx="60" ry="18" fill="#dbeafe" stroke="#36c" stroke-width="1.2"/>
+          <text x="320" y="185" text-anchor="middle" font-size="10" fill="#36c">multica_feat_a</text>
+          <ellipse cx="440" cy="180" rx="60" ry="18" fill="#dbeafe" stroke="#36c" stroke-width="1.2"/>
+          <text x="440" y="185" text-anchor="middle" font-size="10" fill="#36c">multica_feat_b</text>
+
+          <!-- Worktree labels -->
+          <text x="200" y="220" text-anchor="middle" font-size="10" fill="#555">worktree: main</text>
+          <text x="200" y="234" text-anchor="middle" font-size="10" fill="#555">:3000/:8080</text>
+          <text x="320" y="220" text-anchor="middle" font-size="10" fill="#555">worktree: feature/a</text>
+          <text x="320" y="234" text-anchor="middle" font-size="10" fill="#555">:3002/:8082</text>
+          <text x="440" y="220" text-anchor="middle" font-size="10" fill="#555">worktree: feature/b</text>
+          <text x="440" y="234" text-anchor="middle" font-size="10" fill="#555">:3004/:8084</text>
+
+          <!-- Arrows -->
+          <line x1="290" y1="104" x2="220" y2="162" stroke="#36c" stroke-width="1.2" marker-end="url(#wa1)"/>
+          <line x1="320" y1="104" x2="320" y2="162" stroke="#36c" stroke-width="1.2" marker-end="url(#wa2)"/>
+          <line x1="350" y1="104" x2="420" y2="162" stroke="#36c" stroke-width="1.2" marker-end="url(#wa3)"/>
+
+          <defs>
+            <marker id="wa1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+            <marker id="wa2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+            <marker id="wa3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図2: Worktree共有構成。複数のgit worktreeが1つのPostgreSQLコンテナを共有し、それぞれ異なるデータベースとポートを使用する。</div>
+      </div>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#prerequisites">前提条件</a></li>
+          <li><a href="#docker-setup">Dockerを使ったセットアップ</a></li>
+          <li class="toc-h3"><a href="#docker-clone">リポジトリのクローン</a></li>
+          <li class="toc-h3"><a href="#docker-env">環境変数の設定</a></li>
+          <li class="toc-h3"><a href="#docker-compose">PostgreSQLの起動</a></li>
+          <li class="toc-h3"><a href="#docker-migrate">マイグレーションの実行</a></li>
+          <li class="toc-h3"><a href="#docker-start">アプリケーションの起動</a></li>
+          <li><a href="#manual-setup">手動セットアップ（開発者向け）</a></li>
+          <li class="toc-h3"><a href="#manual-install">依存パッケージのインストール</a></li>
+          <li class="toc-h3"><a href="#manual-setup-cmd">初回セットアップコマンド</a></li>
+          <li class="toc-h3"><a href="#manual-start">アプリの起動</a></li>
+          <li><a href="#env-configuration">環境変数の設定</a></li>
+          <li><a href="#worktree-support">Worktreeサポート</a></li>
+          <li class="toc-h3"><a href="#worktree-concept">Worktreeとは</a></li>
+          <li class="toc-h3"><a href="#worktree-env">Worktree用環境変数ファイル</a></li>
+          <li class="toc-h3"><a href="#worktree-db">共有PostgreSQLコンテナ</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="multica-cli.html">multica CLI</a></li>
+          <li><a href="multica-architecture.html">アーキテクチャ</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="multica-cli.html">multica CLI</a></li>
+        <li><a href="multica-architecture.html">アーキテクチャ</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

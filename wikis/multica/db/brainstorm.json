@@ -1,0 +1,69 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "proposed_slug": "agent-daemon",
+      "proposed_title": "エージェントデーモン",
+      "source_id": "multica",
+      "rationale": "Multicaの中核機能。ローカルマシン上でAI CLIを実行するデーモンプロセスの仕組みを詳解する",
+      "interestingness_score": 0.95,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "task-lifecycle",
+      "proposed_title": "タスクライフサイクル",
+      "source_id": "multica",
+      "rationale": "エンキュー→クレーム→開始→完了のタスク遷移とWebSocketイベントの詳細",
+      "interestingness_score": 0.92,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "reusable-skills",
+      "proposed_title": "再利用可能スキル",
+      "source_id": "multica",
+      "rationale": "Multicaのスキル蓄積機能。エージェントが学習した解法を再利用する仕組み",
+      "interestingness_score": 0.9,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "multica-cli",
+      "proposed_title": "multica CLI",
+      "source_id": "multica",
+      "rationale": "認証・ワークスペース管理・デーモン操作のためのCLIツールの全コマンドリファレンス",
+      "interestingness_score": 0.88,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "realtime-websocket",
+      "proposed_title": "リアルタイムWebSocket同期",
+      "source_id": "multica",
+      "rationale": "WebSocketを使ったリアルタイム状態同期の仕組みとクライアント実装",
+      "interestingness_score": 0.87,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "self-hosting",
+      "proposed_title": "セルフホスティング",
+      "source_id": "multica",
+      "rationale": "DockerによるMulticaのセルフホスト手順と設定オプション",
+      "interestingness_score": 0.85,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "multica-architecture",
+      "proposed_title": "Multicaシステムアーキテクチャ詳解",
+      "source_id": "multica",
+      "rationale": "Next.js/Go/PostgreSQLの3層構造とfeature-based architectureの詳細設計",
+      "interestingness_score": 0.83,
+      "status": "processing"
+    },
+    {
+      "proposed_slug": "multi-workspace",
+      "proposed_title": "マルチワークスペース管理",
+      "source_id": "multica",
+      "rationale": "workspace_id分離によるマルチテナント設計と複数チームの独立運用",
+      "interestingness_score": 0.8,
+      "status": "processing"
+    }
+  ]
+}

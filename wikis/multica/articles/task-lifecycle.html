@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスクライフサイクル - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    タスクライフサイクル
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">タスクライフサイクル</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">MulticaのタスクライフサイクルはGo製タスクサービス（internal/service/task.go）が管理し、エンキュー→クレーム→開始→完了/失敗の各状態遷移でWebSocketイベントをブロードキャストしながらエージェントによる自律的なIssue解決を実現する。</div>
+
+      <p><b>タスクライフサイクル</b>とは、<a href="multica.html">Multica</a>プラットフォームにおいてIssueに割り当てられたエージェントタスクが「エンキュー（enqueue）」から「完了（complete）または失敗（fail）」へと至る一連の状態遷移プロセスを指す。バックエンドの<code>internal/service/task.go</code>がオーケストレータとして機能し、各フェーズで<a href="realtime-websocket.html">WebSocketイベント</a>をすべての接続クライアントへブロードキャストすることでリアルタイム同期を実現している。Issueのステータスはタスクのステータスと自動的に同期されるため、プロジェクトボード上で進捗が即座に反映される。</p>
+
+      <h2 id="lifecycle-overview">ライフサイクル状態の概要</h2>
+      <p>Multicaのタスクは4つの主要状態と2つの終端状態から構成されるステートマシンとして管理される。状態遷移は一方向性であり、後退（ロールバック）はサポートされない。各状態は対応するIssueステータスと1対1で同期される。</p>
+
+      <table class="wiki-table" style="width:100%;border-collapse:collapse;margin:1em 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">タスク状態</th>
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">Issueステータス</th>
+            <th style="padding:8px 12px;border:1px solid #a2a9b1;text-align:left;">説明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>enqueued</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">待機中</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">エージェントへの割り当てが確定し、デーモンによるクレームを待つ状態</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>claimed</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">割り当て済み</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">特定のデーモンインスタンスがタスクを排他的に取得した状態</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>started</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">進行中</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">エージェントCLIプロセスが起動し、実際の作業を実行している状態</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>completed</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">完了</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">エージェントCLIが正常終了し、成果物が報告された終端状態</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;"><code>failed</code></td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">失敗</td>
+            <td style="padding:8px 12px;border:1px solid #a2a9b1;">エラー・タイムアウト等によりエージェントCLIが異常終了した終端状態</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 260" width="720" height="260">
+          <rect width="720" height="260" fill="#f8f9fa" rx="8"/>
+
+          <!-- Enqueued -->
+          <rect x="30" y="100" width="120" height="56" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="90" y="124" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">enqueued</text>
+          <text x="90" y="142" text-anchor="middle" font-size="10" fill="#555">待機中</text>
+
+          <!-- Claimed -->
+          <rect x="210" y="100" width="120" height="56" rx="8" fill="#fff" stroke="#a2a9b1" stroke-width="2"/>
+          <text x="270" y="124" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">claimed</text>
+          <text x="270" y="142" text-anchor="middle" font-size="10" fill="#555">割り当て済み</text>
+
+          <!-- Started -->
+          <rect x="390" y="100" width="120" height="56" rx="8" fill="#e8f0fe" stroke="#36c" stroke-width="2"/>
+          <text x="450" y="124" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">started</text>
+          <text x="450" y="142" text-anchor="middle" font-size="10" fill="#555">進行中</text>
+
+          <!-- Completed -->
+          <rect x="570" y="50" width="120" height="56" rx="8" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+          <text x="630" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">completed</text>
+          <text x="630" y="92" text-anchor="middle" font-size="10" fill="#555">完了</text>
+
+          <!-- Failed -->
+          <rect x="570" y="154" width="120" height="56" rx="8" fill="#fce8e6" stroke="#d93025" stroke-width="2"/>
+          <text x="630" y="178" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">failed</text>
+          <text x="630" y="196" text-anchor="middle" font-size="10" fill="#555">失敗</text>
+
+          <!-- Arrow: enqueued -> claimed -->
+          <line x1="150" y1="128" x2="208" y2="128" stroke="#36c" stroke-width="2" marker-end="url(#arr1)"/>
+          <text x="179" y="122" text-anchor="middle" font-size="9" fill="#36c">claim</text>
+
+          <!-- Arrow: claimed -> started -->
+          <line x1="330" y1="128" x2="388" y2="128" stroke="#36c" stroke-width="2" marker-end="url(#arr2)"/>
+          <text x="359" y="122" text-anchor="middle" font-size="9" fill="#36c">start</text>
+
+          <!-- Arrow: started -> completed -->
+          <line x1="510" y1="115" x2="568" y2="90" stroke="#34a853" stroke-width="2" marker-end="url(#arr3)"/>
+          <text x="543" y="97" text-anchor="middle" font-size="9" fill="#34a853">complete</text>
+
+          <!-- Arrow: started -> failed -->
+          <line x1="510" y1="141" x2="568" y2="166" stroke="#d93025" stroke-width="2" marker-end="url(#arr4)"/>
+          <text x="543" y="165" text-anchor="middle" font-size="9" fill="#d93025">fail</text>
+
+          <!-- Issue trigger label -->
+          <rect x="30" y="20" width="160" height="30" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="110" y="40" text-anchor="middle" font-size="11" fill="#202122">Issue assignee変更</text>
+          <line x1="90" y1="50" x2="90" y2="98" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr5)"/>
+
+          <!-- WS broadcast labels -->
+          <text x="270" y="180" text-anchor="middle" font-size="9" fill="#888">WS: task.claimed</text>
+          <text x="450" y="180" text-anchor="middle" font-size="9" fill="#888">WS: task.started</text>
+          <text x="630" y="124" text-anchor="middle" font-size="9" fill="#888">WS: task.completed</text>
+          <text x="630" y="222" text-anchor="middle" font-size="9" fill="#888">WS: task.failed</text>
+          <text x="90" y="168" text-anchor="middle" font-size="9" fill="#888">WS: task.enqueued</text>
+
+          <defs>
+            <marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#34a853"/></marker>
+            <marker id="arr4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d93025"/></marker>
+            <marker id="arr5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: タスクライフサイクルのステートマシン図。Issue assigneeへのエージェント設定でenqueuedが発火し、各遷移でWebSocketイベントがブロードキャストされる。</div>
+      </div>
+
+      <h2 id="enqueue-phase">エンキューフェーズ</h2>
+      <p>タスクのライフサイクルはIssueのアサイニーにエージェントが設定された瞬間に開始される。MulticaのIssueスキーマは多態型アサイニー（<code>assignee_type</code> + <code>assignee_id</code>）を採用しており、<code>assignee_type = 'agent'</code> が設定されると<code>task.go</code>の<code>EnqueueTask</code>関数が呼び出される。</p>
+      <p>エンキューフェーズでは以下の処理が行われる。</p>
+      <ul>
+        <li>タスクレコードがデータベースに作成され、ステータスが <code>enqueued</code> に設定される</li>
+        <li>対応するIssueのステータスが「待機中」に更新される</li>
+        <li><code>task.enqueued</code> WebSocketイベントが、同一ワークスペースに接続しているすべてのクライアントへブロードキャストされる</li>
+        <li>タスクはデーモンのポーリングキューに追加され、クレームを待機する</li>
+      </ul>
+      <p>アサイニーが人間メンバーから別のエージェントに変更された場合、既存のタスクがキャンセルされ新しいタスクがエンキューされる。同一エージェントへの再割り当ての場合はタスクが再利用される。</p>
+
+      <h2 id="claim-phase">クレームフェーズ</h2>
+      <p>ローカルマシンで動作する<a href="agent-daemon.html">エージェントデーモン</a>はデフォルト3秒間隔でサーバーをポーリングし、自身に割り当てられた <code>enqueued</code> 状態のタスクを検索する。タスクを発見した際、デーモンは<code>ClaimTask</code>APIを呼び出して排他的なクレームを取得する。</p>
+      <p>クレームは楽観的ロックで実装されており、複数のデーモンインスタンスが同時に同じタスクをクレームしようとした場合、最初に成功したインスタンスのみが処理を継続し、その他は無視する。クレーム成功後、<code>task.claimed</code> イベントがブロードキャストされる。</p>
+      <pre><code>// internal/service/task.go（概略）
+func (s *TaskService) ClaimTask(ctx context.Context, taskID, daemonID string) error {
+    // 排他クレーム（CAS操作）
+    rows, err := s.db.ClaimTask(ctx, db.ClaimTaskParams{
+        ID:       taskID,
+        DaemonID: daemonID,
+        Status:   "claimed",
+    })
+    if rows == 0 {
+        return ErrAlreadyClaimed
+    }
+    // WebSocketブロードキャスト
+    s.hub.Broadcast(ws.EventTaskClaimed, taskID)
+    return err
+}</code></pre>
+
+      <h2 id="execution-phase">実行フェーズ</h2>
+      <p>クレームに成功したデーモンは直ちに実行フェーズへ移行する。このフェーズはMulticaの中核機能であり、<a href="multi-workspace.html">マルチワークスペース</a>による隔離された実行環境が提供される。</p>
+
+      <h3 id="workspace-isolation">ワークスペース隔離</h3>
+      <p>デーモンはタスクごとに一時的な隔離ワークスペースを作成する。リポジトリのクローン、依存パッケージのインストール、環境変数の注入がこのフェーズで行われる。ワークスペースは<code>~/.multica/workspaces/{task-id}/</code>に作成され、タスク完了後に自動クリーンアップされる。最大同時実行数（デフォルト20）を超えるタスクは、空きスロットが生じるまで<code>claimed</code>状態のまま待機する。</p>
+
+      <h3 id="agent-cli-execution">エージェントCLI実行</h3>
+      <p>ワークスペースの準備完了後、デーモンはIssueのタイトル・本文・コメントからプロンプトを構築し、対応するAI CLI（<code>claude</code>・<code>codex</code>等）をサブプロセスとして起動する。CLIの起動と同時に<code>StartTask</code>が呼び出され、ステータスが<code>started</code>に遷移する。</p>
+      <ul>
+        <li><code>task.started</code> イベントブロードキャスト</li>
+        <li>Issueステータスが「進行中」に更新</li>
+        <li>エージェントのストリーム出力はIssueコメントとしてリアルタイム投稿される</li>
+        <li>エージェントが能動的にブロッカーを検出した場合、新しいIssueを自動作成することがある</li>
+      </ul>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" width="680" height="300">
+          <rect width="680" height="300" fill="#f8f9fa" rx="8"/>
+
+          <!-- Daemon box -->
+          <rect x="20" y="40" width="200" height="220" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="120" y="64" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">エージェントデーモン</text>
+
+          <rect x="36" y="78" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="120" y="100" text-anchor="middle" font-size="11" fill="#202122">ポーリング（3秒間隔）</text>
+
+          <rect x="36" y="124" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="120" y="146" text-anchor="middle" font-size="11" fill="#202122">ワークスペース作成</text>
+
+          <rect x="36" y="170" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="120" y="192" text-anchor="middle" font-size="11" fill="#202122">AI CLI起動</text>
+
+          <rect x="36" y="216" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="120" y="238" text-anchor="middle" font-size="11" fill="#202122">結果報告</text>
+
+          <!-- Arrows inside daemon -->
+          <line x1="120" y1="112" x2="120" y2="122" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#da1)"/>
+          <line x1="120" y1="158" x2="120" y2="168" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#da2)"/>
+          <line x1="120" y1="204" x2="120" y2="214" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#da3)"/>
+
+          <!-- Task service box -->
+          <rect x="280" y="40" width="200" height="220" rx="8" fill="#e8f0fe" stroke="#36c" stroke-width="1.5"/>
+          <text x="380" y="64" text-anchor="middle" font-size="12" font-weight="bold" fill="#202122">task.go サービス</text>
+
+          <rect x="296" y="78" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="380" y="100" text-anchor="middle" font-size="11" fill="#202122">ClaimTask()</text>
+
+          <rect x="296" y="124" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="380" y="146" text-anchor="middle" font-size="11" fill="#202122">StartTask()</text>
+
+          <rect x="296" y="170" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="380" y="192" text-anchor="middle" font-size="11" fill="#202122">CompleteTask() / FailTask()</text>
+
+          <rect x="296" y="216" width="168" height="34" rx="5" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <text x="380" y="238" text-anchor="middle" font-size="11" fill="#202122">Issue同期</text>
+
+          <!-- Arrows daemon -> task service -->
+          <line x1="220" y1="95" x2="278" y2="95" stroke="#36c" stroke-width="1.5" marker-end="url(#da4)"/>
+          <line x1="220" y1="141" x2="278" y2="141" stroke="#36c" stroke-width="1.5" marker-end="url(#da5)"/>
+          <line x1="220" y1="187" x2="278" y2="187" stroke="#36c" stroke-width="1.5" marker-end="url(#da6)"/>
+
+          <!-- WS hub box -->
+          <rect x="540" y="100" width="120" height="100" rx="8" fill="#e6f4ea" stroke="#34a853" stroke-width="1.5"/>
+          <text x="600" y="130" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">WebSocket</text>
+          <text x="600" y="148" text-anchor="middle" font-size="11" font-weight="bold" fill="#202122">Hub</text>
+          <text x="600" y="168" text-anchor="middle" font-size="10" fill="#555">全クライアントへ</text>
+          <text x="600" y="182" text-anchor="middle" font-size="10" fill="#555">ブロードキャスト</text>
+
+          <!-- Arrow task service -> WS -->
+          <line x1="464" y1="150" x2="538" y2="150" stroke="#34a853" stroke-width="1.5" marker-end="url(#da7)"/>
+          <text x="501" y="144" text-anchor="middle" font-size="9" fill="#34a853">Broadcast()</text>
+
+          <defs>
+            <marker id="da1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7c3aed"/></marker>
+            <marker id="da2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7c3aed"/></marker>
+            <marker id="da3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7c3aed"/></marker>
+            <marker id="da4" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+            <marker id="da5" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+            <marker id="da6" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#36c"/></marker>
+            <marker id="da7" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#34a853"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図2: デーモン・タスクサービス・WebSocket Hubの連携図。デーモンの各アクションがAPIコール経由でtask.goを呼び出し、各遷移でWebSocket Hubがブロードキャストを行う。</div>
+      </div>
+
+      <h2 id="completion-failure">完了・失敗ハンドリング</h2>
+      <p>エージェントCLIプロセスが終了すると、デーモンはその終了コードと出力を収集し、サーバーへ報告する。</p>
+
+      <h3 id="completion">正常完了（complete）</h3>
+      <p>CLIが終了コード0で正常終了した場合、デーモンは<code>CompleteTask</code>を呼び出す。タスクサービスは以下の処理をトランザクション内で実行する。</p>
+      <ul>
+        <li>タスクステータスを <code>completed</code> に更新</li>
+        <li>対応するIssueのステータスを「完了」に更新</li>
+        <li>エージェントの出力（差分・PR URL等）をIssueにコメントとして投稿</li>
+        <li><code>task.completed</code> WebSocketイベントをブロードキャスト</li>
+        <li>隔離ワークスペースのクリーンアップをスケジュール</li>
+      </ul>
+
+      <h3 id="failure">失敗ハンドリング（fail）</h3>
+      <p>CLIが非ゼロの終了コード、タイムアウト（デフォルト30分）、またはパニックで終了した場合は<code>FailTask</code>が呼び出される。失敗情報はIssueのコメントとして記録され、エラー内容がボード上に可視化される。再試行ポリシーは現時点でマニュアル（アサイニーの再設定）であり、自動リトライは実装されていない。</p>
+      <p>失敗のカテゴリとしては以下が存在する。</p>
+      <ul>
+        <li><strong>実行エラー</strong> — エージェントCLIがエラーを検出して自発的に終了</li>
+        <li><strong>タイムアウト</strong> — デーモンが規定時間内にCLI終了を確認できなかった</li>
+        <li><strong>デーモン切断</strong> — CLIプロセスの実行中にデーモンプロセス自体が終了した場合、サーバー側がハートビートの途絶を検出して強制失敗とする</li>
+      </ul>
+
+      <h2 id="websocket-event-flow">WebSocketイベントフロー</h2>
+      <p>MulticaのリアルタイムUI更新は<a href="realtime-websocket.html">WebSocketイベント</a>によって駆動される。<code>internal/hub/hub.go</code>が実装するブロードキャストハブは、接続中のすべてのクライアントに対して同一のイベントを送信する。フロントエンド（Next.js）のZustandストアはこれらのイベントを受信して状態を更新し、ユーザーはページリロードなしにタスクの進捗をリアルタイムで確認できる。</p>
+
+      <p>ライフサイクル全体で発火するイベント一覧を以下に示す。</p>
+      <ul>
+        <li><code>task.enqueued</code> — Issue assigneeにエージェントが設定された時点</li>
+        <li><code>task.claimed</code> — デーモンがタスクを排他取得した時点</li>
+        <li><code>task.started</code> — エージェントCLIプロセスが起動した時点</li>
+        <li><code>task.output</code> — エージェントが出力をストリーミングするたびに発火（高頻度）</li>
+        <li><code>task.completed</code> — タスクが正常完了した時点</li>
+        <li><code>task.failed</code> — タスクが失敗終了した時点</li>
+        <li><code>issue.updated</code> — Issueステータス同期完了後に追加発火</li>
+      </ul>
+
+      <p>イベントのペイロードはJSON形式で、<code>task_id</code>・<code>issue_id</code>・<code>workspace_id</code>・<code>status</code>・<code>timestamp</code>フィールドを含む。フロントエンドはこれらを受信次第Zustandの<code>issuesStore</code>および<code>tasksStore</code>を更新し、UIに即時反映する。</p>
+
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#lifecycle-overview">ライフサイクル状態の概要</a></li>
+          <li><a href="#enqueue-phase">エンキューフェーズ</a></li>
+          <li><a href="#claim-phase">クレームフェーズ</a></li>
+          <li><a href="#execution-phase">実行フェーズ</a></li>
+          <li class="toc-h3"><a href="#workspace-isolation">ワークスペース隔離</a></li>
+          <li class="toc-h3"><a href="#agent-cli-execution">エージェントCLI実行</a></li>
+          <li><a href="#completion-failure">完了・失敗ハンドリング</a></li>
+          <li class="toc-h3"><a href="#completion">正常完了（complete）</a></li>
+          <li class="toc-h3"><a href="#failure">失敗ハンドリング（fail）</a></li>
+          <li><a href="#websocket-event-flow">WebSocketイベントフロー</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+          <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+          <li><a href="multi-workspace.html">マルチワークスペース</a></li>
+          <li><a href="reusable-skills.html">再利用可能スキル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+        <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+        <li><a href="multi-workspace.html">マルチワークスペース</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

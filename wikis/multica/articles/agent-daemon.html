@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントデーモン - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    エージェントデーモン
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">エージェントデーモン</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">エージェントデーモンはMulticaプラットフォームのローカルランタイムコンポーネントであり、ユーザーのマシン上で動作してAI CLIを自動検出し、サーバーからタスクをポーリングして実行する常駐プロセスである。</div>
+
+      <p><b>エージェントデーモン</b>（英: Agent Daemon）は、<a href="multica.html">Multica</a>プラットフォームのローカルランタイムコンポーネントである。ユーザーのマシン上でバックグラウンドプロセスとして常駐し、PATH上のAI CLI（claude・codex・opencode等）を自動検出してRuntimeとして登録する。デフォルトで3秒ごとにMulticaサーバーをポーリングし、割り当てられた<a href="task-lifecycle.html">タスク</a>を受け取ると分離されたワークスペースディレクトリを作成してエージェントCLIを起動し、実行結果をサーバーへストリーミングする。<a href="multica-cli.html">multica CLI</a>の<code>multica daemon start</code>コマンドで起動される。</p>
+
+      <h2 id="overview">概要</h2>
+      <p>Multicaのアーキテクチャにおいて、エージェントデーモンはサーバー（Go バックエンド）とローカルのAI CLI群を橋渡しする中間レイヤーに位置する。ユーザーはサーバーサイドのダッシュボードやCLIからタスクを作成し、デーモンがそれをポーリングで検知して実際のエージェント処理を実行する。</p>
+
+      <p>デーモンはステートレスに設計されており、複数マシンで同一ワークスペースに対してデーモンを並列起動することも可能である。各デーモンインスタンスはサーバーへハートビートを送信し、タスクのクレームはサーバー側でアトミックに制御されるため、二重実行は発生しない。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400">
+          <rect width="720" height="400" fill="#f8f9fa" rx="8"/>
+
+          <!-- Server box -->
+          <rect x="30" y="30" width="200" height="100" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="130" y="60" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Multica Server</text>
+          <text x="130" y="80" text-anchor="middle" font-size="11" fill="#555">Go バックエンド</text>
+          <text x="130" y="98" text-anchor="middle" font-size="11" fill="#555">タスクキュー管理</text>
+          <text x="130" y="116" text-anchor="middle" font-size="11" fill="#36c">port 8080</text>
+
+          <!-- Daemon box -->
+          <rect x="270" y="140" width="200" height="130" rx="6" fill="#e8f4fd" stroke="#36c" stroke-width="2"/>
+          <text x="370" y="168" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">エージェントデーモン</text>
+          <text x="370" y="188" text-anchor="middle" font-size="11" fill="#555">multica daemon start</text>
+          <text x="370" y="208" text-anchor="middle" font-size="11" fill="#36c">ポーリング（3s間隔）</text>
+          <text x="370" y="226" text-anchor="middle" font-size="11" fill="#555">ハートビート（15s）</text>
+          <text x="370" y="244" text-anchor="middle" font-size="11" fill="#555">最大同時実行: 20</text>
+
+          <!-- AI CLIs box -->
+          <rect x="510" y="140" width="180" height="130" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="600" y="168" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">AI CLI群</text>
+          <text x="600" y="192" text-anchor="middle" font-size="12" fill="#555">claude</text>
+          <text x="600" y="212" text-anchor="middle" font-size="12" fill="#555">codex</text>
+          <text x="600" y="232" text-anchor="middle" font-size="12" fill="#555">opencode</text>
+          <text x="600" y="252" text-anchor="middle" font-size="11" fill="#888">（PATH自動検出）</text>
+
+          <!-- Workspace box -->
+          <rect x="270" y="310" width="200" height="70" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="370" y="338" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">ワークスペース</text>
+          <text x="370" y="358" text-anchor="middle" font-size="11" fill="#555">~/.multica/workspaces/{task-id}/</text>
+
+          <!-- Log box -->
+          <rect x="30" y="200" width="200" height="60" rx="6" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="130" y="226" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">ログファイル</text>
+          <text x="130" y="246" text-anchor="middle" font-size="11" fill="#555">~/.multica/daemon.log</text>
+
+          <!-- Arrows: Server -> Daemon (task delivery) -->
+          <line x1="230" y1="80" x2="310" y2="155" stroke="#36c" stroke-width="1.5" marker-end="url(#ad-arrow1)"/>
+          <text x="258" y="108" text-anchor="middle" font-size="10" fill="#36c">タスク配信</text>
+
+          <!-- Arrows: Daemon -> Server (results) -->
+          <line x1="310" y1="175" x2="230" y2="100" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ad-arrow2)"/>
+          <text x="242" y="150" text-anchor="middle" font-size="10" fill="#888">結果送信</text>
+
+          <!-- Arrows: Daemon -> AI CLIs -->
+          <line x1="470" y1="200" x2="510" y2="200" stroke="#36c" stroke-width="1.5" marker-end="url(#ad-arrow3)"/>
+          <text x="490" y="193" text-anchor="middle" font-size="10" fill="#36c">spawn</text>
+
+          <!-- Arrows: Daemon -> Workspace -->
+          <line x1="370" y1="270" x2="370" y2="310" stroke="#16a34a" stroke-width="1.5" marker-end="url(#ad-arrow4)"/>
+          <text x="395" y="295" text-anchor="start" font-size="10" fill="#16a34a">作成</text>
+
+          <!-- Arrows: Daemon -> Log -->
+          <line x1="270" y1="220" x2="230" y2="225" stroke="#ca8a04" stroke-width="1.5" marker-end="url(#ad-arrow5)"/>
+          <text x="250" y="213" text-anchor="middle" font-size="10" fill="#ca8a04">ログ書込</text>
+
+          <defs>
+            <marker id="ad-arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="ad-arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#888"/></marker>
+            <marker id="ad-arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="ad-arrow4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+            <marker id="ad-arrow5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ca8a04"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図1: エージェントデーモンのコンポーネント関係図。サーバーからタスクをポーリングし、AI CLIを起動して分離ワークスペースで実行する。</div>
+      </div>
+
+      <h2 id="how-it-works">動作の仕組み</h2>
+      <p>デーモンの動作は大きく「起動フェーズ」と「実行ループ」の2段階に分かれる。</p>
+
+      <h3 id="startup">起動フェーズ</h3>
+      <p>デーモン起動時（<code>multica daemon start</code>実行時）に以下の処理が順次行われる。</p>
+      <ol>
+        <li><strong>AI CLI自動検出</strong> — システムのPATH環境変数を走査し、<code>claude</code>・<code>codex</code>・<code>opencode</code>の各バイナリが存在するかチェックする。検出されたCLIはそれぞれ「Runtime」としてサーバーに登録される。</li>
+        <li><strong>設定ロード</strong> — <code>~/.multica/config.toml</code>（または環境変数）からポーリング間隔・ハートビート間隔・エージェントタイムアウト・最大同時実行数などの設定を読み込む。</li>
+        <li><strong>サーバー認証</strong> — <code>multica login</code>で保存された認証トークンを使ってサーバーへの接続を確立する。</li>
+        <li><strong>バックグラウンド化</strong> — デフォルトではプロセスをバックグラウンドへデタッチし、<code>~/.multica/daemon.pid</code>にプロセスIDを保存する。<code>--foreground</code>フラグ指定時はフォアグラウンドで動作する。</li>
+      </ol>
+
+      <h3 id="polling-loop">ポーリングループ</h3>
+      <p>起動後、デーモンは以下のループを継続的に実行する。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340">
+          <rect width="600" height="340" fill="#f8f9fa" rx="8"/>
+
+          <!-- Step boxes -->
+          <rect x="220" y="20" width="160" height="50" rx="6" fill="#fff" stroke="#36c" stroke-width="2"/>
+          <text x="300" y="42" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">サーバーポーリング</text>
+          <text x="300" y="60" text-anchor="middle" font-size="11" fill="#36c">3秒ごと</text>
+
+          <rect x="220" y="100" width="160" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="300" y="122" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">タスク有無の確認</text>
+          <text x="300" y="140" text-anchor="middle" font-size="11" fill="#555">未割当タスクを取得</text>
+
+          <!-- Branch: no task -->
+          <rect x="60" y="180" width="140" height="50" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+          <text x="130" y="202" text-anchor="middle" font-size="12" fill="#202122">タスクなし</text>
+          <text x="130" y="220" text-anchor="middle" font-size="11" fill="#dc2626">次のサイクルへ</text>
+
+          <!-- Branch: task found -->
+          <rect x="380" y="180" width="160" height="50" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="460" y="202" text-anchor="middle" font-size="12" fill="#202122">タスクあり</text>
+          <text x="460" y="220" text-anchor="middle" font-size="11" fill="#16a34a">ワークスペース作成</text>
+
+          <rect x="380" y="260" width="160" height="50" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="460" y="282" text-anchor="middle" font-size="12" fill="#202122" font-weight="bold">CLI起動・実行</text>
+          <text x="460" y="300" text-anchor="middle" font-size="11" fill="#555">結果をサーバーへ送信</text>
+
+          <!-- Arrows -->
+          <line x1="300" y1="70" x2="300" y2="100" stroke="#36c" stroke-width="1.5" marker-end="url(#pl-arrow1)"/>
+          <line x1="300" y1="150" x2="200" y2="180" stroke="#dc2626" stroke-width="1.5" marker-end="url(#pl-arrow2)"/>
+          <line x1="300" y1="150" x2="400" y2="180" stroke="#16a34a" stroke-width="1.5" marker-end="url(#pl-arrow3)"/>
+          <line x1="460" y1="230" x2="460" y2="260" stroke="#16a34a" stroke-width="1.5" marker-end="url(#pl-arrow4)"/>
+          <!-- Loop back arrow -->
+          <path d="M130,230 Q30,260 30,45 Q30,20 220,35" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#pl-arrow5)"/>
+
+          <defs>
+            <marker id="pl-arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="pl-arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/></marker>
+            <marker id="pl-arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+            <marker id="pl-arrow4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+            <marker id="pl-arrow5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図2: デーモンのポーリングループフロー。タスクが存在する場合のみワークスペースを作成してCLIを起動する。</div>
+      </div>
+
+      <h3 id="workspace-isolation">ワークスペースの分離</h3>
+      <p>タスクを受け付けると、デーモンは<code>~/.multica/workspaces/{task-id}/</code>に専用ディレクトリを作成する。各タスクは完全に独立したワークスペースで実行されるため、並列実行中のタスク間でファイルが競合することはない。タスク完了後、ワークスペースは自動的にクリーンアップされる（設定で無効化可能）。</p>
+
+      <h3 id="result-streaming">結果のストリーミング</h3>
+      <p>エージェントCLIの標準出力・標準エラー出力はリアルタイムでサーバーへストリーミングされる。これにより、ダッシュボードからタスクの進捗をリアルタイムで確認できる。<a href="task-lifecycle.html">タスクライフサイクル</a>の各状態遷移（開始・完了・失敗）もストリーミング経路を通じてサーバーに通知される。</p>
+
+      <h2 id="agent-providers">対応エージェントプロバイダー</h2>
+      <p>デーモンは起動時にPATH上の以下のAI CLIを自動検出する。複数のCLIが検出された場合、すべてがRuntimeとして登録される。タスクはサーバー側の設定に応じて適切なRuntimeへルーティングされる。</p>
+
+      <table style="width:100%; border-collapse:collapse; margin:1em 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">CLI名</th>
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">バイナリ</th>
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">提供元</th>
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">Claude Code</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>claude</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">Anthropic</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">最も広く利用されるデフォルトプロバイダー</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">Codex CLI</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>codex</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">OpenAI</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">OpenAI APIキーが必要</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">OpenCode</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>opencode</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">コミュニティ</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">オープンソース実装</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>デーモンはベンダー中立の設計を維持しており、新たなAI CLIが登場した際にも設定の変更なく自動検出が機能する。<a href="reusable-skills.html">再利用可能スキル</a>はプロバイダーに依存せず、任意のRuntimeで実行できるよう設計されている。</p>
+
+      <h2 id="configuration">設定オプション</h2>
+      <p>デーモンの動作は<code>~/.multica/config.toml</code>で細かく制御できる。主要な設定項目を以下に示す。</p>
+
+      <table style="width:100%; border-collapse:collapse; margin:1em 0;">
+        <thead>
+          <tr style="background:#eaecf0;">
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">設定キー</th>
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">デフォルト値</th>
+            <th style="padding:8px 12px; border:1px solid #a2a9b1; text-align:left;">説明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>poll-interval</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">3s</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">サーバーへのポーリング間隔。短くするほどタスク開始が速くなるが、サーバー負荷が増加する。</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>heartbeat-interval</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">15s</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">サーバーへのハートビート送信間隔。デーモンの生存確認に使用される。</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>agent-timeout</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">2h</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">個々のエージェントタスクのタイムアウト時間。この時間を超えたタスクは強制終了される。</td>
+          </tr>
+          <tr style="background:#f8f9fa;">
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;"><code>max-concurrent-tasks</code></td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">20</td>
+            <td style="padding:8px 12px; border:1px solid #a2a9b1;">同時実行できるタスクの最大数。マシンのリソースに応じて調整する。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 id="config-example">設定ファイル例</h3>
+      <p>以下は<code>~/.multica/config.toml</code>の設定例である。</p>
+      <pre><code>[daemon]
+poll-interval = "3s"
+heartbeat-interval = "15s"
+agent-timeout = "2h"
+max-concurrent-tasks = 20
+
+[server]
+url = "https://app.multica.ai"
+
+[log]
+level = "info"
+file = "~/.multica/daemon.log"</code></pre>
+
+      <h2 id="commands">デーモン管理コマンド</h2>
+      <p><a href="multica-cli.html">multica CLI</a>はデーモンを管理するための4つのサブコマンドを提供する。</p>
+
+      <h3 id="cmd-start">multica daemon start</h3>
+      <p>デーモンをバックグラウンドで起動する。既にデーモンが起動している場合はエラーを返す。</p>
+      <pre><code># バックグラウンドで起動（デフォルト）
+multica daemon start
+
+# フォアグラウンドで起動（ターミナルに出力を表示）
+multica daemon start --foreground
+
+# ポーリング間隔を変更して起動
+multica daemon start --poll-interval 1s</code></pre>
+
+      <h3 id="cmd-stop">multica daemon stop</h3>
+      <p>実行中のデーモンを停止する。進行中のタスクは完了を待ってから終了する（グレースフルシャットダウン）。</p>
+      <pre><code>multica daemon stop</code></pre>
+
+      <h3 id="cmd-status">multica daemon status</h3>
+      <p>デーモンの稼働状態・実行中タスク数・検出されたRuntime一覧などを表示する。</p>
+      <pre><code>multica daemon status
+
+# 出力例:
+# Daemon: running (PID 12345)
+# Uptime: 2h 34m
+# Active tasks: 3 / 20
+# Runtimes: claude, codex</code></pre>
+
+      <h3 id="cmd-logs">multica daemon logs</h3>
+      <p>デーモンのログを表示する。デフォルトでは最新50行を表示し、<code>-f</code>フラグでリアルタイム追尾ができる。</p>
+      <pre><code># 最新50行を表示
+multica daemon logs
+
+# リアルタイムで追尾
+multica daemon logs -f
+
+# 行数を指定
+multica daemon logs -n 100</code></pre>
+
+      <h3 id="log-format">ログフォーマット</h3>
+      <p>デーモンのログは<code>~/.multica/daemon.log</code>に保存される。ログはJSON Lines形式で記録されており、ログ集約ツールとの統合が容易である。</p>
+      <pre><code>{"time":"2026-04-09T10:23:45Z","level":"INFO","msg":"daemon started","pid":12345,"runtimes":["claude","codex"]}
+{"time":"2026-04-09T10:23:48Z","level":"INFO","msg":"task claimed","task_id":"t_abc123","runtime":"claude"}
+{"time":"2026-04-09T10:25:12Z","level":"INFO","msg":"task completed","task_id":"t_abc123","duration":"1m24s"}</code></pre>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">概要</a></li>
+          <li><a href="#how-it-works">動作の仕組み</a></li>
+          <li class="toc-h3"><a href="#startup">起動フェーズ</a></li>
+          <li class="toc-h3"><a href="#polling-loop">ポーリングループ</a></li>
+          <li class="toc-h3"><a href="#workspace-isolation">ワークスペースの分離</a></li>
+          <li class="toc-h3"><a href="#result-streaming">結果のストリーミング</a></li>
+          <li><a href="#agent-providers">対応エージェントプロバイダー</a></li>
+          <li><a href="#configuration">設定オプション</a></li>
+          <li class="toc-h3"><a href="#config-example">設定ファイル例</a></li>
+          <li><a href="#commands">デーモン管理コマンド</a></li>
+          <li class="toc-h3"><a href="#cmd-start">multica daemon start</a></li>
+          <li class="toc-h3"><a href="#cmd-stop">multica daemon stop</a></li>
+          <li class="toc-h3"><a href="#cmd-status">multica daemon status</a></li>
+          <li class="toc-h3"><a href="#cmd-logs">multica daemon logs</a></li>
+          <li class="toc-h3"><a href="#log-format">ログフォーマット</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+          <li><a href="multica-cli.html">multica CLI</a></li>
+          <li><a href="reusable-skills.html">再利用可能スキル</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        <li><a href="multica-cli.html">multica CLI</a></li>
+        <li><a href="reusable-skills.html">再利用可能スキル</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

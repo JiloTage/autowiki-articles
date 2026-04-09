@@ -75,6 +75,15 @@
       "article_count": 8,
       "color": "#00796b",
       "status": "active"
+    },
+    "multica": {
+      "id": "multica",
+      "title": "Multica解説Wiki",
+      "root_topic": "https://github.com/multica-ai/multica の解説",
+      "created_at": "2026-04-09T16:18:18.089247+00:00",
+      "article_count": 9,
+      "color": "#7c3aed",
+      "status": "active"
     }
   }
 }

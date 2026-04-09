@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multicaシステムアーキテクチャ詳解 - Multica解説Wiki</title>
+  <link rel="stylesheet" href="../../../assets/css/wiki.css">
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../../index.html">ポータル</a>
+      <a href="../index.html">Multica解説Wiki</a>
+      <a href="../index.html#article-list">記事一覧</a>
+      <a href="../index.html#graph">グラフ</a>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="../../../index.html">Auto-Wiki</a> &gt;
+    <a href="../index.html">Multica解説Wiki</a> &gt;
+    Multicaシステムアーキテクチャ詳解
+  </div>
+
+  <div class="wiki-content">
+    <main class="wiki-main">
+      <h1 class="article-title">Multicaシステムアーキテクチャ詳解</h1>
+      <div class="article-meta">最終更新: 2026-04-09</div>
+      <div class="article-summary">MulticaのフロントエンドからバックエンドDB、エージェントSDK、ビルドシステムまでの全技術層を解説する。Next.js 16 App Router・Go Chi・PostgreSQL 17 pgvector・TurborepoによるモノレポCI/CDの詳細なアーキテクチャドキュメント。</div>
+
+      <p><b>Multicaシステムアーキテクチャ</b>は、<a href="multica.html">Multica</a>プラットフォームを構成するすべての技術層を体系的に記述したものである。フロントエンドのNext.js 16 App Routerから、GoベースのバックエンドAPI、PostgreSQL 17 + pgvectorデータベース層、AIエージェント実行のためのAgent SDK、そしてTurborepoモノレポによるビルド基盤に至るまで、各コンポーネントの設計原則と相互関係を詳説する。</p>
+
+      <h2 id="overview">アーキテクチャ概要</h2>
+      <p>Multicaは5つの主要コンポーネントで構成されるモノレポ構成のフルスタックシステムである。フロントエンドWebアプリ（<code>apps/web/</code>）・Goバックエンドサーバー（<code>server/</code>）・PostgreSQLデータベース・<a href="agent-daemon.html">エージェントデーモン</a>・共有型定義パッケージが密接に連携し、タスク管理とAIエージェント実行基盤を提供する。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 400" width="740" height="400">
+          <rect width="740" height="400" fill="#f8f9fa" rx="10"/>
+          <!-- Title -->
+          <text x="370" y="30" text-anchor="middle" font-size="14" fill="#202122" font-weight="bold">Multicaシステム全体構成図</text>
+          <!-- Frontend box -->
+          <rect x="30" y="55" width="190" height="100" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="125" y="82" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Frontend</text>
+          <text x="125" y="100" text-anchor="middle" font-size="11" fill="#555">Next.js 16 App Router</text>
+          <text x="125" y="116" text-anchor="middle" font-size="11" fill="#555">apps/web/ (port 3000)</text>
+          <text x="125" y="132" text-anchor="middle" font-size="10" fill="#36c">Zustand / shadcn/ui</text>
+          <!-- Backend box -->
+          <rect x="275" y="55" width="190" height="100" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="370" y="82" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Backend API</text>
+          <text x="370" y="100" text-anchor="middle" font-size="11" fill="#555">Go + Chi router</text>
+          <text x="370" y="116" text-anchor="middle" font-size="11" fill="#555">server/ (port 8080)</text>
+          <text x="370" y="132" text-anchor="middle" font-size="10" fill="#36c">gorilla/websocket / slog</text>
+          <!-- DB box -->
+          <rect x="520" y="55" width="190" height="100" rx="6" fill="#fff" stroke="#a2a9b1" stroke-width="1.5"/>
+          <text x="615" y="82" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Database</text>
+          <text x="615" y="100" text-anchor="middle" font-size="11" fill="#555">PostgreSQL 17</text>
+          <text x="615" y="116" text-anchor="middle" font-size="11" fill="#555">+ pgvector (port 5432)</text>
+          <text x="615" y="132" text-anchor="middle" font-size="10" fill="#36c">sqlc codegen</text>
+          <!-- Agent SDK box -->
+          <rect x="275" y="230" width="190" height="90" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="370" y="258" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Agent SDK</text>
+          <text x="370" y="276" text-anchor="middle" font-size="11" fill="#555">pkg/agent/ Backend interface</text>
+          <text x="370" y="292" text-anchor="middle" font-size="10" fill="#7c3aed">Claude Code / Codex CLI</text>
+          <!-- Build box -->
+          <rect x="30" y="230" width="190" height="90" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="125" y="258" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Build System</text>
+          <text x="125" y="276" text-anchor="middle" font-size="11" fill="#555">Turborepo + pnpm</text>
+          <text x="125" y="292" text-anchor="middle" font-size="10" fill="#16a34a">Node 22 / Go 1.24 CI</text>
+          <!-- Migrate box -->
+          <rect x="520" y="230" width="190" height="90" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="615" y="258" text-anchor="middle" font-size="13" fill="#202122" font-weight="bold">Entry Points</text>
+          <text x="615" y="276" text-anchor="middle" font-size="11" fill="#555">cmd/server (HTTP API)</text>
+          <text x="615" y="292" text-anchor="middle" font-size="10" fill="#ea580c">cmd/multica / cmd/migrate</text>
+          <!-- Arrows FE -> BE -->
+          <line x1="220" y1="105" x2="275" y2="105" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+          <line x1="275" y1="115" x2="220" y2="115" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue2)"/>
+          <text x="248" y="100" text-anchor="middle" font-size="10" fill="#36c">REST/WS</text>
+          <!-- Arrows BE -> DB -->
+          <line x1="465" y1="105" x2="520" y2="105" stroke="#36c" stroke-width="1.5" marker-end="url(#arrowBlue3)"/>
+          <text x="493" y="98" text-anchor="middle" font-size="10" fill="#36c">sqlc</text>
+          <!-- Arrow BE -> Agent SDK -->
+          <line x1="370" y1="155" x2="370" y2="230" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+          <text x="385" y="196" font-size="10" fill="#7c3aed">タスク配信</text>
+          <!-- Arrow Agent -> BE -->
+          <line x1="355" y1="230" x2="355" y2="155" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowPurple2)"/>
+          <text x="308" y="196" font-size="10" fill="#7c3aed">結果報告</text>
+          <!-- Arrow Build -> FE -->
+          <line x1="125" y1="230" x2="125" y2="155" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+          <!-- Arrow Entry -> BE -->
+          <line x1="520" y1="275" x2="465" y2="155" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrowOrange)"/>
+          <defs>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrowBlue2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrowBlue3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#36c"/></marker>
+            <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+            <marker id="arrowPurple2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+            <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+            <marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ea580c"/></marker>
+          </defs>
+          <!-- Legend -->
+          <rect x="30" y="355" width="680" height="30" rx="4" fill="#fff" stroke="#a2a9b1" stroke-width="1"/>
+          <line x1="50" y1="370" x2="80" y2="370" stroke="#36c" stroke-width="1.5"/>
+          <text x="85" y="374" font-size="10" fill="#555">REST/WebSocket通信</text>
+          <line x1="200" y1="370" x2="230" y2="370" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="235" y="374" font-size="10" fill="#555">タスク配信・結果報告</text>
+          <line x1="370" y1="370" x2="400" y2="370" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="405" y="374" font-size="10" fill="#555">非同期フィードバック</text>
+          <line x1="530" y1="370" x2="560" y2="370" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="565" y="374" font-size="10" fill="#555">ビルド依存</text>
+        </svg>
+        <div class="diagram-caption">図1: Multicaシステム全体構成図。各技術層の役割と通信経路を示す。</div>
+      </div>
+
+      <h2 id="frontend-architecture">フロントエンドアーキテクチャ</h2>
+      <p>フロントエンドは<code>apps/web/</code>に配置されたNext.js 16（App Router）アプリケーションで、TypeScriptで実装される。インポートエイリアス<code>@/</code>が<code>apps/web/</code>ルートを指すよう設定されており、パスの管理を簡潔にしている。</p>
+
+      <h3 id="feature-based">Feature-Based Architecture</h3>
+      <p>コードベースは3つの層に分割されたfeature-basedアーキテクチャを採用する。</p>
+      <ul>
+        <li><strong>app/</strong> — Next.js App Routerのルーティング層。ページとレイアウトのみを定義し、ビジネスロジックを持たない</li>
+        <li><strong>features/</strong> — ドメインビジネスロジック。<code>auth</code>・<code>workspace</code>・<code>issues</code>・<code>inbox</code>・<code>realtime</code>・<code>modals</code>・<code>skills</code>の各サブディレクトリが独立したドメインを担当する</li>
+        <li><strong>shared/</strong> — 横断的ユーティリティ。APIクライアント・型定義・ロガーなど複数featureが共有するコードを置く</li>
+      </ul>
+
+      <h3 id="state-management">状態管理（Zustand）</h3>
+      <p>状態管理にはZustandを採用し、ドメインごとに独立したストアを持つ設計となっている。<code>auth</code>・<code>workspace</code>・<code>issues</code>・<code>inbox</code>の各featureが専用のZustandストアを持ち、グローバルな単一ストアによる過度な結合を回避している。<a href="realtime-websocket.html">リアルタイムWebSocket同期</a>で受信したサーバーイベントは<code>features/realtime/</code>が受け取り、対応するドメインストアを更新する仕組みである。</p>
+
+      <h3 id="nextjs-app-router">Next.js App Routerの活用</h3>
+      <p>Next.js 16のApp RouterはReact Server Components（RSC）を基盤とし、初期ロードのパフォーマンスとSEOを向上させる。Multicaではダッシュボード・ボードビュー・設定画面などのルートがApp Router配下で管理される。shadcn/uiコンポーネントライブラリをUIプリミティブとして利用し、Tailwind CSSでスタイリングする。</p>
+
+      <div class="diagram-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 360" width="680" height="360">
+          <rect width="680" height="360" fill="#f8f9fa" rx="10"/>
+          <text x="340" y="28" text-anchor="middle" font-size="14" fill="#202122" font-weight="bold">フロントエンド Feature-Based Architecture</text>
+          <!-- apps/web/ wrapper -->
+          <rect x="20" y="45" width="640" height="295" rx="8" fill="none" stroke="#a2a9b1" stroke-width="1.5" stroke-dasharray="6 3"/>
+          <text x="40" y="65" font-size="11" fill="#555">apps/web/</text>
+          <!-- app/ layer -->
+          <rect x="40" y="75" width="180" height="240" rx="6" fill="#fff" stroke="#36c" stroke-width="1.5"/>
+          <text x="130" y="98" text-anchor="middle" font-size="12" fill="#36c" font-weight="bold">app/</text>
+          <text x="130" y="116" text-anchor="middle" font-size="10" fill="#555">ルーティング層</text>
+          <rect x="58" y="130" width="144" height="24" rx="4" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="130" y="147" text-anchor="middle" font-size="10" fill="#1d4ed8">(dashboard)/page.tsx</text>
+          <rect x="58" y="162" width="144" height="24" rx="4" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="130" y="179" text-anchor="middle" font-size="10" fill="#1d4ed8">(board)/[id]/page.tsx</text>
+          <rect x="58" y="194" width="144" height="24" rx="4" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="130" y="211" text-anchor="middle" font-size="10" fill="#1d4ed8">layout.tsx</text>
+          <rect x="58" y="226" width="144" height="24" rx="4" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="130" y="243" text-anchor="middle" font-size="10" fill="#1d4ed8">loading.tsx / error.tsx</text>
+          <!-- features/ layer -->
+          <rect x="250" y="75" width="200" height="240" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="350" y="98" text-anchor="middle" font-size="12" fill="#7c3aed" font-weight="bold">features/</text>
+          <text x="350" y="116" text-anchor="middle" font-size="10" fill="#555">ドメインロジック層</text>
+          <rect x="268" y="130" width="164" height="20" rx="4" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+          <text x="350" y="144" text-anchor="middle" font-size="10" fill="#5b21b6">auth/</text>
+          <rect x="268" y="156" width="164" height="20" rx="4" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+          <text x="350" y="170" text-anchor="middle" font-size="10" fill="#5b21b6">workspace/</text>
+          <rect x="268" y="182" width="164" height="20" rx="4" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+          <text x="350" y="196" text-anchor="middle" font-size="10" fill="#5b21b6">issues/</text>
+          <rect x="268" y="208" width="164" height="20" rx="4" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+          <text x="350" y="222" text-anchor="middle" font-size="10" fill="#5b21b6">realtime/ (WebSocket)</text>
+          <rect x="268" y="234" width="164" height="20" rx="4" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+          <text x="350" y="248" text-anchor="middle" font-size="10" fill="#5b21b6">inbox / modals / skills</text>
+          <!-- shared/ layer -->
+          <rect x="480" y="75" width="160" height="240" rx="6" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="560" y="98" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="bold">shared/</text>
+          <text x="560" y="116" text-anchor="middle" font-size="10" fill="#555">横断ユーティリティ</text>
+          <rect x="498" y="130" width="124" height="20" rx="4" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+          <text x="560" y="144" text-anchor="middle" font-size="10" fill="#15803d">api/ (APIクライアント)</text>
+          <rect x="498" y="156" width="124" height="20" rx="4" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+          <text x="560" y="170" text-anchor="middle" font-size="10" fill="#15803d">types/ (共有型定義)</text>
+          <rect x="498" y="182" width="124" height="20" rx="4" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+          <text x="560" y="196" text-anchor="middle" font-size="10" fill="#15803d">logger/</text>
+          <rect x="498" y="208" width="124" height="20" rx="4" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+          <text x="560" y="222" text-anchor="middle" font-size="10" fill="#15803d">hooks/ (共有hooks)</text>
+          <!-- Import alias label -->
+          <text x="340" y="340" text-anchor="middle" font-size="11" fill="#555">インポートエイリアス: <tspan font-family="monospace" fill="#36c">@/</tspan> → apps/web/</text>
+          <!-- Arrows between layers -->
+          <line x1="220" y1="195" x2="250" y2="195" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+          <line x1="450" y1="195" x2="480" y2="195" stroke="#a2a9b1" stroke-width="1.5" marker-end="url(#arrowGray2)"/>
+          <defs>
+            <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/></marker>
+            <marker id="arrowGray2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#a2a9b1"/></marker>
+          </defs>
+        </svg>
+        <div class="diagram-caption">図2: フロントエンドのfeature-based architecture。app/・features/・shared/ の3層構成を示す。</div>
+      </div>
+
+      <h2 id="backend-architecture">バックエンドアーキテクチャ</h2>
+      <p>バックエンドはGoで実装され、<code>server/</code>ディレクトリに配置される。標準的なHTTPルーターとして<a href="https://github.com/go-chi/chi">Chi</a>を採用し、シンプルで高パフォーマンスなAPIサーバーを構成する。</p>
+
+      <h3 id="chi-router">Chiルーターとハンドラー構成</h3>
+      <p>APIハンドラーは<code>internal/handler/</code>以下にドメインごとに1ファイルずつ配置される（ハンドラーファイル = 1ドメイン原則）。たとえば<code>task_handler.go</code>・<code>workspace_handler.go</code>・<code>agent_handler.go</code>のように分割される。Chiのミドルウェアチェーンでロギング・リカバリ・CORS・認証検証を処理する。</p>
+
+      <h3 id="auth-jwt">JWT認証とヘッダー伝搬</h3>
+      <p>認証はHS256アルゴリズムのJWTを使用する。JWTミドルウェアがトークンを検証し、後段のハンドラーへ<code>X-User-ID</code>および<code>X-User-Email</code>ヘッダーとしてユーザー情報を伝搬する。ハンドラー内でこれらのヘッダーを参照することで、毎回DB問い合わせなしにユーザーを識別できる設計である。</p>
+
+      <h3 id="task-service">タスクサービスとイベントバス</h3>
+      <p><a href="task-lifecycle.html">タスクライフサイクル</a>の中核は<code>internal/service/task.go</code>が担う。エンキュー→クレーム→開始→完了/失敗の各状態遷移を管理し、遷移ごとに<code>internal/events/</code>の内部イベントバスへイベントを発行する。イベントバスのサブスクライバーはWebSocketブロードキャスターで、接続中クライアントへリアルタイムで状態変化を通知する。ロギングには標準ライブラリの<code>slog</code>を使用し、<code>LOG_LEVEL</code>環境変数で出力レベルを制御する。</p>
+
+      <h2 id="database-design">データベース設計</h2>
+      <p>データベースにはPostgreSQL 17をpgvector拡張と組み合わせて使用する。pgvectorはエージェントスキルのベクトル検索や類似タスク検索など、AI機能のための高次元ベクトルデータを効率的に格納・検索するために利用される。</p>
+
+      <h3 id="sqlc-codegen">sqlcコード生成</h3>
+      <p>GoコードからのDBアクセスはsqlcが自動生成したタイプセーフなコードを経由する。<code>pkg/db/queries/</code>にSQLクエリファイルを配置し、sqlcがGoのインターフェースと実装コードを生成する。これにより、生SQLをGoコード内に直接記述することなく、コンパイル時の型チェックを享受できる。生成コードは<code>pkg/db/</code>以下に出力される。</p>
+
+      <h3 id="migrations">マイグレーション管理</h3>
+      <p>スキーマ変更はすべて<code>migrations/</code>ディレクトリのSQLファイルとして管理される。適用は<code>cmd/migrate</code>エントリポイントで実行し、<code>go run ./cmd/migrate up</code>でマイグレーションを順次適用する。</p>
+
+      <h3 id="multi-tenancy">マルチテナント設計</h3>
+      <p><a href="multi-workspace.html">マルチワークスペース</a>対応のため、すべてのDBクエリで<code>workspace_id</code>による行レベルフィルタリングを行う。テナント間のデータ混在を防ぐため、sqlcクエリには必ず<code>WHERE workspace_id = $1</code>条件が含まれる。この設計により単一のDBインスタンスで複数チームのデータを安全に分離できる。</p>
+
+      <h2 id="agent-sdk">Agent SDK</h2>
+      <p>Agent SDKは<code>pkg/agent/</code>に実装されており、異なるAI CLIバックエンドを統一インターフェースで扱うための抽象化層を提供する。</p>
+
+      <h3 id="backend-interface">Backendインターフェース</h3>
+      <p>SDKのコアは<code>Backend</code>インターフェースで、Claude Code・Codex・その他AI CLIに対応した実装がこれを満たす。インターフェースは各CLIの起動・標準入出力のストリーミング・終了コードの取得を統一的に抽象化する。<a href="agent-daemon.html">エージェントデーモン</a>はPATHから利用可能なCLIを検出し、対応するBackend実装を選択して登録する。</p>
+
+      <h3 id="session-channels">Sessionチャネル</h3>
+      <p>CLI実行は<code>Session</code>型で管理される。<code>Session.Messages</code>チャネルはCLIの標準出力をリアルタイムでストリーミングし、<code>Session.Result</code>チャネルはCLI終了時の実行結果（成功/失敗・終了コード）を送信する。Goのチャネル機構を活用することで、ノンブロッキングな非同期実行とリアルタイムログ転送を実現している。</p>
+
+      <h2 id="build-system">ビルドシステム</h2>
+      <p>MulticaのモノレポはTurborepoとpnpmワークスペースで管理される。フロントエンド（TypeScript/Node.js）とバックエンド（Go）を単一リポジトリで効率的にビルド・テスト・CI実行できる体制を整えている。</p>
+
+      <h3 id="turborepo">Turborepo</h3>
+      <p>Turborepoはタスクの依存関係グラフを定義し、並列ビルドとキャッシュを最適化する。<code>turbo.json</code>でビルド・リント・テストタスクのパイプラインを宣言し、変更のないパッケージのビルド結果をキャッシュすることで、CI時間を大幅に短縮する。</p>
+
+      <h3 id="pnpm-workspaces">pnpmワークスペース</h3>
+      <p>フロントエンドの依存関係管理にはpnpmワークスペースを使用する。<code>apps/web/</code>と共有パッケージ間の依存解決を効率化し、node_modulesのホイスティングによる容量削減を実現する。</p>
+
+      <h3 id="ci-cd">CI/CD</h3>
+      <p>GitHub ActionsベースのCIパイプラインが設定されており、Node.js 22・Go 1.24の組み合わせでビルドとテストを実行する。3つのエントリポイントに対応したビルドジョブが並列実行される。</p>
+      <ul>
+        <li><code>cmd/server</code> — HTTPサーバー（メインAPI）</li>
+        <li><code>cmd/multica</code> — CLI（ローカルデーモン実行）</li>
+        <li><code>cmd/migrate</code> — DBマイグレーション実行</li>
+      </ul>
+    </main>
+
+    <aside class="wiki-sidebar">
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <ul class="toc-list">
+          <li><a href="#overview">アーキテクチャ概要</a></li>
+          <li><a href="#frontend-architecture">フロントエンドアーキテクチャ</a></li>
+          <li class="toc-h3"><a href="#feature-based">Feature-Based Architecture</a></li>
+          <li class="toc-h3"><a href="#state-management">状態管理（Zustand）</a></li>
+          <li class="toc-h3"><a href="#nextjs-app-router">Next.js App Routerの活用</a></li>
+          <li><a href="#backend-architecture">バックエンドアーキテクチャ</a></li>
+          <li class="toc-h3"><a href="#chi-router">Chiルーターとハンドラー構成</a></li>
+          <li class="toc-h3"><a href="#auth-jwt">JWT認証とヘッダー伝搬</a></li>
+          <li class="toc-h3"><a href="#task-service">タスクサービスとイベントバス</a></li>
+          <li><a href="#database-design">データベース設計</a></li>
+          <li class="toc-h3"><a href="#sqlc-codegen">sqlcコード生成</a></li>
+          <li class="toc-h3"><a href="#migrations">マイグレーション管理</a></li>
+          <li class="toc-h3"><a href="#multi-tenancy">マルチテナント設計</a></li>
+          <li><a href="#agent-sdk">Agent SDK</a></li>
+          <li class="toc-h3"><a href="#backend-interface">Backendインターフェース</a></li>
+          <li class="toc-h3"><a href="#session-channels">Sessionチャネル</a></li>
+          <li><a href="#build-system">ビルドシステム</a></li>
+          <li class="toc-h3"><a href="#turborepo">Turborepo</a></li>
+          <li class="toc-h3"><a href="#pnpm-workspaces">pnpmワークスペース</a></li>
+          <li class="toc-h3"><a href="#ci-cd">CI/CD</a></li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <div class="related-title">関連記事</div>
+        <ul class="related-list">
+          <li><a href="multica.html">Multica（概要）</a></li>
+          <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+          <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+          <li><a href="multi-workspace.html">マルチワークスペース</a></li>
+          <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="wiki-footer">
+    <div class="footer-links">
+      <h4>リンク先</h4>
+      <ul>
+        <li><a href="multica.html">Multica</a></li>
+        <li><a href="realtime-websocket.html">リアルタイムWebSocket同期</a></li>
+        <li><a href="task-lifecycle.html">タスクライフサイクル</a></li>
+        <li><a href="multi-workspace.html">マルチワークスペース</a></li>
+        <li><a href="agent-daemon.html">エージェントデーモン</a></li>
+      </ul>
+      <h4>被リンク</h4>
+      <ul></ul>
+    </div>
+    <p style="margin-top:12px;">Auto-Wiki で自動生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -890,6 +890,87 @@
       "color": "#00796b",
       "is_root": false,
       "summary": "Model Context Protocol（MCP）は、Anthropicが2024年11月に発表したオープン標準プロトコルで、AIエージェントと外部ツール・データソースをホスト/クライアント/サーバーの三層アーキテクチャで接続し、LLMアプリケーションのコンテキスト管理とツール統合を標準化する。"
+    },
+    {
+      "id": "multica:multica",
+      "wiki": "multica",
+      "title": "Multica",
+      "url": "wikis/multica/articles/multica.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "MulticaはAIコーディングエージェントをチームメンバーとして管理するオープンソースプラットフォームで、タスク割り当て・進捗管理・スキル蓄積を通じて人間とAIの協働を実現する。"
+    },
+    {
+      "id": "multica:agent-daemon",
+      "wiki": "multica",
+      "title": "エージェントデーモン",
+      "url": "wikis/multica/articles/agent-daemon.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "エージェントデーモンはMulticaプラットフォームのローカルランタイムコンポーネントであり、ユーザーのマシン上で動作してAI CLIを自動検出し、サーバーからタスクをポーリングして実行する常駐プロセスである。"
+    },
+    {
+      "id": "multica:task-lifecycle",
+      "wiki": "multica",
+      "title": "タスクライフサイクル",
+      "url": "wikis/multica/articles/task-lifecycle.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "MulticaのタスクライフサイクルはGo製タスクサービスが管理し、エンキュー→クレーム→開始→完了/失敗の各状態遷移でWebSocketイベントをブロードキャストしながらエージェントによる自律的なIssue解決を実現する。"
+    },
+    {
+      "id": "multica:reusable-skills",
+      "wiki": "multica",
+      "title": "再利用可能スキル",
+      "url": "wikis/multica/articles/reusable-skills.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "再利用可能スキルはMulticaプラットフォームのコア機能で、エージェントが問題を解決するたびにその解法がチーム全体のスキルとして蓄積・再利用され、チームの能力を複利的に高める仕組みである。"
+    },
+    {
+      "id": "multica:multica-cli",
+      "wiki": "multica",
+      "title": "multica CLI",
+      "url": "wikis/multica/articles/multica-cli.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "multica CLIはローカルマシンとMulticaサーバーを接続するコマンドラインインターフェースで、認証・エージェントデーモン管理・Issue操作・アップデートなど、Multicaプラットフォームのすべての操作をターミナルから行えるツールである。"
+    },
+    {
+      "id": "multica:self-hosting",
+      "wiki": "multica",
+      "title": "セルフホスティング",
+      "url": "wikis/multica/articles/self-hosting.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "MulticaをDockerおよびローカル環境で自己ホストするための手順・前提条件・環境変数設定を解説する。"
+    },
+    {
+      "id": "multica:realtime-websocket",
+      "wiki": "multica",
+      "title": "リアルタイムWebSocket同期",
+      "url": "wikis/multica/articles/realtime-websocket.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "MulticaのリアルタイムWebSocket同期は、バックエンドのHubとフロントエンドのWSClient/WSProviderを組み合わせ、タスク状態遷移をブラウザへ即座に反映するプッシュ通知基盤である。"
+    },
+    {
+      "id": "multica:multica-architecture",
+      "wiki": "multica",
+      "title": "Multicaシステムアーキテクチャ詳解",
+      "url": "wikis/multica/articles/multica-architecture.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "MulticaのフロントエンドからバックエンドDB、エージェントSDK、ビルドシステムまでの全技術層を解説する。Next.js 16 App Router・Go Chi・PostgreSQL 17 pgvector・TurborepoによるモノレポCI/CDの詳細なアーキテクチャドキュメント。"
+    },
+    {
+      "id": "multica:multi-workspace",
+      "wiki": "multica",
+      "title": "マルチワークスペース管理",
+      "url": "wikis/multica/articles/multi-workspace.html",
+      "color": "#7c3aed",
+      "is_root": false,
+      "summary": "Multicaのマルチワークスペース機能は、複数チームや組織が独立した作業環境を持てるようにする仕組みで、データベースレベルのアイソレーション・メンバーシップモデル・ヘッダーベースルーティングによって実現される。"
     }
   ],
   "links": [
@@ -3286,6 +3367,186 @@
     {
       "source": "openclaw-ai-agent:mcp-protocol",
       "target": "openclaw-ai-agent:langchain-overview",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:agent-daemon",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:task-lifecycle",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:reusable-skills",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:multica-cli",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:self-hosting",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica",
+      "target": "multica:realtime-websocket",
+      "type": "internal"
+    },
+    {
+      "source": "multica:agent-daemon",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:agent-daemon",
+      "target": "multica:task-lifecycle",
+      "type": "internal"
+    },
+    {
+      "source": "multica:agent-daemon",
+      "target": "multica:multica-cli",
+      "type": "internal"
+    },
+    {
+      "source": "multica:agent-daemon",
+      "target": "multica:reusable-skills",
+      "type": "internal"
+    },
+    {
+      "source": "multica:task-lifecycle",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:task-lifecycle",
+      "target": "multica:agent-daemon",
+      "type": "internal"
+    },
+    {
+      "source": "multica:task-lifecycle",
+      "target": "multica:realtime-websocket",
+      "type": "internal"
+    },
+    {
+      "source": "multica:task-lifecycle",
+      "target": "multica:multi-workspace",
+      "type": "internal"
+    },
+    {
+      "source": "multica:reusable-skills",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:reusable-skills",
+      "target": "multica:agent-daemon",
+      "type": "internal"
+    },
+    {
+      "source": "multica:reusable-skills",
+      "target": "multica:task-lifecycle",
+      "type": "internal"
+    },
+    {
+      "source": "multica:reusable-skills",
+      "target": "multica:multica-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-cli",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-cli",
+      "target": "multica:agent-daemon",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-cli",
+      "target": "multica:self-hosting",
+      "type": "internal"
+    },
+    {
+      "source": "multica:self-hosting",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:self-hosting",
+      "target": "multica:multica-cli",
+      "type": "internal"
+    },
+    {
+      "source": "multica:self-hosting",
+      "target": "multica:multica-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "multica:realtime-websocket",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:realtime-websocket",
+      "target": "multica:task-lifecycle",
+      "type": "internal"
+    },
+    {
+      "source": "multica:realtime-websocket",
+      "target": "multica:multica-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-architecture",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-architecture",
+      "target": "multica:realtime-websocket",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-architecture",
+      "target": "multica:task-lifecycle",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-architecture",
+      "target": "multica:multi-workspace",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multica-architecture",
+      "target": "multica:agent-daemon",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multi-workspace",
+      "target": "multica:multica",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multi-workspace",
+      "target": "multica:multica-architecture",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multi-workspace",
+      "target": "multica:multica-cli",
+      "type": "internal"
+    },
+    {
+      "source": "multica:multi-workspace",
+      "target": "multica:task-lifecycle",
       "type": "internal"
     },
     {

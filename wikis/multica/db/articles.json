@@ -1,0 +1,211 @@
+{
+  "articles": {
+    "multica": {
+      "id": "multica",
+      "title": "Multica",
+      "filename": "wikis/multica/articles/multica.html",
+      "created_at": "2026-04-09T16:19:50.064831+00:00",
+      "updated_at": "2026-04-09T16:20:18.714286+00:00",
+      "links_to": [
+        "agent-daemon",
+        "task-lifecycle",
+        "reusable-skills",
+        "multica-cli",
+        "self-hosting",
+        "realtime-websocket"
+      ],
+      "linked_from": [
+        "agent-daemon",
+        "task-lifecycle",
+        "reusable-skills",
+        "multica-cli",
+        "self-hosting",
+        "realtime-websocket",
+        "multica-architecture",
+        "multi-workspace"
+      ],
+      "summary": "MulticaはAIコーディングエージェントをチームメンバーとして管理するオープンソースプラットフォームで、タスク割り当て・進捗管理・スキル蓄積を通じて人間とAIの協働を実現する。",
+      "expansion_status": "done",
+      "origin": "root"
+    },
+    "agent-daemon": {
+      "id": "agent-daemon",
+      "title": "エージェントデーモン",
+      "filename": "wikis/multica/articles/agent-daemon.html",
+      "created_at": "2026-04-09T16:22:25.610411+00:00",
+      "updated_at": "2026-04-09T16:22:25.610411+00:00",
+      "links_to": [
+        "multica",
+        "task-lifecycle",
+        "multica-cli",
+        "reusable-skills"
+      ],
+      "linked_from": [
+        "multica",
+        "task-lifecycle",
+        "reusable-skills",
+        "multica-cli",
+        "multica-architecture"
+      ],
+      "summary": "エージェントデーモンはMulticaプラットフォームのローカルランタイムコンポーネントであり、ユーザーのマシン上で動作してAI CLIを自動検出し、サーバーからタスクをポーリングして実行する常駐プロセスである。",
+      "expansion_status": "pending",
+      "origin": "multica"
+    },
+    "task-lifecycle": {
+      "id": "task-lifecycle",
+      "title": "タスクライフサイクル",
+      "filename": "wikis/multica/articles/task-lifecycle.html",
+      "created_at": "2026-04-09T16:24:06.880872+00:00",
+      "updated_at": "2026-04-09T16:24:06.880872+00:00",
+      "links_to": [
+        "multica",
+        "agent-daemon",
+        "realtime-websocket",
+        "multi-workspace"
+      ],
+      "linked_from": [
+        "multica",
+        "agent-daemon",
+        "reusable-skills",
+        "realtime-websocket",
+        "multica-architecture",
+        "multi-workspace"
+      ],
+      "summary": "MulticaのタスクライフサイクルはGo製タスクサービスが管理し、エンキュー→クレーム→開始→完了/失敗の各状態遷移でWebSocketイベントをブロードキャストしながらエージェントによる自律的なIssue解決を実現する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "reusable-skills": {
+      "id": "reusable-skills",
+      "title": "再利用可能スキル",
+      "filename": "wikis/multica/articles/reusable-skills.html",
+      "created_at": "2026-04-09T16:24:06.947016+00:00",
+      "updated_at": "2026-04-09T16:24:06.947016+00:00",
+      "links_to": [
+        "multica",
+        "agent-daemon",
+        "task-lifecycle",
+        "multica-architecture"
+      ],
+      "linked_from": [
+        "multica",
+        "agent-daemon"
+      ],
+      "summary": "再利用可能スキルはMulticaプラットフォームのコア機能で、エージェントが問題を解決するたびにその解法がチーム全体のスキルとして蓄積・再利用され、チームの能力を複利的に高める仕組みである。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "multica-cli": {
+      "id": "multica-cli",
+      "title": "multica CLI",
+      "filename": "wikis/multica/articles/multica-cli.html",
+      "created_at": "2026-04-09T16:24:07.009746+00:00",
+      "updated_at": "2026-04-09T16:24:07.009746+00:00",
+      "links_to": [
+        "multica",
+        "agent-daemon",
+        "self-hosting"
+      ],
+      "linked_from": [
+        "multica",
+        "agent-daemon",
+        "self-hosting",
+        "multi-workspace"
+      ],
+      "summary": "multica CLIはローカルマシンとMulticaサーバーを接続するコマンドラインインターフェースで、認証・エージェントデーモン管理・Issue操作・アップデートなど、Multicaプラットフォームのすべての操作をターミナルから行えるツールである。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "self-hosting": {
+      "id": "self-hosting",
+      "title": "セルフホスティング",
+      "filename": "wikis/multica/articles/self-hosting.html",
+      "created_at": "2026-04-09T16:24:07.075385+00:00",
+      "updated_at": "2026-04-09T16:24:07.075385+00:00",
+      "links_to": [
+        "multica",
+        "multica-cli",
+        "multica-architecture"
+      ],
+      "linked_from": [
+        "multica",
+        "multica-cli"
+      ],
+      "summary": "MulticaをDockerおよびローカル環境で自己ホストするための手順・前提条件・環境変数設定を解説する。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "realtime-websocket": {
+      "id": "realtime-websocket",
+      "title": "リアルタイムWebSocket同期",
+      "filename": "wikis/multica/articles/realtime-websocket.html",
+      "created_at": "2026-04-09T16:24:07.147335+00:00",
+      "updated_at": "2026-04-09T16:24:07.147335+00:00",
+      "links_to": [
+        "multica",
+        "task-lifecycle",
+        "multica-architecture"
+      ],
+      "linked_from": [
+        "multica",
+        "task-lifecycle",
+        "multica-architecture"
+      ],
+      "summary": "MulticaのリアルタイムWebSocket同期は、バックエンドのHubとフロントエンドのWSClient/WSProviderを組み合わせ、タスク状態遷移をブラウザへ即座に反映するプッシュ通知基盤である。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "multica-architecture": {
+      "id": "multica-architecture",
+      "title": "Multicaシステムアーキテクチャ詳解",
+      "filename": "wikis/multica/articles/multica-architecture.html",
+      "created_at": "2026-04-09T16:24:07.218290+00:00",
+      "updated_at": "2026-04-09T16:24:07.218290+00:00",
+      "links_to": [
+        "multica",
+        "realtime-websocket",
+        "task-lifecycle",
+        "multi-workspace",
+        "agent-daemon"
+      ],
+      "linked_from": [
+        "reusable-skills",
+        "self-hosting",
+        "realtime-websocket",
+        "multi-workspace"
+      ],
+      "summary": "MulticaのフロントエンドからバックエンドDB、エージェントSDK、ビルドシステムまでの全技術層を解説する。Next.js 16 App Router・Go Chi・PostgreSQL 17 pgvector・TurborepoによるモノレポCI/CDの詳細なアーキテクチャドキュメント。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    },
+    "multi-workspace": {
+      "id": "multi-workspace",
+      "title": "マルチワークスペース管理",
+      "filename": "wikis/multica/articles/multi-workspace.html",
+      "created_at": "2026-04-09T16:24:07.286322+00:00",
+      "updated_at": "2026-04-09T16:24:07.286322+00:00",
+      "links_to": [
+        "multica",
+        "multica-architecture",
+        "multica-cli",
+        "task-lifecycle"
+      ],
+      "linked_from": [
+        "task-lifecycle",
+        "multica-architecture"
+      ],
+      "summary": "Multicaのマルチワークスペース機能は、複数チームや組織が独立した作業環境を持てるようにする仕組みで、データベースレベルのアイソレーション・メンバーシップモデル・ヘッダーベースルーティングによって実現される。",
+      "expansion_status": "pending",
+      "origin": "expanded",
+      "source_id": "multica"
+    }
+  },
+  "root_id": null,
+  "total_count": 9
+}

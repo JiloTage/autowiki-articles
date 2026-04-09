@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multica解説Wiki - Auto-Wiki</title>
+  <link rel="stylesheet" href="../../assets/css/wiki.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<div class="wiki-wrapper">
+  <header class="wiki-header">
+    <a href="../../index.html" class="site-title">Auto-Wiki</a>
+    <nav>
+      <a href="../../index.html">ポータル</a>
+      <a href="#graph">グラフ</a>
+      <a href="#article-list">記事一覧</a>
+    </nav>
+  </header>
+
+  <div class="index-header">
+    <h1>Multica解説Wiki</h1>
+    <p>https://github.com/multica-ai/multica の解説 — AIコーディングエージェントをチームメンバーとして管理するオープンソースプラットフォーム</p>
+  </div>
+
+  <div class="stats-bar">
+    <span>記事数: <span class="stat-value" id="stat-articles">9</span></span>
+    <span>リンク数: <span class="stat-value" id="stat-links">36</span></span>
+  </div>
+
+  <div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="このwiki内を検索...">
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div id="graph" class="graph-container"></div>
+
+  <div class="article-list" id="article-list">
+    <h2>全記事一覧</h2>
+    <table class="article-list-table">
+      <thead>
+        <tr>
+          <th>記事名</th>
+          <th>概要</th>
+          <th>更新日</th>
+          <th>リンク数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="articles/multica.html">Multica</a></td><td>MulticaはAIコーディングエージェントをチームメンバーとして管理するオープンソースプラットフォームで、タスク割り当て・進捗管理・スキル蓄積を通じて人間とAIの協働を実現する。</td><td>2026-04-09</td><td>14</td></tr>
+<tr><td><a href="articles/agent-daemon.html">エージェントデーモン</a></td><td>エージェントデーモンはMulticaプラットフォームのローカルランタイムコンポーネントであり、ユーザーのマシン上で動作してAI CLIを自動検出し、サーバーからタスクをポーリングして実行する常駐プロセスである。</td><td>2026-04-09</td><td>9</td></tr>
+<tr><td><a href="articles/task-lifecycle.html">タスクライフサイクル</a></td><td>MulticaのタスクライフサイクルはGo製タスクサービスが管理し、エンキュー→クレーム→開始→完了/失敗の各状態遷移でWebSocketイベントをブロードキャストしながらエージェントによる自律的なIssue解決を実現する。</td><td>2026-04-09</td><td>10</td></tr>
+<tr><td><a href="articles/reusable-skills.html">再利用可能スキル</a></td><td>再利用可能スキルはMulticaプラットフォームのコア機能で、エージェントが問題を解決するたびにその解法がチーム全体のスキルとして蓄積・再利用され、チームの能力を複利的に高める仕組みである。</td><td>2026-04-09</td><td>6</td></tr>
+<tr><td><a href="articles/multica-cli.html">multica CLI</a></td><td>multica CLIはローカルマシンとMulticaサーバーを接続するコマンドラインインターフェースで、認証・エージェントデーモン管理・Issue操作・アップデートなど、Multicaプラットフォームのすべての操作をターミナルから行えるツールである。</td><td>2026-04-09</td><td>7</td></tr>
+<tr><td><a href="articles/self-hosting.html">セルフホスティング</a></td><td>MulticaをDockerおよびローカル環境で自己ホストするための手順・前提条件・環境変数設定を解説する。</td><td>2026-04-09</td><td>5</td></tr>
+<tr><td><a href="articles/realtime-websocket.html">リアルタイムWebSocket同期</a></td><td>MulticaのリアルタイムWebSocket同期は、バックエンドのHubとフロントエンドのWSClient/WSProviderを組み合わせ、タスク状態遷移をブラウザへ即座に反映するプッシュ通知基盤である。</td><td>2026-04-09</td><td>6</td></tr>
+<tr><td><a href="articles/multica-architecture.html">Multicaシステムアーキテクチャ詳解</a></td><td>MulticaのフロントエンドからバックエンドDB、エージェントSDK、ビルドシステムまでの全技術層を解説する。Next.js 16 App Router・Go Chi・PostgreSQL 17 pgvector・TurborepoによるモノレポCI/CDの詳細なアーキテクチャドキュメント。</td><td>2026-04-09</td><td>9</td></tr>
+<tr><td><a href="articles/multi-workspace.html">マルチワークスペース管理</a></td><td>Multicaのマルチワークスペース機能は、複数チームや組織が独立した作業環境を持てるようにする仕組みで、データベースレベルのアイソレーション・メンバーシップモデル・ヘッダーベースルーティングによって実現される。</td><td>2026-04-09</td><td>6</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="wiki-footer">
+    <p><a href="../../index.html">Auto-Wiki ポータル</a> — Claude Code Skill による自動生成wiki</p>
+  </footer>
+</div>
+
+<script src="../../assets/js/graph.js"></script>
+<script src="../../assets/js/search.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    AutoWikiGraph.init('graph', 'db/graph.json');
+    AutoWikiSearch.init('search-input', 'search-results', 'db/articles.json');
+  });
+</script>
+</body>
+</html>
